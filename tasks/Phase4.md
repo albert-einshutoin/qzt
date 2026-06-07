@@ -84,6 +84,14 @@ Write failing tests:
 
 Prefer streaming-friendly writer internals, but do not prematurely optimize. Exact byte restoration and clear invariants matter first.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -102,6 +110,8 @@ Prefer streaming-friendly writer internals, but do not prematurely optimize. Exa
 - writer rejects invalid inputs
 - generated containers include valid sparse line index fields
 - generated containers become Phase5 reader/verify fixtures
+- code review findings are fixed
+- architecture review findings are fixed
 - status.md is updated
 ```
 

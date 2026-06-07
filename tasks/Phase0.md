@@ -61,6 +61,14 @@ Start with tests that assert the project harness is wired:
 
 Prefer a library-first design. The CLI should call library APIs rather than owning format logic.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -76,6 +84,8 @@ Prefer a library-first design. The CLI should call library APIs rather than owni
 - cargo fmt passes
 - cargo test passes
 - cargo clippy passes or has documented temporary gaps
+- code review findings are fixed
+- architecture review findings are fixed
 - tasks/status.md marks Phase0 complete
 ```
 

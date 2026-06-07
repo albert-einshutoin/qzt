@@ -7,7 +7,7 @@ Last updated: 2026-06-07
 Implementation must proceed with TDD and the loop:
 
 ```text
-implement -> self-review -> fix -> verify -> update status
+implement -> self-review -> code review -> architecture review -> fix -> verify -> update status
 ```
 
 ## Phase Summary

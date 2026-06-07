@@ -68,6 +68,14 @@ Write failing tests:
 
 Use fixed-size arrays for magic, checksums, and container IDs. Avoid string parsing for binary fields.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -83,6 +91,8 @@ Use fixed-size arrays for magic, checksums, and container IDs. Avoid string pars
 - fixed structure tests pass
 - range validation tests pass
 - no variable CBOR block is trusted yet
+- code review findings are fixed
+- architecture review findings are fixed
 - status.md is updated
 ```
 

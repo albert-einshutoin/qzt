@@ -76,6 +76,14 @@ Write failing tests:
 
 Avoid decoding more chunks than needed. Keep decoded buffers bounded by configured chunk limits.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -91,6 +99,8 @@ Avoid decoding more chunks than needed. Keep decoded buffers bounded by configur
 - range and line API tests pass
 - CLI smoke tests pass
 - long-line fixtures pass
+- code review findings are fixed
+- architecture review findings are fixed
 - status.md is updated
 ```
 

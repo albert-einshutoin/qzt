@@ -79,6 +79,14 @@ Required fixture groups:
 
 Prefer stable public APIs and strict internal types. Do not expose raw parsed structs unless callers need them.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -95,6 +103,8 @@ Prefer stable public APIs and strict internal types. Do not expose raw parsed st
 - all Core conformance tests pass
 - CLI integration tests pass
 - Core benchmark smoke results are recorded
+- code review findings are fixed
+- architecture review findings are fixed
 - release notes draft exists if packaging begins
 - status.md marks Core ready
 ```

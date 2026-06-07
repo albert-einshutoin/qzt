@@ -71,6 +71,14 @@ Write failing tests:
 
 Separate open-time validation from deep verification. The quick path must not accidentally decompress all chunks.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -86,6 +94,8 @@ Separate open-time validation from deep verification. The quick path must not ac
 - reader API works for Phase4 fixtures
 - quick/normal/deep tests pass
 - no-dictionary Core read/export path is stable
+- code review findings are fixed
+- architecture review findings are fixed
 - status.md is updated
 ```
 

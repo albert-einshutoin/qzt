@@ -14,18 +14,20 @@ Every phase uses TDD:
 3. run targeted tests
 4. run broader verification for touched areas
 5. self-review the diff
-6. fix review findings
-7. update tasks/status.md
+6. perform a code review
+7. perform an architecture review
+8. fix review findings
+9. update tasks/status.md
 ```
 
-Do not mark a phase complete until tests, self-review, and status updates are done.
+Do not mark a phase complete until tests, self-review, code review, architecture review, review fixes, and status updates are done.
 
 ## Implementation Flow
 
 Use this loop for every meaningful change:
 
 ```text
-implement -> self-review -> fix -> verify -> update status
+implement -> self-review -> code review -> architecture review -> fix -> verify -> update status
 ```
 
 Self-review MUST check:
@@ -38,6 +40,34 @@ Self-review MUST check:
 - Did the change preserve exact export semantics?
 - Did the change avoid adding extension behavior into Core?
 ```
+
+
+
+## Review Gates
+
+Every phase MUST include both review gates before completion.
+
+Code review checks:
+
+```text
+- parser and writer code has no hidden panics on untrusted input
+- errors are specific and testable
+- tests cover success, corruption, and boundary cases
+- public APIs remain small and coherent
+- implementation follows Rust ownership and type-safety idioms
+```
+
+Architecture review checks:
+
+```text
+- module boundaries still match the spec sections
+- Core behavior is not coupled to optional extensions
+- data flow preserves exact export and source-of-truth semantics
+- resource limits and checked arithmetic are enforced at trust boundaries
+- future phases can build on the current design without rewriting completed phases
+```
+
+If a review finds a spec ambiguity or library constraint, update both `docs/QZT_v0.1_Core_Spec.md` and the relevant `tasks/PhaseN.md` before continuing.
 
 ## Rust Style Expectations
 

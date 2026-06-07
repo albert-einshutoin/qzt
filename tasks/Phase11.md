@@ -73,6 +73,14 @@ Write failing tests:
 
 Represent planner decisions explicitly so tests can inspect why a query used or skipped a posting list.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -88,6 +96,8 @@ Represent planner decisions explicitly so tests can inspect why a query used or 
 - n-gram fixtures pass
 - planner tests pass
 - benchmark reports include required metrics
+- code review findings are fixed
+- architecture review findings are fixed
 - status.md is updated
 ```
 

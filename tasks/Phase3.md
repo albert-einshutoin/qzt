@@ -69,6 +69,14 @@ Write failing tests:
 
 Keep logical models separate from serialized models. Use conversions so invalid serialized state cannot leak into trusted runtime structs.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -84,6 +92,8 @@ Keep logical models separate from serialized models. Use conversions so invalid 
 - empty container opens
 - quick verify passes on empty container
 - structural corruption tests pass
+- code review findings are fixed
+- architecture review findings are fixed
 - status.md is updated
 ```
 

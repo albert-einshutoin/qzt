@@ -67,6 +67,14 @@ Write failing tests first:
 
 Use `TryFrom<&[u8]>` for fixed records where practical. Keep parsing fallible and allocation-bounded.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -82,6 +90,8 @@ Use `TryFrom<&[u8]>` for fixed records where practical. Keep parsing fallible an
 - primitive tests pass
 - CBOR rejection tests pass
 - property tests pass for range arithmetic
+- code review findings are fixed
+- architecture review findings are fixed
 - status.md is updated
 ```
 

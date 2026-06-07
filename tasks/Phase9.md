@@ -70,6 +70,14 @@ Write failing tests:
 
 Dense Line Index must be a cache, not authority. Keep verification code able to recompute from decoded bytes.
 
+## Review Gates
+
+Code review MUST be completed before this phase is marked done.
+
+Architecture review MUST be completed before this phase is marked done.
+
+If either review finds a spec ambiguity or library constraint, update the spec and this phase plan before continuing.
+
 ## Self-Review Checklist
 
 ```text
@@ -87,6 +95,8 @@ Dense Line Index must be a cache, not authority. Keep verification code able to 
 - Document Index tests pass
 - memory profile fixture passes deep verify
 - Core conformance tests still pass
+- code review findings are fixed
+- architecture review findings are fixed
 - status.md is updated
 ```
 
