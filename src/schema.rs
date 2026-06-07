@@ -120,6 +120,9 @@ pub struct Metadata {
     pub original_checksum: Checksum,
     pub newline_mode: String,
     pub line_count: u64,
+    pub zstd_level: i32,
+    pub target_chunk_size: u64,
+    pub max_chunk_size: u64,
     pub dictionary_mode: String,
     pub profile: String,
     pub dense_line_index: bool,
@@ -129,6 +132,9 @@ pub struct Metadata {
 /// Metadata writer options that are not derived from original bytes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MetadataOptions<'a> {
+    pub zstd_level: i32,
+    pub target_chunk_size: u64,
+    pub max_chunk_size: u64,
     pub dictionary_mode: &'a str,
     pub profile: &'a str,
     pub dense_line_index: bool,
@@ -138,6 +144,9 @@ pub struct MetadataOptions<'a> {
 impl Default for MetadataOptions<'_> {
     fn default() -> Self {
         Self {
+            zstd_level: 0,
+            target_chunk_size: 4 * 1024 * 1024,
+            max_chunk_size: 16 * 1024 * 1024,
             dictionary_mode: "none",
             profile: "core",
             dense_line_index: false,
@@ -208,6 +217,9 @@ impl Metadata {
             original_checksum,
             newline_mode: newline_mode.to_owned(),
             line_count,
+            zstd_level: options.zstd_level,
+            target_chunk_size: options.target_chunk_size,
+            max_chunk_size: options.max_chunk_size,
             dictionary_mode: options.dictionary_mode.to_owned(),
             profile: options.profile.to_owned(),
             dense_line_index: options.dense_line_index,
@@ -245,7 +257,10 @@ impl Metadata {
                 "compression",
                 CborValue::Map(vec![
                     text_pair("codec", CborValue::Text("zstd".to_owned())),
-                    text_pair("zstd_level", CborValue::Integer(0)),
+                    text_pair(
+                        "zstd_level",
+                        CborValue::Integer(i128::from(self.zstd_level)),
+                    ),
                     text_pair("independent_frames", CborValue::Bool(true)),
                     text_pair("zstd_frame_checksum", CborValue::Bool(false)),
                     text_pair(
@@ -257,8 +272,8 @@ impl Metadata {
             text_pair(
                 "chunking",
                 CborValue::Map(vec![
-                    text_pair("target_chunk_size", u64_value(4 * 1024 * 1024)),
-                    text_pair("max_chunk_size", u64_value(16 * 1024 * 1024)),
+                    text_pair("target_chunk_size", u64_value(self.target_chunk_size)),
+                    text_pair("max_chunk_size", u64_value(self.max_chunk_size)),
                     text_pair("boundary", CborValue::Text("line-preferred".to_owned())),
                     text_pair("utf8_boundary_required", CborValue::Bool(true)),
                 ]),
@@ -368,6 +383,12 @@ impl Metadata {
             true,
             QztError::MetadataInvalid,
         )?;
+        expect_bool_field(
+            compression,
+            "zstd_frame_checksum",
+            false,
+            QztError::MetadataInvalid,
+        )?;
 
         let chunking = required_map(map, "chunking", QztError::MetadataInvalid)?;
         reject_unknown_keys(
@@ -384,6 +405,12 @@ impl Metadata {
             chunking,
             "utf8_boundary_required",
             true,
+            QztError::MetadataInvalid,
+        )?;
+        expect_text_field(
+            chunking,
+            "boundary",
+            "line-preferred",
             QztError::MetadataInvalid,
         )?;
 
@@ -448,6 +475,13 @@ impl Metadata {
         ) {
             return Err(QztError::MetadataInvalid);
         }
+        let zstd_level = required_i32(compression, "zstd_level", QztError::MetadataInvalid)?;
+        let target_chunk_size =
+            required_u64(chunking, "target_chunk_size", QztError::MetadataInvalid)?;
+        let max_chunk_size = required_u64(chunking, "max_chunk_size", QztError::MetadataInvalid)?;
+        if target_chunk_size == 0 || max_chunk_size == 0 || target_chunk_size > max_chunk_size {
+            return Err(QztError::MetadataInvalid);
+        }
 
         Ok(Self {
             container_id: required_bstr16(map, "container_id", QztError::MetadataInvalid)?,
@@ -459,6 +493,9 @@ impl Metadata {
             )?,
             newline_mode,
             line_count: required_u64(source, "line_count", QztError::MetadataInvalid)?,
+            zstd_level,
+            target_chunk_size,
+            max_chunk_size,
             dictionary_mode,
             profile,
             dense_line_index: required_bool(
@@ -1018,6 +1055,13 @@ fn required_bool(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> 
 fn required_u64(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<u64> {
     match field(map, key, error.clone())? {
         CborValue::Integer(value) => u64::try_from(*value).map_err(|_| error),
+        _ => Err(error),
+    }
+}
+
+fn required_i32(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<i32> {
+    match field(map, key, error.clone())? {
+        CborValue::Integer(value) => i32::try_from(*value).map_err(|_| error),
         _ => Err(error),
     }
 }

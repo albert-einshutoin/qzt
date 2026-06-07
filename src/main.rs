@@ -1,13 +1,45 @@
+use std::fmt;
 use std::io::Write;
 use std::process::ExitCode;
 
+use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::search::{
     NgramIndexBuildOptions, RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions,
     TokenIndexBuildOptions,
 };
 use qzt::sidecar::{build_search_sidecar, QziSidecar, SidecarIndexKind};
-use qzt::writer::{pack_bytes, WriterOptions};
+use qzt::skeleton::open_skeleton_details;
+use qzt::writer::{pack_bytes_with_profile, WriterOptions};
+
+type CliResult<T> = std::result::Result<T, CliError>;
+
+#[derive(Debug)]
+enum CliError {
+    Io(std::io::Error),
+    Qzt(QztError),
+}
+
+impl fmt::Display for CliError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Io(error) => write!(formatter, "I/O error: {error}"),
+            Self::Qzt(error) => write!(formatter, "{error}"),
+        }
+    }
+}
+
+impl From<std::io::Error> for CliError {
+    fn from(error: std::io::Error) -> Self {
+        Self::Io(error)
+    }
+}
+
+impl From<QztError> for CliError {
+    fn from(error: QztError) -> Self {
+        Self::Qzt(error)
+    }
+}
 
 fn main() -> ExitCode {
     let mut args = std::env::args();
@@ -67,6 +99,8 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     let mut output_path = None;
     let mut options = WriterOptions::default();
+    let mut profile = String::from("core");
+    let mut dense_line_index = None;
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "-o" | "--output" => {
@@ -98,17 +132,18 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
                 options.zstd_level = level;
             }
             "--profile" => {
-                let Some(profile) = args.next() else {
+                let Some(value) = args.next() else {
                     eprintln!("qzt pack: missing --profile value");
                     return ExitCode::from(2);
                 };
                 if !matches!(
-                    profile.as_str(),
+                    value.as_str(),
                     "minimal" | "core" | "log" | "archive" | "memory"
                 ) {
                     eprintln!("qzt pack: invalid --profile value");
                     return ExitCode::from(2);
                 }
+                profile = value;
             }
             "--checksum" => {
                 if args.next().as_deref() != Some("blake3") {
@@ -131,6 +166,7 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
                     eprintln!("qzt pack: invalid --dense-line-index value");
                     return ExitCode::from(2);
                 }
+                dense_line_index = Some(value == "on");
             }
             _ => {
                 eprintln!("qzt pack: unknown option '{arg}'");
@@ -148,17 +184,17 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
         return ExitCode::from(2);
     }
 
-    let result = std::fs::read(input_path)
-        .map_err(|_| ())
-        .and_then(|input| pack_bytes(&input, options).map_err(|_| ()))
-        .and_then(|container| std::fs::write(output_path, container).map_err(|_| ()));
+    let dense_line_index = dense_line_index.unwrap_or(profile == "memory");
+    let result: CliResult<()> = (|| {
+        let input = std::fs::read(input_path)?;
+        let container = pack_bytes_with_profile(&input, options, &profile, dense_line_index)?;
+        std::fs::write(output_path, container)?;
+        Ok(())
+    })();
 
     match result {
         Ok(()) => ExitCode::SUCCESS,
-        Err(()) => {
-            eprintln!("qzt pack: failed");
-            ExitCode::from(1)
-        }
+        Err(error) => command_failed("pack", error),
     }
 }
 
@@ -168,31 +204,41 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
         return ExitCode::from(2);
     };
 
-    let result = std::fs::read(path).map_err(|_| ()).and_then(|bytes| {
+    let result: CliResult<_> = (|| {
+        let bytes = std::fs::read(path)?;
         let compressed_size = bytes.len();
-        QztReader::open(bytes)
-            .map(|reader| (reader.info(), compressed_size))
-            .map_err(|_| ())
-    });
+        let details = open_skeleton_details(&bytes)?;
+        let reader = QztReader::open(bytes)?;
+        Ok((reader.info(), details.metadata, compressed_size))
+    })();
 
     match result {
-        Ok((info, compressed_size)) => {
+        Ok((info, metadata, compressed_size)) => {
+            let line_index = if metadata.dense_line_index {
+                "sparse+dense"
+            } else {
+                "sparse"
+            };
             println!("Format: QZT 0.1");
-            println!("Profile: core");
+            println!("Profile: {}", metadata.profile);
             println!("Original size: {}", info.original_size);
             println!("Compressed size: {compressed_size}");
             println!("Chunks: {}", info.chunk_count);
             println!("Lines: {}", info.line_count);
             println!("Compression: zstd");
-            println!("Line index: sparse");
+            println!("Zstd level: {}", metadata.zstd_level);
+            println!("Target chunk size: {}", metadata.target_chunk_size);
+            println!("Max chunk size: {}", metadata.max_chunk_size);
+            println!("Line index: {line_index}");
+            println!(
+                "Document index: {}",
+                if metadata.document_index { "yes" } else { "no" }
+            );
             println!("Checksum: blake3");
             println!("Zstd stream compatible: no");
             ExitCode::SUCCESS
         }
-        Err(()) => {
-            eprintln!("qzt info: failed");
-            ExitCode::from(1)
-        }
+        Err(error) => command_failed("info", error),
     }
 }
 
@@ -219,24 +265,19 @@ fn run_export(mut args: impl Iterator<Item = String>) -> ExitCode {
         }
     }
 
-    let result = std::fs::read(path)
-        .map_err(|_| ())
-        .and_then(|bytes| QztReader::open(bytes).map_err(|_| ()))
-        .and_then(|reader| reader.export_all().map_err(|_| ()));
+    let result: CliResult<Vec<u8>> = (|| {
+        let bytes = std::fs::read(path)?;
+        let reader = QztReader::open(bytes)?;
+        Ok(reader.export_all()?)
+    })();
 
     match (result, output_path) {
         (Ok(bytes), Some(output_path)) => match std::fs::write(output_path, bytes) {
             Ok(()) => ExitCode::SUCCESS,
-            Err(_) => {
-                eprintln!("qzt export: failed");
-                ExitCode::from(1)
-            }
+            Err(error) => command_failed("export", error.into()),
         },
         (Ok(bytes), None) => write_stdout(&bytes),
-        (Err(()), _) => {
-            eprintln!("qzt export: failed");
-            ExitCode::from(1)
-        }
+        (Err(error), _) => command_failed("export", error),
     }
 }
 
@@ -258,36 +299,31 @@ fn run_range(mut args: impl Iterator<Item = String>) -> ExitCode {
         return ExitCode::from(2);
     };
 
-    let result = if flag == "--bytes" {
+    let result: CliResult<Vec<u8>> = if flag == "--bytes" {
         let Some((start, end)) = parse_range(&range) else {
             eprintln!("qzt range: invalid byte range");
             return ExitCode::from(2);
         };
-        std::fs::read(path)
-            .map_err(|_| ())
-            .and_then(|bytes| QztReader::open(bytes).map_err(|_| ()))
-            .and_then(|reader| {
-                reader
-                    .read_range(start, end.saturating_sub(start))
-                    .map_err(|_| ())
-            })
+        (|| {
+            let bytes = std::fs::read(&path)?;
+            let reader = QztReader::open(bytes)?;
+            Ok(reader.read_range(start, end.saturating_sub(start))?)
+        })()
     } else {
         let Some((start, end)) = parse_line_range(&range) else {
             eprintln!("qzt range: invalid line range");
             return ExitCode::from(2);
         };
-        std::fs::read(path)
-            .map_err(|_| ())
-            .and_then(|bytes| QztReader::open(bytes).map_err(|_| ()))
-            .and_then(|reader| read_line_range(&reader, start, end).map_err(|_| ()))
+        (|| {
+            let bytes = std::fs::read(&path)?;
+            let reader = QztReader::open(bytes)?;
+            Ok(read_line_range(&reader, start, end)?)
+        })()
     };
 
     match result {
         Ok(bytes) => write_stdout(&bytes),
-        Err(()) => {
-            eprintln!("qzt range: failed");
-            ExitCode::from(1)
-        }
+        Err(error) => command_failed("range", error),
     }
 }
 
@@ -310,20 +346,19 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
         }
     }
 
-    let result = std::fs::read(path)
-        .map_err(|_| ())
-        .and_then(|bytes| QztReader::open(bytes).map_err(|_| ()))
-        .and_then(|reader| reader.verify(level).map(|_| ()).map_err(|_| ()));
+    let result: CliResult<()> = (|| {
+        let bytes = std::fs::read(path)?;
+        let reader = QztReader::open(bytes)?;
+        reader.verify(level)?;
+        Ok(())
+    })();
 
     match result {
         Ok(()) => {
             println!("Verify: {level:?} ok");
             ExitCode::SUCCESS
         }
-        Err(()) => {
-            eprintln!("qzt verify: failed");
-            ExitCode::from(1)
-        }
+        Err(error) => command_failed("verify", error),
     }
 }
 
@@ -349,17 +384,15 @@ fn run_line(mut args: impl Iterator<Item = String>) -> ExitCode {
         line_number -= 1;
     }
 
-    let result = std::fs::read(path)
-        .map_err(|_| ())
-        .and_then(|bytes| QztReader::open(bytes).map_err(|_| ()))
-        .and_then(|reader| reader.read_line_raw(line_number).map_err(|_| ()));
+    let result: CliResult<Vec<u8>> = (|| {
+        let bytes = std::fs::read(path)?;
+        let reader = QztReader::open(bytes)?;
+        Ok(reader.read_line_raw(line_number)?)
+    })();
 
     match result {
         Ok(bytes) => write_stdout(&bytes),
-        Err(()) => {
-            eprintln!("qzt line: failed");
-            ExitCode::from(1)
-        }
+        Err(error) => command_failed("line", error),
     }
 }
 
@@ -429,12 +462,13 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
         }
     }
 
-    let result = std::fs::read(path).map_err(|_| ()).and_then(|bytes| {
-        let reader = QztReader::open(&bytes).map_err(|_| ())?;
+    let result: CliResult<_> = (|| {
+        let bytes = std::fs::read(path)?;
+        let reader = QztReader::open(&bytes)?;
         if let Some(sidecar_path) = &sidecar_path {
-            let sidecar_bytes = std::fs::read(sidecar_path).map_err(|_| ())?;
-            let sidecar = QziSidecar::open(&bytes, &sidecar_bytes).map_err(|_| ())?;
-            sidecar.search(&reader, &query, options).map_err(|_| ())
+            let sidecar_bytes = std::fs::read(sidecar_path)?;
+            let sidecar = QziSidecar::open(&bytes, &sidecar_bytes)?;
+            Ok(sidecar.search(&reader, &query, options)?)
         } else if index_kind == "ngram" {
             let index = RawNgramIndex::build_from_container(
                 &bytes,
@@ -443,16 +477,14 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                     n: ngram,
                     ..NgramIndexBuildOptions::default()
                 },
-            )
-            .map_err(|_| ())?;
-            index.search(&reader, &query, options).map_err(|_| ())
+            )?;
+            Ok(index.search(&reader, &query, options)?)
         } else {
             let index =
-                RawTokenIndex::build_from_container(&bytes, TokenIndexBuildOptions::default())
-                    .map_err(|_| ())?;
-            index.search(&reader, &query, options).map_err(|_| ())
+                RawTokenIndex::build_from_container(&bytes, TokenIndexBuildOptions::default())?;
+            Ok(index.search(&reader, &query, options)?)
         }
-    });
+    })();
 
     match result {
         Ok(report) => {
@@ -481,10 +513,7 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
             );
             ExitCode::SUCCESS
         }
-        Err(()) => {
-            eprintln!("qzt search: failed");
-            ExitCode::from(1)
-        }
+        Err(error) => command_failed("search", error),
     }
 }
 
@@ -545,17 +574,16 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
     } else {
         SidecarIndexKind::Token
     };
-    let result = std::fs::read(path)
-        .map_err(|_| ())
-        .and_then(|bytes| build_search_sidecar(&bytes, kind).map_err(|_| ()))
-        .and_then(|sidecar| std::fs::write(output_path, sidecar).map_err(|_| ()));
+    let result: CliResult<()> = (|| {
+        let bytes = std::fs::read(path)?;
+        let sidecar = build_search_sidecar(&bytes, kind)?;
+        std::fs::write(output_path, sidecar)?;
+        Ok(())
+    })();
 
     match result {
         Ok(()) => ExitCode::SUCCESS,
-        Err(()) => {
-            eprintln!("qzt sidecar-rebuild: failed");
-            ExitCode::from(1)
-        }
+        Err(error) => command_failed("sidecar-rebuild", error),
     }
 }
 
@@ -601,4 +629,9 @@ fn write_stdout(bytes: &[u8]) -> ExitCode {
         Ok(()) => ExitCode::SUCCESS,
         Err(_) => ExitCode::from(1),
     }
+}
+
+fn command_failed(command: &str, error: CliError) -> ExitCode {
+    eprintln!("qzt {command}: {error}");
+    ExitCode::from(1)
 }

@@ -259,9 +259,11 @@ impl QztReader {
                 .ok_or(QztError::ContainerCorrupt)?;
             let first_line = lower_bound(&text.line_starts, start);
             let line_end = lower_bound(&text.line_starts, end);
-            if entry.first_line != first_line as u64
-                || entry.line_count != u64::try_from(line_end - first_line).unwrap_or(u64::MAX)
-            {
+            let expected_first_line =
+                u64::try_from(first_line).map_err(|_| QztError::ContainerCorrupt)?;
+            let expected_line_count =
+                u64::try_from(line_end - first_line).map_err(|_| QztError::ContainerCorrupt)?;
+            if entry.first_line != expected_first_line || entry.line_count != expected_line_count {
                 return Err(QztError::ChunkTableInvalid);
             }
         }

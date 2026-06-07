@@ -117,6 +117,25 @@ fn writer_rejects_invalid_utf8() {
 }
 
 #[test]
+fn metadata_records_writer_options_used_for_pack() {
+    let input = b"alpha\nbeta\n";
+    let writer_options = WriterOptions {
+        chunker: ChunkerOptions {
+            target_chunk_size: 8,
+            max_chunk_size: 8,
+        },
+        zstd_level: 3,
+    };
+    let container =
+        pack_bytes_with_container_id(input, [0x59; 16], writer_options).expect("pack should work");
+    let details = open_skeleton_details(&container).expect("container should open");
+
+    assert_eq!(details.metadata.zstd_level, 3);
+    assert_eq!(details.metadata.target_chunk_size, 8);
+    assert_eq!(details.metadata.max_chunk_size, 8);
+}
+
+#[test]
 fn pack_smoke_benchmark_records_nonzero_throughput() {
     let input = vec![b'a'; 64 * 1024];
     let started = Instant::now();

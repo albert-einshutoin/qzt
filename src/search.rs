@@ -1098,7 +1098,7 @@ fn verified_spans(bytes: &[u8], query_keys: &[Vec<u8>]) -> Vec<TokenSpan> {
     {
         tokens
             .into_iter()
-            .filter(|token| token.key == query_keys[0])
+            .filter(|token| query_keys.contains(&token.key))
             .collect()
     } else {
         Vec::new()

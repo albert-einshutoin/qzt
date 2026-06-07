@@ -177,11 +177,11 @@ pub fn validate_physical_ranges(final_file_size: u64, ranges: &[PhysicalRange]) 
         }
     }
 
-    for (index, left) in ranges.iter().enumerate() {
-        for right in &ranges[index + 1..] {
-            if left.overlaps(*right)? {
-                return Err(QztError::RangeOverlap);
-            }
+    let mut sorted_ranges = ranges.to_vec();
+    sorted_ranges.sort_by_key(|range| (range.offset, range.size));
+    for pair in sorted_ranges.windows(2) {
+        if pair[0].overlaps(pair[1])? {
+            return Err(QztError::RangeOverlap);
         }
     }
 

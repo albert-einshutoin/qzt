@@ -140,6 +140,28 @@ fn token_search_candidates_are_verified_against_original_bytes() {
 }
 
 #[test]
+fn multi_token_search_returns_verified_hits_for_every_query_token() {
+    let input = b"alpha beta\nbeta gamma\n";
+    let container = pack_bytes_with_container_id(input, [0xc6; 16], options(64, 64))
+        .expect("container should pack");
+    let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
+        .expect("raw line token index should build");
+    let reader = QztReader::open(container).expect("reader should open");
+
+    let report = index
+        .search(&reader, "alpha beta", SearchOptions::default())
+        .expect("search should run");
+    let hit_ranges = report
+        .hits
+        .iter()
+        .map(|hit| (hit.logical_offset, hit.byte_length))
+        .collect::<Vec<_>>();
+
+    assert_eq!(report.metrics.verified_matches, 2);
+    assert_eq!(hit_ranges, vec![(0, 5), (6, 4)]);
+}
+
+#[test]
 fn normalized_token_index_is_rejected_in_phase11() {
     let input = b"alpha\n";
     let container = pack_bytes_with_container_id(input, [0xc4; 16], options(64, 64))

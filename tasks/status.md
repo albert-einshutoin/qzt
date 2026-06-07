@@ -70,6 +70,24 @@ All planned phases are complete and the first release hardening benchmark gate i
 | 2026-06-07 | 12 | `cargo test --test phase12_ngram_planner -- --nocapture`; `cargo test --test phase11_search -- --nocapture`; `make check` | Pass | Raw Unicode-scalar n-gram index, adjacent_decode line-granule substring verification, complete/incomplete missing-key behavior, rarest-first planner, high-DF driver avoidance, deterministic skip metadata, qzt search ngram CLI, and benchmark metrics complete |
 | 2026-06-07 | 13 | `cargo test --test phase13_sidecar -- --nocapture`; `cargo test --test phase12_ngram_planner -- --nocapture`; `cargo test --test phase11_search -- --nocapture`; `make check` | Pass | QZI sidecar header/manifest/sections, source id/checksum rejection, Core fallback without sidecar, sidecar token/ngram lookup, sidecar rebuild CLI, search --sidecar CLI, common-term capping, rare-term candidate-only decode, and metrics complete |
 | 2026-06-07 | release hardening | `cargo test --test release_hardening -- --nocapture`; `make bench-release`; `make check` | Pass | 2.4MB deterministic corpus benchmark recorded: pack 22.732 MiB/s, export 60.833 MiB/s, range 59.361 MiB/s, rare token decodes 97 bytes vs 2423996-byte raw scan, common n-gram caps before decode, token sidecar ratio 1.558508, n-gram sidecar ratio 1.522250 |
+| 2026-06-07 | release blocker review fixes | `cargo test --test phase5_writer --test phase9_cli_core --test phase11_search`; `make check` | Pass | Fixed multi-token token-search hit reporting, Metadata writer option serialization, CLI profile/dense wiring, CLI error detail preservation, deep verify integer conversion, O(n log n) physical range overlap validation, info metadata reporting, and hid placeholder streaming writer API |
+
+## Review Follow-ups
+
+| Item | State | Notes |
+|---|---|---|
+| C-1 `verified_spans` multi-token hits | Fixed | Added regression coverage for `alpha beta` returning both token hit ranges. |
+| C-2 Metadata writer options | Fixed | Metadata now records `zstd_level`, `target_chunk_size`, and `max_chunk_size` from `WriterOptions`. |
+| C-3 CLI `--profile` / `--dense-line-index` | Fixed | `qzt pack --profile memory` defaults to Dense Line Index and explicit `--dense-line-index` overrides it. |
+| C-4 CLI error detail | Fixed | CLI command failures now preserve `QztError` / I/O details instead of printing only `failed`. |
+| H-1 deep verify integer conversion | Fixed | Removed `unwrap_or(u64::MAX)` fallback. |
+| H-2 physical range overlap complexity | Fixed | Range overlap detection now sorts by physical offset and checks adjacent pairs. |
+| H-3 varuint duplication | Deferred | Refactor only; keep for a focused primitives cleanup phase to avoid mixing error-code semantics with release-blocker fixes. |
+| H-4 `TextAnalysis` / `LineInfo` duplication | Deferred | Refactor only; should be handled with private-unit coverage around newline classification. |
+| H-5 `QztWriter` placeholder | Fixed | Public placeholder is `#[doc(hidden)]` until a streaming writer API is implemented. |
+| H-6 `qzt info` hardcoded metadata | Fixed | `qzt info` reads Metadata via skeleton details and prints profile, zstd level, chunk sizes, line index, and document index presence. |
+| M-1 CBOR limits wiring | Deferred | Needs a separate decode-with-limits API pass for CBOR validation. |
+| M-4 file-path/seeking reader | Deferred | Current reader remains in-memory; file-backed seeking reader remains a post-v0.1 scalability phase. |
 
 ## Open Decisions
 

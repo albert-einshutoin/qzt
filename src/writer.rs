@@ -9,7 +9,8 @@ use crate::schema::{
     MetadataOptions,
 };
 
-/// Placeholder writer entry point reserved for later phases.
+/// Placeholder writer entry point reserved for a future streaming API.
+#[doc(hidden)]
 pub struct QztWriter;
 
 impl QztWriter {
@@ -44,6 +45,42 @@ pub fn pack_bytes(input: &[u8], options: WriterOptions) -> Result<Vec<u8>> {
     let mut container_id = [0_u8; 16];
     container_id.copy_from_slice(&hash.as_bytes()[..16]);
     pack_bytes_with_container_id(input, container_id, options)
+}
+
+/// Packs UTF-8 input with profile and optional Dense Line Index metadata.
+pub fn pack_bytes_with_profile(
+    input: &[u8],
+    options: WriterOptions,
+    profile: &str,
+    dense_line_index: bool,
+) -> Result<Vec<u8>> {
+    let hash = blake3::hash(input);
+    let mut container_id = [0_u8; 16];
+    container_id.copy_from_slice(&hash.as_bytes()[..16]);
+    pack_bytes_with_profile_and_container_id(
+        input,
+        container_id,
+        options,
+        profile,
+        dense_line_index,
+    )
+}
+
+/// Packs UTF-8 input with an explicit container id, profile, and optional Dense Line Index.
+pub fn pack_bytes_with_profile_and_container_id(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: WriterOptions,
+    profile: &str,
+    dense_line_index: bool,
+) -> Result<Vec<u8>> {
+    validate_profile(profile)?;
+    let dense_mode = if dense_line_index {
+        DenseLineIndexMode::Generate
+    } else {
+        DenseLineIndexMode::Omit
+    };
+    pack_bytes_internal(input, container_id, options, dense_mode, None, profile)
 }
 
 /// Packs UTF-8 input with an explicit container id for deterministic tests.
@@ -142,6 +179,7 @@ struct OptionalBlocks<'a> {
     dense_line_index: Option<&'a DenseLineIndex>,
     document_index: Option<&'a DocumentIndex>,
     profile: &'a str,
+    writer_options: WriterOptions,
 }
 
 fn pack_bytes_internal(
@@ -213,6 +251,7 @@ fn pack_bytes_internal(
             dense_line_index: dense_line_index.as_ref(),
             document_index: document_index.as_ref(),
             profile,
+            writer_options: options,
         },
     )
 }
@@ -251,6 +290,11 @@ fn assemble_container(
         newline_mode_as_str(plan.newline_mode),
         plan.line_count,
         MetadataOptions {
+            zstd_level: optional.writer_options.zstd_level,
+            target_chunk_size: u64::try_from(optional.writer_options.chunker.target_chunk_size)
+                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            max_chunk_size: u64::try_from(optional.writer_options.chunker.max_chunk_size)
+                .map_err(|_| QztError::ResourceLimitExceeded)?,
             dictionary_mode: "none",
             profile: optional.profile,
             dense_line_index: optional.dense_line_index.is_some(),
@@ -396,6 +440,10 @@ fn fixed_point_footer_payload(
 ) -> Result<FooterPayload> {
     let mut final_file_size = 0_u64;
 
+    // The footer includes `final_file_size`, so its encoded CBOR size may grow
+    // when the file size crosses an integer-width boundary. Re-encoding to a
+    // fixed point keeps the trailer offsets deterministic without reserving
+    // padding in the format.
     for _ in 0..8 {
         let candidate = FooterPayload {
             container_id,
@@ -420,6 +468,14 @@ fn fixed_point_footer_payload(
     }
 
     Err(QztError::ContainerCorrupt)
+}
+
+fn validate_profile(profile: &str) -> Result<()> {
+    if matches!(profile, "minimal" | "core" | "log" | "archive" | "memory") {
+        Ok(())
+    } else {
+        Err(QztError::MetadataInvalid)
+    }
 }
 
 fn newline_mode_as_str(mode: NewlineMode) -> &'static str {
