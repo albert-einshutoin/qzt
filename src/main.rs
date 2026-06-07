@@ -2,6 +2,7 @@ use std::io::Write;
 use std::process::ExitCode;
 
 use qzt::reader::{QztReader, VerifyLevel};
+use qzt::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
 use qzt::writer::{pack_bytes, WriterOptions};
 
 fn main() -> ExitCode {
@@ -22,6 +23,7 @@ fn main() -> ExitCode {
         Some("export") => run_export(args),
         Some("range") => run_range(args),
         Some("line") => run_line(args),
+        Some("search") => run_search(args),
         Some("verify") => run_verify(args),
         Some(command) => {
             eprintln!("qzt: unknown command '{command}'");
@@ -43,6 +45,7 @@ fn print_help() {
     println!("  export     Restore original bytes");
     println!("  range      Print original bytes in a half-open byte range");
     println!("  line       Print one original line");
+    println!("  search     Search raw UTF-8 tokens with verified original-byte hits");
     println!("  verify     Verify container integrity");
     println!();
     println!("Options:");
@@ -354,6 +357,81 @@ fn run_line(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 }
 
+fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
+    let Some(path) = args.next() else {
+        eprintln!("qzt search: missing file");
+        return ExitCode::from(2);
+    };
+    let Some(query) = args.next() else {
+        eprintln!("qzt search: missing query");
+        return ExitCode::from(2);
+    };
+
+    let mut options = SearchOptions::default();
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "--max-candidates" => {
+                let Some(value) = args.next().and_then(|value| value.parse::<u64>().ok()) else {
+                    eprintln!("qzt search: invalid --max-candidates");
+                    return ExitCode::from(2);
+                };
+                options.max_candidate_granules = value;
+            }
+            "--max-decoded-bytes" => {
+                let Some(value) = args.next().and_then(|value| parse_byte_limit(&value)) else {
+                    eprintln!("qzt search: invalid --max-decoded-bytes");
+                    return ExitCode::from(2);
+                };
+                options.max_decoded_bytes = value;
+            }
+            _ => {
+                eprintln!("qzt search: unknown option '{arg}'");
+                return ExitCode::from(2);
+            }
+        }
+    }
+
+    let result = std::fs::read(path).map_err(|_| ()).and_then(|bytes| {
+        let index = RawTokenIndex::build_from_container(&bytes, TokenIndexBuildOptions::default())
+            .map_err(|_| ())?;
+        let reader = QztReader::open(&bytes).map_err(|_| ())?;
+        index.search(&reader, &query, options).map_err(|_| ())
+    });
+
+    match result {
+        Ok(report) => {
+            for hit in &report.hits {
+                println!(
+                    "hit logical_offset={} byte_length={} chunk_start={} chunk_end={} source={}",
+                    hit.logical_offset, hit.byte_length, hit.chunk_start, hit.chunk_end, hit.source
+                );
+            }
+            println!(
+                "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={}",
+                report.metrics.query,
+                report.metrics.index_kind,
+                report.metrics.posting_granularity,
+                report.metrics.index_size_bytes,
+                report.metrics.source_size_bytes,
+                report.metrics.index_size_ratio,
+                report.metrics.term_lookups,
+                report.metrics.posting_bytes_read,
+                report.metrics.candidate_granules,
+                report.metrics.candidate_chunks,
+                report.metrics.decoded_bytes,
+                report.metrics.verified_matches,
+                report.metrics.query_time_ms,
+                report.capped
+            );
+            ExitCode::SUCCESS
+        }
+        Err(()) => {
+            eprintln!("qzt search: failed");
+            ExitCode::from(1)
+        }
+    }
+}
+
 fn parse_range(range: &str) -> Option<(u64, u64)> {
     let (start, end) = range.split_once(':')?;
     let start = start.parse().ok()?;
@@ -364,6 +442,19 @@ fn parse_range(range: &str) -> Option<(u64, u64)> {
 fn parse_line_range(range: &str) -> Option<(u64, u64)> {
     let (start, end) = parse_range(range)?;
     (start > 0 && start <= end).then_some((start, end))
+}
+
+fn parse_byte_limit(value: &str) -> Option<u64> {
+    if let Some(number) = value.strip_suffix("MiB") {
+        return number.parse::<u64>().ok()?.checked_mul(1024 * 1024);
+    }
+    if let Some(number) = value.strip_suffix("KiB") {
+        return number.parse::<u64>().ok()?.checked_mul(1024);
+    }
+    if let Some(number) = value.strip_suffix("GiB") {
+        return number.parse::<u64>().ok()?.checked_mul(1024 * 1024 * 1024);
+    }
+    value.parse().ok()
 }
 
 fn read_line_range(

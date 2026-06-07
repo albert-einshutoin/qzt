@@ -14,6 +14,7 @@ pub mod limits;
 pub mod primitives;
 pub mod reader;
 pub mod schema;
+pub mod search;
 pub mod skeleton;
 pub mod writer;
 

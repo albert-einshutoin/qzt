@@ -1,0 +1,260 @@
+use std::fs;
+use std::process::Command;
+
+use qzt::chunk_table::ChunkEntry;
+use qzt::chunker::ChunkerOptions;
+use qzt::error::QztError;
+use qzt::reader::QztReader;
+use qzt::search::{
+    decode_delta_varint_u64, encode_delta_varint_u64, PostingGranularity, RawTokenIndex,
+    SearchGranule, SearchIndexSource, SearchOptions, TermDictionaryEntry, TokenIndexBuildOptions,
+};
+use qzt::skeleton::open_skeleton_details;
+use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
+
+fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
+    WriterOptions {
+        chunker: ChunkerOptions {
+            target_chunk_size,
+            max_chunk_size,
+        },
+        zstd_level: 0,
+    }
+}
+
+#[test]
+fn line_granules_are_inside_original_and_cover_overlapping_chunks() {
+    let input = b"alpha one\nbeta two\nerror three";
+    let container = pack_bytes_with_container_id(input, [0xc0; 16], options(8, 8))
+        .expect("container should pack");
+    let details = open_skeleton_details(&container).expect("skeleton should open");
+    let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
+        .expect("raw line token index should build");
+
+    assert_eq!(index.posting_granularity, PostingGranularity::Line);
+    assert_eq!(index.granules.len(), 3);
+    for (expected_id, granule) in index.granules.iter().enumerate() {
+        assert_eq!(granule.granule_id, expected_id as u64);
+        assert!(granule.logical_offset + granule.byte_length <= input.len() as u64);
+        assert_eq!(granule.first_line, Some(expected_id as u64));
+        assert_eq!(granule.line_count, Some(1));
+        assert_eq!(
+            (granule.chunk_start, granule.chunk_end),
+            overlapping_chunk_range(
+                &details.chunk_entries,
+                granule.logical_offset,
+                granule.byte_length
+            )
+        );
+    }
+}
+
+#[test]
+fn term_dictionary_and_postings_are_sorted() {
+    let input = b"zeta alpha\nbeta alpha\n";
+    let container = pack_bytes_with_container_id(input, [0xc1; 16], options(64, 64))
+        .expect("container should pack");
+    let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
+        .expect("raw line token index should build");
+
+    let keys = index
+        .terms
+        .iter()
+        .map(|term| term.key.as_slice())
+        .collect::<Vec<_>>();
+    assert!(keys.windows(2).all(|pair| pair[0] < pair[1]));
+    for postings in &index.postings {
+        assert!(postings.windows(2).all(|pair| pair[0] < pair[1]));
+    }
+}
+
+#[test]
+fn unsorted_posting_lists_are_rejected() {
+    let error = RawTokenIndex::from_parts(
+        [0xc5; 16],
+        18,
+        vec![granule(0, 0, 6), granule(1, 6, 6), granule(2, 12, 6)],
+        vec![term_with_real_hash(b"alpha")],
+        vec![vec![2, 1]],
+    )
+    .expect_err("unsorted postings must be invalid");
+
+    assert_eq!(error, QztError::ContainerCorrupt);
+}
+
+#[test]
+fn delta_varint_postings_round_trip_large_granule_ids() {
+    let postings = vec![0, 127, 128, 16_384, 9_000_000_000];
+    let encoded = encode_delta_varint_u64(&postings).expect("postings should encode");
+    let decoded = decode_delta_varint_u64(&encoded).expect("postings should decode");
+
+    assert_eq!(decoded, postings);
+}
+
+#[test]
+fn exact_key_comparison_wins_over_key_hash_collision() {
+    let mut beta_hash = [0_u8; 16];
+    let hash = blake3::hash(b"beta");
+    beta_hash.copy_from_slice(&hash.as_bytes()[..16]);
+
+    let index = RawTokenIndex::from_parts(
+        [0xc2; 16],
+        12,
+        vec![granule(0, 0, 6), granule(1, 6, 6)],
+        vec![term(b"alpha", beta_hash), term(b"beta", beta_hash)],
+        vec![vec![0], vec![1]],
+    )
+    .expect("collision fixture should be structurally valid");
+
+    assert_eq!(index.posting_list_for_key(b"beta"), Some(&[1][..]));
+}
+
+#[test]
+fn token_search_candidates_are_verified_against_original_bytes() {
+    let input = b"alpha\nbeta\n";
+    let container = pack_bytes_with_container_id(input, [0xc3; 16], options(64, 64))
+        .expect("container should pack");
+    let base_index =
+        RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
+            .expect("raw line token index should build");
+    let stale_index = RawTokenIndex::from_parts(
+        base_index.container_id,
+        base_index.source_size_bytes,
+        base_index.granules.clone(),
+        vec![term_with_real_hash(b"alpha")],
+        vec![vec![0, 1]],
+    )
+    .expect("stale candidate fixture should be structurally valid");
+    let reader = QztReader::open(container).expect("reader should open");
+
+    let report = stale_index
+        .search(&reader, "alpha", SearchOptions::default())
+        .expect("search should run");
+
+    assert_eq!(report.metrics.candidate_granules, 2);
+    assert_eq!(report.metrics.verified_matches, 1);
+    assert_eq!(report.hits.len(), 1);
+    assert_eq!(report.hits[0].logical_offset, 0);
+    assert_eq!(report.hits[0].byte_length, 5);
+    assert_eq!(report.hits[0].source, "verified_original_bytes");
+}
+
+#[test]
+fn normalized_token_index_is_rejected_in_phase11() {
+    let input = b"alpha\n";
+    let container = pack_bytes_with_container_id(input, [0xc4; 16], options(64, 64))
+        .expect("container should pack");
+    let error = RawTokenIndex::build_from_container(
+        &container,
+        TokenIndexBuildOptions {
+            source: SearchIndexSource::NormalizedUtf8,
+            ..TokenIndexBuildOptions::default()
+        },
+    )
+    .expect_err("normalized index is out of scope");
+
+    assert_eq!(
+        error,
+        QztError::NotImplemented("normalized_utf8 token index")
+    );
+}
+
+#[test]
+fn cli_search_reports_verified_hits_and_metrics() {
+    let base = std::env::temp_dir().join(format!("qzt-phase11-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"info\nerror code\nerror again\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let output = output_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("search")
+            .arg(&packed)
+            .arg("error"),
+    );
+    let output = String::from_utf8(output).expect("search output should be utf-8");
+
+    assert!(output.contains("source=verified_original_bytes"));
+    assert!(output.contains("candidate_granules=2"));
+    assert!(output.contains("candidate_chunks="));
+    assert!(output.contains("decoded_bytes="));
+    assert!(output.contains("query_time_ms="));
+    assert!(output.contains("index_size_ratio="));
+
+    let _ = fs::remove_dir_all(base);
+}
+
+fn overlapping_chunk_range(entries: &[ChunkEntry], offset: u64, length: u64) -> (u64, u64) {
+    let end = offset + length;
+    let mut first = None;
+    let mut last_exclusive = None;
+    for entry in entries {
+        let chunk_end = entry.logical_offset + entry.uncompressed_size;
+        if chunk_end > offset && entry.logical_offset < end {
+            first.get_or_insert(entry.chunk_id);
+            last_exclusive = Some(entry.chunk_id + 1);
+        }
+    }
+    (first.unwrap(), last_exclusive.unwrap())
+}
+
+fn granule(granule_id: u64, logical_offset: u64, byte_length: u64) -> SearchGranule {
+    SearchGranule {
+        granule_id,
+        logical_offset,
+        byte_length,
+        chunk_start: granule_id,
+        chunk_end: granule_id + 1,
+        first_line: Some(granule_id),
+        line_count: Some(1),
+    }
+}
+
+fn term(key: &[u8], key_hash: [u8; 16]) -> TermDictionaryEntry {
+    TermDictionaryEntry {
+        key: key.to_vec(),
+        key_hash,
+        document_frequency: 0,
+        granule_frequency: 0,
+        posting_offset: 0,
+        posting_size: 0,
+        skip_offset: 0,
+        skip_size: 0,
+        flags: 0,
+    }
+}
+
+fn term_with_real_hash(key: &[u8]) -> TermDictionaryEntry {
+    let hash = blake3::hash(key);
+    let mut key_hash = [0_u8; 16];
+    key_hash.copy_from_slice(&hash.as_bytes()[..16]);
+    term(key, key_hash)
+}
+
+fn output_success(command: &mut Command) -> Vec<u8> {
+    let output = command.output().expect("command should run");
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    output.stdout
+}
+
+fn assert_success(command: &mut Command) {
+    let output = command.output().expect("command should run");
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+}

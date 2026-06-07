@@ -110,4 +110,31 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-07
+
+Implementation scope:
+
+```text
+- Phase11 implements a transient raw_utf8 token index over line Search Granules.
+- qzt search builds this index from a valid QZT container, produces candidate granules, decodes candidate original ranges, and returns only verified original-byte hits.
+- qzt-search-block-v1 persistence, skip data, n-gram index, planner tuning, and sidecar storage are deferred to Phase12-Phase13.
+- Because the Phase11 CLI builds the index on demand and may decode all chunks during index construction, it is a correctness MVP and does not claim high-performance search.
+```
+
+Verification:
+
+```text
+- cargo test --test phase11_search -- --nocapture
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review completed: Search results are returned only after token spans are verified against bytes read from the QZT Reader.
+- Code review completed: Term Dictionary keys are sorted, postings are strictly increasing, delta-varint postings round-trip large granule IDs, and key_hash never replaces exact key comparison.
+- Architecture review completed: Search index building and querying are separated; normalized_utf8 is explicitly rejected; the transient index does not alter Core container semantics.
+- Performance claim check completed: Phase11 reports candidate_granules, candidate_chunks, decoded_bytes, query_time_ms, and index_size_ratio, but does not label the path high-performance.
+```
