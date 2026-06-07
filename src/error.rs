@@ -37,6 +37,7 @@ pub enum QztError {
     ZstdDecodeError,
     ContainerCorrupt,
     ResourceLimitExceeded,
+    RangeOverlap,
     UnexpectedEof,
 
     /// Placeholder used until format-specific errors are introduced.

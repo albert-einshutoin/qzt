@@ -16,7 +16,7 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 |---:|---|---|---|---|
 | 0 | Project foundation and quality gates | Complete | Rust workspace, CI-local commands, empty test harness | Repeatable quality gates and fixture layout |
 | 1 | Deterministic CBOR, primitives, and errors | Complete | Canonical CBOR rejection tests and fixed primitive helpers | Typed errors, checked arithmetic, property tests |
-| 2 | Header, footer trailer, and physical ranges | Pending | Encode/decode fixed structures | Range validator and corruption tests |
+| 2 | Header, footer trailer, and physical ranges | Complete | Encode/decode fixed structures | Range validator and corruption tests |
 | 3 | Metadata, footer payload, index root, and chunk table skeleton | Pending | Deterministic CBOR schemas and empty-container skeleton | Structural verifier without zstd chunks |
 | 4 | UTF-8 chunker and sparse Chunk Table writer | Pending | deterministic Chunk Plan for UTF-8 input | CRLF-safe, continuation-aware line metadata |
 | 5 | No-dictionary zstd writer and finish | Pending | pack/export equality for simple UTF-8 | zstd frames, BLAKE3, footer finish, pack smoke metric |
@@ -31,12 +31,12 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 
 ## Current Focus
 
-Phase0 and Phase1 are complete.
+Phase0 through Phase2 are complete.
 
 Next action:
 
 ```text
-Start Phase2 by implementing fixed Header, Footer Trailer, and physical range validation with failing tests first.
+Start Phase3 by implementing Metadata, Footer Payload, Index Root, and Chunk Table skeletons with failing tests first.
 ```
 
 ## Completion Tracks
@@ -56,6 +56,7 @@ Start Phase2 by implementing fixed Header, Footer Trailer, and physical range va
 | 2026-06-07 | planning | `git diff --check`, phase reference search, code fence count | Pass | External review follow-ups applied to spec and phase plan |
 | 2026-06-07 | 0 | `make check` | Pass | Rust single crate, qzt CLI placeholder, library skeleton, fixture layout, and smoke tests added |
 | 2026-06-07 | 1 | `make check` | Pass | Deterministic CBOR encoder/validator, closed-schema helper, primitive helpers, typed errors, and property tests added |
+| 2026-06-07 | 2 | `make check` | Pass | Fixed Header, Footer Trailer, version validation, index_hint_offset hint handling, and physical range validation added |
 
 ## Open Decisions
 

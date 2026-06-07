@@ -5,6 +5,7 @@
 
 pub mod cbor;
 pub mod error;
+pub mod fixed;
 pub mod format;
 pub mod primitives;
 pub mod reader;

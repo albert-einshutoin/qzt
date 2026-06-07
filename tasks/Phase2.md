@@ -100,4 +100,20 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on 2026-06-07.
+
+Verification:
+
+```text
+make check
+```
+
+Review notes:
+
+```text
+- self-review completed
+- code review completed; fixed-slice indexing is guarded by exact-length checks
+- architecture review completed; Phase2 range validation covers ordinary non-overlap, while later Index Root alias exceptions must be handled at schema level
+```
