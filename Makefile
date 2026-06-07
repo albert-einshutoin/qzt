@@ -1,4 +1,4 @@
-.PHONY: fmt clippy test check
+.PHONY: fmt clippy test check bench-release
 
 fmt:
 	cargo fmt --all -- --check
@@ -10,3 +10,6 @@ test:
 	cargo test --all-targets --all-features
 
 check: fmt clippy test
+
+bench-release:
+	cargo test --test release_hardening -- --nocapture

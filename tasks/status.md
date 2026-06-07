@@ -36,7 +36,7 @@ Phase0 through Phase13 are complete. QZT v0.1 Core is release-candidate ready, w
 Next action:
 
 ```text
-All planned phases are complete. Next work should be driven by release hardening, larger-corpus benchmarks, or explicit product scope changes.
+All planned phases are complete and the first release hardening benchmark gate is in place. Next work should be driven by competitive benchmarks or explicit product scope changes.
 ```
 
 ## Completion Tracks
@@ -47,6 +47,7 @@ All planned phases are complete. Next work should be driven by release hardening
 | Reader Core | Phase0-Phase9 | Complete | Embedded dictionary reading, resource limits, partial access, and verify levels are complete for v0.1 Core. |
 | Optional Core-defined indexes | Phase10 | Complete | Dense Line Index and Document Index are optional and verified as caches over original bytes. |
 | Search Extension | Phase11-Phase13 | Complete | Transient token/ngram correctness paths, planner metrics, and QZI sidecar lookup are complete. |
+| Release Hardening | Post-Phase13 | Complete | Deterministic larger-corpus benchmark gate exists in `tests/release_hardening.rs` and `docs/QZT_v0.1_Release_Hardening.md`. |
 
 ## Verification Log
 
@@ -68,6 +69,7 @@ All planned phases are complete. Next work should be driven by release hardening
 | 2026-06-07 | 11 | `cargo test --test phase11_search -- --nocapture`; `make check` | Pass | Line Search Granules, transient raw_utf8 token dictionary, exact key comparison despite key_hash collision, sorted postings, delta-varint posting round-trip, verified original-byte token hits, normalized index rejection, qzt search CLI, and required metrics complete |
 | 2026-06-07 | 12 | `cargo test --test phase12_ngram_planner -- --nocapture`; `cargo test --test phase11_search -- --nocapture`; `make check` | Pass | Raw Unicode-scalar n-gram index, adjacent_decode line-granule substring verification, complete/incomplete missing-key behavior, rarest-first planner, high-DF driver avoidance, deterministic skip metadata, qzt search ngram CLI, and benchmark metrics complete |
 | 2026-06-07 | 13 | `cargo test --test phase13_sidecar -- --nocapture`; `cargo test --test phase12_ngram_planner -- --nocapture`; `cargo test --test phase11_search -- --nocapture`; `make check` | Pass | QZI sidecar header/manifest/sections, source id/checksum rejection, Core fallback without sidecar, sidecar token/ngram lookup, sidecar rebuild CLI, search --sidecar CLI, common-term capping, rare-term candidate-only decode, and metrics complete |
+| 2026-06-07 | release hardening | `cargo test --test release_hardening -- --nocapture`; `make bench-release`; `make check` | Pass | 2.4MB deterministic corpus benchmark recorded: pack 22.732 MiB/s, export 60.833 MiB/s, range 59.361 MiB/s, rare token decodes 97 bytes vs 2423996-byte raw scan, common n-gram caps before decode, token sidecar ratio 1.558508, n-gram sidecar ratio 1.522250 |
 
 ## Open Decisions
 
@@ -78,3 +80,4 @@ All planned phases are complete. Next work should be driven by release hardening
 | `qzt repack` / `qzt merge` / `qzt compact` | Deferred. They remain post-Core fresh-container rewrite commands and are not implemented in Phase10. | Post-Phase13 or a dedicated maintenance phase |
 | Search index persistence | QZI sidecar persistence implemented. Embedded qzt-search-block-v1 remains optional future work. | Release hardening |
 | Sidecar index priority | Implemented for token/ngram search sidecars | Larger-corpus benchmark pass |
+| Competitive benchmark | Not implemented. QZT has reproducible internal benchmarks but no comparison against SQLite FTS, Tantivy, Lucene, seekable zstd, or split zstd frames. | Product validation |
