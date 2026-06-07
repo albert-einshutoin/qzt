@@ -5,6 +5,9 @@ edition = "2021"
 description = "QZT reference implementation"
 publish = false
 
+[dependencies]
+blake3 = "1"
+
 [lib]
 name = "qzt"
 path = "src/lib.rs"

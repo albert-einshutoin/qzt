@@ -99,4 +99,20 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on 2026-06-07.
+
+Verification:
+
+```text
+make check
+```
+
+Review notes:
+
+```text
+- self-review completed
+- code review completed; offset arithmetic was changed to checked_add and nested CBOR maps were closed-schema validated
+- architecture review completed; logical schema models, fixed Chunk Table validation, and empty skeleton open/write are separated
+```
