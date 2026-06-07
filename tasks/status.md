@@ -22,7 +22,7 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 | 5 | No-dictionary zstd writer and finish | Complete | pack/export equality for simple UTF-8 | zstd frames, BLAKE3, footer finish, pack smoke metric |
 | 6 | Reader open/info/export and verification levels | Complete | open/info/export on valid files | quick/normal/deep verify corruption coverage |
 | 7 | Sparse line index, range reads, and CLI access | Complete | read_range and read_line_raw | CLI range/line, spanning-line support, intermediate benchmarks |
-| 8 | Dictionaries, resource limits, and Reader Core completion | Pending | read embedded dictionary fixtures | Reader Core complete with resource hardening |
+| 8 | Dictionaries, resource limits, and Reader Core completion | Complete | read embedded dictionary fixtures | Reader Core complete with resource hardening |
 | 9 | Core conformance hardening and release readiness | Pending | Full Core test pass and fuzz smoke | v0.1 Core release candidate |
 | 10 | Dense Line Index, Document Index, memory profile, and maintenance command scoping | Pending | Dense Line Index acceleration with sparse-vs-dense benchmark | Document Index, memory profile fixtures, repack/merge decision |
 | 11 | Search granules and raw token index MVP | Pending | Raw token index over search granules | Verified token search with metrics |
@@ -31,12 +31,12 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 
 ## Current Focus
 
-Phase0 through Phase7 are complete.
+Phase0 through Phase8 are complete.
 
 Next action:
 
 ```text
-Start Phase8 by implementing embedded dictionary reader support, unknown block handling, and resource limits with failing tests first.
+Start Phase9 by mapping every Core conformance item to tests, filling CLI gaps, and adding fuzz smoke harnesses.
 ```
 
 ## Completion Tracks
@@ -62,6 +62,7 @@ Start Phase8 by implementing embedded dictionary reader support, unknown block h
 | 2026-06-07 | 5 | `make check`; `cargo test --test phase5_writer pack_smoke_benchmark_records_nonzero_throughput -- --nocapture` | Pass | No-dictionary zstd writer, BLAKE3 chunk checksums, Header patch, Footer finish, export equality, and pack smoke 26.837 MiB/s for 64KiB fixture |
 | 2026-06-07 | 6 | `make check` | Pass | QztReader open/info/export, quick/normal/deep verify, compressed checksum detection, and container_checksum detection added |
 | 2026-06-07 | 7 | `make check`; `cargo test --test phase7_access phase7_intermediate_benchmark_records_nonzero_metrics -- --nocapture` | Pass | Range/text range/line Reader APIs, CLI range/line smoke, Chunk Table binary search, and Phase7 benchmark recorded: pack 10.695 MiB/s, export 30.631 MiB/s, range 8.736 MiB/s, line 27.167 us |
+| 2026-06-07 | 8 | `cargo test --test phase8_reader_core`; `make check` | Pass | Embedded Dictionary Block parsing, dictionary-assisted zstd decode, missing/duplicate/checksum dictionary rejection, unknown optional/required block handling, and ResourceLimits for chunk/index/dictionary/decode paths added |
 
 ## Open Decisions
 

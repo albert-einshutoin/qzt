@@ -1,12 +1,16 @@
 use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
+use std::collections::BTreeSet;
 
 const SCHEMA_FOOTER: &str = "qzt.footer.v1";
 const SCHEMA_METADATA: &str = "qzt.metadata.v1";
 const SCHEMA_INDEX_ROOT: &str = "qzt.index-root.v1";
+const SCHEMA_DICTIONARY: &str = "qzt.dictionary.v1";
 const CHECKSUM_BLAKE3: &str = "blake3";
 const CHUNK_TABLE_TYPE: &str = "chunk_table";
 const CHUNK_TABLE_CODEC: &str = "qzt-ctbl-fixed-v1";
+const DICTIONARY_TYPE: &str = "dictionary";
+const DICTIONARY_CODEC: &str = "qzt-dict-cbor-v1";
 
 /// BLAKE3 checksum value used by QZT Core structures.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -111,6 +115,7 @@ pub struct Metadata {
     pub original_checksum: Checksum,
     pub newline_mode: String,
     pub line_count: u64,
+    pub dictionary_mode: String,
 }
 
 impl Metadata {
@@ -127,12 +132,32 @@ impl Metadata {
         newline_mode: &str,
         line_count: u64,
     ) -> Self {
+        Self::for_source_with_dictionary_mode(
+            container_id,
+            original_size,
+            original_checksum,
+            newline_mode,
+            line_count,
+            "none",
+        )
+    }
+
+    #[must_use]
+    pub fn for_source_with_dictionary_mode(
+        container_id: [u8; 16],
+        original_size: u64,
+        original_checksum: Checksum,
+        newline_mode: &str,
+        line_count: u64,
+        dictionary_mode: &str,
+    ) -> Self {
         Self {
             container_id,
             original_size,
             original_checksum,
             newline_mode: newline_mode.to_owned(),
             line_count,
+            dictionary_mode: dictionary_mode.to_owned(),
         }
     }
 
@@ -169,7 +194,10 @@ impl Metadata {
                     text_pair("zstd_level", CborValue::Integer(0)),
                     text_pair("independent_frames", CborValue::Bool(true)),
                     text_pair("zstd_frame_checksum", CborValue::Bool(false)),
-                    text_pair("dictionary_mode", CborValue::Text("none".to_owned())),
+                    text_pair(
+                        "dictionary_mode",
+                        CborValue::Text(self.dictionary_mode.clone()),
+                    ),
                 ]),
             ),
             text_pair(
@@ -354,6 +382,11 @@ impl Metadata {
         if !matches!(newline_mode.as_str(), "none" | "lf" | "crlf" | "mixed") {
             return Err(QztError::MetadataInvalid);
         }
+        let dictionary_mode =
+            required_text(compression, "dictionary_mode", QztError::MetadataInvalid)?;
+        if !matches!(dictionary_mode.as_str(), "none" | "embedded") {
+            return Err(QztError::MetadataInvalid);
+        }
 
         Ok(Self {
             container_id: required_bstr16(map, "container_id", QztError::MetadataInvalid)?,
@@ -365,6 +398,7 @@ impl Metadata {
             )?,
             newline_mode,
             line_count: required_u64(source, "line_count", QztError::MetadataInvalid)?,
+            dictionary_mode,
         })
     }
 }
@@ -394,6 +428,82 @@ impl BlockDescriptor {
             flags: 0,
         }
     }
+
+    #[must_use]
+    pub fn dictionary(offset: u64, size: u64, checksum: Checksum) -> Self {
+        Self {
+            block_type: DICTIONARY_TYPE.to_owned(),
+            required: false,
+            offset,
+            size,
+            codec: DICTIONARY_CODEC.to_owned(),
+            checksum,
+            flags: 0,
+        }
+    }
+}
+
+/// Embedded dictionary block.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DictionaryBlock {
+    pub container_id: [u8; 16],
+    pub dictionaries: Vec<DictionaryEntry>,
+}
+
+impl DictionaryBlock {
+    pub fn encode(&self) -> Result<Vec<u8>> {
+        encode_deterministic(&CborValue::Map(vec![
+            text_pair("schema", CborValue::Text(SCHEMA_DICTIONARY.to_owned())),
+            text_pair("format_version", version_value()),
+            text_pair("container_id", CborValue::Bytes(self.container_id.to_vec())),
+            text_pair(
+                "dictionaries",
+                CborValue::Array(
+                    self.dictionaries
+                        .iter()
+                        .map(dictionary_entry_value)
+                        .collect(),
+                ),
+            ),
+        ]))
+    }
+
+    pub fn decode_with_limits(bytes: &[u8], max_dictionary_size: u64) -> Result<Self> {
+        let value = validate_deterministic(bytes)?;
+        let map = as_map(&value, QztError::ContainerCorrupt)?;
+        reject_unknown_keys(
+            map,
+            &["schema", "format_version", "container_id", "dictionaries"],
+            QztError::ContainerCorrupt,
+        )?;
+        expect_text_field(map, "schema", SCHEMA_DICTIONARY, QztError::ContainerCorrupt)?;
+        expect_version_field(map, QztError::ContainerCorrupt)?;
+
+        let dictionaries = required_array(map, "dictionaries", QztError::ContainerCorrupt)?;
+        let mut seen = BTreeSet::new();
+        let mut decoded = Vec::with_capacity(dictionaries.len());
+        for dictionary in dictionaries {
+            let entry = decode_dictionary_entry(dictionary, max_dictionary_size)?;
+            if !seen.insert(entry.dictionary_id) {
+                return Err(QztError::ContainerCorrupt);
+            }
+            decoded.push(entry);
+        }
+
+        Ok(Self {
+            container_id: required_bstr16(map, "container_id", QztError::ContainerCorrupt)?,
+            dictionaries: decoded,
+        })
+    }
+}
+
+/// One embedded zstd dictionary.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DictionaryEntry {
+    pub dictionary_id: u32,
+    pub codec: String,
+    pub bytes: Vec<u8>,
+    pub checksum: Checksum,
 }
 
 /// Index Root logical model.
@@ -540,6 +650,61 @@ fn decode_block_descriptor(value: &CborValue) -> Result<BlockDescriptor> {
     })
 }
 
+fn dictionary_entry_value(entry: &DictionaryEntry) -> CborValue {
+    CborValue::Map(vec![
+        text_pair(
+            "dictionary_id",
+            CborValue::Integer(i128::from(entry.dictionary_id)),
+        ),
+        text_pair("codec", CborValue::Text(entry.codec.clone())),
+        text_pair("bytes", CborValue::Bytes(entry.bytes.clone())),
+        text_pair("checksum", checksum_value(&entry.checksum)),
+    ])
+}
+
+fn decode_dictionary_entry(value: &CborValue, max_dictionary_size: u64) -> Result<DictionaryEntry> {
+    let map = as_map(value, QztError::ContainerCorrupt)?;
+    reject_unknown_keys(
+        map,
+        &["dictionary_id", "codec", "bytes", "checksum"],
+        QztError::ContainerCorrupt,
+    )?;
+
+    let dictionary_id = u32::try_from(required_u64(
+        map,
+        "dictionary_id",
+        QztError::ContainerCorrupt,
+    )?)
+    .map_err(|_| QztError::ContainerCorrupt)?;
+    if dictionary_id == 0 {
+        return Err(QztError::ContainerCorrupt);
+    }
+
+    let codec = required_text(map, "codec", QztError::ContainerCorrupt)?;
+    if codec != "zstd" {
+        return Err(QztError::ContainerCorrupt);
+    }
+
+    let bytes = required_bytes(map, "bytes", QztError::ContainerCorrupt)?;
+    if u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?
+        > max_dictionary_size
+    {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+
+    let checksum = required_checksum(map, "checksum", QztError::ContainerCorrupt)?;
+    if Checksum::blake3(&bytes) != checksum {
+        return Err(QztError::DictionaryChecksumMismatch);
+    }
+
+    Ok(DictionaryEntry {
+        dictionary_id,
+        codec,
+        bytes,
+        checksum,
+    })
+}
+
 fn is_known_block_type(block_type: &str) -> bool {
     matches!(
         block_type,
@@ -659,6 +824,13 @@ fn required_bstr16(map: &[(CborValue, CborValue)], key: &str, error: QztError) -
 
 fn required_bstr32(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<[u8; 32]> {
     required_bstr::<32>(map, key, error)
+}
+
+fn required_bytes(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<Vec<u8>> {
+    match field(map, key, error.clone())? {
+        CborValue::Bytes(bytes) => Ok(bytes.clone()),
+        _ => Err(error),
+    }
 }
 
 fn required_bstr<const N: usize>(

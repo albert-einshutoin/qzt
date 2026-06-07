@@ -2,10 +2,11 @@ use crate::chunk_table::{validate_chunk_table_block, ChunkEntry};
 use crate::error::{QztError, Result};
 use crate::fixed::{validate_physical_ranges, FooterTrailer, Header, PhysicalRange};
 use crate::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
+use crate::limits::ResourceLimits;
 use crate::primitives::checked_physical_end;
 use crate::schema::{
-    validate_source_consistency, BlockDescriptor, BlockRef, Checksum, FooterPayload, IndexRoot,
-    Metadata,
+    validate_source_consistency, BlockDescriptor, BlockRef, Checksum, DictionaryBlock,
+    DictionaryEntry, FooterPayload, IndexRoot, Metadata,
 };
 
 /// Summary returned by the structural skeleton opener.
@@ -25,6 +26,7 @@ pub struct SkeletonDetails {
     pub metadata: Metadata,
     pub footer_payload: FooterPayload,
     pub footer_payload_offset: u64,
+    pub dictionaries: Vec<DictionaryEntry>,
 }
 
 /// Writes an empty, structurally valid QZT Core container skeleton.
@@ -111,6 +113,14 @@ pub fn open_skeleton(bytes: &[u8]) -> Result<SkeletonSummary> {
 
 /// Opens a QZT skeleton and returns structural details through Chunk Table validation.
 pub fn open_skeleton_details(bytes: &[u8]) -> Result<SkeletonDetails> {
+    open_skeleton_details_with_limits(bytes, ResourceLimits::default())
+}
+
+/// Opens a QZT skeleton and returns structural details with explicit resource limits.
+pub fn open_skeleton_details_with_limits(
+    bytes: &[u8],
+    limits: ResourceLimits,
+) -> Result<SkeletonDetails> {
     if bytes.len() < HEADER_LEN {
         return Err(QztError::InvalidHeader);
     }
@@ -144,6 +154,7 @@ pub fn open_skeleton_details(bytes: &[u8]) -> Result<SkeletonDetails> {
         return Err(QztError::MetadataInvalid);
     }
 
+    enforce_index_block_size(footer_payload.metadata.size, limits)?;
     let metadata_bytes = slice_block_ref(bytes, &footer_payload.metadata)?;
     if Checksum::blake3(metadata_bytes) != footer_payload.metadata.checksum {
         return Err(QztError::MetadataChecksumMismatch);
@@ -153,6 +164,7 @@ pub fn open_skeleton_details(bytes: &[u8]) -> Result<SkeletonDetails> {
         return Err(QztError::ContainerIdMismatch);
     }
 
+    enforce_index_block_size(footer_payload.index_root.size, limits)?;
     let index_root_bytes = slice_block_ref(bytes, &footer_payload.index_root)?;
     if Checksum::blake3(index_root_bytes) != footer_payload.index_root.checksum {
         return Err(QztError::IndexRootChecksumMismatch);
@@ -163,6 +175,9 @@ pub fn open_skeleton_details(bytes: &[u8]) -> Result<SkeletonDetails> {
     let chunk_table = index_root.chunk_table_block()?;
     if chunk_table.codec != "qzt-ctbl-fixed-v1" {
         return Err(QztError::ChunkTableInvalid);
+    }
+    for block in &index_root.blocks {
+        enforce_index_block_size(block.size, limits)?;
     }
 
     let chunk_table_bytes = slice_physical(
@@ -179,6 +194,11 @@ pub fn open_skeleton_details(bytes: &[u8]) -> Result<SkeletonDetails> {
         index_root.original_size,
         index_root.line_count,
     )?;
+    for entry in &chunk_entries {
+        if entry.uncompressed_size > limits.max_uncompressed_chunk_size {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+    }
 
     let mut ranges = vec![
         PhysicalRange::new(header.metadata_offset, header.metadata_size),
@@ -189,12 +209,19 @@ pub fn open_skeleton_details(bytes: &[u8]) -> Result<SkeletonDetails> {
         PhysicalRange::new(trailer.footer_payload_offset, trailer.footer_payload_size),
         PhysicalRange::new(chunk_table.offset, chunk_table.size),
     ];
+    ranges.extend(index_root.blocks.iter().filter_map(|block| {
+        (!matches!(block.block_type.as_str(), "metadata" | "chunk_table"))
+            .then_some(PhysicalRange::new(block.offset, block.size))
+    }));
     ranges.extend(
         chunk_entries
             .iter()
             .map(|entry| PhysicalRange::new(entry.physical_offset, entry.compressed_size)),
     );
     validate_physical_ranges(final_file_size, &ranges)?;
+
+    let dictionaries = parse_dictionary_blocks(bytes, &index_root, header.container_id, limits)?;
+    validate_required_dictionaries(&chunk_entries, &dictionaries)?;
 
     Ok(SkeletonDetails {
         summary: SkeletonSummary {
@@ -207,7 +234,81 @@ pub fn open_skeleton_details(bytes: &[u8]) -> Result<SkeletonDetails> {
         metadata,
         footer_payload,
         footer_payload_offset: trailer.footer_payload_offset,
+        dictionaries,
     })
+}
+
+fn enforce_index_block_size(size: u64, limits: ResourceLimits) -> Result<()> {
+    if size > limits.max_index_block_size {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+    Ok(())
+}
+
+fn parse_dictionary_blocks(
+    bytes: &[u8],
+    index_root: &IndexRoot,
+    container_id: [u8; 16],
+    limits: ResourceLimits,
+) -> Result<Vec<DictionaryEntry>> {
+    let mut dictionaries = Vec::new();
+
+    for descriptor in index_root
+        .blocks
+        .iter()
+        .filter(|block| block.block_type == "dictionary")
+    {
+        if descriptor.required || descriptor.codec != "qzt-dict-cbor-v1" {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        enforce_index_block_size(descriptor.size, limits)?;
+        let dictionary_bytes = slice_physical(
+            bytes,
+            PhysicalRange::new(descriptor.offset, descriptor.size),
+        )?;
+        if Checksum::blake3(dictionary_bytes) != descriptor.checksum {
+            return Err(QztError::DictionaryChecksumMismatch);
+        }
+
+        let block =
+            DictionaryBlock::decode_with_limits(dictionary_bytes, limits.max_dictionary_size)?;
+        if block.container_id != container_id {
+            return Err(QztError::ContainerIdMismatch);
+        }
+
+        for entry in block.dictionaries {
+            if dictionaries
+                .iter()
+                .any(|existing: &DictionaryEntry| existing.dictionary_id == entry.dictionary_id)
+            {
+                return Err(QztError::ContainerCorrupt);
+            }
+            dictionaries.push(entry);
+        }
+    }
+
+    Ok(dictionaries)
+}
+
+fn validate_required_dictionaries(
+    chunk_entries: &[ChunkEntry],
+    dictionaries: &[DictionaryEntry],
+) -> Result<()> {
+    for entry in chunk_entries {
+        if entry.dictionary_id == 0 {
+            continue;
+        }
+
+        if !dictionaries
+            .iter()
+            .any(|dictionary| dictionary.dictionary_id == entry.dictionary_id)
+        {
+            return Err(QztError::MissingDictionary);
+        }
+    }
+
+    Ok(())
 }
 
 fn fixed_point_footer_payload(

@@ -100,4 +100,23 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-07
+
+Verification:
+
+```text
+- cargo test --test phase8_reader_core
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review completed: dictionary_id never falls back to external state, embedded dictionary checksums are verified before zstd decode, and missing dictionaries fail at open().
+- Code review completed: Dictionary Block parsing is deterministic CBOR, duplicate IDs are rejected, unknown optional blocks are range-checked but ignored, and unknown required blocks remain fatal.
+- Architecture review completed: resource limits are centralized in ResourceLimits, skeleton validation owns block/dictionary integrity, and QztReader only performs bounded chunk decode.
+- Preview byte limits are represented in ResourceLimits; no preview API exists in Core phases yet, so there is no runtime preview path to enforce.
+- No spec ambiguity was found that required QZT_v0.1_Core_Spec.md changes.
+```

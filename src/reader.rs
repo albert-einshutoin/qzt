@@ -1,11 +1,12 @@
-use std::io::Write;
+use std::io::{Read, Write};
 
 use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
 use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
+use crate::limits::ResourceLimits;
 use crate::primitives::{checked_logical_end, checked_physical_end};
 use crate::schema::Checksum;
-use crate::skeleton::{open_skeleton_details, SkeletonDetails};
+use crate::skeleton::{open_skeleton_details, open_skeleton_details_with_limits, SkeletonDetails};
 
 /// Reader for an in-memory QZT container.
 pub struct QztReader {
@@ -43,6 +44,13 @@ impl QztReader {
     pub fn open(bytes: impl AsRef<[u8]>) -> Result<Self> {
         let bytes = bytes.as_ref().to_vec();
         let details = open_skeleton_details(&bytes)?;
+        Ok(Self { bytes, details })
+    }
+
+    /// Opens an in-memory QZT container with explicit resource limits.
+    pub fn open_with_limits(bytes: impl AsRef<[u8]>, limits: ResourceLimits) -> Result<Self> {
+        let bytes = bytes.as_ref().to_vec();
+        let details = open_skeleton_details_with_limits(&bytes, limits)?;
         Ok(Self { bytes, details })
     }
 
@@ -259,10 +267,6 @@ impl QztReader {
     }
 
     fn decode_entry(&self, entry: &ChunkEntry) -> Result<Vec<u8>> {
-        if entry.dictionary_id != 0 {
-            return Err(QztError::MissingDictionary);
-        }
-
         let compressed = self.slice_physical(PhysicalRange::new(
             entry.physical_offset,
             entry.compressed_size,
@@ -271,8 +275,19 @@ impl QztReader {
             return Err(QztError::CompressedChunkChecksumMismatch);
         }
 
-        let decoded =
-            zstd::stream::decode_all(compressed).map_err(|_| QztError::ZstdDecodeError)?;
+        let dictionary = if entry.dictionary_id == 0 {
+            &[][..]
+        } else {
+            self.details
+                .dictionaries
+                .iter()
+                .find(|dictionary| dictionary.dictionary_id == entry.dictionary_id)
+                .map(|dictionary| dictionary.bytes.as_slice())
+                .ok_or(QztError::MissingDictionary)?
+        };
+        let decoder = zstd::stream::Decoder::with_dictionary(compressed, dictionary)
+            .map_err(|_| QztError::ZstdDecodeError)?;
+        let decoded = decode_with_output_limit(decoder, entry.uncompressed_size)?;
         if u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?
             != entry.uncompressed_size
         {
@@ -393,6 +408,27 @@ fn line_start_chunk_index(entries: &[ChunkEntry], line_zero_based: u64) -> Resul
     } else {
         Err(QztError::LineOutOfRange)
     }
+}
+
+fn decode_with_output_limit(
+    decoder: zstd::stream::Decoder<'_, &[u8]>,
+    expected_size: u64,
+) -> Result<Vec<u8>> {
+    let capacity = usize::try_from(expected_size).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let read_limit = expected_size
+        .checked_add(1)
+        .ok_or(QztError::ResourceLimitExceeded)?;
+    let mut decoded = Vec::with_capacity(capacity);
+    let mut limited = decoder.take(read_limit);
+    limited
+        .read_to_end(&mut decoded)
+        .map_err(|_| QztError::ZstdDecodeError)?;
+
+    if u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)? > expected_size {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+
+    Ok(decoded)
 }
 
 fn local_line_starts(decoded: &[u8], flags: u32) -> Vec<usize> {
