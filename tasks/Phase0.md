@@ -91,4 +91,20 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on 2026-06-07.
+
+Verification:
+
+```text
+make check
+```
+
+Review notes:
+
+```text
+- self-review completed
+- code review completed; qzt help behavior was aligned with help output
+- architecture review completed; library-first single crate is sufficient for Phase0 and can be workspace-split later if needed
+```

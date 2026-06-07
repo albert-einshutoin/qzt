@@ -14,7 +14,7 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 
 | Phase | Name | State | Minimum MVP | Goal MVP |
 |---:|---|---|---|---|
-| 0 | Project foundation and quality gates | Pending | Rust workspace, CI-local commands, empty test harness | Repeatable quality gates and fixture layout |
+| 0 | Project foundation and quality gates | Complete | Rust workspace, CI-local commands, empty test harness | Repeatable quality gates and fixture layout |
 | 1 | Deterministic CBOR, primitives, and errors | Pending | Canonical CBOR rejection tests and fixed primitive helpers | Typed errors, checked arithmetic, property tests |
 | 2 | Header, footer trailer, and physical ranges | Pending | Encode/decode fixed structures | Range validator and corruption tests |
 | 3 | Metadata, footer payload, index root, and chunk table skeleton | Pending | Deterministic CBOR schemas and empty-container skeleton | Structural verifier without zstd chunks |
@@ -31,20 +31,20 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 
 ## Current Focus
 
-No implementation phase has started.
+Phase0 is complete.
 
 Next action:
 
 ```text
-Start Phase0 by creating the Rust workspace, test harness, and local quality commands.
+Start Phase1 by implementing deterministic CBOR, primitive helpers, and typed errors with failing tests first.
 ```
 
 ## Completion Tracks
 
 | Track | Required Phases | Current State | Notes |
 |---|---|---|---|
-| Writer Core | Phase0-Phase5, Phase9 | Pending | Writer may omit dictionary output, but must write valid sparse line fields and pass Core release gates. |
-| Reader Core | Phase0-Phase9 | Pending | Phase8 completes embedded dictionary reading and resource hardening; Phase9 is the release gate. |
+| Writer Core | Phase0-Phase5, Phase9 | In Progress | Phase0 complete. Writer may omit dictionary output, but must write valid sparse line fields and pass Core release gates. |
+| Reader Core | Phase0-Phase9 | In Progress | Phase0 complete. Phase8 completes embedded dictionary reading and resource hardening; Phase9 is the release gate. |
 | Optional Core-defined indexes | Phase10 | Pending | Dense Line Index and Document Index are not Core release blockers. |
 | Search Extension | Phase11-Phase13 | Pending | Must start after Core conformance is stable. |
 
@@ -54,12 +54,13 @@ Start Phase0 by creating the Rust workspace, test harness, and local quality com
 |---|---:|---|---|---|
 | 2026-06-07 | planning | `git diff --check`, code fence count | Pass | Planning docs created after spec review |
 | 2026-06-07 | planning | `git diff --check`, phase reference search, code fence count | Pass | External review follow-ups applied to spec and phase plan |
+| 2026-06-07 | 0 | `make check` | Pass | Rust single crate, qzt CLI placeholder, library skeleton, fixture layout, and smoke tests added |
 
 ## Open Decisions
 
 | Decision | Current Position | When To Revisit |
 |---|---|---|
-| Reference implementation language | Rust | Before Phase0 code starts |
+| Reference implementation language | Rust selected | Revisit only with explicit project decision |
 | Search Extension timing | After Core conformance | After Phase9 |
 | `qzt repack` / `qzt merge` / `qzt compact` | Post-Core maintenance commands, not v0.1 Core blockers | Phase10 |
 | Sidecar index priority | Phase13 | After Phase12 benchmark evidence |

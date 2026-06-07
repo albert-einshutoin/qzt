@@ -1,0 +1,14 @@
+[package]
+name = "qzt"
+version = "0.1.0"
+edition = "2021"
+description = "QZT reference implementation"
+publish = false
+
+[lib]
+name = "qzt"
+path = "src/lib.rs"
+
+[[bin]]
+name = "qzt"
+path = "src/main.rs"
