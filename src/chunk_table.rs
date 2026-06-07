@@ -1,5 +1,5 @@
 use crate::error::{QztError, Result};
-use crate::primitives::{read_u32_le, read_u64_le};
+use crate::primitives::{read_u32_le, read_u64_le, write_u32_le, write_u64_le};
 
 pub const CHUNK_ENTRY_LEN: usize = 128;
 pub const STARTS_WITH_LINE_CONTINUATION: u32 = 1;
@@ -21,6 +21,23 @@ pub struct ChunkEntry {
 }
 
 impl ChunkEntry {
+    #[must_use]
+    pub fn encode(&self) -> [u8; CHUNK_ENTRY_LEN] {
+        let mut bytes = [0_u8; CHUNK_ENTRY_LEN];
+        bytes[0..8].copy_from_slice(&write_u64_le(self.chunk_id));
+        bytes[8..16].copy_from_slice(&write_u64_le(self.physical_offset));
+        bytes[16..24].copy_from_slice(&write_u64_le(self.compressed_size));
+        bytes[24..32].copy_from_slice(&write_u64_le(self.logical_offset));
+        bytes[32..40].copy_from_slice(&write_u64_le(self.uncompressed_size));
+        bytes[40..48].copy_from_slice(&write_u64_le(self.first_line));
+        bytes[48..56].copy_from_slice(&write_u64_le(self.line_count));
+        bytes[56..60].copy_from_slice(&write_u32_le(self.dictionary_id));
+        bytes[60..64].copy_from_slice(&write_u32_le(self.flags));
+        bytes[64..96].copy_from_slice(&self.compressed_checksum_blake3);
+        bytes[96..128].copy_from_slice(&self.uncompressed_checksum_blake3);
+        bytes
+    }
+
     pub fn decode(bytes: &[u8]) -> Result<Self> {
         if bytes.len() != CHUNK_ENTRY_LEN {
             return Err(QztError::ChunkTableInvalid);

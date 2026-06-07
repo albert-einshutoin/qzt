@@ -99,17 +99,30 @@ pub struct Metadata {
     pub container_id: [u8; 16],
     pub original_size: u64,
     pub original_checksum: Checksum,
+    pub newline_mode: String,
     pub line_count: u64,
 }
 
 impl Metadata {
     #[must_use]
     pub fn empty(container_id: [u8; 16]) -> Self {
+        Self::for_source(container_id, 0, Checksum::blake3(&[]), "none", 0)
+    }
+
+    #[must_use]
+    pub fn for_source(
+        container_id: [u8; 16],
+        original_size: u64,
+        original_checksum: Checksum,
+        newline_mode: &str,
+        line_count: u64,
+    ) -> Self {
         Self {
             container_id,
-            original_size: 0,
-            original_checksum: Checksum::blake3(&[]),
-            line_count: 0,
+            original_size,
+            original_checksum,
+            newline_mode: newline_mode.to_owned(),
+            line_count,
         }
     }
 
@@ -135,7 +148,7 @@ impl Metadata {
                     text_pair("encoding", CborValue::Text("utf-8".to_owned())),
                     text_pair("original_size", u64_value(self.original_size)),
                     text_pair("original_checksum", checksum_value(&self.original_checksum)),
-                    text_pair("newline_mode", CborValue::Text("none".to_owned())),
+                    text_pair("newline_mode", CborValue::Text(self.newline_mode.clone())),
                     text_pair("line_count", u64_value(self.line_count)),
                 ]),
             ),
@@ -327,6 +340,11 @@ impl Metadata {
             QztError::MetadataInvalid,
         )?;
 
+        let newline_mode = required_text(source, "newline_mode", QztError::MetadataInvalid)?;
+        if !matches!(newline_mode.as_str(), "none" | "lf" | "crlf" | "mixed") {
+            return Err(QztError::MetadataInvalid);
+        }
+
         Ok(Self {
             container_id: required_bstr16(map, "container_id", QztError::MetadataInvalid)?,
             original_size: required_u64(source, "original_size", QztError::MetadataInvalid)?,
@@ -335,6 +353,7 @@ impl Metadata {
                 "original_checksum",
                 QztError::MetadataInvalid,
             )?,
+            newline_mode,
             line_count: required_u64(source, "line_count", QztError::MetadataInvalid)?,
         })
     }

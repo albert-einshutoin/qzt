@@ -1,4 +1,4 @@
-use crate::chunk_table::validate_chunk_table_block;
+use crate::chunk_table::{validate_chunk_table_block, ChunkEntry};
 use crate::error::{QztError, Result};
 use crate::fixed::{validate_physical_ranges, FooterTrailer, Header, PhysicalRange};
 use crate::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
@@ -15,6 +15,13 @@ pub struct SkeletonSummary {
     pub original_size: u64,
     pub chunk_count: u64,
     pub line_count: u64,
+}
+
+/// Structural details needed by later reader/export phases.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SkeletonDetails {
+    pub summary: SkeletonSummary,
+    pub chunk_entries: Vec<ChunkEntry>,
 }
 
 /// Writes an empty, structurally valid QZT Core container skeleton.
@@ -96,6 +103,11 @@ pub fn write_empty_container(container_id: [u8; 16]) -> Result<Vec<u8>> {
 
 /// Opens a QZT skeleton through Footer Payload, Metadata, Index Root, and Chunk Table validation.
 pub fn open_skeleton(bytes: &[u8]) -> Result<SkeletonSummary> {
+    Ok(open_skeleton_details(bytes)?.summary)
+}
+
+/// Opens a QZT skeleton and returns structural details through Chunk Table validation.
+pub fn open_skeleton_details(bytes: &[u8]) -> Result<SkeletonDetails> {
     if bytes.len() < HEADER_LEN {
         return Err(QztError::InvalidHeader);
     }
@@ -150,19 +162,6 @@ pub fn open_skeleton(bytes: &[u8]) -> Result<SkeletonSummary> {
         return Err(QztError::ChunkTableInvalid);
     }
 
-    validate_physical_ranges(
-        final_file_size,
-        &[
-            PhysicalRange::new(header.metadata_offset, header.metadata_size),
-            PhysicalRange::new(
-                footer_payload.index_root.offset,
-                footer_payload.index_root.size,
-            ),
-            PhysicalRange::new(trailer.footer_payload_offset, trailer.footer_payload_size),
-            PhysicalRange::new(chunk_table.offset, chunk_table.size),
-        ],
-    )?;
-
     let chunk_table_bytes = slice_physical(
         bytes,
         PhysicalRange::new(chunk_table.offset, chunk_table.size),
@@ -171,18 +170,37 @@ pub fn open_skeleton(bytes: &[u8]) -> Result<SkeletonSummary> {
         return Err(QztError::ChunkTableChecksumMismatch);
     }
 
-    validate_chunk_table_block(
+    let chunk_entries = validate_chunk_table_block(
         chunk_table_bytes,
         index_root.chunk_count,
         index_root.original_size,
         index_root.line_count,
     )?;
 
-    Ok(SkeletonSummary {
-        container_id: header.container_id,
-        original_size: index_root.original_size,
-        chunk_count: index_root.chunk_count,
-        line_count: index_root.line_count,
+    let mut ranges = vec![
+        PhysicalRange::new(header.metadata_offset, header.metadata_size),
+        PhysicalRange::new(
+            footer_payload.index_root.offset,
+            footer_payload.index_root.size,
+        ),
+        PhysicalRange::new(trailer.footer_payload_offset, trailer.footer_payload_size),
+        PhysicalRange::new(chunk_table.offset, chunk_table.size),
+    ];
+    ranges.extend(
+        chunk_entries
+            .iter()
+            .map(|entry| PhysicalRange::new(entry.physical_offset, entry.compressed_size)),
+    );
+    validate_physical_ranges(final_file_size, &ranges)?;
+
+    Ok(SkeletonDetails {
+        summary: SkeletonSummary {
+            container_id: header.container_id,
+            original_size: index_root.original_size,
+            chunk_count: index_root.chunk_count,
+            line_count: index_root.line_count,
+        },
+        chunk_entries,
     })
 }
 

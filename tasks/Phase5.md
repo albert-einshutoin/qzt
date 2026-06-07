@@ -117,4 +117,27 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on 2026-06-07.
+
+Verification:
+
+```text
+make check
+cargo test --test phase5_writer pack_smoke_benchmark_records_nonzero_throughput -- --nocapture
+```
+
+Pack smoke metric:
+
+```text
+bytes=65536 elapsed_ms=2.329 throughput_mib_s=26.837
+```
+
+Review notes:
+
+```text
+- self-review completed
+- code review completed; writer offset arithmetic and skeleton chunk physical range validation were tightened
+- architecture review completed; writer consumes ChunkPlan and keeps zstd writing separate from structural open/export validation
+```

@@ -34,6 +34,7 @@ pub enum QztError {
     DictionaryChecksumMismatch,
     CompressedChunkChecksumMismatch,
     UncompressedChunkChecksumMismatch,
+    ZstdEncodeError,
     ZstdDecodeError,
     ContainerCorrupt,
     ResourceLimitExceeded,

@@ -19,7 +19,7 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 | 2 | Header, footer trailer, and physical ranges | Complete | Encode/decode fixed structures | Range validator and corruption tests |
 | 3 | Metadata, footer payload, index root, and chunk table skeleton | Complete | Deterministic CBOR schemas and empty-container skeleton | Structural verifier without zstd chunks |
 | 4 | UTF-8 chunker and sparse Chunk Table writer | Complete | deterministic Chunk Plan for UTF-8 input | CRLF-safe, continuation-aware line metadata |
-| 5 | No-dictionary zstd writer and finish | Pending | pack/export equality for simple UTF-8 | zstd frames, BLAKE3, footer finish, pack smoke metric |
+| 5 | No-dictionary zstd writer and finish | Complete | pack/export equality for simple UTF-8 | zstd frames, BLAKE3, footer finish, pack smoke metric |
 | 6 | Reader open/info/export and verification levels | Pending | open/info/export on valid files | quick/normal/deep verify corruption coverage |
 | 7 | Sparse line index, range reads, and CLI access | Pending | read_range and read_line_raw | CLI range/line, spanning-line support, intermediate benchmarks |
 | 8 | Dictionaries, resource limits, and Reader Core completion | Pending | read embedded dictionary fixtures | Reader Core complete with resource hardening |
@@ -31,12 +31,12 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 
 ## Current Focus
 
-Phase0 through Phase4 are complete.
+Phase0 through Phase5 are complete.
 
 Next action:
 
 ```text
-Start Phase5 by consuming ChunkPlan to write no-dictionary zstd chunks, checksums, footer payload, trailer, and patched Header.
+Start Phase6 by separating Reader open/info/export and quick/normal/deep verification levels with failing corruption tests first.
 ```
 
 ## Completion Tracks
@@ -59,6 +59,7 @@ Start Phase5 by consuming ChunkPlan to write no-dictionary zstd chunks, checksum
 | 2026-06-07 | 2 | `make check` | Pass | Fixed Header, Footer Trailer, version validation, index_hint_offset hint handling, and physical range validation added |
 | 2026-06-07 | 3 | `make check` | Pass | Metadata, Footer Payload, Index Root, empty Chunk Table, and empty skeleton structural open/write added |
 | 2026-06-07 | 4 | `make check` | Pass | UTF-8/CRLF-safe ChunkPlan, newline mode, sparse line metadata, and continuation flags added |
+| 2026-06-07 | 5 | `make check`; `cargo test --test phase5_writer pack_smoke_benchmark_records_nonzero_throughput -- --nocapture` | Pass | No-dictionary zstd writer, BLAKE3 chunk checksums, Header patch, Footer finish, export equality, and pack smoke 26.837 MiB/s for 64KiB fixture |
 
 ## Open Decisions
 
