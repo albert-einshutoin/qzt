@@ -1,0 +1,1711 @@
+# QZT v0.1 Core Specification
+
+Status: Draft Complete  
+Spec version: 0.1.0  
+Date: 2026-06-06  
+File extension: `.qzt`  
+Name: **QZT: Queryable Zstd Text Container**  
+Tagline: **A seekable, verifiable, evidence-native text container built on independent zstd chunks.**
+
+---
+
+## 0. Abstract
+
+QZT is a binary container format for large text data.
+
+QZT stores original text as independent zstd-compressed chunks and adds enough structure to let software:
+
+- verify the container without exporting everything,
+- restore the original input exactly,
+- read only the required byte range,
+- read by logical line number,
+- trace summaries or memory records back to exact source text,
+- optionally use document/search side indexes without making them part of the core format.
+
+QZT is not a replacement for zstd.  
+QZT uses independent Zstandard frames as its compression engine and defines a text-oriented container layer above them.
+
+The core product position is:
+
+```text
+QZT is the Cold Evidence Container for large text and AI memory systems.
+```
+
+In other words, QZT is not the LLM memory manager.  
+It is the immutable, seekable, verifiable source-evidence layer that memory systems can reference.
+
+---
+
+## 1. Scope
+
+### 1.1 QZT v0.1 Core includes
+
+A conforming QZT v0.1 Core container MUST support:
+
+```text
+- exact export:
+    export(pack(input)) == input
+
+- independent zstd chunks
+
+- fixed 128-byte header
+
+- canonical CBOR metadata block
+
+- chunk table
+
+- sparse line index through chunk table:
+    first_line + line_count per chunk
+
+- fixed 64-byte footer trailer
+
+- footer payload
+
+- index root block directory
+
+- byte range read
+
+- line read
+
+- quick / normal / deep verification
+
+- UTF-8 chunk boundary safety
+
+- compressed and uncompressed chunk checksums
+
+- immutable container semantics after finish()
+```
+
+### 1.2 QZT v0.1 Core excludes
+
+The following are NOT part of QZT v0.1 Core:
+
+```text
+- semantic search
+- vector embeddings
+- vector database behavior
+- LLM memory ranking
+- summarization
+- mutable database updates
+- arbitrary binary archive semantics
+- ZIP compatibility
+- .zst stream compatibility
+- mandatory token/ngram search
+- mandatory document index
+- mandatory quantum-inspired optimizer
+```
+
+These may be defined as optional extension specs.
+
+---
+
+## 2. Product boundary
+
+QZT MUST be positioned as:
+
+```text
+seekable + verifiable + evidence-addressable text container
+```
+
+QZT MUST NOT claim:
+
+```text
+- better compression algorithm than zstd
+- decompression-free arbitrary text display
+- semantic similarity search without external vector/semantic layer
+- replacement for FM-index
+- replacement for vector DB
+- replacement for Memory Pager
+```
+
+Correct wording:
+
+```text
+QZT enables access to compressed text without full decompression.
+QZT narrows access to the relevant compressed chunks and partially decodes only what is needed.
+```
+
+Incorrect wording:
+
+```text
+QZT reads arbitrary compressed text with zero decompression.
+```
+
+---
+
+## 3. Relationship to Memory Pager
+
+Memory Pager and QZT are separate layers.
+
+```text
+Memory Pager:
+  - extracts atomic memory
+  - builds memory hierarchy
+  - performs semantic search
+  - manages current state
+  - ranks memory
+  - assembles LLM context
+
+QZT:
+  - stores original text losslessly
+  - compresses original evidence
+  - partially restores byte ranges / lines / documents
+  - verifies container and evidence integrity
+  - provides stable evidence pointers
+```
+
+Dependency direction:
+
+```text
+Memory Pager uses QZT.
+QZT does not depend on Memory Pager.
+```
+
+A memory system may store references like:
+
+```json
+{
+  "memory_id": "mem_001",
+  "summary": "User is designing QZT as a cold evidence container.",
+  "evidence_refs": [
+    {
+      "container_id": "b6a7c34f91a849c8936d91f4d5d06f20",
+      "container": "workspace.qzt",
+      "doc_id": "conversation_2026_06_06",
+      "byte_range": [1048576, 1059321],
+      "line_range": [120, 180],
+      "checksum": "blake3:..."
+    }
+  ]
+}
+```
+
+QZT only guarantees the referenced original text can be retrieved and verified.
+
+---
+
+## 4. Terms
+
+| Term | Meaning |
+|---|---|
+| Container | Entire `.qzt` file |
+| Chunk | A contiguous region of original input bytes |
+| Compressed Chunk | A Chunk encoded as an independent zstd frame |
+| Logical Offset | 0-based byte offset in the original input byte stream |
+| Physical Offset | 0-based byte offset in the `.qzt` file |
+| Line | Byte range terminated by newline sequence or EOF |
+| Chunk Table | Required table mapping logical byte ranges to compressed chunk locations |
+| Line Index | Sparse or dense data allowing line-number access |
+| Index Root | Directory describing locations/checksums/codecs of index blocks |
+| Footer Trailer | Fixed 64-byte trailer at EOF that makes footer discoverable |
+| Footer Payload | Variable-length canonical CBOR payload referenced by Footer Trailer |
+| Evidence Ref | Stable pointer from an external system into QZT original text |
+| Human View | Text produced by partial decode for user display |
+
+---
+
+## 5. Normative language
+
+This document uses the following normative terms:
+
+```text
+MUST       required
+MUST NOT   prohibited
+SHOULD     strongly recommended
+SHOULD NOT discouraged
+MAY        optional
+```
+
+When Japanese prose appears around these words, the English normative word remains controlling.
+
+---
+
+## 6. File overview
+
+A QZT v0.1 Core file has this logical structure:
+
+```text
++-------------------------------+
+| Fixed Header, 128 bytes       |
++-------------------------------+
+| Compressed Chunk 0            |
++-------------------------------+
+| Compressed Chunk 1            |
++-------------------------------+
+| Compressed Chunk 2            |
++-------------------------------+
+| ...                           |
++-------------------------------+
+| Metadata Block                |
++-------------------------------+
+| Optional Dictionary Block(s)  |
++-------------------------------+
+| Chunk Table Block             |
++-------------------------------+
+| Optional Dense Line Index     |
++-------------------------------+
+| Optional Extension Blocks     |
++-------------------------------+
+| Index Root                    |
++-------------------------------+
+| Footer Payload                |
++-------------------------------+
+| Footer Trailer, 64 bytes      |
++-------------------------------+
+```
+
+The physical order of metadata/index blocks MAY differ, as long as:
+
+```text
+- Header points to Metadata Block
+- Footer Trailer points to Footer Payload
+- Footer Payload points to Index Root
+- Index Root points to Chunk Table and all index blocks
+```
+
+Compressed chunks do not require per-chunk headers. Their locations and sizes are authoritative in the Chunk Table.
+
+---
+
+## 7. Byte order and primitive types
+
+All integer fields in fixed binary structures MUST be little-endian.
+
+Primitive names:
+
+| Name | Size | Meaning |
+|---|---:|---|
+| u8 | 1 | unsigned 8-bit integer |
+| u16 | 2 | unsigned 16-bit integer |
+| u32 | 4 | unsigned 32-bit integer |
+| u64 | 8 | unsigned 64-bit integer |
+| bstr[N] | N | byte string of exactly N bytes |
+
+All unspecified/reserved bytes MUST be zero when written.  
+Readers MUST reject non-zero reserved bytes unless a future compatible version defines them.
+
+---
+
+## 8. Fixed Header
+
+The file starts with a fixed 128-byte header.
+
+```text
+Offset  Size  Type       Field
+0       8     bstr[8]    magic = "QZT\0TXT1"
+8       2     u16        major_version = 0
+10      2     u16        minor_version = 1
+12      4     u32        header_length = 128
+16      8     u64        header_flags
+24      8     u64        metadata_offset
+32      8     u64        metadata_size
+40      8     u64        index_hint_offset, 0 if unknown
+48      16    bstr[16]   container_id
+64      64    bstr[64]   reserved_zero
+```
+
+### 8.1 Header fields
+
+`magic` MUST be exactly:
+
+```text
+QZT\0TXT1
+```
+
+`container_id` MUST be a random or content-derived 128-bit identifier.  
+Implementations SHOULD use UUIDv4 bytes or BLAKE3-derived 128-bit truncated bytes.
+
+`metadata_offset` and `metadata_size` MUST point to the canonical CBOR Metadata Block.
+
+`index_hint_offset` MAY point to Index Root for faster loading. If it is `0`, readers MUST use the Footer Trailer.
+
+The Header MAY be written as a placeholder at the start and patched at `finish()` time.
+
+---
+
+## 9. Footer Trailer
+
+The last 64 bytes of every QZT v0.1 Core file MUST be the Footer Trailer.
+
+```text
+Offset from trailer start  Size  Type       Field
+0                          8     bstr[8]    trailer_magic = "QZTTAIL1"
+8                          2     u16        major_version = 0
+10                         2     u16        minor_version = 1
+12                         4     u32        trailer_length = 64
+16                         8     u64        footer_payload_offset
+24                         8     u64        footer_payload_size
+32                         32    bstr[32]   footer_payload_checksum_blake3
+```
+
+The trailer starts at:
+
+```text
+file_size - 64
+```
+
+The checksum is BLAKE3-256 of the exact Footer Payload bytes.
+
+### 9.1 Reader open procedure
+
+A reader MUST open a QZT file as follows:
+
+```text
+1. Read first 128 bytes.
+2. Verify Header magic and version.
+3. Seek to EOF - 64.
+4. Read Footer Trailer.
+5. Verify trailer_magic and trailer_length.
+6. Read Footer Payload using footer_payload_offset and footer_payload_size.
+7. Verify footer_payload_checksum_blake3.
+8. Parse Footer Payload as canonical CBOR.
+9. Read Index Root referenced by Footer Payload.
+10. Verify Index Root checksum.
+11. Read Chunk Table referenced by Index Root.
+12. Verify Chunk Table checksum.
+```
+
+If any required step fails, reader MUST return an error.
+
+---
+
+## 10. Footer Payload
+
+Footer Payload MUST be canonical CBOR.
+
+Required logical schema:
+
+```yaml
+schema: "qzt.footer.v1"
+format_version: [0, 1]
+container_id: bstr16
+index_root:
+  offset: u64
+  size: u64
+  checksum:
+    algorithm: "blake3"
+    value: bstr32
+metadata:
+  offset: u64
+  size: u64
+  checksum:
+    algorithm: "blake3"
+    value: bstr32
+final_file_size: u64
+footer_flags: u64
+```
+
+Footer Payload MAY include optional fields:
+
+```yaml
+created_at_unix_ms: u64
+writer: string
+container_checksum:
+  algorithm: "blake3"
+  value: bstr32
+```
+
+`container_checksum`, if present, MUST be computed over the entire file excluding the checksum field itself. Because this complicates streaming writers, it is optional in v0.1.
+
+---
+
+## 11. Metadata Block
+
+Metadata Block MUST be canonical CBOR.
+
+Required logical schema:
+
+```yaml
+schema: "qzt.metadata.v1"
+format: "qzt"
+format_version: [0, 1]
+container_id: bstr16
+
+identity:
+  name: string | null
+  profile: "minimal" | "core" | "log" | "archive" | "memory"
+  created_by: string
+  created_at_unix_ms: u64 | null
+
+source:
+  media_type: "text"
+  encoding: "utf-8"
+  original_size: u64
+  original_checksum:
+    algorithm: "blake3"
+    value: bstr32
+  newline_mode: "lf" | "crlf" | "mixed" | "none"
+  line_count: u64
+
+compression:
+  codec: "zstd"
+  zstd_level: i32
+  independent_frames: true
+  zstd_frame_checksum: bool
+  dictionary_mode: "none" | "embedded"
+
+chunking:
+  target_chunk_size: u64
+  max_chunk_size: u64
+  boundary: "line-preferred" | "document-then-line" | "byte-window"
+  utf8_boundary_required: true
+
+indexes:
+  chunk_table: true
+  sparse_line_index: true
+  dense_line_index: bool
+  document_index: bool
+  token_index: bool
+  ngram_index: bool
+  vector_index: false
+
+integrity:
+  compressed_chunk_checksum: "blake3"
+  uncompressed_chunk_checksum: "blake3"
+  index_checksum: "blake3"
+
+compatibility:
+  qzt_is_zst_stream: false
+  chunks_are_independent_zstd_frames: true
+```
+
+QZT v0.1 Core MUST set:
+
+```yaml
+source.encoding: "utf-8"
+compression.codec: "zstd"
+compression.independent_frames: true
+chunking.utf8_boundary_required: true
+compatibility.qzt_is_zst_stream: false
+compatibility.chunks_are_independent_zstd_frames: true
+```
+
+### 11.1 Metadata and original text
+
+Metadata MUST NOT contain transformed text that replaces the original payload.  
+Any normalized text for search MUST be part of optional search indexes, never the source of truth.
+
+Human View MUST always be generated from original bytes after partial decode.
+
+---
+
+## 12. UTF-8 and text boundary rules
+
+QZT v0.1 Core is UTF-8 text only.
+
+### 12.1 Chunk boundary
+
+Chunk boundaries MUST occur at valid UTF-8 code point boundaries.
+
+When `boundary = "line-preferred"`:
+
+```text
+- writer SHOULD split at newline boundaries near target_chunk_size
+- writer MUST NOT split between CR and LF in a CRLF sequence
+- if a line exceeds max_chunk_size, writer MAY split inside the line
+- even forced splits MUST preserve UTF-8 code point boundaries
+```
+
+If input is not valid UTF-8, writer MUST fail with `InvalidUtf8`, unless a future non-core profile explicitly supports binary or legacy encodings.
+
+### 12.2 Logical offset
+
+All Logical Offsets are:
+
+```text
+0-based byte offsets in the original input byte stream.
+```
+
+They are NOT character offsets, Unicode scalar offsets, or grapheme offsets.
+
+### 12.3 Text range API
+
+`read_range(offset, length)` returns raw bytes and MAY start/end at any byte offset.
+
+`read_text_range(offset, length)` MUST validate that both start and end are UTF-8 boundaries. If not, it MUST return `InvalidUtf8Boundary`.
+
+A convenience API MAY provide `read_text_window(offset, length, mode)` that expands to nearest UTF-8 boundaries.
+
+---
+
+## 13. Line semantics
+
+### 13.1 Line definition
+
+A line is a byte range that ends with a newline sequence or EOF.
+
+Recognized newline sequences:
+
+```text
+LF   = 0x0A
+CRLF = 0x0D 0x0A
+```
+
+A CR byte not followed by LF is treated as ordinary data in v0.1.
+
+A final newline does not create an additional empty line.
+
+Examples:
+
+| Input bytes | line_count |
+|---|---:|
+| `""` | 0 |
+| `"a"` | 1 |
+| `"a\n"` | 1 |
+| `"a\nb"` | 2 |
+| `"a\nb\n"` | 2 |
+| `"\n"` | 1 |
+| `"\n\n"` | 2 |
+
+### 13.2 Line numbering
+
+Internal APIs and index fields MUST use 0-based line numbers.
+
+CLI commands MUST use 1-based line numbers by default.
+
+Example:
+
+```bash
+qzt line data.qzt 1000
+```
+
+means internal line number `999`.
+
+CLI MAY support:
+
+```bash
+qzt line data.qzt 999 --zero-based
+```
+
+### 13.3 Line output
+
+Reader APIs SHOULD provide both exact and display modes:
+
+```text
+read_line_raw(line)       -> exact original line bytes, including newline if present
+read_line_text(line)      -> exact bytes decoded as UTF-8
+read_line_display(line)   -> text suitable for terminal display
+```
+
+The `qzt line` CLI SHOULD default to exact original bytes.
+
+---
+
+## 14. Chunks
+
+Each Chunk MUST be encoded as an independent zstd frame.
+
+The following invariant MUST hold:
+
+```text
+decompress(chunk_0)
++ decompress(chunk_1)
++ ...
++ decompress(chunk_n)
+== original_input_bytes
+```
+
+Chunks MUST be ordered by increasing `logical_offset`.
+
+Chunks MUST NOT overlap.
+
+There MUST be no gap in the reconstructed logical byte stream:
+
+```text
+chunk[i].logical_offset + chunk[i].uncompressed_size
+== chunk[i+1].logical_offset
+```
+
+for all adjacent chunks.
+
+---
+
+## 15. Dictionary handling
+
+QZT v0.1 Core MAY use embedded zstd dictionaries.
+
+If a chunk requires a dictionary:
+
+```text
+- Chunk Table entry MUST reference dictionary_id
+- Index Root MUST include a Dictionary Block descriptor
+- Dictionary Block MUST contain the referenced dictionary
+```
+
+External dictionaries are NOT allowed in QZT v0.1 Core because they weaken long-term evidence restoration.
+
+`dictionary_id = 0` means no dictionary.
+
+Multiple dictionaries are allowed by the logical model, but reference implementations SHOULD start with either:
+
+```text
+- no dictionary
+- one embedded dictionary
+```
+
+---
+
+## 16. Chunk Table
+
+Chunk Table is required.
+
+Index Root MUST contain one required block descriptor with:
+
+```yaml
+type: "chunk_table"
+required: true
+codec: "qzt-ctbl-fixed-v1"
+```
+
+### 16.1 Logical Chunk Entry fields
+
+Each Chunk Entry MUST include:
+
+```yaml
+chunk_id: u64
+physical_offset: u64
+compressed_size: u64
+logical_offset: u64
+uncompressed_size: u64
+first_line: u64
+line_count: u64
+dictionary_id: u32
+flags: u32
+compressed_checksum_blake3: bstr32
+uncompressed_checksum_blake3: bstr32
+```
+
+### 16.2 Fixed binary record
+
+`qzt-ctbl-fixed-v1` encodes each entry as a fixed 128-byte record:
+
+```text
+Offset  Size  Type       Field
+0       8     u64        chunk_id
+8       8     u64        physical_offset
+16      8     u64        compressed_size
+24      8     u64        logical_offset
+32      8     u64        uncompressed_size
+40      8     u64        first_line
+48      8     u64        line_count
+56      4     u32        dictionary_id
+60      4     u32        flags
+64      32    bstr[32]   compressed_checksum_blake3
+96      32    bstr[32]   uncompressed_checksum_blake3
+```
+
+Records MUST be sorted by `chunk_id`.  
+`chunk_id` MUST start at `0` and increase by `1`.
+
+The first entry MUST have:
+
+```text
+logical_offset = 0
+first_line = 0
+```
+
+If the file is empty, Chunk Table MAY contain zero records.
+
+### 16.3 Checksums
+
+`compressed_checksum_blake3` is computed over the exact compressed zstd frame bytes stored in the QZT file.
+
+`uncompressed_checksum_blake3` is computed over the decompressed original chunk bytes.
+
+Compressed checksum can be verified without decompression.  
+Uncompressed checksum requires decompression.
+
+---
+
+## 17. Line Index
+
+QZT v0.1 Core requires at least a sparse line index.
+
+Sparse line index is provided by the Chunk Table fields:
+
+```text
+first_line
+line_count
+```
+
+A reader can resolve a line as:
+
+```text
+1. Binary search Chunk Table for chunk where:
+   first_line <= target_line < first_line + line_count
+2. Read and decompress that chunk only.
+3. Scan newline sequences inside the chunk.
+4. Return the requested line.
+```
+
+### 17.1 Dense Line Index extension
+
+A Dense Line Index MAY be present for faster in-chunk line access.
+
+Index Root descriptor:
+
+```yaml
+type: "dense_line_index"
+required: false
+codec: "qzt-line-delta-varint-v1"
+```
+
+Logical dense entry:
+
+```yaml
+chunk_id: u64
+newline_end_offsets: delta-varint[u64]
+```
+
+`newline_end_offsets` are byte offsets within the uncompressed chunk, pointing to the end of each line including newline sequence.
+
+Dense Line Index MUST NOT be treated as source of truth. If it disagrees with the decoded chunk during deep verify, the container MUST be reported corrupt.
+
+---
+
+## 18. Index Root
+
+Index Root MUST be canonical CBOR.
+
+It is a block directory that tells readers where to find required and optional blocks.
+
+Required logical schema:
+
+```yaml
+schema: "qzt.index-root.v1"
+format_version: [0, 1]
+container_id: bstr16
+blocks:
+  - type: string
+    required: bool
+    offset: u64
+    size: u64
+    codec: string
+    checksum:
+      algorithm: "blake3"
+      value: bstr32
+    flags: u64
+content:
+  original_size: u64
+  original_checksum:
+    algorithm: "blake3"
+    value: bstr32
+  chunk_count: u64
+  line_count: u64
+```
+
+Required block descriptors for QZT v0.1 Core:
+
+```yaml
+- type: "chunk_table"
+  required: true
+  codec: "qzt-ctbl-fixed-v1"
+```
+
+Optional block descriptors MAY include:
+
+```yaml
+- type: "dense_line_index"
+- type: "dictionary"
+- type: "document_index"
+- type: "token_index"
+- type: "ngram_index"
+- type: "optimizer_metadata"
+- type: "extension"
+```
+
+Readers MUST ignore unknown optional blocks.
+
+Readers MUST fail if an unknown `required: true` block is present.
+
+---
+
+## 19. Block type registry
+
+Initial block type names:
+
+| Type name | Required in Core | Purpose |
+|---|---:|---|
+| `metadata` | yes, referenced by Header | container metadata |
+| `chunk_table` | yes | compressed chunk directory |
+| `dense_line_index` | no | faster in-chunk line lookup |
+| `dictionary` | no | embedded zstd dictionary |
+| `document_index` | no | doc_id to byte/line ranges |
+| `token_index` | no | lexical candidate search |
+| `ngram_index` | no | substring candidate search |
+| `optimizer_metadata` | no | encoder parameter notes only |
+| `extension` | no | future extension |
+
+Metadata is directly referenced by Header and SHOULD also be represented in Index Root for diagnostics.
+
+---
+
+## 20. Read algorithms
+
+### 20.1 Export all
+
+```text
+for chunk in chunk_table ordered by chunk_id:
+    read compressed bytes
+    verify compressed checksum if requested
+    decompress zstd frame
+    verify uncompressed checksum if requested
+    append original bytes to output
+```
+
+Result MUST equal original input bytes.
+
+### 20.2 Read byte range
+
+Input:
+
+```text
+offset: u64
+length: u64
+```
+
+Procedure:
+
+```text
+1. Validate offset + length <= original_size.
+2. Find first chunk overlapping [offset, offset + length).
+3. Decompress only overlapping chunks.
+4. Slice decoded chunk bytes by logical offset.
+5. Concatenate slices.
+6. Return exactly length bytes.
+```
+
+### 20.3 Read text range
+
+Same as byte range, plus:
+
+```text
+- validate start offset is UTF-8 boundary
+- validate end offset is UTF-8 boundary
+- decode as UTF-8
+```
+
+If validation fails, return `InvalidUtf8Boundary`.
+
+### 20.4 Read line
+
+Input internal line number is 0-based.
+
+```text
+1. Validate line < line_count.
+2. Find chunk using first_line and line_count.
+3. Decompress chunk.
+4. Locate line inside chunk by scan or Dense Line Index.
+5. Return exact original bytes for that line.
+```
+
+If a line spans multiple chunks because it exceeds `max_chunk_size`, reader MUST continue into adjacent chunks until line terminator or EOF. Writer SHOULD avoid this when possible, but reader MUST support it.
+
+---
+
+## 21. Verification
+
+QZT defines three verification levels.
+
+### 21.1 quick verify
+
+Quick verify MUST check:
+
+```text
+- Header magic/version/length
+- Header reserved bytes are zero
+- Footer Trailer magic/version/length
+- Footer Payload checksum
+- Footer Payload parse
+- Index Root checksum
+- Index Root parse
+- required block descriptors exist
+- Chunk Table block checksum
+- Chunk Table structural consistency:
+    chunk_id sequence
+    logical offset continuity
+    physical ranges inside file
+    no overlap
+    no out-of-bounds reads
+```
+
+Quick verify MUST NOT require decompressing all chunks.
+
+### 21.2 normal verify
+
+Normal verify MUST perform quick verify plus:
+
+```text
+- checksum of all index blocks
+- compressed_checksum_blake3 for all chunks
+- dictionary block checksums if present
+```
+
+Normal verify MUST NOT require full decompression.
+
+### 21.3 deep verify
+
+Deep verify MUST perform normal verify plus:
+
+```text
+- decompress every chunk
+- verify every uncompressed_checksum_blake3
+- verify reconstructed total size
+- verify reconstructed original_checksum
+- verify UTF-8 validity of reconstructed stream
+- verify line_count
+- verify Dense Line Index if present
+- verify Document Index if present
+```
+
+Deep verify proves that the QZT file can restore the original byte stream.
+
+---
+
+## 22. Immutability
+
+A QZT v0.1 Core container is immutable after `finish()`.
+
+Writers MUST NOT append or modify chunks/indexes in place after final Footer Trailer is written.
+
+Updates MUST create a new file through operations such as:
+
+```bash
+qzt repack old.qzt -o new.qzt
+qzt merge a.qzt b.qzt -o merged.qzt
+qzt compact old.qzt -o compacted.qzt
+```
+
+Future versions MAY define appendable segment containers, but v0.1 does not.
+
+---
+
+## 23. Error codes
+
+Implementations SHOULD expose at least these errors:
+
+```text
+InvalidMagic
+UnsupportedVersion
+InvalidHeader
+InvalidFooterTrailer
+InvalidFooterPayload
+FooterChecksumMismatch
+IndexRootChecksumMismatch
+MissingRequiredBlock
+UnknownRequiredBlock
+ChunkTableChecksumMismatch
+ChunkTableInvalid
+PhysicalRangeOutOfBounds
+LogicalRangeOutOfBounds
+InvalidUtf8
+InvalidUtf8Boundary
+LineOutOfRange
+MissingDictionary
+DictionaryChecksumMismatch
+CompressedChunkChecksumMismatch
+UncompressedChunkChecksumMismatch
+ZstdDecodeError
+ContainerCorrupt
+ResourceLimitExceeded
+```
+
+---
+
+## 24. CLI specification
+
+### 24.1 pack
+
+```bash
+qzt pack input.txt -o output.qzt
+```
+
+Options:
+
+```bash
+--profile minimal|core|log|archive|memory
+--zstd-level N
+--chunk-size SIZE
+--max-chunk-size SIZE
+--dict none|auto|PATH
+--checksum blake3
+--dense-line-index on|off
+```
+
+Required behavior:
+
+```text
+- validate input is UTF-8
+- split on UTF-8 boundaries
+- prefer line boundaries
+- write independent zstd frames
+- write Metadata
+- write Chunk Table
+- write Index Root
+- write Footer Payload
+- write Footer Trailer
+- patch Header
+```
+
+### 24.2 info
+
+```bash
+qzt info data.qzt
+```
+
+SHOULD print:
+
+```text
+Format: QZT 0.1
+Profile: core
+Original size: ...
+Compressed size: ...
+Chunks: ...
+Lines: ...
+Compression: zstd level ...
+Chunk target: ...
+Line index: sparse|dense
+Document index: yes|no
+Token index: yes|no
+Ngram index: yes|no
+Vector index: no
+Checksum: blake3
+Zstd stream compatible: no
+```
+
+### 24.3 export
+
+```bash
+qzt export data.qzt -o restored.txt
+```
+
+MUST output original bytes exactly.
+
+### 24.4 range
+
+```bash
+qzt range data.qzt --bytes 1048576:2097152
+qzt range data.qzt --lines 1000:1200
+```
+
+CLI line ranges are 1-based and inclusive by default unless implementation explicitly documents otherwise.
+
+Recommended interpretation:
+
+```text
+--lines A:B means lines A through B inclusive using 1-based user numbering.
+```
+
+### 24.5 line
+
+```bash
+qzt line data.qzt 1000
+qzt line data.qzt 999 --zero-based
+```
+
+Default is 1-based.
+
+### 24.6 verify
+
+```bash
+qzt verify data.qzt --quick
+qzt verify data.qzt --normal
+qzt verify data.qzt --deep
+```
+
+Default SHOULD be `--normal`.
+
+---
+
+## 25. Reader API
+
+Conceptual Rust-style API:
+
+```rust
+struct QztReader;
+
+impl QztReader {
+    fn open(path: &Path) -> Result<QztReader>;
+
+    fn info(&self) -> Result<QztInfo>;
+
+    fn read_range(&self, offset: u64, length: u64) -> Result<Vec<u8>>;
+
+    fn read_text_range(&self, offset: u64, length: u64) -> Result<String>;
+
+    fn read_line_raw(&self, line_zero_based: u64) -> Result<Vec<u8>>;
+
+    fn read_line_text(&self, line_zero_based: u64) -> Result<String>;
+
+    fn export_to<W: Write>(&self, writer: W) -> Result<()>;
+
+    fn verify(&self, level: VerifyLevel) -> Result<VerifyReport>;
+}
+```
+
+---
+
+## 26. Writer API
+
+Conceptual Rust-style API:
+
+```rust
+struct QztWriter;
+
+impl QztWriter {
+    fn create(path: &Path, options: QztWriteOptions) -> Result<QztWriter>;
+
+    fn write_all(&mut self, bytes: &[u8]) -> Result<()>;
+
+    fn finish(self) -> Result<QztSummary>;
+}
+```
+
+The writer MAY stream input, but it MUST be able to patch the Header at finish time or otherwise write a valid Header.
+
+---
+
+## 27. Profiles
+
+### 27.1 minimal
+
+For storage with exact restoration and byte-range access.
+
+```yaml
+profile: "minimal"
+target_chunk_size: 4MiB
+max_chunk_size: 16MiB
+dense_line_index: false
+document_index: false
+token_index: false
+ngram_index: false
+```
+
+Minimal may still store `first_line` and `line_count` if line counting is enabled, but line CLI is not required for minimal-only implementations.
+
+### 27.2 core
+
+Reference default for QZT v0.1 Core.
+
+```yaml
+profile: "core"
+target_chunk_size: 1MiB
+max_chunk_size: 8MiB
+boundary: "line-preferred"
+sparse_line_index: true
+dense_line_index: false
+document_index: false
+token_index: false
+ngram_index: false
+```
+
+### 27.3 log
+
+For logs.
+
+```yaml
+profile: "log"
+target_chunk_size: 512KiB
+max_chunk_size: 4MiB
+boundary: "line-preferred"
+sparse_line_index: true
+dense_line_index: true
+token_index: optional
+ngram_index: optional
+```
+
+### 27.4 archive
+
+For higher compression.
+
+```yaml
+profile: "archive"
+target_chunk_size: 8MiB
+max_chunk_size: 32MiB
+boundary: "line-preferred"
+sparse_line_index: true
+dense_line_index: false
+token_index: false
+ngram_index: false
+zstd_level: high
+```
+
+### 27.5 memory
+
+For Memory Pager / AI evidence systems.
+
+```yaml
+profile: "memory"
+target_chunk_size: 256KiB
+max_chunk_size: 2MiB
+boundary: "document-then-line"
+sparse_line_index: true
+dense_line_index: true
+document_index: true
+token_index: optional
+ngram_index: optional
+vector_index: false
+```
+
+`memory` profile is an extension profile. It is not required for QZT v0.1 Core conformance.
+
+---
+
+## 28. Extension: Document Index
+
+Document Index maps stable document IDs to original byte/line ranges.
+
+Index Root descriptor:
+
+```yaml
+type: "document_index"
+required: false
+codec: "qzt-doc-index-cbor-v1"
+```
+
+Logical entry:
+
+```yaml
+doc_id: string
+doc_id_hash: bstr16
+logical_offset: u64
+byte_length: u64
+first_line: u64
+line_count: u64
+chunk_start: u64
+chunk_end: u64
+checksum:
+  algorithm: "blake3"
+  value: bstr32
+metadata: map
+```
+
+Document Index MUST be treated as an index into original text, not as a replacement for original text.
+
+During deep verify, if Document Index exists, implementation SHOULD verify all document ranges are within original size and chunk ranges are consistent.
+
+---
+
+## 29. Extension: Search Index
+
+Search Index is not QZT v0.1 Core.
+
+When provided, it MUST be a candidate index unless it explicitly declares complete semantics.
+
+### 29.1 Candidate search rule
+
+Search flow:
+
+```text
+query
+  -> search index
+  -> candidate chunks
+  -> partial decode
+  -> verify match against original text
+  -> return hits
+```
+
+Search indexes MAY have false positives.  
+If `complete=false`, they MAY have false negatives.  
+If `complete=true`, they MUST NOT have false negatives within the declared scope.
+
+### 29.2 Token Index
+
+Recommended default tokenizer for v0.1 search extension:
+
+```text
+ASCII alnum + "_" + "-" forms tokens.
+All other code points are delimiters.
+Japanese and other non-space languages should use char n-gram index.
+```
+
+Descriptor example:
+
+```yaml
+type: "token_index"
+required: false
+codec: "qzt-token-delta-varint-v1"
+tokenizer:
+  id: "qzt-simple-tokenizer-v1"
+  lowercase: true
+posting_granularity: "chunk"
+posting_codec: "delta-varint-v1"
+complete: true
+```
+
+### 29.3 N-gram Index
+
+Recommended:
+
+```text
+Japanese: char 2-gram or char 3-gram
+Mixed logs: token index + char 3-gram
+```
+
+Descriptor example:
+
+```yaml
+type: "ngram_index"
+required: false
+codec: "qzt-ngram-delta-varint-v1"
+n: 3
+source: "raw_utf8" | "normalized_utf8"
+posting_granularity: "chunk"
+complete: true
+```
+
+### 29.4 Raw vs normalized indexes
+
+Original text MUST NOT be normalized.
+
+Search extensions SHOULD separate:
+
+```text
+raw_token_index
+normalized_token_index
+raw_ngram_index
+normalized_ngram_index
+```
+
+Human View MUST always return original text.
+
+### 29.5 Boundary matches
+
+Matches spanning chunk boundaries are a known issue.
+
+Search extension MUST declare one of:
+
+```yaml
+boundary_mode: "none" | "adjacent_decode" | "adjacent_window_index"
+boundary_window_bytes: u64
+```
+
+Recommended extension behavior:
+
+```yaml
+boundary_mode: "adjacent_window_index"
+boundary_window_bytes: 4096
+```
+
+Then:
+
+```text
+- single-chunk matches can be complete=true
+- boundary matches within boundary_window_bytes can be complete=true
+- longer boundary-spanning matches require fallback scan or complete=false
+```
+
+### 29.6 High document frequency terms
+
+Search planners SHOULD protect against huge candidate sets.
+
+Recommended metadata:
+
+```yaml
+max_candidate_chunks_default: 10000
+high_df_terms: supported
+```
+
+CLI SHOULD expose:
+
+```bash
+qzt search data.qzt "error" --max-candidates 10000
+```
+
+---
+
+## 30. Extension: Sidecar indexes
+
+A sidecar index MAY be used when search/vector/FM-index data is too large or should be rebuilt independently.
+
+Suggested names:
+
+```text
+data.qzt.qzi     general QZT side index
+data.qzt.fm      FM-index sidecar
+data.qzt.vec     vector sidecar
+```
+
+A sidecar MUST include:
+
+```yaml
+schema: "qzt.sidecar.v1"
+source_container_id: bstr16
+source_format_version: [0, 1]
+source_original_checksum:
+  algorithm: "blake3"
+  value: bstr32
+source_qzt_footer_checksum:
+  algorithm: "blake3"
+  value: bstr32
+index_type: string
+created_at_unix_ms: u64
+```
+
+Readers MUST reject a sidecar if `source_container_id` or source checksum does not match.
+
+---
+
+## 31. Extension: Optimizer metadata
+
+Optimizer metadata MAY record how encoder parameters were chosen.
+
+It MUST NOT be required for decoding.
+
+Index Root descriptor:
+
+```yaml
+type: "optimizer_metadata"
+required: false
+codec: "cbor"
+```
+
+Allowed example:
+
+```yaml
+optimizer:
+  kind: "quantum-inspired" | "heuristic" | "grid-search"
+  objective:
+    compressed_size_weight: 0.5
+    query_latency_weight: 0.3
+    index_size_weight: 0.2
+  selected:
+    target_chunk_size: 1048576
+    zstd_level: 12
+```
+
+Decoder MUST ignore optimizer metadata.
+
+---
+
+## 32. Compatibility with zstd
+
+QZT v0.1 Core is not a `.zst` stream.
+
+This MUST be represented in metadata:
+
+```yaml
+compatibility:
+  qzt_is_zst_stream: false
+  chunks_are_independent_zstd_frames: true
+```
+
+A standard zstd decoder is not expected to decode an entire `.qzt` file.
+
+However, each compressed chunk is an independent zstd frame, and can be decoded by a zstd decoder if its physical offset, compressed size, and dictionary are known.
+
+Future versions MAY define a zstd-skippable-compatible profile.
+
+---
+
+## 33. Security and resource limits
+
+Readers MUST validate:
+
+```text
+- all offsets are inside file bounds
+- all sizes are reasonable and do not overflow u64
+- physical chunk ranges do not overlap invalidly
+- uncompressed chunk size <= configured max
+- dictionary size <= configured max
+- index block size <= configured max
+- footer/index blocks do not point to themselves cyclically
+- required dictionaries exist
+- decompression does not exceed declared uncompressed_size
+```
+
+Recommended default limits:
+
+```yaml
+max_uncompressed_chunk_size: 64MiB
+max_dictionary_size: 16MiB
+max_index_block_size: configurable
+max_search_results: 100000
+max_preview_bytes: 1MiB
+```
+
+Implementations MUST protect against decompression bombs.
+
+---
+
+## 34. Conformance levels
+
+### 34.1 QZT v0.1 Reader Core
+
+A Reader Core implementation MUST support:
+
+```text
+- open
+- info
+- export
+- read_range
+- read_line_raw
+- verify quick/normal/deep
+- zstd chunks without dictionary
+- zstd chunks with embedded dictionary if dictionary block is present
+- sparse line index via Chunk Table
+```
+
+### 34.2 QZT v0.1 Writer Core
+
+A Writer Core implementation MUST support:
+
+```text
+- pack UTF-8 input
+- independent zstd frames
+- valid Header
+- valid Metadata
+- valid Chunk Table
+- valid Index Root
+- valid Footer Payload
+- valid Footer Trailer
+- BLAKE3 compressed/uncompressed chunk checksums
+- UTF-8 safe chunk boundaries
+```
+
+### 34.3 QZT v0.1 Search Extension
+
+Search extension implementation MAY support:
+
+```text
+- token index
+- ngram index
+- candidate chunk search
+- boundary mode declaration
+- raw/normalized index separation
+```
+
+Search extension is not required for Core conformance.
+
+---
+
+## 35. Test suite
+
+A QZT v0.1 implementation SHOULD pass these tests:
+
+```text
+1. empty file
+2. one line without newline
+3. one line with newline
+4. LF multi-line
+5. CRLF multi-line
+6. mixed LF/CRLF
+7. Japanese UTF-8
+8. emoji UTF-8
+9. very long single line exceeding target_chunk_size
+10. very long single line exceeding max_chunk_size
+11. chunk boundary at Japanese multibyte character
+12. chunk boundary near CRLF
+13. small chunk size
+14. no dictionary
+15. embedded dictionary
+16. corrupted Header magic
+17. corrupted Footer Trailer
+18. corrupted Footer Payload checksum
+19. corrupted Index Root checksum
+20. corrupted Chunk Table checksum
+21. corrupted compressed chunk bytes
+22. corrupted uncompressed checksum after decode
+23. read_range spanning one chunk
+24. read_range spanning multiple chunks
+25. read_line first line
+26. read_line last line
+27. read_line out of range
+28. export equality
+29. quick verify succeeds without decompression
+30. deep verify detects invalid line_count
+31. unknown optional block ignored
+32. unknown required block rejected
+33. sidecar wrong container_id rejected
+```
+
+---
+
+## 36. Reference implementation roadmap
+
+Recommended implementation order:
+
+```text
+Phase 0:
+  - fixed Header
+  - fixed Footer Trailer
+  - Footer Payload
+  - Metadata
+  - Index Root skeleton
+  - Chunk Table skeleton
+
+Phase 1:
+  - independent zstd chunks
+  - pack/export exact equality
+  - compressed/uncompressed chunk checksums
+  - quick/normal/deep verify
+
+Phase 2:
+  - sparse line index
+  - qzt line
+  - qzt range --bytes
+  - qzt range --lines
+  - head/tail convenience commands
+
+Phase 3:
+  - Dense Line Index
+  - Document Index
+  - memory profile
+
+Phase 4:
+  - Token Index
+  - Ngram Index
+  - qzt search
+  - boundary match handling
+
+Phase 5:
+  - dictionary training
+  - sidecar FM-index
+  - sidecar vector index
+  - optimizer metadata
+```
+
+---
+
+## 37. Final v0.1 Core summary
+
+QZT v0.1 Core is:
+
+```text
+Fixed Header, 128 bytes
++ canonical CBOR Metadata
++ independent zstd frames
++ Chunk Table
++ sparse Line Index via Chunk Table
++ Index Root
++ Footer Payload
++ Footer Trailer, 64 bytes
+```
+
+Its required guarantees are:
+
+```text
+- exact export
+- partial byte-range read
+- line read
+- UTF-8 safe chunking
+- compressed checksum
+- uncompressed checksum
+- quick/normal/deep verify
+- immutable after finish
+```
+
+Its product identity is:
+
+```text
+QZT is not better compression.
+QZT is better evidence access.
+```
+
+For Memory Pager:
+
+```text
+QZT is the Cold Evidence Container.
+Memory Pager stores summaries and memory hierarchy.
+QZT stores exact source evidence and restores only the requested ranges.
+```
