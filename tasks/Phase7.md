@@ -110,4 +110,28 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-07
+
+Verification:
+
+```text
+- make check
+- cargo test --test phase7_access phase7_intermediate_benchmark_records_nonzero_metrics -- --nocapture
+```
+
+Benchmark smoke:
+
+```text
+phase7_bench pack_mib_s=10.695 export_mib_s=30.631 range_mib_s=8.736 line_us=27.167
+```
+
+Review notes:
+
+```text
+- Self-review completed: half-open byte range math, UTF-8 boundary handling, 1-based CLI line conversion, zero-length reads, and spanning-line reads were checked.
+- Code review completed: initial linear lookup was replaced with Chunk Table binary search for range and sparse line start discovery.
+- Architecture review completed: partial access lives in QztReader, CLI remains a thin adapter, and access paths decode only overlapping chunks.
+- No spec ambiguity was found that required QZT_v0.1_Core_Spec.md changes.
+```

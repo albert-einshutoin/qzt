@@ -1,9 +1,9 @@
 use std::io::Write;
 
-use crate::chunk_table::STARTS_WITH_LINE_CONTINUATION;
+use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
 use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
-use crate::primitives::checked_physical_end;
+use crate::primitives::{checked_logical_end, checked_physical_end};
 use crate::schema::Checksum;
 use crate::skeleton::{open_skeleton_details, SkeletonDetails};
 
@@ -69,6 +69,89 @@ impl QztReader {
         let mut output = Vec::new();
         self.export_to(&mut output)?;
         Ok(output)
+    }
+
+    pub fn read_range(&self, offset: u64, length: u64) -> Result<Vec<u8>> {
+        let end = checked_logical_end(offset, length)?;
+        if end > self.details.summary.original_size {
+            return Err(QztError::LogicalRangeOutOfBounds);
+        }
+        if length == 0 {
+            return Ok(Vec::new());
+        }
+
+        let mut output = Vec::new();
+        let mut index = range_start_chunk_index(&self.details.chunk_entries, offset)?;
+        while let Some(entry) = self.details.chunk_entries.get(index) {
+            let chunk_end = checked_logical_end(entry.logical_offset, entry.uncompressed_size)?;
+            if entry.logical_offset >= end {
+                break;
+            }
+
+            let decoded = self.decode_entry(entry)?;
+            let copy_start = offset.max(entry.logical_offset);
+            let copy_end = end.min(chunk_end);
+            let local_start = usize::try_from(copy_start - entry.logical_offset)
+                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            let local_end = usize::try_from(copy_end - entry.logical_offset)
+                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            output.extend_from_slice(&decoded[local_start..local_end]);
+            index += 1;
+        }
+
+        if u64::try_from(output.len()).map_err(|_| QztError::ResourceLimitExceeded)? != length {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        Ok(output)
+    }
+
+    pub fn read_text_range(&self, offset: u64, length: u64) -> Result<String> {
+        let bytes = self.read_range(offset, length)?;
+        String::from_utf8(bytes).map_err(|_| QztError::InvalidUtf8Boundary)
+    }
+
+    pub fn read_line_raw(&self, line_zero_based: u64) -> Result<Vec<u8>> {
+        if line_zero_based >= self.details.summary.line_count {
+            return Err(QztError::LineOutOfRange);
+        }
+
+        let start_index = line_start_chunk_index(&self.details.chunk_entries, line_zero_based)?;
+
+        let start_entry = self
+            .details
+            .chunk_entries
+            .get(start_index)
+            .ok_or(QztError::LineOutOfRange)?;
+        let start_decoded = self.decode_entry(start_entry)?;
+        let starts = local_line_starts(&start_decoded, start_entry.flags);
+        let local_index = usize::try_from(line_zero_based - start_entry.first_line)
+            .map_err(|_| QztError::LineOutOfRange)?;
+        let local_start = starts
+            .get(local_index)
+            .copied()
+            .ok_or(QztError::LineOutOfRange)?;
+
+        let mut output = Vec::new();
+        if append_until_lf(&start_decoded, local_start, &mut output) {
+            return Ok(output);
+        }
+
+        let mut current_index = start_index + 1;
+        while let Some(entry) = self.details.chunk_entries.get(current_index) {
+            let decoded = self.decode_entry(entry)?;
+            let found_end = append_until_lf(&decoded, 0, &mut output);
+            if found_end {
+                return Ok(output);
+            }
+            current_index += 1;
+        }
+
+        Ok(output)
+    }
+
+    pub fn read_line_text(&self, line_zero_based: u64) -> Result<String> {
+        String::from_utf8(self.read_line_raw(line_zero_based)?).map_err(|_| QztError::InvalidUtf8)
     }
 
     pub fn verify(&self, level: VerifyLevel) -> Result<VerifyReport> {
@@ -175,7 +258,7 @@ impl QztReader {
         })
     }
 
-    fn decode_entry(&self, entry: &crate::chunk_table::ChunkEntry) -> Result<Vec<u8>> {
+    fn decode_entry(&self, entry: &ChunkEntry) -> Result<Vec<u8>> {
         if entry.dictionary_id != 0 {
             return Err(QztError::MissingDictionary);
         }
@@ -269,4 +352,70 @@ impl TextAnalysis {
 
 fn lower_bound(values: &[usize], target: usize) -> usize {
     values.partition_point(|value| *value < target)
+}
+
+fn range_start_chunk_index(entries: &[ChunkEntry], offset: u64) -> Result<usize> {
+    let mut low = 0_usize;
+    let mut high = entries.len();
+
+    while low < high {
+        let mid = low + (high - low) / 2;
+        let chunk_end =
+            checked_logical_end(entries[mid].logical_offset, entries[mid].uncompressed_size)?;
+        if chunk_end <= offset {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+
+    Ok(low)
+}
+
+fn line_start_chunk_index(entries: &[ChunkEntry], line_zero_based: u64) -> Result<usize> {
+    let mut low = 0_usize;
+    let mut high = entries.len();
+
+    while low < high {
+        let mid = low + (high - low) / 2;
+        let line_end = checked_logical_end(entries[mid].first_line, entries[mid].line_count)?;
+        if line_end <= line_zero_based {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+
+    let entry = entries.get(low).ok_or(QztError::LineOutOfRange)?;
+    let line_end = checked_logical_end(entry.first_line, entry.line_count)?;
+    if entry.first_line <= line_zero_based && line_zero_based < line_end {
+        Ok(low)
+    } else {
+        Err(QztError::LineOutOfRange)
+    }
+}
+
+fn local_line_starts(decoded: &[u8], flags: u32) -> Vec<usize> {
+    let mut starts = Vec::new();
+    if flags & STARTS_WITH_LINE_CONTINUATION == 0 && !decoded.is_empty() {
+        starts.push(0);
+    }
+
+    for index in 0..decoded.len() {
+        if decoded[index] == b'\n' && index + 1 < decoded.len() {
+            starts.push(index + 1);
+        }
+    }
+
+    starts
+}
+
+fn append_until_lf(decoded: &[u8], start: usize, output: &mut Vec<u8>) -> bool {
+    for byte in &decoded[start..] {
+        output.push(*byte);
+        if *byte == b'\n' {
+            return true;
+        }
+    }
+    false
 }
