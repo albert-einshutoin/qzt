@@ -2,7 +2,10 @@ use std::io::Write;
 use std::process::ExitCode;
 
 use qzt::reader::{QztReader, VerifyLevel};
-use qzt::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
+use qzt::search::{
+    NgramIndexBuildOptions, RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions,
+    TokenIndexBuildOptions,
+};
 use qzt::writer::{pack_bytes, WriterOptions};
 
 fn main() -> ExitCode {
@@ -368,8 +371,32 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     };
 
     let mut options = SearchOptions::default();
+    let mut index_kind = "token";
+    let mut ngram = 3_usize;
     while let Some(arg) = args.next() {
         match arg.as_str() {
+            "--index" => {
+                let Some(value) = args.next() else {
+                    eprintln!("qzt search: missing --index value");
+                    return ExitCode::from(2);
+                };
+                if !matches!(value.as_str(), "token" | "ngram") {
+                    eprintln!("qzt search: invalid --index value");
+                    return ExitCode::from(2);
+                }
+                index_kind = if value == "ngram" { "ngram" } else { "token" };
+            }
+            "--ngram" => {
+                let Some(value) = args.next().and_then(|value| value.parse::<usize>().ok()) else {
+                    eprintln!("qzt search: invalid --ngram");
+                    return ExitCode::from(2);
+                };
+                if value == 0 {
+                    eprintln!("qzt search: invalid --ngram");
+                    return ExitCode::from(2);
+                }
+                ngram = value;
+            }
             "--max-candidates" => {
                 let Some(value) = args.next().and_then(|value| value.parse::<u64>().ok()) else {
                     eprintln!("qzt search: invalid --max-candidates");
@@ -392,10 +419,24 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let result = std::fs::read(path).map_err(|_| ()).and_then(|bytes| {
-        let index = RawTokenIndex::build_from_container(&bytes, TokenIndexBuildOptions::default())
-            .map_err(|_| ())?;
         let reader = QztReader::open(&bytes).map_err(|_| ())?;
-        index.search(&reader, &query, options).map_err(|_| ())
+        if index_kind == "ngram" {
+            let index = RawNgramIndex::build_from_container(
+                &bytes,
+                NgramIndexBuildOptions {
+                    source: SearchIndexSource::RawUtf8,
+                    n: ngram,
+                    ..NgramIndexBuildOptions::default()
+                },
+            )
+            .map_err(|_| ())?;
+            index.search(&reader, &query, options).map_err(|_| ())
+        } else {
+            let index =
+                RawTokenIndex::build_from_container(&bytes, TokenIndexBuildOptions::default())
+                    .map_err(|_| ())?;
+            index.search(&reader, &query, options).map_err(|_| ())
+        }
     });
 
     match result {
