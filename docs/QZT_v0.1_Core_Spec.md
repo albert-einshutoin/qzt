@@ -223,6 +223,9 @@ User-facing CLIs MAY display line ranges as 1-based inclusive ranges, but stored
 | Footer Payload | Variable-length canonical CBOR payload referenced by Footer Trailer |
 | Evidence Ref | Stable pointer from an external system into QZT original text |
 | Human View | Text produced by partial decode for user display |
+| Search Granule | Small original-text range used as a posting target in a search index |
+| Posting List | Sorted list of Search Granule IDs for one token or n-gram |
+| Search Manifest | Directory describing search index granules, dictionaries, postings, and planner metadata |
 
 ---
 
@@ -287,6 +290,40 @@ The physical order of metadata/index blocks MAY differ, as long as:
 
 Compressed chunks do not require per-chunk headers. Their locations and sizes are authoritative in the Chunk Table.
 
+### 6.1 Physical range model
+
+All physical byte ranges in a QZT file are 0-based half-open ranges:
+
+```text
+[offset, offset + size)
+```
+
+Readers MUST validate that `offset + size` does not overflow `u64`.
+
+Readers MUST validate that every referenced physical range is inside:
+
+```text
+[0, final_file_size)
+```
+
+The following physical ranges are reserved:
+
+```text
+Header:         [0, 128)
+Footer Trailer: [final_file_size - 64, final_file_size)
+Footer Payload: [footer_payload_offset, footer_payload_offset + footer_payload_size)
+Metadata:       [metadata_offset, metadata_offset + metadata_size)
+Index Root:     [index_root.offset, index_root.offset + index_root.size)
+Chunk Table:    block descriptor range for type "chunk_table"
+Compressed chunks: Chunk Table physical ranges
+```
+
+Required ranges MUST NOT overlap, except that an optional `metadata` block descriptor in Index Root MAY describe the same Metadata range already referenced by Header and Footer Payload.
+
+Compressed chunk ranges MUST NOT overlap any metadata, index, footer payload, footer trailer, or other compressed chunk range.
+
+Writers SHOULD emit blocks in the logical order shown in Section 6, but readers MUST rely on validated offsets and sizes, not physical order.
+
 ---
 
 ## 7. Byte order and primitive types
@@ -332,6 +369,18 @@ Readers MUST reject duplicate map keys.
 Readers MUST ignore unknown fields only when the surrounding schema explicitly allows extension fields.
 
 The logical schemas in this document use YAML notation for readability. The serialized representation is deterministic CBOR, not YAML or JSON.
+
+Core CBOR schemas are closed by default:
+
+```text
+- required fields MUST be present
+- optional fields MAY be absent
+- unknown fields MUST be rejected unless the schema explicitly says they are allowed
+```
+
+Footer Payload optional fields are limited to the fields listed in Section 10 for v0.1.
+
+Index Root MAY contain unknown optional block descriptors. Core block descriptors MUST use the fields defined in Section 18. Extension specs MAY define additional descriptor fields for their own block types.
 
 ---
 
@@ -652,7 +701,22 @@ For a non-empty file, line `0` starts at logical offset `0`.
 Each subsequent line starts immediately after a recognized newline sequence.
 A final newline does not create a Line Start at EOF.
 
-### 13.2 Line numbering
+### 13.2 Newline mode
+
+`source.newline_mode` is derived from the original byte stream:
+
+```text
+"none"  no recognized LF or CRLF newline sequence appears
+"lf"    at least one LF newline appears and no CRLF newline appears
+"crlf"  at least one CRLF newline appears and no standalone LF newline appears
+"mixed" both LF and CRLF newline sequences appear
+```
+
+The LF byte inside a CRLF sequence MUST NOT also count as a standalone LF newline.
+
+Deep verify MUST recompute `newline_mode` from the reconstructed original bytes and compare it to Metadata.
+
+### 13.3 Line numbering
 
 Internal APIs and index fields MUST use 0-based line numbers.
 
@@ -672,7 +736,7 @@ CLI MAY support:
 qzt line data.qzt 999 --zero-based
 ```
 
-### 13.3 Line output
+### 13.4 Line output
 
 Reader APIs SHOULD provide both exact and display modes:
 
@@ -712,6 +776,18 @@ chunk[i].logical_offset + chunk[i].uncompressed_size
 ```
 
 for all adjacent chunks.
+
+### 14.1 Zstd frame requirements
+
+Each compressed chunk MUST contain exactly one complete Zstandard frame.
+
+The zstd frame MAY omit the decompressed content size. QZT readers MUST treat the Chunk Table `uncompressed_size` as authoritative.
+
+During decompression, readers MUST stop and return `ZstdDecodeError` or `ResourceLimitExceeded` if decoded output exceeds the declared `uncompressed_size` or configured resource limits.
+
+After decompression, the decoded output size MUST equal the Chunk Table `uncompressed_size`.
+
+If `compression.zstd_frame_checksum = true`, zstd's frame checksum MAY provide an additional codec-level check. QZT BLAKE3 chunk checksums remain authoritative for QZT verification.
 
 ---
 
@@ -844,7 +920,47 @@ first_line = 0
 
 If the file is empty, Chunk Table MAY contain zero records.
 
-### 16.3 Chunk flags
+### 16.3 Chunk Table block invariants
+
+The Chunk Table block size MUST be:
+
+```text
+chunk_count * 128
+```
+
+`chunk_count` is the `content.chunk_count` value stored in Index Root.
+
+For an empty original input:
+
+```text
+source.original_size = 0
+source.line_count = 0
+Index Root content.chunk_count = 0
+Chunk Table block size = 0
+```
+
+For non-empty original input, Chunk Table MUST contain at least one record.
+
+Writers MUST NOT emit zero-length chunks.
+Readers MUST reject any Chunk Entry where `compressed_size = 0` or `uncompressed_size = 0`.
+
+The sum of all Chunk Entry `uncompressed_size` values MUST equal `source.original_size`.
+
+The final Chunk Entry MUST satisfy:
+
+```text
+logical_offset + uncompressed_size == source.original_size
+```
+
+For every adjacent pair of Chunk Entries:
+
+```text
+chunk[i + 1].first_line == chunk[i].first_line + chunk[i].line_count
+```
+
+This first-line continuity check uses declared `line_count` values and does not require decompression. Deep verify MUST additionally recompute Line Starts from decoded bytes.
+
+### 16.4 Chunk flags
 
 Chunk Entry `flags` is a bitset.
 
@@ -869,7 +985,7 @@ No other chunk flag bits are defined in v0.1.
 Writers MUST write all unknown flag bits as zero.
 Readers MUST reject non-zero unknown flag bits.
 
-### 16.4 Checksums
+### 16.5 Checksums
 
 `compressed_checksum_blake3` is computed over the exact compressed zstd frame bytes stored in the QZT file.
 
@@ -1057,11 +1173,12 @@ Procedure:
 ```text
 1. Validate offset + length does not overflow u64.
 2. Validate offset + length <= original_size.
-3. Find first chunk overlapping [offset, offset + length).
-4. Decompress only overlapping chunks.
-5. Slice decoded chunk bytes by logical offset.
-6. Concatenate slices.
-7. Return exactly length bytes.
+3. If length = 0, return an empty byte string without reading chunks.
+4. Find first chunk overlapping [offset, offset + length).
+5. Decompress only overlapping chunks.
+6. Slice decoded chunk bytes by logical offset.
+7. Concatenate slices.
+8. Return exactly length bytes.
 ```
 
 ### 20.3 Read text range
@@ -1127,10 +1244,14 @@ Quick verify MUST check:
 - block descriptor physical ranges are inside file and do not overlap
 - Chunk Table block checksum
 - Chunk Table structural consistency:
+    block size equals chunk_count * 128
+    chunk_count equals number of records
     chunk_id sequence
     logical offset continuity
-    first_line continuity by Line Start count
+    first_line continuity by declared line_count values
     sum(line_count) equals container line_count
+    sum(uncompressed_size) equals original_size
+    no zero-length chunks in non-empty files
     physical ranges inside file
     no overlap
     no out-of-bounds reads
@@ -1163,6 +1284,7 @@ Deep verify MUST perform normal verify plus:
 - verify reconstructed original_checksum
 - verify UTF-8 validity of reconstructed stream
 - verify line_count
+- verify newline_mode
 - verify Chunk Table first_line and line_count against decoded Line Starts
 - verify starts_with_line_continuation flags against decoded chunk boundaries
 - verify Dense Line Index if present
@@ -1208,12 +1330,16 @@ FinalFileSizeMismatch
 ContainerIdMismatch
 MetadataChecksumMismatch
 MetadataInvalid
+VersionMismatch
+NewlineModeMismatch
 IndexRootChecksumMismatch
 MissingRequiredBlock
 UnknownRequiredBlock
 InvalidFlags
 ChunkTableChecksumMismatch
 ChunkTableInvalid
+ChunkCountMismatch
+ChunkSizeMismatch
 PhysicalRangeOutOfBounds
 LogicalRangeOutOfBounds
 InvalidUtf8
@@ -1248,6 +1374,18 @@ Options:
 --dict none|auto|PATH
 --checksum blake3
 --dense-line-index on|off
+```
+
+Writer option validation:
+
+```text
+- target chunk size MUST be greater than 0
+- max chunk size MUST be greater than 0
+- target chunk size MUST be less than or equal to max chunk size
+- max chunk size SHOULD be at least 4 bytes for UTF-8 Core writers
+- zstd level MUST be accepted by the implementation's zstd encoder
+- checksum algorithm MUST be blake3 for v0.1 Core
+- --dict PATH MUST embed the dictionary bytes in the QZT file
 ```
 
 Required behavior:
@@ -1521,7 +1659,20 @@ During deep verify, if Document Index exists, implementation SHOULD verify all d
 
 Search Index is not QZT v0.1 Core.
 
+Search Index is an acceleration structure. It MUST NOT replace the original text as the source of truth.
+
 When provided, it MUST be a candidate index unless it explicitly declares complete semantics.
+
+High-performance search in QZT depends on four separate mechanisms:
+
+```text
+1. use an index to produce a small set of candidate Search Granules
+2. intersect postings before decoding compressed chunks
+3. decode only chunks overlapping surviving candidates
+4. verify every reported match against original bytes after partial decode
+```
+
+An implementation that only maps terms to whole chunks can be correct, but it SHOULD NOT claim high-performance search for large or high-cardinality corpora unless benchmark evidence shows acceptable candidate and decode costs.
 
 ### 29.1 Candidate search rule
 
@@ -1530,6 +1681,7 @@ Search flow:
 ```text
 query
   -> search index
+  -> candidate Search Granules
   -> candidate chunks
   -> partial decode
   -> verify match against original text
@@ -1540,7 +1692,210 @@ Search indexes MAY have false positives.
 If `complete=false`, they MAY have false negatives.  
 If `complete=true`, they MUST NOT have false negatives within the declared scope.
 
-### 29.2 Token Index
+Search results MUST include enough information to retrieve and verify the original bytes:
+
+```yaml
+logical_offset: u64
+byte_length: u64
+chunk_start: u64
+chunk_end: u64
+score: float | null
+source: "verified_original_bytes"
+```
+
+`score` is optional and MUST NOT affect evidence verification.
+
+### 29.2 Search Granules
+
+Search Index postings target Search Granules, not necessarily chunks.
+
+Supported posting granularities:
+
+```yaml
+posting_granularity: "chunk" | "document" | "line" | "byte_window"
+```
+
+`chunk` granularity:
+
+```text
+- granule_id equals chunk_id
+- no separate granule table is required
+- simplest to implement
+- may decode too much data for common terms
+```
+
+`document` granularity:
+
+```text
+- requires Document Index
+- granule_id maps to a document range
+- good for memory and archive profiles with natural document boundaries
+```
+
+`line` granularity:
+
+```text
+- granule_id maps to one logical line
+- good for logs
+- may produce large posting lists for common tokens
+```
+
+`byte_window` granularity:
+
+```yaml
+window_size: u64
+window_overlap: u64
+```
+
+`byte_window` granularity is recommended for high-performance substring or n-gram search when no document boundaries exist.
+
+For `byte_window`, `window_overlap` SHOULD be at least the maximum exact-match pattern length the index claims complete support for, or the index MUST declare `complete=false` for longer boundary-spanning matches.
+
+For any granularity other than `chunk`, the Search Index MUST include a Granule Table:
+
+```yaml
+schema: "qzt.search-granules.v1"
+granules:
+  - granule_id: u64
+    logical_offset: u64
+    byte_length: u64
+    chunk_start: u64
+    chunk_end: u64
+    first_line: u64 | null
+    line_count: u64 | null
+```
+
+Granule ranges MUST be inside `source.original_size`.
+`chunk_start` and `chunk_end` MUST identify all chunks overlapping the granule.
+Granule IDs MUST start at `0`, increase by `1`, and be sorted by `logical_offset`.
+
+### 29.3 Search Index physical model
+
+Token and n-gram indexes SHOULD use the `qzt-search-block-v1` physical model.
+
+Search Index descriptor:
+
+```yaml
+type: "token_index" | "ngram_index"
+required: false
+codec: "qzt-search-block-v1"
+```
+
+`qzt-search-block-v1` payload layout:
+
+```text
+Offset  Size  Type   Field
+0       8     u64    manifest_size
+8       N     cbor   Search Manifest, deterministic CBOR
+8+N     ...   bytes  binary sections referenced by Search Manifest
+```
+
+All binary section offsets in Search Manifest are relative to the start of the `qzt-search-block-v1` payload.
+
+Search Manifest schema:
+
+```yaml
+schema: "qzt.search-index.v1"
+format_version: [0, 1]
+container_id: bstr16
+kind: "token" | "ngram"
+source: "raw_utf8" | "normalized_utf8"
+complete: bool
+posting_granularity: "chunk" | "document" | "line" | "byte_window"
+granule_count: u64
+term_count: u64
+tokenizer: map | null
+ngram: map | null
+boundary:
+  mode: "none" | "adjacent_decode" | "adjacent_window_index"
+  window_bytes: u64
+planner:
+  max_candidate_granules_default: u64
+  max_decoded_bytes_default: u64
+  high_df_per_million: u32
+sections:
+  granule_table:
+    offset: u64
+    size: u64
+    codec: string
+    checksum: { algorithm: "blake3", value: bstr32 }
+  term_dictionary:
+    offset: u64
+    size: u64
+    codec: string
+    checksum: { algorithm: "blake3", value: bstr32 }
+  postings:
+    offset: u64
+    size: u64
+    codec: string
+    checksum: { algorithm: "blake3", value: bstr32 }
+  skip_data:
+    offset: u64
+    size: u64
+    codec: string
+    checksum: { algorithm: "blake3", value: bstr32 }
+```
+
+If `posting_granularity = "chunk"`, `granule_table.size` MAY be `0` and `granule_id` MUST equal `chunk_id`.
+
+Search Manifest sections MUST NOT overlap and MUST be fully inside the Search Index block.
+
+Readers MUST verify Search Manifest section checksums before trusting term dictionaries, postings, granules, or skip data.
+
+### 29.4 Term Dictionary and postings
+
+Term Dictionary entries MUST be sorted by lookup key.
+
+Logical Term Dictionary entry:
+
+```yaml
+key: bstr
+key_hash: bstr16
+document_frequency: u64
+granule_frequency: u64
+posting_offset: u64
+posting_size: u64
+skip_offset: u64
+skip_size: u64
+flags: u64
+```
+
+`key` is the token bytes or n-gram bytes after applying the declared tokenizer/source rules.
+
+`key_hash` SHOULD be BLAKE3-128 of `key` and MAY be used as a lookup accelerator. It MUST NOT replace exact `key` comparison.
+
+If no Document Index is present, `document_frequency` MUST be `0`.
+
+No Term Dictionary `flags` bits are defined in v0.1. Writers MUST write `flags = 0`; readers MUST reject non-zero unknown flag bits.
+
+Posting lists MUST be sorted by increasing `granule_id`.
+
+Recommended posting codec:
+
+```yaml
+posting_codec: "delta-varint-u64-v1"
+```
+
+`delta-varint-u64-v1` encodes:
+
+```text
+first granule_id as unsigned varint
+then deltas from previous granule_id as unsigned varints
+```
+
+Skip data SHOULD include at least one skip point every 128 posting IDs for posting lists with at least 1024 entries.
+
+Logical skip point:
+
+```yaml
+entry_index: u64
+granule_id: u64
+posting_byte_offset: u64
+```
+
+Skip data enables fast intersection without decoding entire high-frequency posting lists.
+
+### 29.5 Token Index
 
 Recommended default tokenizer for v0.1 search extension:
 
@@ -1555,16 +1910,22 @@ Descriptor example:
 ```yaml
 type: "token_index"
 required: false
-codec: "qzt-token-delta-varint-v1"
+codec: "qzt-search-block-v1"
 tokenizer:
   id: "qzt-simple-tokenizer-v1"
   lowercase: true
-posting_granularity: "chunk"
-posting_codec: "delta-varint-v1"
+posting_granularity: "line" | "document" | "byte_window" | "chunk"
+posting_codec: "delta-varint-u64-v1"
 complete: true
 ```
 
-### 29.3 N-gram Index
+For log search, `line` granularity is recommended.
+
+For memory or document archives, `document` granularity is recommended if Document Index exists.
+
+For broad text archives without document boundaries, `byte_window` granularity is recommended.
+
+### 29.6 N-gram Index
 
 Recommended:
 
@@ -1578,14 +1939,26 @@ Descriptor example:
 ```yaml
 type: "ngram_index"
 required: false
-codec: "qzt-ngram-delta-varint-v1"
+codec: "qzt-search-block-v1"
 n: 3
 source: "raw_utf8" | "normalized_utf8"
-posting_granularity: "chunk"
+posting_granularity: "byte_window" | "line" | "chunk"
 complete: true
 ```
 
-### 29.4 Raw vs normalized indexes
+N-gram index builders MUST define whether n-grams are byte n-grams, Unicode scalar n-grams, or Unicode grapheme n-grams.
+
+Recommended v0.1 default:
+
+```yaml
+unit: "unicode_scalar"
+normalization: "none"
+case_fold: false
+```
+
+If `source = "normalized_utf8"`, the index MUST store enough mapping metadata to verify candidate hits against original raw UTF-8 bytes.
+
+### 29.7 Raw vs normalized indexes
 
 Original text MUST NOT be normalized.
 
@@ -1600,7 +1973,7 @@ normalized_ngram_index
 
 Human View MUST always return original text.
 
-### 29.5 Boundary matches
+### 29.8 Boundary matches
 
 Matches spanning chunk boundaries are a known issue.
 
@@ -1626,21 +1999,92 @@ Then:
 - longer boundary-spanning matches require fallback scan or complete=false
 ```
 
-### 29.6 High document frequency terms
+### 29.9 Query planner
 
-Search planners SHOULD protect against huge candidate sets.
+Search planners SHOULD minimize decompression by ordering operations as:
+
+```text
+1. parse query into required token/ngram keys
+2. look up Term Dictionary entries
+3. sort required posting lists by increasing granule_frequency
+4. intersect rare posting lists first using skip data
+5. stop if candidate count or decoded byte estimate exceeds limits
+6. map surviving Search Granules to chunk ranges
+7. merge overlapping chunk reads
+8. decode and verify exact matches against original bytes
+```
+
+For phrase or substring search, the planner SHOULD use the rarest required n-gram first, then verify exact byte ranges by partial decode.
+
+If a required key is missing from an index with `complete=true`, the planner MAY return no matches without decoding original chunks.
+
+If a required key is missing from an index with `complete=false`, the planner MUST either run a documented fallback scan or report that the index cannot prove completeness.
+
+### 29.10 High document frequency terms
+
+Search planners MUST protect against huge candidate sets.
 
 Recommended metadata:
 
 ```yaml
-max_candidate_chunks_default: 10000
+max_candidate_granules_default: 10000
+max_decoded_bytes_default: 268435456
+high_df_per_million: 200000
 high_df_terms: supported
 ```
+
+If a term's `granule_frequency * 1_000_000 / granule_count` is greater than or equal to `high_df_per_million`, the planner SHOULD treat it as a high document-frequency term and avoid using it as the first intersection driver.
+
+If candidate granules exceed `max_candidate_granules_default`, the planner SHOULD require a narrower query, an explicit higher limit, or a fallback scan mode.
 
 CLI SHOULD expose:
 
 ```bash
-qzt search data.qzt "error" --max-candidates 10000
+qzt search data.qzt "error" --max-candidates 10000 --max-decoded-bytes 256MiB
+```
+
+### 29.11 Search performance reporting
+
+Search extension implementations SHOULD report these metrics for benchmark and debug runs:
+
+```yaml
+query: string
+index_kind: "token" | "ngram" | "hybrid"
+posting_granularity: string
+index_size_bytes: u64
+source_size_bytes: u64
+index_size_ratio: float
+term_lookups: u64
+posting_bytes_read: u64
+candidate_granules: u64
+candidate_chunks: u64
+decoded_bytes: u64
+verified_matches: u64
+query_time_ms: float
+```
+
+A search index SHOULD NOT be described as high performance without reporting at least:
+
+```text
+- candidate_granules
+- candidate_chunks
+- decoded_bytes
+- query_time_ms
+- index_size_ratio
+```
+
+### 29.12 Search implementation cut
+
+A high-performance Search Extension implementation SHOULD be built after Core conformance and SHOULD include:
+
+```text
+- Granule Table builder
+- Term Dictionary builder
+- sorted delta-varint posting lists
+- skip data for long posting lists
+- query planner with rarest-first intersection
+- exact verification against original bytes
+- benchmark reporting
 ```
 
 ---
@@ -1648,6 +2092,15 @@ qzt search data.qzt "error" --max-candidates 10000
 ## 30. Extension: Sidecar indexes
 
 A sidecar index MAY be used when search/vector/FM-index data is too large or should be rebuilt independently.
+
+Sidecars are the recommended deployment model for high-performance search over large containers:
+
+```text
+.qzt = cold, immutable, verifiable evidence container
+.qzi = hot, rebuildable, memory-mappable search index
+```
+
+Keeping large search structures in a sidecar lets implementations rebuild, tune, shard, or cache indexes without rewriting the source evidence container.
 
 Suggested names:
 
@@ -1671,9 +2124,29 @@ source_qzt_footer_checksum:
   value: bstr32
 index_type: string
 created_at_unix_ms: u64
+index_manifest:
+  schema: string
+  kind: string
+  posting_granularity: string
+  index_size_bytes: u64
+  source_size_bytes: u64
 ```
 
 Readers MUST reject a sidecar if `source_container_id` or source checksum does not match.
+
+A search sidecar SHOULD store the Search Manifest defined in Section 29 and MAY store the binary sections directly in the sidecar file rather than inside the `.qzt` Index Root.
+
+Search sidecars SHOULD be designed for memory-mapped lookup:
+
+```text
+- fixed or bounded-size sidecar header
+- deterministic CBOR manifest near the start
+- sorted term dictionary section
+- posting sections grouped for locality
+- skip data close to posting lists
+```
+
+Sidecar indexes MUST remain derived data. If a sidecar is missing or rejected, Core QZT read/export/verify behavior MUST still work.
 
 ---
 
@@ -1810,9 +2283,15 @@ Search extension implementation MAY support:
 ```text
 - token index
 - ngram index
-- candidate chunk search
+- Search Granule candidate search
+- Term Dictionary lookup
+- sorted posting list intersection
+- skip data
+- rarest-first query planning
+- exact verification against original bytes
 - boundary mode declaration
 - raw/normalized index separation
+- search performance reporting
 ```
 
 Search extension is not required for Core conformance.
@@ -1889,12 +2368,18 @@ A QZT v0.1 Reader Core or Writer Core implementation SHOULD pass all Core confor
 61. read_line last line without trailing newline
 62. read_line last line with trailing newline
 63. read_line out of range
-64. Dense Line Index final line without newline
-65. Dense Line Index line_start_offsets count mismatch
+64. Dense Line Index final line without newline, if Dense Line Index is present
+65. Dense Line Index line_start_offsets count mismatch, if Dense Line Index is present
 66. export equality
 67. quick verify succeeds without decompressing chunks
 68. normal verify detects compressed chunk checksum mismatch
 69. deep verify detects invalid uncompressed line_count
+70. Chunk Table block size not equal to chunk_count * 128 rejected
+71. Chunk Table chunk_count mismatch rejected
+72. zero-length chunk rejected
+73. sum(uncompressed_size) original_size mismatch rejected
+74. deep verify detects invalid newline_mode
+75. zstd frame output exceeding declared uncompressed_size rejected
 ```
 
 ### 35.2 Extension conformance tests
@@ -1909,6 +2394,19 @@ Implementations that claim an extension SHOULD pass that extension's tests:
 5. sidecar wrong source_container_id rejected
 6. sidecar wrong source_original_checksum rejected
 7. optimizer metadata ignored by decoder
+8. Search Granule table ranges are inside original_size
+9. Search Granule chunk_start/chunk_end cover every granule range
+10. Term Dictionary entries are sorted and exact key comparison is enforced
+11. posting lists are sorted by increasing granule_id
+12. delta-varint posting list round-trips large granule IDs
+13. skip data allows intersection without decoding an entire high-frequency posting list
+14. rarest required posting list is selected first by the query planner
+15. high document-frequency term does not drive first intersection by default
+16. missing key in complete=true index returns no matches without chunk decode
+17. missing key in complete=false index triggers documented fallback or incompleteness result
+18. byte_window overlap preserves declared complete boundary matches
+19. phrase or substring results are verified against original bytes
+20. search benchmark report includes candidate_granules, candidate_chunks, decoded_bytes, query_time_ms, and index_size_ratio
 ```
 
 ---
@@ -1965,6 +2463,159 @@ Phase 5:
 
 Reader Core conformance is complete after Phase 3 embedded dictionary reader support.
 Writer Core conformance is complete after Phase 2 if the writer does not emit dictionaries, or after Phase 3 if it emits dictionary-compressed chunks.
+
+### 36.1 Reference implementation cut lines
+
+To make QZT implementable, a reference implementation SHOULD use explicit cut lines.
+
+#### Cut 0: format foundation
+
+Build and test these before writing compressed data:
+
+```text
+- fixed binary Header and Footer Trailer encode/decode
+- QZT deterministic CBOR encode/decode and rejection tests
+- BLAKE3 helpers
+- physical range validation helpers
+- checked u64 arithmetic helpers
+- QZT error type
+- zstd single-frame encode/decode wrapper with output limits
+```
+
+Done criteria:
+
+```text
+- invalid magic/version/flags are rejected
+- non-canonical CBOR is rejected
+- range overflow is rejected
+- empty byte strings can be checksummed deterministically
+```
+
+#### Cut 1: no-dictionary pack/export
+
+Build the first writer with this restricted scope:
+
+```text
+- UTF-8 input only
+- no dictionary output
+- no Dense Line Index
+- no Document Index
+- no Search Index
+- one zstd frame per chunk
+- valid Metadata, Chunk Table, Index Root, Footer Payload, Footer Trailer
+- Header patch at finish
+```
+
+Done criteria:
+
+```text
+- export(pack(input)) == input for empty, ASCII, CRLF, Japanese, emoji, and long-line fixtures
+- quick verify passes without decompression
+- normal verify detects compressed chunk corruption
+- deep verify detects uncompressed checksum, line_count, and newline_mode corruption
+```
+
+#### Cut 2: random access reader
+
+Build reader operations on top of the validated Chunk Table:
+
+```text
+- read_range
+- read_text_range
+- read_line_raw
+- read_line_text
+- line-spanning chunk reads
+- starts_with_line_continuation handling
+```
+
+Done criteria:
+
+```text
+- zero-length reads return empty bytes
+- byte ranges spanning chunks match slices from original input
+- line reads match original lines with and without final newline
+- long single lines split across chunks can be read exactly
+```
+
+#### Cut 3: Reader Core completion
+
+Add the remaining Reader Core obligations:
+
+```text
+- embedded Dictionary Block parsing
+- dictionary checksum validation
+- dictionary-assisted zstd decode
+- unknown optional block handling
+- unknown required block rejection
+- resource limit enforcement
+```
+
+Done criteria:
+
+```text
+- dictionary-compressed fixture can be exported exactly
+- missing, duplicated, or corrupted dictionaries are rejected
+- unknown optional blocks do not break open/info/export
+- unknown required blocks fail with UnknownRequiredBlock
+```
+
+#### Cut 4: optional Core-defined indexes
+
+Only after Cut 3 should the reference implementation add:
+
+```text
+- Dense Line Index writer
+- Dense Line Index reader fast path
+- Dense Line Index deep verification
+```
+
+Dense Line Index MUST remain an acceleration structure. Correctness MUST still come from decoded original bytes and Chunk Table line-start semantics.
+
+#### Cut 5: extensions
+
+Document Index, Search Index, Sidecar indexes, and Optimizer metadata SHOULD NOT be implemented until Core conformance tests pass.
+
+Extension implementations SHOULD have separate conformance fixtures and MUST NOT be required for QZT v0.1 Core conformance.
+
+For high-performance search, Cut 5 SHOULD be split into:
+
+```text
+Cut 5a:
+  - Document Index, if document granularity is needed
+  - Search Granule Table
+  - Token Index builder
+  - Term Dictionary lookup
+  - sorted delta-varint postings
+  - exact verification by partial decode
+
+Cut 5b:
+  - N-gram Index builder
+  - byte_window granularity
+  - boundary window handling
+  - phrase/substring query verification
+
+Cut 5c:
+  - skip data
+  - rarest-first query planner
+  - high document-frequency term handling
+  - decoded-byte and candidate limits
+  - benchmark reporting
+
+Cut 5d:
+  - search sidecar writer/reader
+  - memory-mapped dictionary/posting lookup
+  - sidecar rebuild command
+```
+
+Done criteria for high-performance search:
+
+```text
+- queries report candidate_granules, candidate_chunks, decoded_bytes, and query_time_ms
+- common-term queries are capped or require explicit fallback mode
+- rare-term queries decode only chunks overlapping candidate granules
+- phrase and substring results are verified against original bytes
+- sidecar rejection never breaks Core read/export/verify
+```
 
 ---
 
