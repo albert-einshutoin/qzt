@@ -119,4 +119,39 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-07
+
+Verification:
+
+```text
+- cargo test --test phase10_dense_line_index -- --nocapture
+- cargo test --test phase10_document_index
+- cargo test --test phase10_dense_line_index sparse_vs_dense_line_lookup_benchmark_records_threshold_evidence -- --nocapture
+- make check
+```
+
+Benchmark smoke:
+
+```text
+phase10_dense_bench lines=2048 sparse_us=3370.167 dense_us=2365.709 threshold_decision=enable_dense_for_memory_profile_at_or_above_2048_lines
+```
+
+Maintenance command scope:
+
+```text
+- qzt repack: defer. It is a fresh-container rewrite command and is not required for v0.1 Core or Phase10 optional index correctness.
+- qzt merge: defer. It needs document/range policy decisions beyond Dense Line Index and Document Index validation.
+- qzt compact: defer. It should be implemented with repack once rewrite policy is defined.
+```
+
+Review notes:
+
+```text
+- Self-review completed: Dense Line Index can be disabled without changing Core behavior, and sparse scan remains the source-of-truth fallback.
+- Code review completed: Dense Line Index count mismatch is rejected at open, stale offsets are rejected by deep verify, Document Index byte/checksum/chunk ranges are verified by deep verify.
+- Architecture review completed: Dense Line Index and Document Index are optional blocks, memory profile remains Core-compatible, and Phase9 Core release behavior is unchanged.
+- Spec updated: qzt-line-delta-varint-v1 physical payload and Document Index CBOR payload/chunk range semantics are now explicit.
+- Dense Line Index default decision: memory profile writes Dense Line Index; benchmark evidence currently supports enabling it for representative inputs at or above 2048 lines.
+```

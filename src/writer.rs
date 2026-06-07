@@ -1,9 +1,13 @@
 use crate::chunk_table::ChunkEntry;
 use crate::chunker::{plan_chunks, ChunkerOptions, NewlineMode};
+use crate::dense_line_index::DenseLineIndex;
 use crate::error::{QztError, Result};
 use crate::fixed::{FooterTrailer, Header};
 use crate::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
-use crate::schema::{BlockDescriptor, BlockRef, Checksum, FooterPayload, IndexRoot, Metadata};
+use crate::schema::{
+    BlockDescriptor, BlockRef, Checksum, DocumentIndex, FooterPayload, IndexRoot, Metadata,
+    MetadataOptions,
+};
 
 /// Placeholder writer entry point reserved for later phases.
 pub struct QztWriter;
@@ -47,6 +51,106 @@ pub fn pack_bytes_with_container_id(
     input: &[u8],
     container_id: [u8; 16],
     options: WriterOptions,
+) -> Result<Vec<u8>> {
+    pack_bytes_internal(
+        input,
+        container_id,
+        options,
+        DenseLineIndexMode::Omit,
+        None,
+        "core",
+    )
+}
+
+/// Packs UTF-8 input with an optional Dense Line Index block.
+pub fn pack_bytes_with_dense_line_index(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: WriterOptions,
+) -> Result<Vec<u8>> {
+    pack_bytes_internal(
+        input,
+        container_id,
+        options,
+        DenseLineIndexMode::Generate,
+        None,
+        "core",
+    )
+}
+
+/// Packs UTF-8 input with a caller-provided Dense Line Index block.
+///
+/// This is primarily useful for conformance fixtures where the optional index
+/// must be stale while the authoritative Chunk Table remains valid.
+pub fn pack_bytes_with_dense_line_index_override(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: WriterOptions,
+    dense_line_index: DenseLineIndex,
+) -> Result<Vec<u8>> {
+    pack_bytes_internal(
+        input,
+        container_id,
+        options,
+        DenseLineIndexMode::Override(dense_line_index),
+        None,
+        "core",
+    )
+}
+
+/// Packs UTF-8 input with an optional Document Index block.
+pub fn pack_bytes_with_document_index(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: WriterOptions,
+    document_index: DocumentIndex,
+) -> Result<Vec<u8>> {
+    pack_bytes_internal(
+        input,
+        container_id,
+        options,
+        DenseLineIndexMode::Omit,
+        Some(document_index),
+        "core",
+    )
+}
+
+/// Packs UTF-8 input using the memory profile defaults implemented in Phase10.
+pub fn pack_bytes_with_memory_profile(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: WriterOptions,
+    document_index: DocumentIndex,
+) -> Result<Vec<u8>> {
+    pack_bytes_internal(
+        input,
+        container_id,
+        options,
+        DenseLineIndexMode::Generate,
+        Some(document_index),
+        "memory",
+    )
+}
+
+enum DenseLineIndexMode {
+    Omit,
+    Generate,
+    Override(DenseLineIndex),
+}
+
+struct OptionalBlocks<'a> {
+    dense_line_index: Option<&'a DenseLineIndex>,
+    document_index: Option<&'a DocumentIndex>,
+    profile: &'a str,
+}
+
+fn pack_bytes_internal(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: WriterOptions,
+    dense_mode: DenseLineIndexMode,
+    document_index: Option<DocumentIndex>,
+    profile: &str,
 ) -> Result<Vec<u8>> {
     let plan = plan_chunks(input, options.chunker)?;
     let mut compressed_chunks = Vec::with_capacity(plan.chunks.len());
@@ -93,7 +197,24 @@ pub fn pack_bytes_with_container_id(
         compressed_chunks.push(compressed);
     }
 
-    assemble_container(input, container_id, &plan, &compressed_chunks, &entries)
+    let dense_line_index = match dense_mode {
+        DenseLineIndexMode::Omit => None,
+        DenseLineIndexMode::Generate => Some(DenseLineIndex::from_original_bytes(input, &entries)?),
+        DenseLineIndexMode::Override(dense) => Some(dense),
+    };
+
+    assemble_container(
+        input,
+        container_id,
+        &plan,
+        &compressed_chunks,
+        &entries,
+        OptionalBlocks {
+            dense_line_index: dense_line_index.as_ref(),
+            document_index: document_index.as_ref(),
+            profile,
+        },
+    )
 }
 
 /// Exports all original bytes from a no-dictionary QZT container.
@@ -107,6 +228,7 @@ fn assemble_container(
     plan: &crate::chunker::ChunkPlan,
     compressed_chunks: &[Vec<u8>],
     entries: &[ChunkEntry],
+    optional: OptionalBlocks<'_>,
 ) -> Result<Vec<u8>> {
     if compressed_chunks.len() != entries.len() {
         return Err(QztError::ContainerCorrupt);
@@ -122,35 +244,83 @@ fn assemble_container(
         })
         .transpose()?
         .unwrap_or(HEADER_LEN as u64);
-    let metadata = Metadata::for_source(
+    let metadata = Metadata::for_source_with_options(
         container_id,
         u64::try_from(input.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
         Checksum::blake3(input),
         newline_mode_as_str(plan.newline_mode),
         plan.line_count,
+        MetadataOptions {
+            dictionary_mode: "none",
+            profile: optional.profile,
+            dense_line_index: optional.dense_line_index.is_some(),
+            document_index: optional.document_index.is_some(),
+        },
     );
     let metadata_bytes = metadata.encode()?;
     let metadata_size =
         u64::try_from(metadata_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+
+    let dense_line_index_bytes = optional
+        .dense_line_index
+        .map(DenseLineIndex::encode)
+        .transpose()?;
+    let dense_line_index_offset = metadata_offset
+        .checked_add(metadata_size)
+        .ok_or(QztError::PhysicalRangeOutOfBounds)?;
+    let dense_line_index_size = dense_line_index_bytes
+        .as_ref()
+        .map(|bytes| u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded))
+        .transpose()?
+        .unwrap_or(0);
+
+    let document_index_bytes = optional
+        .document_index
+        .map(DocumentIndex::encode)
+        .transpose()?;
+    let document_index_offset = dense_line_index_offset
+        .checked_add(dense_line_index_size)
+        .ok_or(QztError::PhysicalRangeOutOfBounds)?;
+    let document_index_size = document_index_bytes
+        .as_ref()
+        .map(|bytes| u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded))
+        .transpose()?
+        .unwrap_or(0);
 
     let mut chunk_table_bytes =
         Vec::with_capacity(entries.len() * crate::chunk_table::CHUNK_ENTRY_LEN);
     for entry in entries {
         chunk_table_bytes.extend_from_slice(&entry.encode());
     }
-    let chunk_table_offset = metadata_offset
-        .checked_add(metadata_size)
+    let chunk_table_offset = document_index_offset
+        .checked_add(document_index_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
     let chunk_table_size =
         u64::try_from(chunk_table_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
 
+    let mut blocks = vec![BlockDescriptor::chunk_table(
+        chunk_table_offset,
+        chunk_table_size,
+        Checksum::blake3(&chunk_table_bytes),
+    )];
+    if let Some(bytes) = &dense_line_index_bytes {
+        blocks.push(BlockDescriptor::dense_line_index(
+            dense_line_index_offset,
+            u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
+            Checksum::blake3(bytes),
+        ));
+    }
+    if let Some(bytes) = &document_index_bytes {
+        blocks.push(BlockDescriptor::document_index(
+            document_index_offset,
+            u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
+            Checksum::blake3(bytes),
+        ));
+    }
+
     let index_root = IndexRoot {
         container_id,
-        blocks: vec![BlockDescriptor::chunk_table(
-            chunk_table_offset,
-            chunk_table_size,
-            Checksum::blake3(&chunk_table_bytes),
-        )],
+        blocks,
         original_size: metadata.original_size,
         original_checksum: metadata.original_checksum.clone(),
         chunk_count: u64::try_from(entries.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
@@ -179,6 +349,12 @@ fn assemble_container(
         prefix.extend_from_slice(chunk);
     }
     prefix.extend_from_slice(&metadata_bytes);
+    if let Some(bytes) = &dense_line_index_bytes {
+        prefix.extend_from_slice(bytes);
+    }
+    if let Some(bytes) = &document_index_bytes {
+        prefix.extend_from_slice(bytes);
+    }
     prefix.extend_from_slice(&chunk_table_bytes);
     prefix.extend_from_slice(&index_root_bytes);
 

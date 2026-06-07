@@ -24,19 +24,19 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 | 7 | Sparse line index, range reads, and CLI access | Complete | read_range and read_line_raw | CLI range/line, spanning-line support, intermediate benchmarks |
 | 8 | Dictionaries, resource limits, and Reader Core completion | Complete | read embedded dictionary fixtures | Reader Core complete with resource hardening |
 | 9 | Core conformance hardening and release readiness | Complete | Full Core test pass and fuzz smoke | v0.1 Core release candidate |
-| 10 | Dense Line Index, Document Index, memory profile, and maintenance command scoping | Pending | Dense Line Index acceleration with sparse-vs-dense benchmark | Document Index, memory profile fixtures, repack/merge decision |
+| 10 | Dense Line Index, Document Index, memory profile, and maintenance command scoping | Complete | Dense Line Index acceleration with sparse-vs-dense benchmark | Document Index, memory profile fixtures, repack/merge decision |
 | 11 | Search granules and raw token index MVP | Pending | Raw token index over search granules | Verified token search with metrics |
 | 12 | N-gram index, planner, and benchmark reporting | Pending | Raw n-gram candidate search | Rarest-first planner and performance reports |
 | 13 | Search sidecar and high-performance search goal MVP | Pending | `.qzi` sidecar validation | Memory-mappable high-performance search flow |
 
 ## Current Focus
 
-Phase0 through Phase9 are complete. QZT v0.1 Core is release-candidate ready.
+Phase0 through Phase10 are complete. QZT v0.1 Core is release-candidate ready, with optional Dense Line Index, Document Index, and memory profile support complete.
 
 Next action:
 
 ```text
-Start Phase10 by implementing Dense Line Index acceleration and sparse-vs-dense benchmark evidence.
+Start Phase11 by implementing search granules and a raw token index MVP with verified original-byte search results.
 ```
 
 ## Completion Tracks
@@ -45,7 +45,7 @@ Start Phase10 by implementing Dense Line Index acceleration and sparse-vs-dense 
 |---|---|---|---|
 | Writer Core | Phase0-Phase5, Phase9 | Complete | v0.1 Writer Core is no-dictionary output; dictionary-emitting writer remains out of Core-ready scope. |
 | Reader Core | Phase0-Phase9 | Complete | Embedded dictionary reading, resource limits, partial access, and verify levels are complete for v0.1 Core. |
-| Optional Core-defined indexes | Phase10 | Pending | Dense Line Index and Document Index are not Core release blockers. |
+| Optional Core-defined indexes | Phase10 | Complete | Dense Line Index and Document Index are optional and verified as caches over original bytes. |
 | Search Extension | Phase11-Phase13 | Pending | Must start after Core conformance is stable. |
 
 ## Verification Log
@@ -64,6 +64,7 @@ Start Phase10 by implementing Dense Line Index acceleration and sparse-vs-dense 
 | 2026-06-07 | 7 | `make check`; `cargo test --test phase7_access phase7_intermediate_benchmark_records_nonzero_metrics -- --nocapture` | Pass | Range/text range/line Reader APIs, CLI range/line smoke, Chunk Table binary search, and Phase7 benchmark recorded: pack 10.695 MiB/s, export 30.631 MiB/s, range 8.736 MiB/s, line 27.167 us |
 | 2026-06-07 | 8 | `cargo test --test phase8_reader_core`; `make check` | Pass | Embedded Dictionary Block parsing, dictionary-assisted zstd decode, missing/duplicate/checksum dictionary rejection, unknown optional/required block handling, and ResourceLimits for chunk/index/dictionary/decode paths added |
 | 2026-06-07 | 9 | `cargo test --test phase9_cli_core`; `cargo test --test phase9_hardening`; `cargo test --test phase5_writer pack_smoke_benchmark_records_nonzero_throughput -- --nocapture`; `cargo test --test phase7_access phase7_intermediate_benchmark_records_nonzero_metrics -- --nocapture`; `make check` | Pass | Core CLI pack/info/export/range/line/verify, conformance map 1-77, deterministic malformed open/verify fuzz smoke, readiness note, and benchmark smoke recorded: pack 10.909 MiB/s, export 36.692 MiB/s, range 17.517 MiB/s, line 5.250 us |
+| 2026-06-07 | 10 | `cargo test --test phase10_dense_line_index -- --nocapture`; `cargo test --test phase10_document_index`; `cargo test --test phase10_dense_line_index sparse_vs_dense_line_lookup_benchmark_records_threshold_evidence -- --nocapture`; `make check` | Pass | Dense Line Index optional block, reader fast path, deep verify disagreement detection, Document Index CBOR schema/deep verify, memory profile flags, and benchmark threshold recorded: 2048 lines sparse 3370.167 us vs dense 2365.709 us |
 
 ## Open Decisions
 
@@ -71,5 +72,5 @@ Start Phase10 by implementing Dense Line Index acceleration and sparse-vs-dense 
 |---|---|---|
 | Reference implementation language | Rust selected | Revisit only with explicit project decision |
 | Search Extension timing | After Core conformance | After Phase9 |
-| `qzt repack` / `qzt merge` / `qzt compact` | Post-Core maintenance commands, not v0.1 Core blockers | Phase10 |
+| `qzt repack` / `qzt merge` / `qzt compact` | Deferred. They remain post-Core fresh-container rewrite commands and are not implemented in Phase10. | Post-Phase13 or a dedicated maintenance phase |
 | Sidecar index priority | Phase13 | After Phase12 benchmark evidence |

@@ -6,11 +6,16 @@ const SCHEMA_FOOTER: &str = "qzt.footer.v1";
 const SCHEMA_METADATA: &str = "qzt.metadata.v1";
 const SCHEMA_INDEX_ROOT: &str = "qzt.index-root.v1";
 const SCHEMA_DICTIONARY: &str = "qzt.dictionary.v1";
+const SCHEMA_DOCUMENT_INDEX: &str = "qzt.document-index.v1";
 const CHECKSUM_BLAKE3: &str = "blake3";
 const CHUNK_TABLE_TYPE: &str = "chunk_table";
 const CHUNK_TABLE_CODEC: &str = "qzt-ctbl-fixed-v1";
 const DICTIONARY_TYPE: &str = "dictionary";
 const DICTIONARY_CODEC: &str = "qzt-dict-cbor-v1";
+const DENSE_LINE_INDEX_TYPE: &str = "dense_line_index";
+const DENSE_LINE_INDEX_CODEC: &str = "qzt-line-delta-varint-v1";
+const DOCUMENT_INDEX_TYPE: &str = "document_index";
+const DOCUMENT_INDEX_CODEC: &str = "qzt-doc-index-cbor-v1";
 
 /// BLAKE3 checksum value used by QZT Core structures.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -116,6 +121,29 @@ pub struct Metadata {
     pub newline_mode: String,
     pub line_count: u64,
     pub dictionary_mode: String,
+    pub profile: String,
+    pub dense_line_index: bool,
+    pub document_index: bool,
+}
+
+/// Metadata writer options that are not derived from original bytes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct MetadataOptions<'a> {
+    pub dictionary_mode: &'a str,
+    pub profile: &'a str,
+    pub dense_line_index: bool,
+    pub document_index: bool,
+}
+
+impl Default for MetadataOptions<'_> {
+    fn default() -> Self {
+        Self {
+            dictionary_mode: "none",
+            profile: "core",
+            dense_line_index: false,
+            document_index: false,
+        }
+    }
 }
 
 impl Metadata {
@@ -151,13 +179,39 @@ impl Metadata {
         line_count: u64,
         dictionary_mode: &str,
     ) -> Self {
+        let options = MetadataOptions {
+            dictionary_mode,
+            ..MetadataOptions::default()
+        };
+        Self::for_source_with_options(
+            container_id,
+            original_size,
+            original_checksum,
+            newline_mode,
+            line_count,
+            options,
+        )
+    }
+
+    #[must_use]
+    pub fn for_source_with_options(
+        container_id: [u8; 16],
+        original_size: u64,
+        original_checksum: Checksum,
+        newline_mode: &str,
+        line_count: u64,
+        options: MetadataOptions<'_>,
+    ) -> Self {
         Self {
             container_id,
             original_size,
             original_checksum,
             newline_mode: newline_mode.to_owned(),
             line_count,
-            dictionary_mode: dictionary_mode.to_owned(),
+            dictionary_mode: options.dictionary_mode.to_owned(),
+            profile: options.profile.to_owned(),
+            dense_line_index: options.dense_line_index,
+            document_index: options.document_index,
         }
     }
 
@@ -171,7 +225,7 @@ impl Metadata {
                 "identity",
                 CborValue::Map(vec![
                     text_pair("name", CborValue::Null),
-                    text_pair("profile", CborValue::Text("core".to_owned())),
+                    text_pair("profile", CborValue::Text(self.profile.clone())),
                     text_pair("created_by", CborValue::Text("qzt".to_owned())),
                     text_pair("created_at_unix_ms", CborValue::Null),
                 ]),
@@ -214,8 +268,8 @@ impl Metadata {
                 CborValue::Map(vec![
                     text_pair("chunk_table", CborValue::Bool(true)),
                     text_pair("sparse_line_index", CborValue::Bool(true)),
-                    text_pair("dense_line_index", CborValue::Bool(false)),
-                    text_pair("document_index", CborValue::Bool(false)),
+                    text_pair("dense_line_index", CborValue::Bool(self.dense_line_index)),
+                    text_pair("document_index", CborValue::Bool(self.document_index)),
                     text_pair("token_index", CborValue::Bool(false)),
                     text_pair("ngram_index", CborValue::Bool(false)),
                     text_pair("vector_index", CborValue::Bool(false)),
@@ -387,6 +441,13 @@ impl Metadata {
         if !matches!(dictionary_mode.as_str(), "none" | "embedded") {
             return Err(QztError::MetadataInvalid);
         }
+        let profile = required_text(identity, "profile", QztError::MetadataInvalid)?;
+        if !matches!(
+            profile.as_str(),
+            "minimal" | "core" | "log" | "archive" | "memory"
+        ) {
+            return Err(QztError::MetadataInvalid);
+        }
 
         Ok(Self {
             container_id: required_bstr16(map, "container_id", QztError::MetadataInvalid)?,
@@ -399,6 +460,13 @@ impl Metadata {
             newline_mode,
             line_count: required_u64(source, "line_count", QztError::MetadataInvalid)?,
             dictionary_mode,
+            profile,
+            dense_line_index: required_bool(
+                indexes,
+                "dense_line_index",
+                QztError::MetadataInvalid,
+            )?,
+            document_index: required_bool(indexes, "document_index", QztError::MetadataInvalid)?,
         })
     }
 }
@@ -437,6 +505,32 @@ impl BlockDescriptor {
             offset,
             size,
             codec: DICTIONARY_CODEC.to_owned(),
+            checksum,
+            flags: 0,
+        }
+    }
+
+    #[must_use]
+    pub fn dense_line_index(offset: u64, size: u64, checksum: Checksum) -> Self {
+        Self {
+            block_type: DENSE_LINE_INDEX_TYPE.to_owned(),
+            required: false,
+            offset,
+            size,
+            codec: DENSE_LINE_INDEX_CODEC.to_owned(),
+            checksum,
+            flags: 0,
+        }
+    }
+
+    #[must_use]
+    pub fn document_index(offset: u64, size: u64, checksum: Checksum) -> Self {
+        Self {
+            block_type: DOCUMENT_INDEX_TYPE.to_owned(),
+            required: false,
+            offset,
+            size,
+            codec: DOCUMENT_INDEX_CODEC.to_owned(),
             checksum,
             flags: 0,
         }
@@ -503,6 +597,68 @@ pub struct DictionaryEntry {
     pub dictionary_id: u32,
     pub codec: String,
     pub bytes: Vec<u8>,
+    pub checksum: Checksum,
+}
+
+/// Optional Document Index block.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DocumentIndex {
+    pub container_id: [u8; 16],
+    pub documents: Vec<DocumentEntry>,
+}
+
+impl DocumentIndex {
+    pub fn encode(&self) -> Result<Vec<u8>> {
+        encode_deterministic(&CborValue::Map(vec![
+            text_pair("schema", CborValue::Text(SCHEMA_DOCUMENT_INDEX.to_owned())),
+            text_pair("format_version", version_value()),
+            text_pair("container_id", CborValue::Bytes(self.container_id.to_vec())),
+            text_pair(
+                "documents",
+                CborValue::Array(self.documents.iter().map(document_entry_value).collect()),
+            ),
+        ]))
+    }
+
+    pub fn decode(bytes: &[u8]) -> Result<Self> {
+        let value = validate_deterministic(bytes)?;
+        let map = as_map(&value, QztError::ContainerCorrupt)?;
+        reject_unknown_keys(
+            map,
+            &["schema", "format_version", "container_id", "documents"],
+            QztError::ContainerCorrupt,
+        )?;
+        expect_text_field(
+            map,
+            "schema",
+            SCHEMA_DOCUMENT_INDEX,
+            QztError::ContainerCorrupt,
+        )?;
+        expect_version_field(map, QztError::ContainerCorrupt)?;
+
+        let documents = required_array(map, "documents", QztError::ContainerCorrupt)?
+            .iter()
+            .map(decode_document_entry)
+            .collect::<Result<Vec<_>>>()?;
+
+        Ok(Self {
+            container_id: required_bstr16(map, "container_id", QztError::ContainerCorrupt)?,
+            documents,
+        })
+    }
+}
+
+/// One document range over original bytes.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DocumentEntry {
+    pub doc_id: String,
+    pub doc_id_hash: [u8; 16],
+    pub logical_offset: u64,
+    pub byte_length: u64,
+    pub first_line: u64,
+    pub line_count: u64,
+    pub chunk_start: u64,
+    pub chunk_end: u64,
     pub checksum: Checksum,
 }
 
@@ -702,6 +858,54 @@ fn decode_dictionary_entry(value: &CborValue, max_dictionary_size: u64) -> Resul
         codec,
         bytes,
         checksum,
+    })
+}
+
+fn document_entry_value(entry: &DocumentEntry) -> CborValue {
+    CborValue::Map(vec![
+        text_pair("doc_id", CborValue::Text(entry.doc_id.clone())),
+        text_pair("doc_id_hash", CborValue::Bytes(entry.doc_id_hash.to_vec())),
+        text_pair("logical_offset", u64_value(entry.logical_offset)),
+        text_pair("byte_length", u64_value(entry.byte_length)),
+        text_pair("first_line", u64_value(entry.first_line)),
+        text_pair("line_count", u64_value(entry.line_count)),
+        text_pair("chunk_start", u64_value(entry.chunk_start)),
+        text_pair("chunk_end", u64_value(entry.chunk_end)),
+        text_pair("checksum", checksum_value(&entry.checksum)),
+        text_pair("metadata", CborValue::Map(Vec::new())),
+    ])
+}
+
+fn decode_document_entry(value: &CborValue) -> Result<DocumentEntry> {
+    let map = as_map(value, QztError::ContainerCorrupt)?;
+    reject_unknown_keys(
+        map,
+        &[
+            "doc_id",
+            "doc_id_hash",
+            "logical_offset",
+            "byte_length",
+            "first_line",
+            "line_count",
+            "chunk_start",
+            "chunk_end",
+            "checksum",
+            "metadata",
+        ],
+        QztError::ContainerCorrupt,
+    )?;
+    let _metadata = required_map(map, "metadata", QztError::ContainerCorrupt)?;
+
+    Ok(DocumentEntry {
+        doc_id: required_text(map, "doc_id", QztError::ContainerCorrupt)?,
+        doc_id_hash: required_bstr16(map, "doc_id_hash", QztError::ContainerCorrupt)?,
+        logical_offset: required_u64(map, "logical_offset", QztError::ContainerCorrupt)?,
+        byte_length: required_u64(map, "byte_length", QztError::ContainerCorrupt)?,
+        first_line: required_u64(map, "first_line", QztError::ContainerCorrupt)?,
+        line_count: required_u64(map, "line_count", QztError::ContainerCorrupt)?,
+        chunk_start: required_u64(map, "chunk_start", QztError::ContainerCorrupt)?,
+        chunk_end: required_u64(map, "chunk_end", QztError::ContainerCorrupt)?,
+        checksum: required_checksum(map, "checksum", QztError::ContainerCorrupt)?,
     })
 }
 

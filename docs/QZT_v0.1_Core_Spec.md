@@ -1052,6 +1052,21 @@ The number of `line_start_offsets` entries for a chunk MUST equal that chunk's C
 
 The offsets MUST be strictly increasing and MUST be less than `uncompressed_size`.
 
+`qzt-line-delta-varint-v1` payload layout:
+
+```text
+dense_line_index_payload:
+  entry_count: varuint
+  entries: dense_entry[entry_count]
+
+dense_entry:
+  chunk_id: varuint
+  offset_count: varuint
+  line_start_offset_deltas: varuint[offset_count]
+```
+
+`varuint` is unsigned LEB128 with minimal encoding. Entries MUST be sorted by `chunk_id` and, for v0.1 reference containers, MUST contain exactly one entry for every Chunk Table entry. `line_start_offset_deltas` encodes the first offset as a delta from `0`, then every subsequent offset as `current_offset - previous_offset`.
+
 Dense Line Index stores starts, not ends. A reader still determines the exact Line End by scanning for LF, CRLF, or EOF, continuing into adjacent chunks if required.
 
 Dense Line Index MUST NOT be treated as source of truth. If it disagrees with the decoded chunk during deep verify, the container MUST be reported corrupt.
@@ -1639,6 +1654,27 @@ required: false
 codec: "qzt-doc-index-cbor-v1"
 ```
 
+`qzt-doc-index-cbor-v1` payload is deterministic CBOR:
+
+```yaml
+schema: "qzt.document-index.v1"
+format_version: [0, 1]
+container_id: bstr16
+documents:
+  - doc_id: string
+    doc_id_hash: bstr16
+    logical_offset: u64
+    byte_length: u64
+    first_line: u64
+    line_count: u64
+    chunk_start: u64
+    chunk_end: u64
+    checksum:
+      algorithm: "blake3"
+      value: bstr32
+    metadata: map
+```
+
 Logical entry:
 
 ```yaml
@@ -1655,6 +1691,8 @@ checksum:
   value: bstr32
 metadata: map
 ```
+
+`chunk_start` and `chunk_end` form a half-open chunk-id range `[chunk_start, chunk_end)`. The range MUST cover every Chunk Table entry whose logical byte range overlaps the document byte range. Empty document byte ranges MUST use `chunk_start == chunk_end`.
 
 Document Index MUST be treated as an index into original text, not as a replacement for original text.
 

@@ -1,4 +1,5 @@
 use crate::chunk_table::{validate_chunk_table_block, ChunkEntry};
+use crate::dense_line_index::DenseLineIndex;
 use crate::error::{QztError, Result};
 use crate::fixed::{validate_physical_ranges, FooterTrailer, Header, PhysicalRange};
 use crate::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
@@ -6,7 +7,7 @@ use crate::limits::ResourceLimits;
 use crate::primitives::checked_physical_end;
 use crate::schema::{
     validate_source_consistency, BlockDescriptor, BlockRef, Checksum, DictionaryBlock,
-    DictionaryEntry, FooterPayload, IndexRoot, Metadata,
+    DictionaryEntry, DocumentIndex, FooterPayload, IndexRoot, Metadata,
 };
 
 /// Summary returned by the structural skeleton opener.
@@ -27,6 +28,8 @@ pub struct SkeletonDetails {
     pub footer_payload: FooterPayload,
     pub footer_payload_offset: u64,
     pub dictionaries: Vec<DictionaryEntry>,
+    pub dense_line_index: Option<DenseLineIndex>,
+    pub document_index: Option<DocumentIndex>,
 }
 
 /// Writes an empty, structurally valid QZT Core container skeleton.
@@ -222,6 +225,8 @@ pub fn open_skeleton_details_with_limits(
 
     let dictionaries = parse_dictionary_blocks(bytes, &index_root, header.container_id, limits)?;
     validate_required_dictionaries(&chunk_entries, &dictionaries)?;
+    let dense_line_index = parse_dense_line_index(bytes, &index_root, &chunk_entries)?;
+    let document_index = parse_document_index(bytes, &index_root, header.container_id)?;
 
     Ok(SkeletonDetails {
         summary: SkeletonSummary {
@@ -235,6 +240,8 @@ pub fn open_skeleton_details_with_limits(
         footer_payload,
         footer_payload_offset: trailer.footer_payload_offset,
         dictionaries,
+        dense_line_index,
+        document_index,
     })
 }
 
@@ -309,6 +316,78 @@ fn validate_required_dictionaries(
     }
 
     Ok(())
+}
+
+fn parse_dense_line_index(
+    bytes: &[u8],
+    index_root: &IndexRoot,
+    chunk_entries: &[ChunkEntry],
+) -> Result<Option<DenseLineIndex>> {
+    let mut dense = None;
+
+    for descriptor in index_root
+        .blocks
+        .iter()
+        .filter(|block| block.block_type == "dense_line_index")
+    {
+        if descriptor.required || descriptor.codec != "qzt-line-delta-varint-v1" {
+            return Err(QztError::ChunkTableInvalid);
+        }
+        if dense.is_some() {
+            return Err(QztError::ChunkTableInvalid);
+        }
+
+        let dense_bytes = slice_physical(
+            bytes,
+            PhysicalRange::new(descriptor.offset, descriptor.size),
+        )?;
+        if Checksum::blake3(dense_bytes) != descriptor.checksum {
+            return Err(QztError::ChunkTableChecksumMismatch);
+        }
+        dense = Some(DenseLineIndex::decode_for_chunks(
+            dense_bytes,
+            chunk_entries,
+        )?);
+    }
+
+    Ok(dense)
+}
+
+fn parse_document_index(
+    bytes: &[u8],
+    index_root: &IndexRoot,
+    container_id: [u8; 16],
+) -> Result<Option<DocumentIndex>> {
+    let mut document_index = None;
+
+    for descriptor in index_root
+        .blocks
+        .iter()
+        .filter(|block| block.block_type == "document_index")
+    {
+        if descriptor.required || descriptor.codec != "qzt-doc-index-cbor-v1" {
+            return Err(QztError::ContainerCorrupt);
+        }
+        if document_index.is_some() {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        let document_bytes = slice_physical(
+            bytes,
+            PhysicalRange::new(descriptor.offset, descriptor.size),
+        )?;
+        if Checksum::blake3(document_bytes) != descriptor.checksum {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        let block = DocumentIndex::decode(document_bytes)?;
+        if block.container_id != container_id {
+            return Err(QztError::ContainerIdMismatch);
+        }
+        document_index = Some(block);
+    }
+
+    Ok(document_index)
 }
 
 fn fixed_point_footer_payload(

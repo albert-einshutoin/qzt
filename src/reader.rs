@@ -132,13 +132,18 @@ impl QztReader {
             .get(start_index)
             .ok_or(QztError::LineOutOfRange)?;
         let start_decoded = self.decode_entry(start_entry)?;
-        let starts = local_line_starts(&start_decoded, start_entry.flags);
         let local_index = usize::try_from(line_zero_based - start_entry.first_line)
             .map_err(|_| QztError::LineOutOfRange)?;
-        let local_start = starts
-            .get(local_index)
-            .copied()
-            .ok_or(QztError::LineOutOfRange)?;
+        let local_start = if let Some(dense) = &self.details.dense_line_index {
+            usize::try_from(dense.line_start_offset(start_index, local_index)?)
+                .map_err(|_| QztError::ResourceLimitExceeded)?
+        } else {
+            let starts = local_line_starts(&start_decoded, start_entry.flags);
+            starts
+                .get(local_index)
+                .copied()
+                .ok_or(QztError::LineOutOfRange)?
+        };
 
         let mut output = Vec::new();
         if append_until_lf(&start_decoded, local_start, &mut output) {
@@ -208,7 +213,7 @@ impl QztReader {
         self.verify_normal()?;
 
         let mut output = Vec::new();
-        for entry in &self.details.chunk_entries {
+        for (chunk_index, entry) in self.details.chunk_entries.iter().enumerate() {
             let expected_flags = if entry.logical_offset > 0 && output.last() != Some(&b'\n') {
                 STARTS_WITH_LINE_CONTINUATION
             } else {
@@ -219,6 +224,9 @@ impl QztReader {
             }
 
             let decoded = self.decode_entry(entry)?;
+            if let Some(dense) = &self.details.dense_line_index {
+                dense.verify_chunk(chunk_index, &decoded, entry.flags)?;
+            }
             output.extend_from_slice(&decoded);
         }
 
@@ -256,6 +264,15 @@ impl QztReader {
             {
                 return Err(QztError::ChunkTableInvalid);
             }
+        }
+
+        if let Some(document_index) = &self.details.document_index {
+            verify_document_index(
+                document_index,
+                &output,
+                text.line_count,
+                &self.details.chunk_entries,
+            )?;
         }
 
         Ok(VerifyReport {
@@ -454,4 +471,76 @@ fn append_until_lf(decoded: &[u8], start: usize, output: &mut Vec<u8>) -> bool {
         }
     }
     false
+}
+
+fn verify_document_index(
+    document_index: &crate::schema::DocumentIndex,
+    original: &[u8],
+    line_count: u64,
+    chunk_entries: &[ChunkEntry],
+) -> Result<()> {
+    for document in &document_index.documents {
+        let end = checked_logical_end(document.logical_offset, document.byte_length)?;
+        if end > original.len() as u64 {
+            return Err(QztError::LogicalRangeOutOfBounds);
+        }
+        let line_end = checked_logical_end(document.first_line, document.line_count)?;
+        if line_end > line_count {
+            return Err(QztError::LineOutOfRange);
+        }
+
+        let mut expected_doc_hash = [0_u8; 16];
+        let doc_hash = blake3::hash(document.doc_id.as_bytes());
+        expected_doc_hash.copy_from_slice(&doc_hash.as_bytes()[..16]);
+        if document.doc_id_hash != expected_doc_hash {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        let start =
+            usize::try_from(document.logical_offset).map_err(|_| QztError::ContainerCorrupt)?;
+        let end = usize::try_from(end).map_err(|_| QztError::ContainerCorrupt)?;
+        let bytes = original.get(start..end).ok_or(QztError::ContainerCorrupt)?;
+        if Checksum::blake3(bytes) != document.checksum {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        let (chunk_start, chunk_end) =
+            document_chunk_range(chunk_entries, document.logical_offset, document.byte_length)?;
+        if document.chunk_start != chunk_start || document.chunk_end != chunk_end {
+            return Err(QztError::ChunkTableInvalid);
+        }
+    }
+
+    Ok(())
+}
+
+fn document_chunk_range(
+    chunk_entries: &[ChunkEntry],
+    offset: u64,
+    length: u64,
+) -> Result<(u64, u64)> {
+    let end = checked_logical_end(offset, length)?;
+    if length == 0 {
+        return Ok((0, 0));
+    }
+
+    let mut first = None;
+    let mut last_exclusive = None;
+    for entry in chunk_entries {
+        let chunk_end = checked_logical_end(entry.logical_offset, entry.uncompressed_size)?;
+        if chunk_end > offset && entry.logical_offset < end {
+            first.get_or_insert(entry.chunk_id);
+            last_exclusive = Some(
+                entry
+                    .chunk_id
+                    .checked_add(1)
+                    .ok_or(QztError::ChunkTableInvalid)?,
+            );
+        }
+    }
+
+    match (first, last_exclusive) {
+        (Some(first), Some(last_exclusive)) => Ok((first, last_exclusive)),
+        _ => Err(QztError::ChunkTableInvalid),
+    }
 }
