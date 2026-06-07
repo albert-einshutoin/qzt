@@ -3,8 +3,10 @@
 //! Phase0 intentionally exposes only stable placeholder modules. Later phases
 //! replace these placeholders with the binary format implementation.
 
+pub mod cbor;
 pub mod error;
 pub mod format;
+pub mod primitives;
 pub mod reader;
 pub mod writer;
 

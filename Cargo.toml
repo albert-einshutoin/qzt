@@ -12,3 +12,6 @@ path = "src/lib.rs"
 [[bin]]
 name = "qzt"
 path = "src/main.rs"
+
+[dev-dependencies]
+proptest = "1"
