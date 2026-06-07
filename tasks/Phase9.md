@@ -120,4 +120,34 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-07
+
+Verification:
+
+```text
+- cargo test --test phase9_cli_core
+- cargo test --test phase9_hardening
+- cargo test --test phase5_writer pack_smoke_benchmark_records_nonzero_throughput -- --nocapture
+- cargo test --test phase7_access phase7_intermediate_benchmark_records_nonzero_metrics -- --nocapture
+- make check
+```
+
+Benchmark smoke:
+
+```text
+phase5_pack_smoke bytes=65536 elapsed_ms=6.284 throughput_mib_s=9.945
+phase7_bench pack_mib_s=10.909 export_mib_s=36.692 range_mib_s=17.517 line_us=5.250
+```
+
+Review notes:
+
+```text
+- Self-review completed: Core CLI commands pack/info/export/range/line/verify are present and line ranges use documented 1-based inclusive CLI semantics.
+- Code review completed: pack option parsing rejects invalid profile, checksum, dictionary, dense-line-index, and chunk-size settings.
+- Architecture review completed: Phase9 adds no Search Extension, Dense Line Index, Document Index, sidecar, repack, merge, or compact code to the Core release gate.
+- Fuzz smoke completed through deterministic malformed open/verify seeds in tests/phase9_hardening.rs.
+- Core conformance mapping lives in tests/phase9_hardening.rs and Core readiness notes live in docs/QZT_v0.1_Core_Readiness.md.
+- No spec ambiguity was found that required QZT_v0.1_Core_Spec.md changes.
+```
