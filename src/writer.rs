@@ -1,11 +1,9 @@
 use crate::chunk_table::ChunkEntry;
 use crate::chunker::{plan_chunks, ChunkerOptions, NewlineMode};
 use crate::error::{QztError, Result};
-use crate::fixed::{FooterTrailer, Header, PhysicalRange};
+use crate::fixed::{FooterTrailer, Header};
 use crate::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
-use crate::primitives::checked_physical_end;
 use crate::schema::{BlockDescriptor, BlockRef, Checksum, FooterPayload, IndexRoot, Metadata};
-use crate::skeleton::open_skeleton_details;
 
 /// Placeholder writer entry point reserved for later phases.
 pub struct QztWriter;
@@ -100,42 +98,7 @@ pub fn pack_bytes_with_container_id(
 
 /// Exports all original bytes from a no-dictionary QZT container.
 pub fn export_all(container: &[u8]) -> Result<Vec<u8>> {
-    let details = open_skeleton_details(container)?;
-    let mut output = Vec::new();
-
-    for entry in details.chunk_entries {
-        if entry.dictionary_id != 0 {
-            return Err(QztError::MissingDictionary);
-        }
-
-        let compressed = slice_physical(
-            container,
-            PhysicalRange::new(entry.physical_offset, entry.compressed_size),
-        )?;
-        if Checksum::blake3(compressed).value != entry.compressed_checksum_blake3 {
-            return Err(QztError::CompressedChunkChecksumMismatch);
-        }
-
-        let decoded =
-            zstd::stream::decode_all(compressed).map_err(|_| QztError::ZstdDecodeError)?;
-        if u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?
-            != entry.uncompressed_size
-        {
-            return Err(QztError::ChunkSizeMismatch);
-        }
-        if Checksum::blake3(&decoded).value != entry.uncompressed_checksum_blake3 {
-            return Err(QztError::UncompressedChunkChecksumMismatch);
-        }
-        output.extend_from_slice(&decoded);
-    }
-
-    if u64::try_from(output.len()).map_err(|_| QztError::ResourceLimitExceeded)?
-        != details.summary.original_size
-    {
-        return Err(QztError::ChunkSizeMismatch);
-    }
-
-    Ok(output)
+    crate::reader::QztReader::open(container)?.export_all()
 }
 
 fn assemble_container(
@@ -203,6 +166,22 @@ fn assemble_container(
         .checked_add(index_root_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
 
+    let header = Header {
+        metadata_offset,
+        metadata_size,
+        index_hint_offset: index_root_offset,
+        container_id,
+    };
+
+    let mut prefix = Vec::new();
+    prefix.extend_from_slice(&header.encode());
+    for chunk in compressed_chunks {
+        prefix.extend_from_slice(chunk);
+    }
+    prefix.extend_from_slice(&metadata_bytes);
+    prefix.extend_from_slice(&chunk_table_bytes);
+    prefix.extend_from_slice(&index_root_bytes);
+
     let footer_payload = fixed_point_footer_payload(
         container_id,
         BlockRef {
@@ -216,6 +195,7 @@ fn assemble_container(
             checksum: Checksum::blake3(&metadata_bytes),
         },
         footer_payload_offset,
+        Some(Checksum::blake3(&prefix)),
     )?;
     let footer_payload_bytes = footer_payload.encode()?;
     let footer_trailer = FooterTrailer {
@@ -225,21 +205,7 @@ fn assemble_container(
         footer_payload_checksum_blake3: Checksum::blake3(&footer_payload_bytes).value,
     };
 
-    let header = Header {
-        metadata_offset,
-        metadata_size,
-        index_hint_offset: index_root_offset,
-        container_id,
-    };
-
-    let mut bytes = Vec::new();
-    bytes.extend_from_slice(&header.encode());
-    for chunk in compressed_chunks {
-        bytes.extend_from_slice(chunk);
-    }
-    bytes.extend_from_slice(&metadata_bytes);
-    bytes.extend_from_slice(&chunk_table_bytes);
-    bytes.extend_from_slice(&index_root_bytes);
+    let mut bytes = prefix;
     bytes.extend_from_slice(&footer_payload_bytes);
     bytes.extend_from_slice(&footer_trailer.encode());
     Ok(bytes)
@@ -250,6 +216,7 @@ fn fixed_point_footer_payload(
     index_root: BlockRef,
     metadata: BlockRef,
     footer_payload_offset: u64,
+    container_checksum: Option<Checksum>,
 ) -> Result<FooterPayload> {
     let mut final_file_size = 0_u64;
 
@@ -260,6 +227,7 @@ fn fixed_point_footer_payload(
             metadata: metadata.clone(),
             final_file_size,
             footer_flags: 0,
+            container_checksum: container_checksum.clone(),
         };
         let size = u64::try_from(candidate.encode()?.len())
             .map_err(|_| QztError::ResourceLimitExceeded)?;
@@ -285,16 +253,4 @@ fn newline_mode_as_str(mode: NewlineMode) -> &'static str {
         NewlineMode::Crlf => "crlf",
         NewlineMode::Mixed => "mixed",
     }
-}
-
-fn slice_physical(bytes: &[u8], range: PhysicalRange) -> Result<&[u8]> {
-    let end = checked_physical_end(range.offset, range.size)?;
-    if end > bytes.len() as u64 {
-        return Err(QztError::PhysicalRangeOutOfBounds);
-    }
-    let start = usize::try_from(range.offset).map_err(|_| QztError::PhysicalRangeOutOfBounds)?;
-    let end = usize::try_from(end).map_err(|_| QztError::PhysicalRangeOutOfBounds)?;
-    bytes
-        .get(start..end)
-        .ok_or(QztError::PhysicalRangeOutOfBounds)
 }

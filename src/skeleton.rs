@@ -22,6 +22,9 @@ pub struct SkeletonSummary {
 pub struct SkeletonDetails {
     pub summary: SkeletonSummary,
     pub chunk_entries: Vec<ChunkEntry>,
+    pub metadata: Metadata,
+    pub footer_payload: FooterPayload,
+    pub footer_payload_offset: u64,
 }
 
 /// Writes an empty, structurally valid QZT Core container skeleton.
@@ -201,6 +204,9 @@ pub fn open_skeleton_details(bytes: &[u8]) -> Result<SkeletonDetails> {
             line_count: index_root.line_count,
         },
         chunk_entries,
+        metadata,
+        footer_payload,
+        footer_payload_offset: trailer.footer_payload_offset,
     })
 }
 
@@ -219,6 +225,7 @@ fn fixed_point_footer_payload(
             metadata: metadata.clone(),
             final_file_size,
             footer_flags: 0,
+            container_checksum: None,
         };
         let size = u64::try_from(candidate.encode()?.len())
             .map_err(|_| QztError::ResourceLimitExceeded)?;

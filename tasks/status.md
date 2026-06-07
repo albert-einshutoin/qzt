@@ -20,7 +20,7 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 | 3 | Metadata, footer payload, index root, and chunk table skeleton | Complete | Deterministic CBOR schemas and empty-container skeleton | Structural verifier without zstd chunks |
 | 4 | UTF-8 chunker and sparse Chunk Table writer | Complete | deterministic Chunk Plan for UTF-8 input | CRLF-safe, continuation-aware line metadata |
 | 5 | No-dictionary zstd writer and finish | Complete | pack/export equality for simple UTF-8 | zstd frames, BLAKE3, footer finish, pack smoke metric |
-| 6 | Reader open/info/export and verification levels | Pending | open/info/export on valid files | quick/normal/deep verify corruption coverage |
+| 6 | Reader open/info/export and verification levels | Complete | open/info/export on valid files | quick/normal/deep verify corruption coverage |
 | 7 | Sparse line index, range reads, and CLI access | Pending | read_range and read_line_raw | CLI range/line, spanning-line support, intermediate benchmarks |
 | 8 | Dictionaries, resource limits, and Reader Core completion | Pending | read embedded dictionary fixtures | Reader Core complete with resource hardening |
 | 9 | Core conformance hardening and release readiness | Pending | Full Core test pass and fuzz smoke | v0.1 Core release candidate |
@@ -31,12 +31,12 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 
 ## Current Focus
 
-Phase0 through Phase5 are complete.
+Phase0 through Phase6 are complete.
 
 Next action:
 
 ```text
-Start Phase6 by separating Reader open/info/export and quick/normal/deep verification levels with failing corruption tests first.
+Start Phase7 by implementing read_range, read_text_range, read_line_raw, CLI range/line access, and intermediate benchmarks with failing tests first.
 ```
 
 ## Completion Tracks
@@ -60,6 +60,7 @@ Start Phase6 by separating Reader open/info/export and quick/normal/deep verific
 | 2026-06-07 | 3 | `make check` | Pass | Metadata, Footer Payload, Index Root, empty Chunk Table, and empty skeleton structural open/write added |
 | 2026-06-07 | 4 | `make check` | Pass | UTF-8/CRLF-safe ChunkPlan, newline mode, sparse line metadata, and continuation flags added |
 | 2026-06-07 | 5 | `make check`; `cargo test --test phase5_writer pack_smoke_benchmark_records_nonzero_throughput -- --nocapture` | Pass | No-dictionary zstd writer, BLAKE3 chunk checksums, Header patch, Footer finish, export equality, and pack smoke 26.837 MiB/s for 64KiB fixture |
+| 2026-06-07 | 6 | `make check` | Pass | QztReader open/info/export, quick/normal/deep verify, compressed checksum detection, and container_checksum detection added |
 
 ## Open Decisions
 

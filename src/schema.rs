@@ -41,11 +41,12 @@ pub struct FooterPayload {
     pub metadata: BlockRef,
     pub final_file_size: u64,
     pub footer_flags: u64,
+    pub container_checksum: Option<Checksum>,
 }
 
 impl FooterPayload {
     pub fn encode(&self) -> Result<Vec<u8>> {
-        encode_deterministic(&CborValue::Map(vec![
+        let mut entries = vec![
             text_pair("schema", CborValue::Text(SCHEMA_FOOTER.to_owned())),
             text_pair("format_version", version_value()),
             text_pair("container_id", CborValue::Bytes(self.container_id.to_vec())),
@@ -53,7 +54,11 @@ impl FooterPayload {
             text_pair("metadata", block_ref_value(&self.metadata)),
             text_pair("final_file_size", u64_value(self.final_file_size)),
             text_pair("footer_flags", u64_value(self.footer_flags)),
-        ]))
+        ];
+        if let Some(checksum) = &self.container_checksum {
+            entries.push(text_pair("container_checksum", checksum_value(checksum)));
+        }
+        encode_deterministic(&CborValue::Map(entries))
     }
 
     pub fn decode(bytes: &[u8]) -> Result<Self> {
@@ -89,6 +94,11 @@ impl FooterPayload {
             metadata: required_block_ref(map, "metadata", QztError::InvalidFooterPayload)?,
             final_file_size: required_u64(map, "final_file_size", QztError::InvalidFooterPayload)?,
             footer_flags,
+            container_checksum: optional_checksum(
+                map,
+                "container_checksum",
+                QztError::InvalidFooterPayload,
+            )?,
         })
     }
 }
@@ -678,6 +688,21 @@ fn required_checksum(
         algorithm,
         value: required_bstr32(checksum, "value", error)?,
     })
+}
+
+fn optional_checksum(
+    map: &[(CborValue, CborValue)],
+    key: &str,
+    error: QztError,
+) -> Result<Option<Checksum>> {
+    if !map
+        .iter()
+        .any(|(entry_key, _)| entry_key == &CborValue::Text(key.to_owned()))
+    {
+        return Ok(None);
+    }
+
+    required_checksum(map, key, error).map(Some)
 }
 
 fn required_block_ref(
