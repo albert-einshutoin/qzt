@@ -1,3 +1,47 @@
+# Rust build outputs
 /target/
+
+# Local QZT/QZI outputs from CLI and benchmarks
+*.qzt
+*.qzi
+*.qzt.fm
+*.qzt.vec
+!tests/fixtures/**/*.qzt
+!tests/fixtures/**/*.qzi
+!tests/fixtures/**/*.qzt.fm
+!tests/fixtures/**/*.qzt.vec
+
+# Coverage, profiling, and fuzz artifacts
+coverage/
+coverage-*/
+*.profraw
+*.profdata
+/criterion/
+/tarpaulin-report.html
+/cobertura.xml
+/fuzz/artifacts/
+/fuzz/coverage/
+/fuzz/target/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editor and patch leftovers
 **/*.rs.bk
+*.bak
+*.orig
+*.rej
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
