@@ -6,6 +6,7 @@ use qzt::search::{
     NgramIndexBuildOptions, RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions,
     TokenIndexBuildOptions,
 };
+use qzt::sidecar::{build_search_sidecar, QziSidecar, SidecarIndexKind};
 use qzt::writer::{pack_bytes, WriterOptions};
 
 fn main() -> ExitCode {
@@ -27,6 +28,7 @@ fn main() -> ExitCode {
         Some("range") => run_range(args),
         Some("line") => run_line(args),
         Some("search") => run_search(args),
+        Some("sidecar-rebuild") => run_sidecar_rebuild(args),
         Some("verify") => run_verify(args),
         Some(command) => {
             eprintln!("qzt: unknown command '{command}'");
@@ -49,6 +51,7 @@ fn print_help() {
     println!("  range      Print original bytes in a half-open byte range");
     println!("  line       Print one original line");
     println!("  search     Search raw UTF-8 tokens with verified original-byte hits");
+    println!("  sidecar-rebuild  Rebuild a QZI search sidecar");
     println!("  verify     Verify container integrity");
     println!();
     println!("Options:");
@@ -373,6 +376,7 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     let mut options = SearchOptions::default();
     let mut index_kind = "token";
     let mut ngram = 3_usize;
+    let mut sidecar_path = None;
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--index" => {
@@ -397,6 +401,13 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                 }
                 ngram = value;
             }
+            "--sidecar" => {
+                let Some(path) = args.next() else {
+                    eprintln!("qzt search: missing --sidecar path");
+                    return ExitCode::from(2);
+                };
+                sidecar_path = Some(path);
+            }
             "--max-candidates" => {
                 let Some(value) = args.next().and_then(|value| value.parse::<u64>().ok()) else {
                     eprintln!("qzt search: invalid --max-candidates");
@@ -420,7 +431,11 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     let result = std::fs::read(path).map_err(|_| ()).and_then(|bytes| {
         let reader = QztReader::open(&bytes).map_err(|_| ())?;
-        if index_kind == "ngram" {
+        if let Some(sidecar_path) = &sidecar_path {
+            let sidecar_bytes = std::fs::read(sidecar_path).map_err(|_| ())?;
+            let sidecar = QziSidecar::open(&bytes, &sidecar_bytes).map_err(|_| ())?;
+            sidecar.search(&reader, &query, options).map_err(|_| ())
+        } else if index_kind == "ngram" {
             let index = RawNgramIndex::build_from_container(
                 &bytes,
                 NgramIndexBuildOptions {
@@ -468,6 +483,77 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
         }
         Err(()) => {
             eprintln!("qzt search: failed");
+            ExitCode::from(1)
+        }
+    }
+}
+
+fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
+    let Some(path) = args.next() else {
+        eprintln!("qzt sidecar-rebuild: missing file");
+        return ExitCode::from(2);
+    };
+
+    let mut output_path = None;
+    let mut index_kind = "token";
+    let mut ngram = 3_usize;
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "-o" | "--output" => {
+                let Some(path) = args.next() else {
+                    eprintln!("qzt sidecar-rebuild: missing output path");
+                    return ExitCode::from(2);
+                };
+                output_path = Some(path);
+            }
+            "--index" => {
+                let Some(value) = args.next() else {
+                    eprintln!("qzt sidecar-rebuild: missing --index value");
+                    return ExitCode::from(2);
+                };
+                if !matches!(value.as_str(), "token" | "ngram") {
+                    eprintln!("qzt sidecar-rebuild: invalid --index value");
+                    return ExitCode::from(2);
+                }
+                index_kind = if value == "ngram" { "ngram" } else { "token" };
+            }
+            "--ngram" => {
+                let Some(value) = args.next().and_then(|value| value.parse::<usize>().ok()) else {
+                    eprintln!("qzt sidecar-rebuild: invalid --ngram");
+                    return ExitCode::from(2);
+                };
+                if value == 0 {
+                    eprintln!("qzt sidecar-rebuild: invalid --ngram");
+                    return ExitCode::from(2);
+                }
+                ngram = value;
+            }
+            _ => {
+                eprintln!("qzt sidecar-rebuild: unknown option '{arg}'");
+                return ExitCode::from(2);
+            }
+        }
+    }
+
+    let Some(output_path) = output_path else {
+        eprintln!("qzt sidecar-rebuild: missing -o output.qzi");
+        return ExitCode::from(2);
+    };
+
+    let kind = if index_kind == "ngram" {
+        SidecarIndexKind::Ngram { n: ngram }
+    } else {
+        SidecarIndexKind::Token
+    };
+    let result = std::fs::read(path)
+        .map_err(|_| ())
+        .and_then(|bytes| build_search_sidecar(&bytes, kind).map_err(|_| ()))
+        .and_then(|sidecar| std::fs::write(output_path, sidecar).map_err(|_| ()));
+
+    match result {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(()) => {
+            eprintln!("qzt sidecar-rebuild: failed");
             ExitCode::from(1)
         }
     }

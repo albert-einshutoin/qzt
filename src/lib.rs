@@ -15,6 +15,7 @@ pub mod primitives;
 pub mod reader;
 pub mod schema;
 pub mod search;
+pub mod sidecar;
 pub mod skeleton;
 pub mod writer;
 

@@ -99,4 +99,34 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-07
+
+Implementation scope:
+
+```text
+- Phase13 implements `.qzi` sidecar header `QZISIDE1`, deterministic CBOR manifest, and bounds-checked section payloads for granules, term dictionary, and delta-varint postings.
+- Sidecar validation checks source_container_id, source_original_checksum, and source QZT Footer Payload checksum before lookup.
+- Sidecar rejection is isolated to the sidecar path and does not affect Core read/export/verify.
+- qzt sidecar-rebuild writes token or n-gram sidecars; qzt search --sidecar validates and uses the sidecar-derived index.
+- Memory mapping is represented by sectioned offset/size/checksum layout and safe slice validation. OS-level mmap is deferred until there is a larger benchmark corpus and API need.
+```
+
+Verification:
+
+```text
+- cargo test --test phase13_sidecar -- --nocapture
+- cargo test --test phase12_ngram_planner -- --nocapture
+- cargo test --test phase11_search -- --nocapture
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review completed: every sidecar byte is treated as derived and untrusted until manifest/source/section checks pass.
+- Code review completed: wrong source_container_id and wrong source_original_checksum are rejected; section checksum and bounds are validated before decoding; common-term caps avoid candidate decode; rare-term queries decode only candidate-overlapping chunks.
+- Architecture review completed: sidecar lookup restores the same RawTokenIndex/RawNgramIndex query path, preserving original-byte verification and Core container immutability.
+- Performance claim check completed: metrics are reported and sidecar lookup avoids rebuilding the index from the QZT container, but broad high-performance claims remain tied to future larger-corpus benchmark evidence.
+```

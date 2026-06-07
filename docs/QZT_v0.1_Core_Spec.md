@@ -2193,6 +2193,29 @@ Search sidecars SHOULD be designed for memory-mapped lookup:
 - skip data close to posting lists
 ```
 
+Reference `.qzi` sidecar v1 physical layout:
+
+```text
+Offset  Size  Type   Field
+0       8     bytes  magic = "QZISIDE1"
+8       8     u64le  manifest_size
+16      N     cbor   Sidecar Manifest, deterministic CBOR
+16+N    ...   bytes  section payloads referenced by Sidecar Manifest
+```
+
+In the v0.1 reference sidecar, section offsets in the Sidecar Manifest are relative to the first byte after the manifest. The implemented search sidecar sections are:
+
+```yaml
+granules:
+  codec: "qzt-sidecar-granules-fixed-v1"
+terms:
+  codec: "qzt-sidecar-term-dict-v1"
+postings:
+  codec: "delta-varint-u64-v1"
+```
+
+Readers MUST validate each sidecar section offset, size, and checksum before using it for lookup. A sidecar section parse failure MUST reject the sidecar only; it MUST NOT change Core QZT read/export/verify behavior.
+
 Sidecar indexes MUST remain derived data. If a sidecar is missing or rejected, Core QZT read/export/verify behavior MUST still work.
 
 ---
