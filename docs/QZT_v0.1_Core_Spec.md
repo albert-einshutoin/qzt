@@ -2,7 +2,7 @@
 
 Status: Draft Complete  
 Spec version: 0.1.0  
-Date: 2026-06-06  
+Date: 2026-06-07
 File extension: `.qzt`  
 Name: **QZT: Queryable Zstd Text Container**  
 Tagline: **A seekable, verifiable, evidence-native text container built on independent zstd chunks.**
@@ -97,6 +97,17 @@ The following are NOT part of QZT v0.1 Core:
 
 These may be defined as optional extension specs.
 
+### 1.3 Core conformance and profiles
+
+Profiles tune default writer behavior and optional indexes.
+Profiles do not weaken QZT v0.1 Core conformance.
+
+A container that claims QZT v0.1 Core conformance MUST contain all required Core structures, even if its metadata profile is `"minimal"`.
+
+A tool that omits line access, sparse line index fields, verification levels, or required dictionary reading behavior MUST NOT claim QZT v0.1 Reader Core or Writer Core conformance.
+
+The `"memory"` profile is an extension profile. A memory-profile container MAY still be a valid Core container if all required Core structures are present and all extension blocks are optional.
+
 ---
 
 ## 2. Product boundary
@@ -182,6 +193,15 @@ A memory system may store references like:
 
 QZT only guarantees the referenced original text can be retrieved and verified.
 
+Evidence Ref range convention:
+
+```text
+byte_range: [start, end) using 0-based half-open byte offsets
+line_range: [start, end) using 0-based half-open internal line numbers
+```
+
+User-facing CLIs MAY display line ranges as 1-based inclusive ranges, but stored Evidence Refs SHOULD use the internal half-open convention above.
+
 ---
 
 ## 4. Terms
@@ -194,6 +214,8 @@ QZT only guarantees the referenced original text can be retrieved and verified.
 | Logical Offset | 0-based byte offset in the original input byte stream |
 | Physical Offset | 0-based byte offset in the `.qzt` file |
 | Line | Byte range terminated by newline sequence or EOF |
+| Line Start | Logical offset of the first byte of a line |
+| Line End | Logical offset immediately after the line bytes, including newline if present |
 | Chunk Table | Required table mapping logical byte ranges to compressed chunk locations |
 | Line Index | Sparse or dense data allowing line-number access |
 | Index Root | Directory describing locations/checksums/codecs of index blocks |
@@ -279,10 +301,37 @@ Primitive names:
 | u16 | 2 | unsigned 16-bit integer |
 | u32 | 4 | unsigned 32-bit integer |
 | u64 | 8 | unsigned 64-bit integer |
+| i32 | 4 | signed 32-bit integer |
+| bstr | variable | byte string |
 | bstr[N] | N | byte string of exactly N bytes |
 
 All unspecified/reserved bytes MUST be zero when written.  
 Readers MUST reject non-zero reserved bytes unless a future compatible version defines them.
+
+### 7.1 Deterministic CBOR profile
+
+When this document says "canonical CBOR", it means the QZT deterministic CBOR profile.
+
+QZT deterministic CBOR MUST follow these rules:
+
+```text
+- definite-length arrays, maps, byte strings, and text strings only
+- shortest valid integer encoding
+- no floating point values in Core schemas
+- no CBOR tags in Core schemas
+- no duplicate map keys
+- map keys sorted by their encoded byte-string order
+- text string keys encoded as UTF-8
+- byte strings used for bstr16 and bstr32 values exactly match the required length
+```
+
+Readers MUST reject non-deterministic CBOR encodings for Footer Payload, Metadata, Index Root, and all Core-defined CBOR extension blocks.
+
+Readers MUST reject missing required fields.
+Readers MUST reject duplicate map keys.
+Readers MUST ignore unknown fields only when the surrounding schema explicitly allows extension fields.
+
+The logical schemas in this document use YAML notation for readability. The serialized representation is deterministic CBOR, not YAML or JSON.
 
 ---
 
@@ -315,11 +364,29 @@ QZT\0TXT1
 `container_id` MUST be a random or content-derived 128-bit identifier.  
 Implementations SHOULD use UUIDv4 bytes or BLAKE3-derived 128-bit truncated bytes.
 
+`header_flags` has no defined bits in v0.1 and MUST be `0`.
+Readers MUST reject non-zero `header_flags` for v0.1 files.
+
 `metadata_offset` and `metadata_size` MUST point to the canonical CBOR Metadata Block.
 
 `index_hint_offset` MAY point to Index Root for faster loading. If it is `0`, readers MUST use the Footer Trailer.
 
+`index_hint_offset` is not authoritative. Readers MAY use it as a fast path only after validating the Footer Trailer, Footer Payload, and Index Root checksum.
+
 The Header MAY be written as a placeholder at the start and patched at `finish()` time.
+
+### 8.2 Version handling
+
+A v0.1 Reader Core implementation MUST accept only:
+
+```text
+major_version = 0
+minor_version = 1
+```
+
+Readers MUST return `UnsupportedVersion` for any other Header or Footer Trailer version unless the implementation explicitly supports that version.
+
+Header, Footer Trailer, Footer Payload, Metadata, and Index Root format versions MUST all agree for v0.1 files.
 
 ---
 
@@ -359,10 +426,20 @@ A reader MUST open a QZT file as follows:
 6. Read Footer Payload using footer_payload_offset and footer_payload_size.
 7. Verify footer_payload_checksum_blake3.
 8. Parse Footer Payload as canonical CBOR.
-9. Read Index Root referenced by Footer Payload.
-10. Verify Index Root checksum.
-11. Read Chunk Table referenced by Index Root.
-12. Verify Chunk Table checksum.
+9. Verify final_file_size equals the actual file size.
+10. Verify Header container_id equals Footer Payload container_id.
+11. Verify Header metadata_offset/metadata_size equals Footer Payload metadata offset/size.
+12. Read Metadata referenced by Footer Payload.
+13. Verify Metadata checksum and parse Metadata as canonical CBOR.
+14. Verify Metadata container_id equals Header/Footer container_id.
+15. Read Index Root referenced by Footer Payload.
+16. Verify Index Root checksum.
+17. Parse Index Root as canonical CBOR.
+18. Verify Index Root container_id equals Header/Footer/Metadata container_id.
+19. Verify Metadata source fields equal Index Root content fields where both are present:
+    original_size, original_checksum, line_count.
+20. Read Chunk Table referenced by Index Root.
+21. Verify Chunk Table checksum.
 ```
 
 If any required step fails, reader MUST return an error.
@@ -395,6 +472,11 @@ final_file_size: u64
 footer_flags: u64
 ```
 
+`final_file_size` MUST equal the actual file size in bytes.
+
+`footer_flags` has no defined bits in v0.1 and MUST be `0`.
+Readers MUST reject non-zero `footer_flags` for v0.1 files.
+
 Footer Payload MAY include optional fields:
 
 ```yaml
@@ -405,7 +487,9 @@ container_checksum:
   value: bstr32
 ```
 
-`container_checksum`, if present, MUST be computed over the entire file excluding the checksum field itself. Because this complicates streaming writers, it is optional in v0.1.
+`container_checksum`, if present, MUST be BLAKE3-256 over the exact file bytes from offset `0` up to, but not including, `footer_payload_offset`.
+
+Footer Payload and Footer Trailer are not included in `container_checksum`; they are covered by `footer_payload_checksum_blake3` and required structural checks. This avoids circular checksums and preserves streaming writer behavior.
 
 ---
 
@@ -480,6 +564,8 @@ compatibility.qzt_is_zst_stream: false
 compatibility.chunks_are_independent_zstd_frames: true
 ```
 
+`compression.zstd_level` MUST be a concrete signed integer. Profile names such as `"high"` are writer presets and MUST NOT be serialized in Metadata.
+
 ### 11.1 Metadata and original text
 
 Metadata MUST NOT contain transformed text that replaces the original payload.  
@@ -497,14 +583,17 @@ QZT v0.1 Core is UTF-8 text only.
 
 Chunk boundaries MUST occur at valid UTF-8 code point boundaries.
 
+Writers MUST NOT split between CR and LF in a CRLF sequence, regardless of chunking boundary mode.
+
 When `boundary = "line-preferred"`:
 
 ```text
 - writer SHOULD split at newline boundaries near target_chunk_size
-- writer MUST NOT split between CR and LF in a CRLF sequence
-- if a line exceeds max_chunk_size, writer MAY split inside the line
+- if a line exceeds max_chunk_size, writer MUST split inside the line
 - even forced splits MUST preserve UTF-8 code point boundaries
 ```
+
+`max_chunk_size` is a hard writer limit for uncompressed chunk bytes. A writer MUST NOT emit an uncompressed chunk larger than `max_chunk_size`, except that it MUST fail with `ResourceLimitExceeded` if no valid UTF-8 boundary exists within the limit.
 
 If input is not valid UTF-8, writer MUST fail with `InvalidUtf8`, unless a future non-core profile explicitly supports binary or legacy encodings.
 
@@ -556,6 +645,12 @@ Examples:
 | `"a\nb\n"` | 2 |
 | `"\n"` | 1 |
 | `"\n\n"` | 2 |
+
+Line numbers are assigned by Line Start order.
+
+For a non-empty file, line `0` starts at logical offset `0`.
+Each subsequent line starts immediately after a recognized newline sequence.
+A final newline does not create a Line Start at EOF.
 
 ### 13.2 Line numbering
 
@@ -643,19 +738,54 @@ Multiple dictionaries are allowed by the logical model, but reference implementa
 - one embedded dictionary
 ```
 
+The Dictionary Block descriptor in Index Root MUST use:
+
+```yaml
+type: "dictionary"
+required: false
+codec: "qzt-dict-cbor-v1"
+```
+
+`qzt-dict-cbor-v1` payload is deterministic CBOR:
+
+```yaml
+schema: "qzt.dictionary.v1"
+format_version: [0, 1]
+container_id: bstr16
+dictionaries:
+  - dictionary_id: u32
+    codec: "zstd"
+    bytes: bstr
+    checksum:
+      algorithm: "blake3"
+      value: bstr32
+```
+
+`dictionary_id` values in Dictionary Block MUST be unique and MUST be greater than `0`.
+
+Every non-zero Chunk Table `dictionary_id` MUST resolve to exactly one Dictionary Block entry.
+
+The Dictionary Block descriptor uses `required: false` because dictionaries are optional for the format. If any chunk references a non-zero `dictionary_id`, the referenced Dictionary Block is required for decoding that container.
+
+Readers MUST reject a container with a missing dictionary, duplicate dictionary ID, checksum mismatch, or dictionary codec other than `"zstd"`.
+
+Writer Core MAY choose not to emit dictionaries. If a writer emits any non-zero `dictionary_id`, it MUST emit a valid Dictionary Block.
+
 ---
 
 ## 16. Chunk Table
 
 Chunk Table is required.
 
-Index Root MUST contain one required block descriptor with:
+Index Root MUST contain one required Chunk Table block descriptor. Its identifying fields are:
 
 ```yaml
 type: "chunk_table"
 required: true
 codec: "qzt-ctbl-fixed-v1"
 ```
+
+The descriptor MUST also include the full block descriptor fields defined in Section 18: `offset`, `size`, `checksum`, and `flags`.
 
 ### 16.1 Logical Chunk Entry fields
 
@@ -674,6 +804,14 @@ flags: u32
 compressed_checksum_blake3: bstr32
 uncompressed_checksum_blake3: bstr32
 ```
+
+`first_line` is the 0-based line number of the first line whose Line Start is inside this chunk.
+
+`line_count` is the number of Line Starts inside this chunk.
+
+If no Line Start occurs inside a chunk, `line_count` MUST be `0`, and `first_line` MUST equal the number of Line Starts before this chunk.
+
+The sum of all Chunk Entry `line_count` values MUST equal the container `line_count`.
 
 ### 16.2 Fixed binary record
 
@@ -706,7 +844,32 @@ first_line = 0
 
 If the file is empty, Chunk Table MAY contain zero records.
 
-### 16.3 Checksums
+### 16.3 Chunk flags
+
+Chunk Entry `flags` is a bitset.
+
+Defined v0.1 bits:
+
+```text
+bit 0: starts_with_line_continuation
+```
+
+If `starts_with_line_continuation` is set, the first byte of the uncompressed chunk is a continuation of a line that started in an earlier chunk.
+
+Writers MUST set `starts_with_line_continuation` when:
+
+```text
+logical_offset > 0
+and the previous original byte is not LF (0x0A)
+```
+
+Because writers MUST NOT split between CR and LF, checking the previous byte for LF is sufficient for v0.1 line-start detection.
+
+No other chunk flag bits are defined in v0.1.
+Writers MUST write all unknown flag bits as zero.
+Readers MUST reject non-zero unknown flag bits.
+
+### 16.4 Checksums
 
 `compressed_checksum_blake3` is computed over the exact compressed zstd frame bytes stored in the QZT file.
 
@@ -728,15 +891,23 @@ first_line
 line_count
 ```
 
+These fields index Line Starts, not newline terminators.
+
 A reader can resolve a line as:
 
 ```text
 1. Binary search Chunk Table for chunk where:
    first_line <= target_line < first_line + line_count
-2. Read and decompress that chunk only.
-3. Scan newline sequences inside the chunk.
-4. Return the requested line.
+2. Read and decompress that chunk.
+3. Locate the target Line Start inside the chunk.
+4. Scan forward until LF, CRLF, or EOF.
+5. If the line does not end in the starting chunk, continue into adjacent chunks until the line terminator or EOF.
+6. Return the requested line.
 ```
+
+Chunks with `line_count = 0` are never selected by step 1, but readers may need to decode them when a line started in an earlier chunk continues through them.
+
+When scanning a chunk with `starts_with_line_continuation` set, bytes before the first recognized newline sequence are a continuation fragment and MUST NOT be counted as a Line Start.
 
 ### 17.1 Dense Line Index extension
 
@@ -754,10 +925,16 @@ Logical dense entry:
 
 ```yaml
 chunk_id: u64
-newline_end_offsets: delta-varint[u64]
+line_start_offsets: delta-varint[u64]
 ```
 
-`newline_end_offsets` are byte offsets within the uncompressed chunk, pointing to the end of each line including newline sequence.
+`line_start_offsets` are byte offsets within the uncompressed chunk, pointing to each Line Start contained in that chunk.
+
+The number of `line_start_offsets` entries for a chunk MUST equal that chunk's Chunk Table `line_count`.
+
+The offsets MUST be strictly increasing and MUST be less than `uncompressed_size`.
+
+Dense Line Index stores starts, not ends. A reader still determines the exact Line End by scanning for LF, CRLF, or EOF, continuing into adjacent chunks if required.
 
 Dense Line Index MUST NOT be treated as source of truth. If it disagrees with the decoded chunk during deep verify, the container MUST be reported corrupt.
 
@@ -799,7 +976,13 @@ Required block descriptors for QZT v0.1 Core:
 ```yaml
 - type: "chunk_table"
   required: true
+  offset: u64
+  size: u64
   codec: "qzt-ctbl-fixed-v1"
+  checksum:
+    algorithm: "blake3"
+    value: bstr32
+  flags: 0
 ```
 
 Optional block descriptors MAY include:
@@ -817,6 +1000,11 @@ Optional block descriptors MAY include:
 Readers MUST ignore unknown optional blocks.
 
 Readers MUST fail if an unknown `required: true` block is present.
+
+Block descriptor `flags` has no defined bits in v0.1 and MUST be `0`.
+Readers MUST reject non-zero block descriptor `flags` for v0.1 files.
+
+Block descriptors MUST NOT overlap each other, compressed chunk byte ranges, Footer Payload, or Footer Trailer.
 
 ---
 
@@ -867,12 +1055,13 @@ length: u64
 Procedure:
 
 ```text
-1. Validate offset + length <= original_size.
-2. Find first chunk overlapping [offset, offset + length).
-3. Decompress only overlapping chunks.
-4. Slice decoded chunk bytes by logical offset.
-5. Concatenate slices.
-6. Return exactly length bytes.
+1. Validate offset + length does not overflow u64.
+2. Validate offset + length <= original_size.
+3. Find first chunk overlapping [offset, offset + length).
+4. Decompress only overlapping chunks.
+5. Slice decoded chunk bytes by logical offset.
+6. Concatenate slices.
+7. Return exactly length bytes.
 ```
 
 ### 20.3 Read text range
@@ -893,10 +1082,12 @@ Input internal line number is 0-based.
 
 ```text
 1. Validate line < line_count.
-2. Find chunk using first_line and line_count.
+2. Find the starting chunk using first_line and line_count.
 3. Decompress chunk.
-4. Locate line inside chunk by scan or Dense Line Index.
-5. Return exact original bytes for that line.
+4. Locate the Line Start inside chunk by scan or Dense Line Index.
+5. Scan forward to LF, CRLF, or EOF.
+6. Continue into adjacent chunks if the Line End is not in the starting chunk.
+7. Return exact original bytes for that line.
 ```
 
 If a line spans multiple chunks because it exceeds `max_chunk_size`, reader MUST continue into adjacent chunks until line terminator or EOF. Writer SHOULD avoid this when possible, but reader MUST support it.
@@ -914,19 +1105,36 @@ Quick verify MUST check:
 ```text
 - Header magic/version/length
 - Header reserved bytes are zero
+- Header flags are known and valid
 - Footer Trailer magic/version/length
 - Footer Payload checksum
 - Footer Payload parse
+- final_file_size equals actual file size
+- Footer Payload flags are known and valid
+- Header/Footer container_id consistency
+- Header/Footer/Payload/Metadata/Index Root version consistency
+- Header/Footer metadata offset and size consistency
+- Metadata checksum
+- Metadata parse
+- Metadata/Header/Footer container_id consistency
 - Index Root checksum
 - Index Root parse
+- Index Root/Header/Footer/Metadata container_id consistency
+- Metadata source fields equal Index Root content fields:
+    original_size, original_checksum, line_count
 - required block descriptors exist
+- block descriptor flags are known and valid
+- block descriptor physical ranges are inside file and do not overlap
 - Chunk Table block checksum
 - Chunk Table structural consistency:
     chunk_id sequence
     logical offset continuity
+    first_line continuity by Line Start count
+    sum(line_count) equals container line_count
     physical ranges inside file
     no overlap
     no out-of-bounds reads
+    chunk flags are known and valid
 ```
 
 Quick verify MUST NOT require decompressing all chunks.
@@ -939,6 +1147,7 @@ Normal verify MUST perform quick verify plus:
 - checksum of all index blocks
 - compressed_checksum_blake3 for all chunks
 - dictionary block checksums if present
+- optional block checksums for all known optional blocks
 ```
 
 Normal verify MUST NOT require full decompression.
@@ -954,6 +1163,8 @@ Deep verify MUST perform normal verify plus:
 - verify reconstructed original_checksum
 - verify UTF-8 validity of reconstructed stream
 - verify line_count
+- verify Chunk Table first_line and line_count against decoded Line Starts
+- verify starts_with_line_continuation flags against decoded chunk boundaries
 - verify Dense Line Index if present
 - verify Document Index if present
 ```
@@ -990,10 +1201,17 @@ UnsupportedVersion
 InvalidHeader
 InvalidFooterTrailer
 InvalidFooterPayload
+NonCanonicalCbor
+DuplicateCborKey
 FooterChecksumMismatch
+FinalFileSizeMismatch
+ContainerIdMismatch
+MetadataChecksumMismatch
+MetadataInvalid
 IndexRootChecksumMismatch
 MissingRequiredBlock
 UnknownRequiredBlock
+InvalidFlags
 ChunkTableChecksumMismatch
 ChunkTableInvalid
 PhysicalRangeOutOfBounds
@@ -1088,6 +1306,14 @@ qzt range data.qzt --bytes 1048576:2097152
 qzt range data.qzt --lines 1000:1200
 ```
 
+CLI byte ranges use 0-based half-open byte offsets.
+
+Recommended interpretation:
+
+```text
+--bytes A:B means original bytes [A, B), where A is inclusive and B is exclusive.
+```
+
 CLI line ranges are 1-based and inclusive by default unless implementation explicitly documents otherwise.
 
 Recommended interpretation:
@@ -1175,13 +1401,16 @@ For storage with exact restoration and byte-range access.
 profile: "minimal"
 target_chunk_size: 4MiB
 max_chunk_size: 16MiB
+sparse_line_index: true
 dense_line_index: false
 document_index: false
 token_index: false
 ngram_index: false
 ```
 
-Minimal may still store `first_line` and `line_count` if line counting is enabled, but line CLI is not required for minimal-only implementations.
+For a QZT v0.1 Core container, minimal profile still MUST populate Chunk Table `first_line` and `line_count`, and a Reader Core implementation still MUST support line access.
+
+A minimal-only non-Core tool MAY omit line CLI support, but it MUST NOT claim QZT v0.1 Reader Core conformance.
 
 ### 27.2 core
 
@@ -1229,6 +1458,8 @@ token_index: false
 ngram_index: false
 zstd_level: high
 ```
+
+`zstd_level: high` is a profile preset. A writer MUST resolve it to a concrete signed integer `compression.zstd_level` in Metadata.
 
 ### 27.5 memory
 
@@ -1506,12 +1737,15 @@ Readers MUST validate:
 - all offsets are inside file bounds
 - all sizes are reasonable and do not overflow u64
 - physical chunk ranges do not overlap invalidly
+- metadata, index, chunk, footer payload, and footer trailer ranges do not overlap invalidly
 - uncompressed chunk size <= configured max
 - dictionary size <= configured max
 - index block size <= configured max
 - footer/index blocks do not point to themselves cyclically
 - required dictionaries exist
 - decompression does not exceed declared uncompressed_size
+- unknown flag bits are rejected
+- deterministic CBOR requirements are enforced before trusting CBOR fields
 ```
 
 Recommended default limits:
@@ -1541,6 +1775,8 @@ A Reader Core implementation MUST support:
 - read_range
 - read_line_raw
 - verify quick/normal/deep
+- QZT deterministic CBOR validation
+- Metadata/Header/Footer/Index Root consistency checks
 - zstd chunks without dictionary
 - zstd chunks with embedded dictionary if dictionary block is present
 - sparse line index via Chunk Table
@@ -1559,9 +1795,13 @@ A Writer Core implementation MUST support:
 - valid Index Root
 - valid Footer Payload
 - valid Footer Trailer
+- QZT deterministic CBOR encoding
 - BLAKE3 compressed/uncompressed chunk checksums
 - UTF-8 safe chunk boundaries
+- sparse line index via Chunk Table
 ```
+
+Writer Core MAY omit embedded dictionary output. If it emits dictionary-compressed chunks, it MUST emit a valid Dictionary Block.
 
 ### 34.3 QZT v0.1 Search Extension
 
@@ -1581,7 +1821,9 @@ Search extension is not required for Core conformance.
 
 ## 35. Test suite
 
-A QZT v0.1 implementation SHOULD pass these tests:
+A QZT v0.1 Reader Core or Writer Core implementation SHOULD pass all Core conformance tests that apply to its role.
+
+### 35.1 Core conformance tests
 
 ```text
 1. empty file
@@ -1590,33 +1832,83 @@ A QZT v0.1 implementation SHOULD pass these tests:
 4. LF multi-line
 5. CRLF multi-line
 6. mixed LF/CRLF
-7. Japanese UTF-8
-8. emoji UTF-8
-9. very long single line exceeding target_chunk_size
-10. very long single line exceeding max_chunk_size
-11. chunk boundary at Japanese multibyte character
-12. chunk boundary near CRLF
-13. small chunk size
-14. no dictionary
-15. embedded dictionary
-16. corrupted Header magic
-17. corrupted Footer Trailer
-18. corrupted Footer Payload checksum
-19. corrupted Index Root checksum
-20. corrupted Chunk Table checksum
-21. corrupted compressed chunk bytes
-22. corrupted uncompressed checksum after decode
-23. read_range spanning one chunk
-24. read_range spanning multiple chunks
-25. read_line first line
-26. read_line last line
-27. read_line out of range
-28. export equality
-29. quick verify succeeds without decompression
-30. deep verify detects invalid line_count
-31. unknown optional block ignored
-32. unknown required block rejected
-33. sidecar wrong container_id rejected
+7. lone CR treated as ordinary data
+8. Japanese UTF-8
+9. emoji UTF-8
+10. invalid UTF-8 rejected by writer
+11. very long single line exceeding target_chunk_size
+12. very long single line exceeding max_chunk_size
+13. read_line for a line spanning multiple chunks
+14. chunk boundary at Japanese multibyte character rejected or avoided
+15. chunk boundary between CR and LF rejected or avoided
+16. small chunk size
+17. no dictionary
+18. embedded dictionary fixture can be read
+19. missing dictionary rejected
+20. duplicate dictionary_id rejected
+21. dictionary checksum mismatch rejected
+22. corrupted Header magic
+23. non-zero Header reserved bytes rejected
+24. non-zero header_flags rejected
+25. unsupported version rejected
+26. Header/Footer/Payload/Metadata/Index Root version mismatch rejected
+27. corrupted Footer Trailer
+28. Footer Payload checksum mismatch
+29. final_file_size mismatch
+30. Header/Footer container_id mismatch
+31. Header/Footer metadata offset mismatch
+32. Metadata checksum mismatch
+33. Metadata non-canonical CBOR rejected
+34. Metadata duplicate CBOR key rejected
+35. Metadata/Header/Footer container_id mismatch
+36. Metadata/Index Root original_size mismatch
+37. Metadata/Index Root original_checksum mismatch
+38. Metadata/Index Root line_count mismatch
+39. corrupted Index Root checksum
+40. Index Root non-canonical CBOR rejected
+41. block descriptor overlap rejected
+42. unknown optional block ignored
+43. unknown required block rejected
+44. non-zero block descriptor flags rejected
+45. corrupted Chunk Table checksum
+46. Chunk Table invalid chunk_id sequence
+47. Chunk Table logical gap rejected
+48. Chunk Table physical range out of bounds rejected
+49. Chunk Table physical overlap rejected
+50. Chunk Table first_line continuity invalid
+51. Chunk Table sum(line_count) mismatch
+52. unknown chunk flag rejected
+53. starts_with_line_continuation flag mismatch detected by deep verify
+54. corrupted compressed chunk bytes
+55. corrupted uncompressed checksum after decode
+56. read_range spanning one chunk
+57. read_range spanning multiple chunks
+58. read_range offset + length overflow rejected
+59. read_text_range invalid UTF-8 boundary rejected
+60. read_line first line
+61. read_line last line without trailing newline
+62. read_line last line with trailing newline
+63. read_line out of range
+64. Dense Line Index final line without newline
+65. Dense Line Index line_start_offsets count mismatch
+66. export equality
+67. quick verify succeeds without decompressing chunks
+68. normal verify detects compressed chunk checksum mismatch
+69. deep verify detects invalid uncompressed line_count
+```
+
+### 35.2 Extension conformance tests
+
+Implementations that claim an extension SHOULD pass that extension's tests:
+
+```text
+1. Document Index ranges within original_size
+2. Document Index chunk_start/chunk_end consistency
+3. token index candidate false positive verified against original text
+4. ngram index boundary_mode declaration required
+5. sidecar wrong source_container_id rejected
+6. sidecar wrong source_original_checksum rejected
+7. optimizer metadata ignored by decoder
 ```
 
 ---
@@ -1627,12 +1919,14 @@ Recommended implementation order:
 
 ```text
 Phase 0:
+  - QZT deterministic CBOR encoder/decoder profile
   - fixed Header
   - fixed Footer Trailer
   - Footer Payload
   - Metadata
   - Index Root skeleton
   - Chunk Table skeleton
+  - Header/Footer/Metadata/Index Root consistency checks
 
 Phase 1:
   - independent zstd chunks
@@ -1642,12 +1936,16 @@ Phase 1:
 
 Phase 2:
   - sparse line index
+  - starts_with_line_continuation chunk flag
+  - line-spanning chunk reads
   - qzt line
   - qzt range --bytes
   - qzt range --lines
   - head/tail convenience commands
 
 Phase 3:
+  - embedded dictionary reader support
+  - optional embedded dictionary writer support
   - Dense Line Index
   - Document Index
   - memory profile
@@ -1665,6 +1963,9 @@ Phase 5:
   - optimizer metadata
 ```
 
+Reader Core conformance is complete after Phase 3 embedded dictionary reader support.
+Writer Core conformance is complete after Phase 2 if the writer does not emit dictionaries, or after Phase 3 if it emits dictionary-compressed chunks.
+
 ---
 
 ## 37. Final v0.1 Core summary
@@ -1673,6 +1974,7 @@ QZT v0.1 Core is:
 
 ```text
 Fixed Header, 128 bytes
++ QZT deterministic CBOR profile
 + canonical CBOR Metadata
 + independent zstd frames
 + Chunk Table
@@ -1688,9 +1990,12 @@ Its required guarantees are:
 - exact export
 - partial byte-range read
 - line read
+- line-spanning chunk read
 - UTF-8 safe chunking
+- CRLF-safe chunk boundaries
 - compressed checksum
 - uncompressed checksum
+- metadata/index/header/footer consistency checks
 - quick/normal/deep verify
 - immutable after finish
 ```
