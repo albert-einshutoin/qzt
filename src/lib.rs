@@ -5,6 +5,7 @@
 
 pub mod cbor;
 pub mod chunk_table;
+pub mod chunker;
 pub mod error;
 pub mod fixed;
 pub mod format;

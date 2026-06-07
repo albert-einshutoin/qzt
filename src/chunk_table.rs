@@ -2,7 +2,7 @@ use crate::error::{QztError, Result};
 use crate::primitives::{read_u32_le, read_u64_le};
 
 pub const CHUNK_ENTRY_LEN: usize = 128;
-const STARTS_WITH_LINE_CONTINUATION: u32 = 1;
+pub const STARTS_WITH_LINE_CONTINUATION: u32 = 1;
 
 /// Fixed 128-byte Chunk Table entry.
 #[derive(Debug, Clone, PartialEq, Eq)]

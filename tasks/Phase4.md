@@ -110,4 +110,20 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on 2026-06-07.
+
+Verification:
+
+```text
+make check
+```
+
+Review notes:
+
+```text
+- self-review completed
+- code review completed; UTF-8 and CRLF split rules are tested before writer I/O exists
+- architecture review completed; chunk planning is independent from zstd and exposes ChunkPlan for Phase5
+```
