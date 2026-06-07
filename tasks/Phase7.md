@@ -1,44 +1,49 @@
-# Phase7: Dictionaries, Resource Limits, and Reader Core Completion
+# Phase7: Sparse Line Index, Range Reads, and CLI Access
 
 ## Purpose
 
-Complete Reader Core obligations and harden the parser against expensive or malicious files.
+Implement partial access, which is the main product value of QZT Core.
 
 ## Minimum MVP
 
 ```text
-- parse embedded Dictionary Block
-- validate dictionary checksums
-- decode dictionary-compressed fixture
+- read_range(offset, length)
+- read_text_range(offset, length)
+- read_line_raw(line_zero_based)
+- sparse line lookup through Chunk Table
 ```
 
 ## Goal MVP
 
 ```text
-- Reader Core conformance complete
-- resource limits enforced before allocation/decompression
-- unknown optional blocks ignored
-- unknown required blocks rejected
+- line-spanning chunk reads work
+- starts_with_line_continuation flag is honored
+- CLI supports range and line commands
+- intermediate benchmark smoke results are recorded for pack/export/range/line
+- zero-length reads are tested
 ```
 
 ## Spec refs
 
 ```text
-- Section 15 Dictionary handling
-- Section 18 Index Root unknown block behavior
-- Section 33 Security and resource limits
-- Section 34.1 Reader Core
-- Section 35.1 Core conformance tests 18-21, 42-44, 75
+- Section 12.3 Text range API
+- Section 13 Line semantics
+- Section 17 Line Index
+- Section 20.2 Read byte range
+- Section 20.3 Read text range
+- Section 20.4 Read line
+- Section 24 CLI specification
+- Section 35.1 Core conformance tests 56-63
 ```
 
 ## Conformance Tests Covered
 
 ```text
-- embedded dictionary fixture can be read
-- missing, duplicate, and checksum-mismatched dictionaries are rejected
-- unknown optional blocks are ignored
-- unknown required blocks are rejected
-- resource limits are enforced before unsafe allocation or decompression
+- read_range within and across chunks
+- read_range overflow and zero-length behavior
+- read_text_range UTF-8 boundary rejection
+- read_line first, last, out-of-range, and spanning-line behavior
+- CLI line numbering and range semantics
 ```
 
 ## TDD Plan
@@ -46,29 +51,32 @@ Complete Reader Core obligations and harden the parser against expensive or mali
 Write failing tests:
 
 ```text
-- dictionary-compressed fixture exports exactly
-- missing dictionary is rejected
-- duplicate dictionary_id is rejected
-- dictionary checksum mismatch is rejected
-- unknown optional block is ignored
-- unknown required block returns UnknownRequiredBlock
-- decompression exceeding declared size is rejected
+- read_range within one chunk
+- read_range spanning multiple chunks
+- read_range length 0 returns empty bytes
+- read_range offset + length overflow is rejected
+- read_text_range invalid UTF-8 boundary is rejected
+- read_line first and last lines
+- read_line for long line spanning chunks
+- CLI line default is 1-based
 ```
 
 ## Implementation Tasks
 
 ```text
-1. implement Dictionary Block schema
-2. connect dictionary_id lookup to zstd decode
-3. add resource limit configuration
-4. enforce dictionary, index, chunk, and preview size limits
-5. add unknown block handling
-6. add Reader Core conformance checklist
+1. implement chunk lookup by logical byte range
+2. implement partial chunk decode
+3. implement text boundary validation
+4. implement sparse line binary search
+5. implement continuation-aware line scan
+6. implement CLI range
+7. implement CLI line
+8. record intermediate benchmark smoke metrics for pack/export/range/line
 ```
 
 ## Rust Notes
 
-Dictionary bytes are untrusted input. Validate size and checksum before passing them to zstd.
+Avoid decoding more chunks than needed. Keep decoded buffers bounded by configured chunk limits.
 
 ## Review Gates
 
@@ -81,18 +89,20 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 ## Self-Review Checklist
 
 ```text
-- Can a missing dictionary never trigger fallback to external state?
-- Are size limits checked before allocation?
-- Does Reader Core support dictionary files even if Writer Core does not emit them?
-- Are all unknown required blocks fatal?
+- Are byte ranges half-open internally?
+- Is CLI line numbering converted exactly once?
+- Are CRLF and EOF line endings handled correctly?
+- Do spanning-line reads avoid duplicate or missing bytes?
+- Are benchmark inputs and commands reproducible from status.md?
 ```
 
 ## Done Criteria
 
 ```text
-- Reader Core conformance tests pass
-- dictionary fixtures pass
-- resource-limit corruption tests pass
+- range and line API tests pass
+- CLI smoke tests pass
+- long-line fixtures pass
+- intermediate benchmark smoke results are recorded in status.md
 - code review findings are fixed
 - architecture review findings are fixed
 - status.md is updated

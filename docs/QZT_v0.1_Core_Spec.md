@@ -422,6 +422,8 @@ Readers MUST reject non-zero `header_flags` for v0.1 files.
 
 `index_hint_offset` is not authoritative. Readers MAY use it as a fast path only after validating the Footer Trailer, Footer Payload, and Index Root checksum.
 
+If `index_hint_offset` is non-zero but outside the file, points to a malformed object, points to an Index Root whose checksum does not match the validated Footer Payload, or otherwise fails validation, readers MUST ignore the hint and continue by using the Footer Trailer path. An invalid hint MUST NOT make an otherwise valid container invalid. Readers MUST report an error only when the authoritative Footer Trailer, Footer Payload, or Index Root path is invalid.
+
 The Header MAY be written as a placeholder at the start and patched at `finish()` time.
 
 ### 8.2 Version handling
@@ -1265,6 +1267,7 @@ Quick verify MUST NOT require decompressing all chunks.
 Normal verify MUST perform quick verify plus:
 
 ```text
+- container_checksum, if present, over bytes [0, footer_payload_offset)
 - checksum of all index blocks
 - compressed_checksum_blake3 for all chunks
 - dictionary block checksums if present
@@ -1293,6 +1296,8 @@ Deep verify MUST perform normal verify plus:
 
 Deep verify proves that the QZT file can restore the original byte stream.
 
+When verifying `starts_with_line_continuation`, an implementation MAY need decoded boundary bytes from adjacent chunks. This verification SHOULD be implemented as a single forward pass over decoded chunks, or an equivalent bounded-cache algorithm, so long lines spanning many chunks remain O(total uncompressed bytes + chunk_count) rather than causing repeated adjacent-chunk decompression.
+
 ---
 
 ## 22. Immutability
@@ -1308,6 +1313,8 @@ qzt repack old.qzt -o new.qzt
 qzt merge a.qzt b.qzt -o merged.qzt
 qzt compact old.qzt -o compacted.qzt
 ```
+
+These commands are examples of future maintenance operations. They are not required for QZT v0.1 Core CLI conformance unless a reference implementation phase explicitly includes them. v0.1 Core CLI conformance requires `pack`, `info`, `export`, `range`, `line`, and `verify`.
 
 Future versions MAY define appendable segment containers, but v0.1 does not.
 
@@ -1597,7 +1604,7 @@ ngram_index: false
 zstd_level: high
 ```
 
-`zstd_level: high` is a profile preset. A writer MUST resolve it to a concrete signed integer `compression.zstd_level` in Metadata.
+`zstd_level: high` is a profile preset. A writer MUST resolve it to a concrete signed integer `compression.zstd_level` in Metadata. The reference implementation SHOULD map `high` to zstd level 19 unless the user explicitly overrides the level.
 
 ### 27.5 memory
 
@@ -1961,6 +1968,8 @@ If `source = "normalized_utf8"`, the index MUST store enough mapping metadata to
 ### 29.7 Raw vs normalized indexes
 
 Original text MUST NOT be normalized.
+
+The first interoperable Search Extension MVP SHOULD implement `raw_utf8` indexes only. `normalized_utf8` indexes are a later extension and MUST NOT be added until their mapping metadata can prove every returned hit against original raw UTF-8 bytes.
 
 Search extensions SHOULD separate:
 
@@ -2380,6 +2389,8 @@ A QZT v0.1 Reader Core or Writer Core implementation SHOULD pass all Core confor
 73. sum(uncompressed_size) original_size mismatch rejected
 74. deep verify detects invalid newline_mode
 75. zstd frame output exceeding declared uncompressed_size rejected
+76. invalid index_hint_offset is ignored when Footer Trailer path is valid
+77. normal verify detects container_checksum mismatch when present
 ```
 
 ### 35.2 Extension conformance tests
@@ -2416,7 +2427,7 @@ Implementations that claim an extension SHOULD pass that extension's tests:
 Recommended implementation order:
 
 ```text
-Phase 0:
+Stage 0:
   - QZT deterministic CBOR encoder/decoder profile
   - fixed Header
   - fixed Footer Trailer
@@ -2426,13 +2437,13 @@ Phase 0:
   - Chunk Table skeleton
   - Header/Footer/Metadata/Index Root consistency checks
 
-Phase 1:
+Stage 1:
   - independent zstd chunks
   - pack/export exact equality
   - compressed/uncompressed chunk checksums
   - quick/normal/deep verify
 
-Phase 2:
+Stage 2:
   - sparse line index
   - starts_with_line_continuation chunk flag
   - line-spanning chunk reads
@@ -2441,28 +2452,28 @@ Phase 2:
   - qzt range --lines
   - head/tail convenience commands
 
-Phase 3:
+Stage 3:
   - embedded dictionary reader support
   - optional embedded dictionary writer support
   - Dense Line Index
   - Document Index
   - memory profile
 
-Phase 4:
+Stage 4:
   - Token Index
   - Ngram Index
   - qzt search
   - boundary match handling
 
-Phase 5:
+Stage 5:
   - dictionary training
   - sidecar FM-index
   - sidecar vector index
   - optimizer metadata
 ```
 
-Reader Core conformance is complete after Phase 3 embedded dictionary reader support.
-Writer Core conformance is complete after Phase 2 if the writer does not emit dictionaries, or after Phase 3 if it emits dictionary-compressed chunks.
+Reader Core conformance is complete after Stage 3 embedded dictionary reader support.
+Writer Core conformance is complete after Stage 2 if the writer does not emit dictionaries, or after Stage 3 if it emits dictionary-compressed chunks.
 
 ### 36.1 Reference implementation cut lines
 
@@ -2505,6 +2516,8 @@ Build the first writer with this restricted scope:
 - valid Metadata, Chunk Table, Index Root, Footer Payload, Footer Trailer
 - Header patch at finish
 ```
+
+The reference implementation task plan splits this cut into chunk planning and zstd/file finalization so UTF-8 boundaries, CRLF handling, and sparse line semantics can be tested before compressed I/O is added.
 
 Done criteria:
 

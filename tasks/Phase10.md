@@ -1,46 +1,52 @@
-# Phase10: Search Granules and Token Index MVP
+# Phase10: Dense Line Index, Document Index, Memory Profile, and Maintenance Command Scoping
 
 ## Purpose
 
-Build the first correct Search Extension path without claiming high-performance search prematurely.
+Add optional Core-defined acceleration and document-range structures after Core release readiness is stable. Also decide the post-Core maintenance command scope for immutable-container rewrites.
+
+This phase MUST NOT change Core source-of-truth semantics. Dense Line Index and Document Index are acceleration or navigation structures over original bytes.
 
 ## Minimum MVP
 
 ```text
-- Search Granule Table for one granularity
-- token dictionary builder
-- sorted posting lists
-- exact verification against original bytes
+- Dense Line Index writer
+- Dense Line Index reader fast path
+- deep verify detects Dense Line Index disagreement
+- sparse-vs-dense line lookup benchmark establishes when Dense Line Index is worth enabling
+- `qzt repack`, `qzt merge`, and `qzt compact` are explicitly scoped as implement-now, defer, or reject
 ```
 
 ## Goal MVP
 
 ```text
-- token search works over line or byte_window granularity
-- search reports candidate_granules, candidate_chunks, decoded_bytes, and query_time_ms
-- false positives are verified away
+- Document Index schema and verification
+- memory profile defaults
+- memory profile Dense Line Index defaults are backed by benchmark evidence
+- document range reads can be verified against original bytes
+- any implemented maintenance command rewrites into a fresh valid container, never mutates in place
 ```
 
 ## Spec refs
 
 ```text
-- Section 29.1 Candidate search rule
-- Section 29.2 Search Granules
-- Section 29.3 Search Index physical model
-- Section 29.4 Term Dictionary and postings
-- Section 29.5 Token Index
-- Section 35.2 Extension conformance tests 3, 8-12, 19-20
+- Section 17.1 Dense Line Index extension
+- Section 22 Immutability
+- Section 27.5 memory profile
+- Section 28 Document Index
+- Section 35.1 Core conformance tests 64-65, if Dense Line Index is present
+- Section 35.2 Extension conformance tests 1-2
 ```
 
 ## Conformance Tests Covered
 
 ```text
-- Search Granule range and chunk coverage
-- sorted Term Dictionary entries
-- exact key comparison despite key_hash acceleration
-- sorted posting lists
-- token search candidates verified against original bytes
-- required search metrics are reported
+- Dense Line Index final line without newline
+- Dense Line Index line_start_offsets count mismatch
+- Dense Line Index disagreement detected by deep verify
+- sparse-vs-dense lookup threshold documented for representative line counts and chunk sizes
+- Document Index ranges within original_size
+- Document Index chunk_start/chunk_end consistency
+- maintenance commands are non-blocking for v0.1 Core conformance
 ```
 
 ## TDD Plan
@@ -48,29 +54,34 @@ Build the first correct Search Extension path without claiming high-performance 
 Write failing tests:
 
 ```text
-- granule table ranges are inside original_size
-- granule chunk_start/chunk_end covers range
-- term dictionary entries are sorted
-- exact key comparison beats key_hash collision
-- posting lists are sorted
-- token search result is verified against original bytes
+- Dense Line Index final line without newline
+- Dense Line Index line_start_offsets count mismatch
+- Dense Line Index disagreement detected by deep verify
+- sparse Chunk Table lookup is faster or equivalent below the documented threshold
+- Dense Line Index lookup beats sparse lookup above the documented threshold before enabling it by default
+- Document Index range outside original_size is rejected
+- Document Index chunk_start/chunk_end inconsistency is rejected
+- memory profile writes expected metadata flags
+- maintenance command scope decision is recorded
 ```
 
 ## Implementation Tasks
 
 ```text
-1. implement Search Granule ID model
-2. implement one granularity first, preferably line for logs or byte_window for general text
-3. implement simple tokenizer
-4. build term dictionary
-5. build delta-varint posting lists
-6. implement qzt search for token queries
-7. emit performance metrics
+1. implement dense line index block codec
+2. use dense index as optional fast path
+3. keep sparse scan as correctness fallback
+4. benchmark sparse vs dense lookup across representative line counts and chunk sizes
+5. record the threshold for enabling Dense Line Index in memory profile defaults
+6. implement Document Index schema
+7. verify document ranges in deep verify
+8. implement memory profile defaults
+9. decide whether `qzt repack`, `qzt merge`, and `qzt compact` are implemented in this phase or deferred
 ```
 
 ## Rust Notes
 
-Keep index building separate from querying. Query code should consume immutable search index views.
+Dense Line Index must be a cache, not authority. Keep verification code able to recompute from decoded bytes.
 
 ## Review Gates
 
@@ -83,18 +94,24 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 ## Self-Review Checklist
 
 ```text
-- Are original bytes always verified before returning hits?
-- Is the index explicitly marked as candidate or complete?
-- Are search metrics returned even on capped queries?
-- Is this phase avoiding n-gram complexity?
+- Does disabling Dense Line Index preserve behavior?
+- Are document byte and line ranges half-open internally?
+- Does deep verify catch stale optional indexes?
+- Is memory profile still Core-compatible when extensions are optional?
+- Does this phase leave Phase9 Core release behavior unchanged?
+- Is Dense Line Index enabled only where benchmark evidence supports it?
+- Are maintenance commands clearly non-blocking for v0.1 Core conformance?
 ```
 
 ## Done Criteria
 
 ```text
-- token search fixtures pass
-- benchmark report fields are present
-- no claim of high-performance search unless metrics support it
+- Dense Line Index tests pass
+- sparse-vs-dense benchmark results and threshold decision are recorded
+- Document Index tests pass
+- memory profile fixture passes deep verify
+- repack/merge/compact scope decision is recorded in status.md
+- Core conformance tests still pass
 - code review findings are fixed
 - architecture review findings are fixed
 - status.md is updated

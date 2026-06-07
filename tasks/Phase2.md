@@ -27,7 +27,7 @@ Implement fixed binary structures and physical range validation before variable-
 - Section 6.1 Physical range model
 - Section 8 Fixed Header
 - Section 9 Footer Trailer
-- Section 35.1 Core conformance tests 22-29, 41, 48
+- Section 35.1 Core conformance tests 22-29, 41, 48, 76
 ```
 
 ## Conformance Tests Covered
@@ -35,6 +35,7 @@ Implement fixed binary structures and physical range validation before variable-
 ```text
 - Header magic, version, flags, and reserved-byte rejection
 - Footer Trailer corruption rejection
+- invalid index_hint_offset is ignored as a non-authoritative hint
 - final_file_size and physical range validation
 - block and reserved range overlap detection
 ```
@@ -49,6 +50,7 @@ Write failing tests:
 - non-zero header_flags returns InvalidFlags
 - non-zero reserved bytes returns InvalidHeader
 - unsupported version returns UnsupportedVersion
+- non-zero invalid index_hint_offset does not fail Header decode by itself
 - file smaller than Header + Footer Trailer is rejected
 - overlapping reserved ranges are rejected
 ```

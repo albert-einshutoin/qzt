@@ -1,74 +1,90 @@
-# Phase9: Dense Line Index, Document Index, and Memory Profile
+# Phase9: Core Conformance Hardening and Release Readiness
 
 ## Purpose
 
-Add optional Core-defined acceleration and document-range structures after Core release readiness is stable.
+Turn the implementation into a stable v0.1 Core release candidate.
 
-This phase MUST NOT change Core source-of-truth semantics. Dense Line Index and Document Index are acceleration or navigation structures over original bytes.
+This phase is the Core release gate. Optional indexes, Document Index, memory profile, and Search Extension work MUST NOT block this phase unless the release target is explicitly expanded.
 
 ## Minimum MVP
 
 ```text
-- Dense Line Index writer
-- Dense Line Index reader fast path
-- deep verify detects Dense Line Index disagreement
+- all Core conformance tests pass locally
+- fuzz harness smoke passes for open and verify
+- CLI supports pack, info, export, range, line, verify
+- public errors are stable enough for tests
 ```
 
 ## Goal MVP
 
 ```text
-- Document Index schema and verification
-- memory profile defaults
-- document range reads can be verified against original bytes
+- v0.1 Core release candidate
+- fixture corpus documented
+- performance baseline for pack/export/range/line
+- malformed binary parser fuzz corpus exists
+- no Search Extension code required
+- no Document Index or memory profile required
 ```
 
 ## Spec refs
 
 ```text
-- Section 17.1 Dense Line Index extension
-- Section 27.5 memory profile
-- Section 28 Document Index
-- Section 35.1 Core conformance tests 64-65, if Dense Line Index is present
-- Section 35.2 Extension conformance tests 1-2
+- Section 1.3 Core conformance and profiles
+- Section 34.1 Reader Core
+- Section 34.2 Writer Core
+- Section 35.1 Core conformance tests
+- Section 33 Security and resource limits
+- Section 36 Reference implementation roadmap
 ```
 
 ## Conformance Tests Covered
 
 ```text
-- Dense Line Index final line without newline
-- Dense Line Index line_start_offsets count mismatch
-- Dense Line Index disagreement detected by deep verify
-- Document Index ranges within original_size
-- Document Index chunk_start/chunk_end consistency
+- all Core conformance tests 1-77
+- CLI integration coverage for pack, info, export, range, line, verify
+- fixture coverage for valid and corrupt Core containers
+- fuzz smoke coverage for open and verify on malformed files
 ```
 
 ## TDD Plan
 
-Write failing tests:
+Write or finish failing tests for every Core conformance item before release cleanup.
+
+Required fixture groups:
 
 ```text
-- Dense Line Index final line without newline
-- Dense Line Index line_start_offsets count mismatch
-- Dense Line Index disagreement detected by deep verify
-- Document Index range outside original_size is rejected
-- Document Index chunk_start/chunk_end inconsistency is rejected
-- memory profile writes expected metadata flags
+- empty
+- ASCII
+- LF, CRLF, mixed newline
+- Japanese
+- emoji
+- invalid UTF-8
+- long single line
+- tiny chunk size
+- corrupted fixed structures
+- corrupted CBOR blocks
+- corrupted chunks
+- dictionary reader fixtures
+- fuzz seeds derived from conformance fixtures
 ```
 
 ## Implementation Tasks
 
 ```text
-1. implement dense line index block codec
-2. use dense index as optional fast path
-3. keep sparse scan as correctness fallback
-4. implement Document Index schema
-5. verify document ranges in deep verify
-6. implement memory profile defaults
+1. map spec conformance tests to test names
+2. fill fixture gaps
+3. add CLI integration tests
+4. add benchmark smoke tests for pack/export/range/line
+5. add cargo-fuzz or equivalent harnesses for open and verify
+6. run fuzz smoke with recorded command and duration
+7. polish public API docs
+8. run self-review against spec sections 1-35
+9. produce Core release readiness notes
 ```
 
 ## Rust Notes
 
-Dense Line Index must be a cache, not authority. Keep verification code able to recompute from decoded bytes.
+Prefer stable public APIs and strict internal types. Do not expose raw parsed structs unless callers need them.
 
 ## Review Gates
 
@@ -81,23 +97,25 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 ## Self-Review Checklist
 
 ```text
-- Does disabling Dense Line Index preserve behavior?
-- Are document byte and line ranges half-open internally?
-- Does deep verify catch stale optional indexes?
-- Is memory profile still Core-compatible when extensions are optional?
-- Does this phase leave Phase8 Core release behavior unchanged?
+- Does every MUST in Core have a test or a documented reason?
+- Are extensions kept out of Core release criteria?
+- Are errors documented and stable?
+- Can a user recover original bytes from all valid fixtures?
+- Can all corrupt fixtures fail without panics?
+- Do fuzz targets cover fixed structures, CBOR blocks, Chunk Table records, and compressed chunk boundaries?
 ```
 
 ## Done Criteria
 
 ```text
-- Dense Line Index tests pass
-- Document Index tests pass
-- memory profile fixture passes deep verify
-- Core conformance tests still pass
+- all Core conformance tests pass
+- CLI integration tests pass
+- Core benchmark smoke results are recorded
+- open and verify fuzz smoke results are recorded
 - code review findings are fixed
 - architecture review findings are fixed
-- status.md is updated
+- release notes draft exists if packaging begins
+- status.md marks Core ready
 ```
 
 ## Status

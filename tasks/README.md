@@ -126,15 +126,16 @@ Phase0  Project foundation and quality gates
 Phase1  Deterministic CBOR, primitives, and errors
 Phase2  Header, footer trailer, and physical ranges
 Phase3  Metadata, footer payload, index root, and chunk table skeleton
-Phase4  No-dictionary writer and exact export fixtures
-Phase5  Reader open/info/export and verification levels
-Phase6  Sparse line index, range reads, and CLI access
-Phase7  Dictionaries, resource limits, and Reader Core completion
-Phase8  Core conformance hardening and release readiness
-Phase9  Dense Line Index, Document Index, and memory profile
-Phase10 Search granules and token index MVP
-Phase11 N-gram index, planner, and benchmark reporting
-Phase12 Search sidecar and high-performance search goal MVP
+Phase4  UTF-8 chunker and sparse Chunk Table writer
+Phase5  No-dictionary zstd writer and finish
+Phase6  Reader open/info/export and verification levels
+Phase7  Sparse line index, range reads, and CLI access
+Phase8  Dictionaries, resource limits, and Reader Core completion
+Phase9  Core conformance hardening and release readiness
+Phase10 Dense Line Index, Document Index, memory profile, and maintenance command scoping
+Phase11 Search granules and raw token index MVP
+Phase12 N-gram index, planner, and benchmark reporting
+Phase13 Search sidecar and high-performance search goal MVP
 ```
 
 Do not start Search Extension implementation before Core conformance is stable, except for design-only work.

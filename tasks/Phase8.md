@@ -1,83 +1,74 @@
-# Phase8: Core Conformance Hardening and Release Readiness
+# Phase8: Dictionaries, Resource Limits, and Reader Core Completion
 
 ## Purpose
 
-Turn the implementation into a stable v0.1 Core release candidate.
-
-This phase is the Core release gate. Optional indexes, Document Index, memory profile, and Search Extension work MUST NOT block this phase unless the release target is explicitly expanded.
+Complete Reader Core obligations and harden the parser against expensive or malicious files.
 
 ## Minimum MVP
 
 ```text
-- all Core conformance tests pass locally
-- CLI supports pack, info, export, range, line, verify
-- public errors are stable enough for tests
+- parse embedded Dictionary Block
+- validate dictionary checksums
+- decode dictionary-compressed fixture
 ```
 
 ## Goal MVP
 
 ```text
-- v0.1 Core release candidate
-- fixture corpus documented
-- performance baseline for pack/export/range/line
-- no Search Extension code required
-- no Document Index or memory profile required
+- Reader Core conformance complete
+- resource limits enforced before allocation/decompression
+- unknown optional blocks ignored
+- unknown required blocks rejected
 ```
 
 ## Spec refs
 
 ```text
-- Section 1.3 Core conformance and profiles
+- Section 15 Dictionary handling
+- Section 18 Index Root unknown block behavior
+- Section 33 Security and resource limits
 - Section 34.1 Reader Core
-- Section 34.2 Writer Core
-- Section 35.1 Core conformance tests
-- Section 36 Reference implementation roadmap
+- Section 35.1 Core conformance tests 18-21, 42-44, 75
 ```
 
 ## Conformance Tests Covered
 
 ```text
-- all Core conformance tests 1-75
-- CLI integration coverage for pack, info, export, range, line, verify
-- fixture coverage for valid and corrupt Core containers
+- embedded dictionary fixture can be read
+- missing, duplicate, and checksum-mismatched dictionaries are rejected
+- unknown optional blocks are ignored
+- unknown required blocks are rejected
+- resource limits are enforced before unsafe allocation or decompression
 ```
 
 ## TDD Plan
 
-Write or finish failing tests for every Core conformance item before release cleanup.
-
-Required fixture groups:
+Write failing tests:
 
 ```text
-- empty
-- ASCII
-- LF, CRLF, mixed newline
-- Japanese
-- emoji
-- invalid UTF-8
-- long single line
-- tiny chunk size
-- corrupted fixed structures
-- corrupted CBOR blocks
-- corrupted chunks
-- dictionary reader fixtures
+- dictionary-compressed fixture exports exactly
+- missing dictionary is rejected
+- duplicate dictionary_id is rejected
+- dictionary checksum mismatch is rejected
+- unknown optional block is ignored
+- unknown required block returns UnknownRequiredBlock
+- decompression exceeding declared size is rejected
 ```
 
 ## Implementation Tasks
 
 ```text
-1. map spec conformance tests to test names
-2. fill fixture gaps
-3. add CLI integration tests
-4. add benchmark smoke tests for pack/export/range/line
-5. polish public API docs
-6. run self-review against spec sections 1-35
-7. produce Core release readiness notes
+1. implement Dictionary Block schema
+2. connect dictionary_id lookup to zstd decode
+3. add resource limit configuration
+4. enforce dictionary, index, chunk, and preview size limits
+5. add unknown block handling
+6. add Reader Core conformance checklist
 ```
 
 ## Rust Notes
 
-Prefer stable public APIs and strict internal types. Do not expose raw parsed structs unless callers need them.
+Dictionary bytes are untrusted input. Validate size and checksum before passing them to zstd.
 
 ## Review Gates
 
@@ -90,23 +81,21 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 ## Self-Review Checklist
 
 ```text
-- Does every MUST in Core have a test or a documented reason?
-- Are extensions kept out of Core release criteria?
-- Are errors documented and stable?
-- Can a user recover original bytes from all valid fixtures?
-- Can all corrupt fixtures fail without panics?
+- Can a missing dictionary never trigger fallback to external state?
+- Are size limits checked before allocation?
+- Does Reader Core support dictionary files even if Writer Core does not emit them?
+- Are all unknown required blocks fatal?
 ```
 
 ## Done Criteria
 
 ```text
-- all Core conformance tests pass
-- CLI integration tests pass
-- Core benchmark smoke results are recorded
+- Reader Core conformance tests pass
+- dictionary fixtures pass
+- resource-limit corruption tests pass
 - code review findings are fixed
 - architecture review findings are fixed
-- release notes draft exists if packaging begins
-- status.md marks Core ready
+- status.md is updated
 ```
 
 ## Status

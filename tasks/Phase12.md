@@ -1,43 +1,48 @@
-# Phase12: Search Sidecar and High-Performance Search Goal MVP
+# Phase12: N-Gram Index, Planner, and Benchmark Reporting
 
 ## Purpose
 
-Move large search structures into a rebuildable sidecar and validate that search can be fast without weakening QZT Core evidence guarantees.
+Add substring/Japanese-friendly search and the planner features needed to reduce decompression cost.
 
 ## Minimum MVP
 
 ```text
-- `.qzi` sidecar header and manifest
-- source_container_id and checksum matching
-- sidecar rejection leaves Core read/export/verify working
+- n-gram builder
+- n-gram candidate search
+- exact phrase/substring verification
+- raw_utf8 index source only unless normalized mapping metadata is implemented first
 ```
 
 ## Goal MVP
 
 ```text
-- memory-mappable term dictionary and posting sections
-- sidecar rebuild command
-- token and n-gram sidecar lookup
-- high-performance search claim backed by metrics
+- rarest-first posting intersection
+- skip data for long postings
+- high document-frequency term handling
+- benchmark reporting suitable for performance claims
 ```
 
 ## Spec refs
 
 ```text
-- Section 30 Sidecar indexes
-- Section 29 Search Index
-- Section 35.2 Extension conformance tests 5-6, 20
-- Section 36.1 Cut 5d
+- Section 29.6 N-gram Index
+- Section 29.8 Boundary matches
+- Section 29.9 Query planner
+- Section 29.10 High document frequency terms
+- Section 29.11 Search performance reporting
+- Section 35.2 Extension conformance tests 4, 13-20
 ```
 
 ## Conformance Tests Covered
 
 ```text
-- sidecar source_container_id mismatch rejection
-- sidecar source_original_checksum mismatch rejection
-- sidecar absence does not break Core read/export/verify
-- sidecar lookup matches embedded search index behavior
-- high-performance search metrics are reported before claims
+- n-gram unit and normalization declaration
+- boundary overlap completeness
+- rarest-first planner behavior
+- high document-frequency handling
+- complete vs incomplete missing-key behavior
+- benchmark report completeness
+- normalized_utf8 indexes remain deferred unless mapping metadata is tested
 ```
 
 ## TDD Plan
@@ -45,29 +50,32 @@ Move large search structures into a rebuildable sidecar and validate that search
 Write failing tests:
 
 ```text
-- wrong source_container_id sidecar is rejected
-- wrong source_original_checksum sidecar is rejected
-- missing sidecar does not break Core operations
-- sidecar term lookup matches embedded index lookup
-- common-term query is capped or requires explicit fallback mode
-- rare-term query decodes only candidate-overlapping chunks
+- n-gram unit and normalization are declared
+- raw_utf8 source is the default and normalized_utf8 is feature-gated or rejected
+- byte_window overlap preserves declared complete matches
+- missing key in complete=true returns no matches without chunk decode
+- missing key in complete=false reports fallback/incomplete state
+- rarest required posting list is selected first
+- high-DF term does not drive first intersection
+- skip data avoids full high-frequency posting decode
 ```
 
 ## Implementation Tasks
 
 ```text
-1. implement sidecar manifest model
-2. implement sidecar source matching
-3. write search sidecar builder
-4. read sidecar with memory-map-friendly layout
-5. add sidecar rebuild CLI
-6. compare embedded vs sidecar query metrics
-7. document performance envelope
+1. implement n-gram extraction
+2. build n-gram term dictionary and postings
+3. implement query parser for required keys
+4. implement rarest-first planner
+5. implement skip data
+6. implement candidate and decoded-byte caps
+7. keep normalized_utf8 support out unless mapping metadata tests are implemented first
+8. generate benchmark reports
 ```
 
 ## Rust Notes
 
-Use memory mapping only behind a safe abstraction. Validate checksums and bounds before exposing slices to lookup code.
+Represent planner decisions explicitly so tests can inspect why a query used or skipped a posting list.
 
 ## Review Gates
 
@@ -80,18 +88,19 @@ If either review finds a spec ambiguity or library constraint, update the spec a
 ## Self-Review Checklist
 
 ```text
-- Is every sidecar byte treated as derived and untrusted?
-- Can sidecar rejection never hide valid Core data?
-- Are memory-mapped offsets bounds-checked?
-- Are performance claims tied to benchmark output?
+- Does the planner minimize decoded bytes rather than just candidate count?
+- Are complete and incomplete index semantics enforced?
+- Is raw-vs-normalized source handling explicit and test-covered?
+- Are high-DF limits deterministic and configurable?
+- Are benchmark metrics reproducible?
 ```
 
 ## Done Criteria
 
 ```text
-- sidecar correctness tests pass
-- sidecar benchmark reports exist
-- high-performance search goal MVP is demonstrable
+- n-gram fixtures pass
+- planner tests pass
+- benchmark reports include required metrics
 - code review findings are fixed
 - architecture review findings are fixed
 - status.md is updated
