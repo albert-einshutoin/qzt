@@ -428,6 +428,19 @@ impl Metadata {
             ],
             QztError::MetadataInvalid,
         )?;
+        // Core containers always have a chunk_table and a sparse line index.
+        // Extension indexes are carried by the sidecar, not the Core metadata,
+        // so the Core metadata fields must remain false.
+        expect_bool_field(indexes, "chunk_table", true, QztError::MetadataInvalid)?;
+        expect_bool_field(
+            indexes,
+            "sparse_line_index",
+            true,
+            QztError::MetadataInvalid,
+        )?;
+        expect_bool_field(indexes, "token_index", false, QztError::MetadataInvalid)?;
+        expect_bool_field(indexes, "ngram_index", false, QztError::MetadataInvalid)?;
+        expect_bool_field(indexes, "vector_index", false, QztError::MetadataInvalid)?;
 
         let integrity = required_map(map, "integrity", QztError::MetadataInvalid)?;
         reject_unknown_keys(
@@ -437,6 +450,25 @@ impl Metadata {
                 "uncompressed_chunk_checksum",
                 "index_checksum",
             ],
+            QztError::MetadataInvalid,
+        )?;
+        // All checksum algorithms must be blake3 for v0.1.
+        expect_text_field(
+            integrity,
+            "compressed_chunk_checksum",
+            CHECKSUM_BLAKE3,
+            QztError::MetadataInvalid,
+        )?;
+        expect_text_field(
+            integrity,
+            "uncompressed_chunk_checksum",
+            CHECKSUM_BLAKE3,
+            QztError::MetadataInvalid,
+        )?;
+        expect_text_field(
+            integrity,
+            "index_checksum",
+            CHECKSUM_BLAKE3,
             QztError::MetadataInvalid,
         )?;
 
@@ -754,11 +786,14 @@ impl IndexRoot {
             .map(decode_block_descriptor)
             .collect::<Result<Vec<_>>>()?;
 
-        if !blocks
+        let required_chunk_tables = blocks
             .iter()
-            .any(|block| block.required && block.block_type == CHUNK_TABLE_TYPE)
-        {
-            return Err(QztError::MissingRequiredBlock);
+            .filter(|block| block.required && block.block_type == CHUNK_TABLE_TYPE)
+            .count();
+        match required_chunk_tables {
+            0 => return Err(QztError::MissingRequiredBlock),
+            1 => {}
+            _ => return Err(QztError::ContainerCorrupt),
         }
 
         let content = required_map(map, "content", QztError::ContainerCorrupt)?;
@@ -828,7 +863,11 @@ fn decode_block_descriptor(value: &CborValue) -> Result<BlockDescriptor> {
         return Err(QztError::InvalidFlags);
     }
 
-    if required && !is_known_block_type(&block_type) {
+    // In v0.1 Core the only block that may carry required=true is chunk_table.
+    // Every other block type — including extension types the reader knows by name
+    // (token_index, ngram_index, etc.) but does not process — must not be marked
+    // required, because the reader cannot satisfy the capability they imply.
+    if required && block_type != CHUNK_TABLE_TYPE {
         return Err(QztError::UnknownRequiredBlock);
     }
 
@@ -944,21 +983,6 @@ fn decode_document_entry(value: &CborValue) -> Result<DocumentEntry> {
         chunk_end: required_u64(map, "chunk_end", QztError::ContainerCorrupt)?,
         checksum: required_checksum(map, "checksum", QztError::ContainerCorrupt)?,
     })
-}
-
-fn is_known_block_type(block_type: &str) -> bool {
-    matches!(
-        block_type,
-        "metadata"
-            | "chunk_table"
-            | "dense_line_index"
-            | "dictionary"
-            | "document_index"
-            | "token_index"
-            | "ngram_index"
-            | "optimizer_metadata"
-            | "extension"
-    )
 }
 
 fn block_descriptor_value(block: &BlockDescriptor) -> CborValue {

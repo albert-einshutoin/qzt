@@ -94,6 +94,31 @@ fn no_valid_utf8_boundary_within_max_returns_resource_limit() {
 }
 
 #[test]
+fn remaining_between_target_and_max_produces_multiple_chunks() {
+    // With old code: if remaining <= max_chunk_size, all remaining = 1 chunk.
+    // With fix: only pack all remaining when remaining <= target_chunk_size.
+    //
+    // 300 bytes of "x\n" with target=100, max=1000:
+    //   old → 300 <= 1000 → 1 chunk of 300 bytes
+    //   new → 300 > 100 → split at target boundary → at least 3 chunks
+    let input: Vec<u8> = b"x\n".iter().cycle().take(300).cloned().collect();
+    let plan = plan_chunks(&input, options(100, 1000)).expect("input should plan");
+
+    assert!(
+        plan.chunks.len() > 1,
+        "remaining=300 > target=100 should produce multiple chunks, got {}",
+        plan.chunks.len()
+    );
+    for chunk in &plan.chunks {
+        assert!(
+            (chunk.uncompressed_size as usize) <= 1000,
+            "chunk {} exceeds max_chunk_size",
+            chunk.chunk_id
+        );
+    }
+}
+
+#[test]
 fn chunk_line_counts_sum_to_container_line_count_and_first_lines_are_contiguous() {
     let plan = plan_chunks(b"a\nbc\ndef", options(2, 4)).expect("input should plan");
 

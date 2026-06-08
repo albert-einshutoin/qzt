@@ -153,6 +153,48 @@ fn resource_limits_are_enforced_before_decode() {
     );
 }
 
+#[test]
+fn known_extension_type_as_required_is_rejected_by_v01_core() {
+    // "token_index" was previously in is_known_block_type but is not processed by the
+    // v0.1 Core reader. A required=true token_index block signals a capability the
+    // reader cannot satisfy, so it must be rejected as UnknownRequiredBlock.
+    let required = ExtraBlock {
+        block_type: "token_index",
+        required: true,
+        codec: "search-codec",
+        payload: b"search-index-payload".to_vec(),
+    };
+    let container = build_container(b"abc\n", None, 0, &[required]);
+
+    assert_eq!(
+        QztReader::open(container).map(|_| ()),
+        Err(QztError::UnknownRequiredBlock)
+    );
+}
+
+#[test]
+fn duplicate_required_chunk_table_block_is_rejected() {
+    // IndexRoot with two required chunk_table blocks must be rejected at open.
+    let fake_checksum = Checksum::blake3(b"placeholder");
+    let index_root = IndexRoot {
+        container_id: CONTAINER_ID,
+        blocks: vec![
+            BlockDescriptor::chunk_table(128, 64, fake_checksum.clone()),
+            BlockDescriptor::chunk_table(192, 64, fake_checksum),
+        ],
+        original_size: 100,
+        original_checksum: Checksum::blake3(b"fake_original"),
+        chunk_count: 1,
+        line_count: 1,
+    };
+    let encoded = index_root.encode().expect("index root should encode");
+
+    assert_eq!(
+        IndexRoot::decode(&encoded).map(|_| ()),
+        Err(QztError::ContainerCorrupt)
+    );
+}
+
 fn dictionary_block(dictionaries: Vec<DictionaryEntry>) -> DictionaryBlock {
     DictionaryBlock {
         container_id: CONTAINER_ID,

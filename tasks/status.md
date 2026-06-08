@@ -88,6 +88,10 @@ All planned phases are complete and the first release hardening benchmark gate i
 | H-6 `qzt info` hardcoded metadata | Fixed | `qzt info` reads Metadata via skeleton details and prints profile, zstd level, chunk sizes, line index, and document index presence. |
 | M-1 CBOR limits wiring | Deferred | Needs a separate decode-with-limits API pass for CBOR validation. |
 | M-4 file-path/seeking reader | Deferred | Current reader remains in-memory; file-backed seeking reader remains a post-v0.1 scalability phase. |
+| P1 chunker target-size soft-limit | Fixed | `choose_chunk_end` now uses `target_chunk_size` as the pack-all threshold instead of `max_chunk_size`, and clamps `max_end` to `input.len()`. Regression test added to phase4_chunker. |
+| P1 required block validation | Fixed | `decode_block_descriptor` now rejects any `required=true` block whose type is not `chunk_table`. `is_known_block_type` removed. Regression tests for `token_index` required block and duplicate chunk_table added to phase8_reader_core. |
+| P2 Metadata decode indexes/integrity | Fixed | `Metadata::decode` now validates fixed boolean values for all indexes fields and verifies all integrity algorithm fields equal `"blake3"`. |
+| P0/P2 README limitations | Fixed | English README now contains a "v0.1 Technical Preview — Limitations" section covering in-memory reader, transient search, token co-occurrence semantics, normalized search, and benchmark gaps. |
 
 ## Open Decisions
 

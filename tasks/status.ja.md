@@ -75,6 +75,10 @@ Fixed:
 - H-2 physical range overlap complexity
 - H-5 QztWriter placeholder
 - H-6 qzt info hardcoded metadata
+- P1 chunker target-size soft-limit
+- P1 required block validation
+- P2 Metadata decode indexes/integrity
+- P0/P2 README limitations
 ```
 
 Deferred:

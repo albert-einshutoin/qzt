@@ -108,12 +108,20 @@ fn choose_chunk_end(
     options: ChunkerOptions,
 ) -> Result<usize> {
     let remaining = input.len() - start;
-    if remaining <= options.max_chunk_size {
+    // Use target_chunk_size as the soft limit: pack all remaining into one
+    // chunk only when it fits within the target, not when it fits within max.
+    // This keeps chunk sizes close to target even for the final window of a
+    // large file, which matters for memory-profile containers where chunk size
+    // controls retrieval granularity.
+    if remaining <= options.target_chunk_size {
         return Ok(input.len());
     }
 
     let target_end = start + options.target_chunk_size;
-    let max_end = start + options.max_chunk_size;
+    // Clamp max_end to input length: after the target-size guard above, the
+    // remaining bytes may be less than max_chunk_size, so start+max could
+    // exceed the slice boundary.
+    let max_end = (start + options.max_chunk_size).min(input.len());
 
     if let Some(line_end) = last_line_boundary(input, start, target_end) {
         return Ok(line_end);
