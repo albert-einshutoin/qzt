@@ -1,8 +1,25 @@
 # QZT
 
-QZT is a cold evidence container format. This repository contains the Rust reference implementation.
-
 日本語版: [README.ja.md](README.ja.md)
+
+QZT is a binary format for storing large text as a cold evidence container.
+This repository contains the Rust reference implementation.
+
+QZT does not try to build a better compression algorithm than zstd. It splits
+source text into independent zstd chunks and combines them with verifiable
+metadata, a Chunk Table, a Footer, and a search sidecar so callers can restore
+only the required range and return to the original evidence position.
+
+## Current Status
+
+```text
+- QZT v0.1 Core: release candidate
+- Search Extension / QZI sidecar: technical preview
+- Product status: experimental reference implementation
+```
+
+When publishing QZT externally, it should be positioned as a
+`v0.1 technical preview`, not as production-ready software.
 
 ## v0.1 Technical Preview — Limitations
 
@@ -38,12 +55,33 @@ The gate runs:
 - cargo test --all-targets --all-features
 ```
 
+## Main CLI
+
+```sh
+qzt pack input.txt -o output.qzt
+qzt info output.qzt
+qzt export output.qzt -o restored.txt
+qzt range output.qzt --bytes 0:1024
+qzt range output.qzt --lines 1:10
+qzt line output.qzt 1
+qzt verify output.qzt --deep
+qzt sidecar-rebuild output.qzt -o output.qzt.qzi
+qzt search output.qzt "error" --sidecar output.qzt.qzi
+```
+
+## Documentation
+
+- Core spec summary: [docs/QZT_v0.1_Core_Spec.md](docs/QZT_v0.1_Core_Spec.md)
+- Core readiness: [docs/QZT_v0.1_Core_Readiness.md](docs/QZT_v0.1_Core_Readiness.md)
+- Release hardening: [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md)
+- Implementation phases: [tasks/README.md](tasks/README.md)
+- Progress: [tasks/status.md](tasks/status.md)
+
 ## Phase Plan
 
-Implementation proceeds through `tasks/Phase0.md` to `tasks/Phase13.md`.
+Implementation proceeds from [tasks/Phase0.md](tasks/Phase0.md) through
+[tasks/Phase13.md](tasks/Phase13.md). Japanese versions are available as
+`*.ja.md` files in the same directory.
 
-Progress is tracked in `tasks/status.md`.
-
-## Product Critique
-
-An adversarial counterargument against the current product spec and phase plan is documented in [`docs/QZT_v0.1_Product_Counterargument.md`](docs/QZT_v0.1_Product_Counterargument.md).
+Progress is tracked in [tasks/status.md](tasks/status.md) and
+[tasks/status.ja.md](tasks/status.ja.md).

@@ -69,7 +69,6 @@ qzt search output.qzt "error" --sidecar output.qzt.qzi
 - 仕様要約: [docs/QZT_v0.1_Core_Spec.ja.md](docs/QZT_v0.1_Core_Spec.ja.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.ja.md](docs/QZT_v0.1_Core_Readiness.ja.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.ja.md](docs/QZT_v0.1_Release_Hardening.ja.md)
-- プロダクト反論: [docs/QZT_v0.1_Product_Counterargument.ja.md](docs/QZT_v0.1_Product_Counterargument.ja.md)
 - 実装 Phase: [tasks/README.ja.md](tasks/README.ja.md)
 - 進捗: [tasks/status.ja.md](tasks/status.ja.md)
 
@@ -78,7 +77,3 @@ qzt search output.qzt "error" --sidecar output.qzt.qzi
 実装は [tasks/Phase0.md](tasks/Phase0.md) から [tasks/Phase13.md](tasks/Phase13.md) まで進みます。日本語版は同じディレクトリの `*.ja.md` にあります。
 
 進捗は [tasks/status.md](tasks/status.md) と [tasks/status.ja.md](tasks/status.ja.md) で管理します。
-
-## プロダクト批評
-
-現在の仕様と Phase 計画への意図的に厳しい反論は [docs/QZT_v0.1_Product_Counterargument.ja.md](docs/QZT_v0.1_Product_Counterargument.ja.md) にまとめています。
