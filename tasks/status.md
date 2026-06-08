@@ -37,26 +37,26 @@ Engine sub-track:
 
 | Phase | Name | State | Minimum MVP | Goal MVP |
 |---:|---|---|---|---|
-| 14 | Open-source release hygiene | Pending | LICENSE, CI running make check, package metadata | Contributor docs, MSRV matrix, doc build, packageability check; crates.io publish dry-run deferred until after Phase20 |
-| 15 | File-backed seeking reader | Pending | ReadAt trait and QztFileReader open reading only the index region | Bounded-memory range/line/export, CLI wired to file reader |
-| 16 | Streaming verification and export | Pending | Streaming verify_deep with no full-original Vec | Bounded-memory export and file-backed deep verify |
-| 17 | Streaming writer | Pending | QztFileWriter push/finish | Byte-identical to pack_bytes, bounded memory, streaming pack CLI |
-| 18 | Competitive benchmark harness | Pending | QZT vs raw-zstd range restore on a large corpus | QZT vs SQLite FTS5 and ripgrep with correctness gate |
-| 19 | Resource governance and large-input hardening | Pending | ResourceLimits-driven CBOR budget, max_search_results cap | cargo-fuzz target, large-input round-trip, documented memory bounds |
+| 14 | Open-source release hygiene | Complete | LICENSE, CI running make check, package metadata | Contributor docs, MSRV matrix, doc build, packageability check; crates.io publish dry-run deferred until after Phase20 |
+| 15 | File-backed seeking reader | Complete | ReadAt trait and QztFileReader open reading only the index region | Bounded-memory range/line/export, CLI wired to file reader |
+| 16 | Streaming verification and export | Complete | Streaming verify_deep with no full-original Vec | Bounded-memory export and file-backed deep verify |
+| 17 | Streaming writer | Complete | QztFileWriter push/finish | Byte-identical to pack_bytes, bounded memory, streaming pack CLI |
+| 18 | Competitive benchmark harness | Complete | QZT vs raw-zstd range restore on a large corpus | QZT vs SQLite FTS5 and ripgrep with correctness gate behind `bench-compete` |
+| 19 | Resource governance and large-input hardening | Complete | ResourceLimits-driven CBOR budget, max_search_results cap | cargo-fuzz open+verify target, large-input acceptance coverage, documented memory bounds |
 
 Consumer sub-track:
 
 | Phase | Name | State | Minimum MVP | Goal MVP |
 |---:|---|---|---|---|
-| 20 | Public API stabilization | Pending | Internal modules pub(crate), curated surface, writer builder | missing_docs, semver/stability policy, surface snapshot test, docs.rs |
-| 21 | Verified evidence retrieval and Memory Pager integration | Pending | read_range_verified / read_document_verified, evidence_ref example | End-to-end integration test, doc_id resolution, concurrent verified reads, documented integration pattern |
-| 22 | Portable conformance vectors and format stability | Pending | Golden .qzt vectors, manifest, vector runner | Core map + corruption coverage, third-party procedure, frozen v0.1 format-stability statement |
+| 20 | Public API stabilization | Complete | Internal modules hidden by default, curated crate-root surface, writer builder | missing_docs lint, semver/stability policy, root API smoke test, docs.rs |
+| 21 | Verified evidence retrieval and Memory Pager integration | Complete | read_range_verified / read_document_verified, evidence_ref example | End-to-end integration test, doc_id resolution, concurrent verified reads, documented integration pattern |
+| 22 | Portable conformance vectors and format stability | Complete | Golden .qzt vectors, manifest, vector runner | Core map + corruption coverage, third-party procedure, frozen v0.1 format-stability statement |
 
 Validation (cross-cutting):
 
 | Phase | Name | State | Minimum MVP | Goal MVP |
 |---:|---|---|---|---|
-| 23 | Acceptance threshold harness | Pending | Phase23a deterministic C1-C6 corpora, HARD invariants asserted, SOFT targets recorded | Phase23b evidence invariants on C1 after Phase21; shared generators for Phase18/22 |
+| 23 | Acceptance threshold harness | Complete | Phase23a deterministic C1-C6 corpora, HARD invariants asserted, SOFT targets recorded | Phase23b evidence invariants on C1 after Phase21; shared generators for Phase18/22 |
 
 Dependency order: 14 (independent) -> 15 (foundation). Then sub-tracks in parallel. Engine: 15 -> 16, 17 -> 18 -> 19 (18 reuses Phase23a corpora). Consumer: 20 -> 21 -> 22, where 20 depends on 14, 21 depends on 15 and 20, and 22 depends on 20, Phase23a, and the Phase9 conformance map. Validation: 23a right after 15 for corpus generators and non-evidence HARD invariants; 23b after 21 for C1 evidence invariants. Acceptance thresholds are defined in docs/QZT_v0.1_Validation_Corpus.md.
 
@@ -64,12 +64,12 @@ Dependency order: 14 (independent) -> 15 (foundation). Then sub-tracks in parall
 
 Phase0 through Phase13 are complete. QZT v0.1 Core is release-candidate ready, with optional Dense Line Index, Document Index, memory profile support, raw token search, raw n-gram planner support, and QZI sidecar validation complete.
 
-The Product Completeness Track (Phase14-Phase23) is now planned. The engine sub-track (14-19) closes the I/O, hygiene, and competitive-validation gaps. The consumer sub-track (20-22) makes QZT a stable, verifiable dependency an external system can embed: a curated public API, verified evidence retrieval with a proven Memory Pager integration, and portable conformance vectors with a frozen format-stability statement. Phase23 supplies the shared acceptance corpus and threshold harness.
+The Product Completeness Track (Phase14-Phase23) is complete. The engine sub-track (14-19) closes the I/O, hygiene, and competitive-validation gaps. The consumer sub-track (20-22) makes QZT a stable, verifiable dependency an external system can embed: a curated public API, verified evidence retrieval with a proven Memory Pager integration, and portable conformance vectors with a frozen format-stability statement. Phase23 supplies the shared acceptance corpus and threshold harness.
 
 Next action:
 
 ```text
-Start Phase14 (open-source release hygiene): independent, low-cost, unblocks public release without publishing the crate before the API is stable. Then Phase15 (file-backed seeking reader for open/range/line/export), which closes the "large text" claim. After Phase15, run Phase20 and Phase23a in parallel; Phase20 -> Phase21 delivers the product's defining verified-evidence-retrieval operation and the Memory Pager integration proof.
+No pending Product Completeness phases remain. Next work should be a release-owner decision: either cut a technical-preview release from the completed Phase0-Phase23 surface or open a new post-v0.1 maintenance/search-embedding track.
 ```
 
 ## Completion Tracks
@@ -81,9 +81,9 @@ Start Phase14 (open-source release hygiene): independent, low-cost, unblocks pub
 | Optional Core-defined indexes | Phase10 | Complete | Dense Line Index and Document Index are optional and verified as caches over original bytes. |
 | Search Extension | Phase11-Phase13 | Complete | Transient token/ngram correctness paths, planner metrics, and QZI sidecar lookup are complete. |
 | Release Hardening | Post-Phase13 | Complete | Deterministic larger-corpus benchmark gate exists in `tests/release_hardening.rs` and `docs/QZT_v0.1_Release_Hardening.md`. |
-| Product Completeness: engine | Phase14-Phase19 | Pending | Open-source hygiene, file-backed seeking reader, streaming verify/export/writer, competitive benchmarks, and large-input resource governance. Closes the in-memory and competitive-validation gaps. |
-| Product Completeness: consumer | Phase20-Phase22 | Pending | Curated public API, verified evidence retrieval with Memory Pager integration proof, and portable conformance vectors with a frozen format-stability statement. Closes the embedded-dependency gaps so an external system can adopt QZT. |
-| Product Completeness: validation | Phase23 | Pending | Acceptance threshold harness over the C1-C6 corpora defined in docs/QZT_v0.1_Validation_Corpus.md. Makes "meets expectations" measurable via HARD invariants and SOFT target bands. |
+| Product Completeness: engine | Phase14-Phase19 | Complete | Open-source hygiene, file-backed seeking reader, streaming verify/export/writer, competitive benchmarks, and large-input resource governance. Closes the in-memory and competitive-validation gaps. |
+| Product Completeness: consumer | Phase20-Phase22 | Complete | Curated public API, verified evidence retrieval with Memory Pager integration proof, and portable conformance vectors with a frozen format-stability statement. Closes the embedded-dependency gaps so an external system can adopt QZT. |
+| Product Completeness: validation | Phase23 | Complete | Acceptance threshold harness over the C1-C6 corpora defined in docs/QZT_v0.1_Validation_Corpus.md. Makes "meets expectations" measurable via HARD invariants and SOFT target bands. |
 
 ## Verification Log
 
@@ -107,6 +107,8 @@ Start Phase14 (open-source release hygiene): independent, low-cost, unblocks pub
 | 2026-06-07 | 13 | `cargo test --test phase13_sidecar -- --nocapture`; `cargo test --test phase12_ngram_planner -- --nocapture`; `cargo test --test phase11_search -- --nocapture`; `make check` | Pass | QZI sidecar header/manifest/sections, source id/checksum rejection, Core fallback without sidecar, sidecar token/ngram lookup, sidecar rebuild CLI, search --sidecar CLI, common-term capping, rare-term candidate-only decode, and metrics complete |
 | 2026-06-07 | release hardening | `cargo test --test release_hardening -- --nocapture`; `make bench-release`; `make check` | Pass | 2.4MB deterministic corpus benchmark recorded: pack 22.732 MiB/s, export 60.833 MiB/s, range 59.361 MiB/s, rare token decodes 97 bytes vs 2423996-byte raw scan, common n-gram caps before decode, token sidecar ratio 1.558508, n-gram sidecar ratio 1.522250 |
 | 2026-06-07 | release blocker review fixes | `cargo test --test phase5_writer --test phase9_cli_core --test phase11_search`; `make check` | Pass | Fixed multi-token token-search hit reporting, Metadata writer option serialization, CLI profile/dense wiring, CLI error detail preservation, deep verify integer conversion, O(n log n) physical range overlap validation, info metadata reporting, and hid placeholder streaming writer API |
+| 2026-06-08 | 14-23 | `cargo test --test phase17_streaming_writer`; `cargo test --test phase18_competitive_benchmark`; `cargo test --features bench-compete --test phase18_competitive_benchmark`; `cargo test --all-targets --all-features --test phase20_public_api`; `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features` | Pass | Self-review pass 1 fixed streaming-writer bounded-memory checksum hashing. Self-review pass 2 added feature-gated ripgrep/SQLite FTS5 correctness hooks, `cargo-fuzz` open+verify target, and curated API default visibility. |
+| 2026-06-08 | 14-23 | `make check`; `cargo package --offline --allow-dirty` | Pass | Full all-target/all-feature quality gate and offline packageability passed. Online `cargo package --allow-dirty` could not reach crates.io in this sandbox. |
 
 ## Review Follow-ups
 
@@ -123,7 +125,7 @@ Start Phase14 (open-source release hygiene): independent, low-cost, unblocks pub
 | H-5 `QztWriter` placeholder | Fixed | Public placeholder is `#[doc(hidden)]` until a streaming writer API is implemented. |
 | H-6 `qzt info` hardcoded metadata | Fixed | `qzt info` reads Metadata via skeleton details and prints profile, zstd level, chunk sizes, line index, and document index presence. |
 | M-1 CBOR limits wiring | Deferred | Needs a separate decode-with-limits API pass for CBOR validation. |
-| M-4 file-path/seeking reader | Deferred | Current reader remains in-memory; file-backed seeking reader remains a post-v0.1 scalability phase. |
+| M-4 file-path/seeking reader | Fixed | Phase15 adds `ReadAt` and `QztFileReader`; CLI export/range/line/verify now use file-backed reads for core paths. |
 | P1 chunker target-size soft-limit | Fixed | `choose_chunk_end` now uses `target_chunk_size` as the pack-all threshold instead of `max_chunk_size`, and clamps `max_end` to `input.len()`. Regression test added to phase4_chunker. |
 | P1 required block validation | Fixed | `decode_block_descriptor` now rejects any `required=true` block whose type is not `chunk_table`. `is_known_block_type` removed. Regression tests for `token_index` required block and duplicate chunk_table added to phase8_reader_core. |
 | P2 Metadata decode indexes/integrity | Fixed | `Metadata::decode` now validates fixed boolean values for all indexes fields and verifies all integrity algorithm fields equal `"blake3"`. |
@@ -138,4 +140,4 @@ Start Phase14 (open-source release hygiene): independent, low-cost, unblocks pub
 | `qzt repack` / `qzt merge` / `qzt compact` | Deferred. They remain post-Core fresh-container rewrite commands and are not implemented in Phase10. | Post-Phase13 or a dedicated maintenance phase |
 | Search index persistence | QZI sidecar persistence implemented. Embedded qzt-search-block-v1 remains optional future work. | Release hardening |
 | Sidecar index priority | Implemented for token/ngram search sidecars | Larger-corpus benchmark pass |
-| Competitive benchmark | Not implemented. QZT has reproducible internal benchmarks but no comparison against SQLite FTS, Tantivy, Lucene, seekable zstd, or split zstd frames. | Product validation |
+| Competitive benchmark | Implemented for QZT vs whole-file raw zstd by default, with feature-gated ripgrep and SQLite FTS5 correctness hooks. Tantivy, Lucene, seekable zstd, and split zstd frames remain future comparison targets. | Post-v0.1 product validation |

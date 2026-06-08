@@ -118,7 +118,32 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Reworked deep verify to stream chunk decode and accumulate BLAKE3/text analysis incrementally.
+- Added export_to chunk streaming and range-scoped Document Index verification for file-backed readers.
+```
+
+Verification:
+
+```text
+- cargo test --test phase16_streaming_verify
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: verify_deep no longer materializes the full original byte vector.
+- Self-review pass 2 completed: stale Document Index checks use range-scoped reads instead of whole-file export.
+- Code review completed: deep verification still checks original checksum, line count, newline mode, and indexed document ranges.
+- Architecture review completed: streaming verification composes with Phase15 ReadAt and keeps Core format bytes unchanged.
+```
 
 Depends on: Phase15 (the file-backed reader supplies the ReadAt path that
 makes bounded-memory deep verify meaningful for large files). The hasher and

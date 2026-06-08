@@ -122,7 +122,33 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- readable / writable / seekable output 上の QztFileWriter push/finish を追加。
+- core/no-dense containers の streaming pack CLI は QztFileWriter 経由で書き、invalid UTF-8 時に output を残さない。
+- covered core fixtures では pack_bytes と byte-identical。
+```
+
+検証:
+
+```text
+- cargo test --test phase17_streaming_writer
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: checksum hashing のために compressed chunks を保持していた実装を削除し、bounded 64KiB prefix readback に修正。
+- Self-review pass 2 completed: CLI temporary output は finish が final prefix を hash できるよう read/write OpenOptions を使う。
+- Code review completed: finish は single-shot、poisoned writer は fail closed、invalid UTF-8 は final output file を残さない。
+- Architecture review completed: writer memory は full source / compressed payload ではなく pending chunk、chunk table metadata、fixed hash buffer に bounded。
+```
 
 依存: Phase15（shared WriteAt/ReadAt direction と round-trip differential tests の decode core）。
 file-backed reader で始めた large-data I/O model を完成させます。H-5 placeholder writer を置換します。

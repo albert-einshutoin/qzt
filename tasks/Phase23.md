@@ -119,7 +119,33 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Added deterministic C1-C6 corpus generators shared by Phase18 and Phase22.
+- Added acceptance harness for round-trip, range restore bounds, deep verify, corruption sweep, and SOFT target reporting.
+- Added Phase23b evidence invariants after Phase21 verified reads landed.
+```
+
+Verification:
+
+```text
+- cargo test --test phase23_acceptance
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: HARD invariants assert lossless round-trip, bounded range restore, and corruption detection for C1-C6.
+- Self-review pass 2 completed: SOFT targets are recorded as provisional evidence, not silently passed or hard-failed.
+- Code review completed: generators are deterministic by seed and reused by benchmark/vector phases instead of duplicated.
+- Architecture review completed: acceptance thresholds make product expectations measurable while keeping timing-sensitive large runs opt-in.
+```
 
 Depends on: Phase15 for Phase23a (file-backed reader for the peak-memory and
 seek bounds). Phase23b depends on the evidence-retrieval API from Phase21 for

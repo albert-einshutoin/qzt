@@ -117,7 +117,33 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- Phase18 / Phase22 と共有する deterministic C1-C6 corpus generators を追加。
+- round-trip、range restore bounds、deep verify、corruption sweep、SOFT target reporting の acceptance harness を追加。
+- Phase21 verified reads 完了後に Phase23b evidence invariants を追加。
+```
+
+検証:
+
+```text
+- cargo test --test phase23_acceptance
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: HARD invariants は C1-C6 の lossless round-trip、bounded range restore、corruption detection を assert。
+- Self-review pass 2 completed: SOFT targets は provisional evidence として記録し、silent pass / hard-fail しない。
+- Code review completed: generators は seed deterministic で、benchmark/vector phases から再利用され duplicated されない。
+- Architecture review completed: acceptance thresholds は product expectations を measurable にしつつ、timing-sensitive large runs は opt-in に保持。
+```
 
 依存: Phase23a は Phase15 に依存します（peak-memory / seek bounds の file-backed reader のため）。
 Phase23b は C1 evidence invariants のために Phase21 の evidence-retrieval API に依存します。Phase18 と

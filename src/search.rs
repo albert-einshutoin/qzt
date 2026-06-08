@@ -128,6 +128,7 @@ impl PlannerDecision {
 pub struct SearchOptions {
     pub max_candidate_granules: u64,
     pub max_decoded_bytes: u64,
+    pub max_search_results: u64,
 }
 
 impl Default for SearchOptions {
@@ -135,6 +136,7 @@ impl Default for SearchOptions {
         Self {
             max_candidate_granules: 10_000,
             max_decoded_bytes: 256 * 1024 * 1024,
+            max_search_results: u64::MAX,
         }
     }
 }
@@ -356,6 +358,16 @@ impl RawTokenIndex {
                 incomplete_reason: None,
             });
         }
+        if options.max_search_results == 0 {
+            metrics.query_time_ms = elapsed_ms(started);
+            return Ok(SearchReport {
+                hits: Vec::new(),
+                metrics,
+                capped: true,
+                planner,
+                incomplete_reason: None,
+            });
+        }
 
         let mut hits = Vec::new();
         let mut capped = false;
@@ -393,6 +405,15 @@ impl RawTokenIndex {
                     score: None,
                     source: "verified_original_bytes",
                 });
+                if u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?
+                    >= options.max_search_results
+                {
+                    capped = true;
+                    break;
+                }
+            }
+            if capped {
+                break;
             }
         }
 
@@ -658,6 +679,16 @@ impl RawNgramIndex {
                 incomplete_reason: None,
             });
         }
+        if options.max_search_results == 0 {
+            metrics.query_time_ms = elapsed_ms(started);
+            return Ok(SearchReport {
+                hits: Vec::new(),
+                metrics,
+                capped: true,
+                planner,
+                incomplete_reason: None,
+            });
+        }
 
         let mut hits = Vec::new();
         let mut capped = false;
@@ -695,6 +726,15 @@ impl RawNgramIndex {
                     score: None,
                     source: "verified_original_bytes",
                 });
+                if u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?
+                    >= options.max_search_results
+                {
+                    capped = true;
+                    break;
+                }
+            }
+            if capped {
+                break;
             }
         }
 

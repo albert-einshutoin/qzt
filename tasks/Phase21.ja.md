@@ -126,7 +126,33 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- QztReader / QztFileReader に read_range_verified、read_document、read_document_verified を追加。
+- evidence_ref example と concurrent file-backed verified-read coverage を追加。
+```
+
+検証:
+
+```text
+- cargo test --test phase21_evidence_retrieval
+- cargo run --example evidence_ref
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: verified reads は caller-provided BLAKE3 checksum が一致する場合だけ bytes を返す。
+- Self-review pass 2 completed: document lookup は Document Index 経由で doc_id を resolve し、concurrent ReadAt reads は shared seek state を使わない。
+- Code review completed: tampered expected checksums は VerifiedChecksumMismatch で fail closed。
+- Architecture review completed: Memory Pager integration proof は Phase20 public API を consume し、original-byte evidence semantics を維持。
+```
 
 依存: Phase15（file-backed reader）、Phase20（example が使う stable public surface）、
 Phase10 Document Index（完了）。この Phase は製品を定義する operation を届け、headline Memory Pager

@@ -1,0 +1,19 @@
+[package]
+name = "qzt-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+qzt = { path = ".." }
+
+[[bin]]
+name = "open_verify"
+path = "fuzz_targets/open_verify.rs"
+test = false
+doc = false
+bench = false

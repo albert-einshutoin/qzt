@@ -115,7 +115,32 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- portable vector manifest、valid/corrupt hex fixtures、vector runner、format-stability documentation を追加。
+- vector regeneration は deterministic で、open/export/deep-verify と rejection paths の両方を検証。
+```
+
+検証:
+
+```text
+- cargo test --test phase22_vectors
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: generated vectors は regeneration across runs で byte-identical。
+- Self-review pass 2 completed: corrupt-header vector は reject され、valid vectors は export / deep verify できる。
+- Code review completed: vector runner は public reader/writer APIs を使い、fixture metadata を manifest.tsv に明示。
+- Architecture review completed: v0.1 format stability は container bytes を変えずに文書化。
+```
 
 依存: Phase20（runner は stable public reader API を使う）、Phase23a（vector set は shared validation
 corpora を再利用する）、Phase9 Core conformance map（完了）。format を independently verifiable かつ

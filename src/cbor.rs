@@ -1,7 +1,20 @@
 use crate::error::{QztError, Result};
 
-const MAX_PHASE1_ALLOCATION: u64 = 16 * 1024 * 1024;
-const MAX_PHASE1_ITEMS: u64 = 1_000_000;
+/// Resource budget for deterministic CBOR decoding.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CborLimits {
+    pub max_allocation: u64,
+    pub max_items: u64,
+}
+
+impl Default for CborLimits {
+    fn default() -> Self {
+        Self {
+            max_allocation: 16 * 1024 * 1024,
+            max_items: 1_000_000,
+        }
+    }
+}
 
 /// Small CBOR value model for deterministic validation and schema checks.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -25,7 +38,16 @@ pub struct TextKeySchema<'a> {
 
 /// Validates a complete QZT deterministic CBOR item.
 pub fn validate_deterministic(input: &[u8]) -> Result<CborValue> {
-    let mut parser = Parser { input, offset: 0 };
+    validate_deterministic_with_limits(input, CborLimits::default())
+}
+
+/// Validates a complete QZT deterministic CBOR item with explicit limits.
+pub fn validate_deterministic_with_limits(input: &[u8], limits: CborLimits) -> Result<CborValue> {
+    let mut parser = Parser {
+        input,
+        offset: 0,
+        limits,
+    };
     let value = parser.parse_value()?;
 
     if parser.offset != input.len() {
@@ -44,7 +66,16 @@ pub fn encode_deterministic(value: &CborValue) -> Result<Vec<u8>> {
 
 /// Validates a deterministic text-keyed map against a closed schema.
 pub fn validate_text_key_schema(input: &[u8], schema: TextKeySchema<'_>) -> Result<CborValue> {
-    let value = validate_deterministic(input)?;
+    validate_text_key_schema_with_limits(input, schema, CborLimits::default())
+}
+
+/// Validates a deterministic text-keyed map with explicit CBOR limits.
+pub fn validate_text_key_schema_with_limits(
+    input: &[u8],
+    schema: TextKeySchema<'_>,
+    limits: CborLimits,
+) -> Result<CborValue> {
+    let value = validate_deterministic_with_limits(input, limits)?;
     let CborValue::Map(entries) = &value else {
         return Err(QztError::MetadataInvalid);
     };
@@ -163,6 +194,7 @@ fn len_to_u64(len: usize) -> Result<u64> {
 struct Parser<'a> {
     input: &'a [u8],
     offset: usize,
+    limits: CborLimits,
 }
 
 impl Parser<'_> {
@@ -190,20 +222,20 @@ impl Parser<'_> {
     }
 
     fn parse_bytes(&mut self, additional: u8) -> Result<CborValue> {
-        let len = self.read_len(additional, MAX_PHASE1_ALLOCATION)?;
+        let len = self.read_len(additional, self.limits.max_allocation)?;
         let bytes = self.read_exact(len)?.to_vec();
         Ok(CborValue::Bytes(bytes))
     }
 
     fn parse_text(&mut self, additional: u8) -> Result<CborValue> {
-        let len = self.read_len(additional, MAX_PHASE1_ALLOCATION)?;
+        let len = self.read_len(additional, self.limits.max_allocation)?;
         let bytes = self.read_exact(len)?;
         let text = std::str::from_utf8(bytes).map_err(|_| QztError::InvalidUtf8)?;
         Ok(CborValue::Text(text.to_owned()))
     }
 
     fn parse_array(&mut self, additional: u8) -> Result<CborValue> {
-        let len = self.read_len(additional, MAX_PHASE1_ITEMS)?;
+        let len = self.read_len(additional, self.limits.max_items)?;
         let mut values = Vec::with_capacity(len);
         for _ in 0..len {
             values.push(self.parse_value()?);
@@ -212,7 +244,7 @@ impl Parser<'_> {
     }
 
     fn parse_map(&mut self, additional: u8) -> Result<CborValue> {
-        let len = self.read_len(additional, MAX_PHASE1_ITEMS)?;
+        let len = self.read_len(additional, self.limits.max_items)?;
         let mut entries = Vec::with_capacity(len);
         let mut previous_key_bytes: Option<Vec<u8>> = None;
 

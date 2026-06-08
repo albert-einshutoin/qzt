@@ -40,6 +40,8 @@ pub enum QztError {
     ResourceLimitExceeded,
     RangeOverlap,
     UnexpectedEof,
+    WriterAlreadyFinished,
+    VerifiedChecksumMismatch,
 
     /// Placeholder used until format-specific errors are introduced.
     NotImplemented(&'static str),

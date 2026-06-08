@@ -119,7 +119,34 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- curated technical-preview API 用の WriterBuilder と crate-root re-exports を追加。
+- internal modules は default で hidden とし、conformance tests 用に internal-testing feature のみで expose。
+- API stability policy と docs.rs metadata を追加。
+```
+
+検証:
+
+```text
+- cargo test --all-targets --all-features --test phase20_public_api
+- RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: WriterBuilder が legacy pack entry points を byte-for-byte に再現することを public API smoke test で確認。
+- Self-review pass 2 completed: binary と example imports は internal module paths ではなく crate-root APIs を使用。
+- Code review completed: low-level tests 互換性は internal-testing に隔離し、non-stable として文書化。
+- Architecture review completed: default embedders には curated surface だけを見せ、reference implementation は conformance-test access を維持。
+```
 
 依存: Phase14（CI が doc / surface-snapshot gates を実行するため）。Phase21（integration examples が
 stable public surface を使う）と Phase22（vector runner が public reader API だけを使う）の前提です。

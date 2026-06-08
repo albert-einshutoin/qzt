@@ -117,7 +117,33 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- MIT/Apache-2.0 dual license、公開 Cargo metadata、MSRV、docs.rs metadata、CONTRIBUTING、SECURITY、CHANGELOG、CI を追加。
+- crates.io publish は disabled のまま維持し、public API stabilization 後の release-owner 判断として gate を文書化。
+```
+
+検証:
+
+```text
+- make check
+- RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
+- cargo package --offline --allow-dirty
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: package metadata、license files、CI commands が release-hygiene done criteria と一致することを確認。
+- Self-review pass 2 completed: publish は明示的に gate されたまま。crates.io DNS に到達できない sandbox のため、online dry-run は offline packageability で代替。
+- Code review completed: release files は additive で、container bytes や CLI behavior を変更しない。
+- Architecture review completed: public hygiene は crates.io publication から分離され、API stabilization 前の release を強制しない。
+```
 
 依存: なし。Product Completeness Track で最初に land すべき、最も低コストで効果の高い
 product-readiness phase です。

@@ -131,7 +131,33 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Added ReadAt and QztFileReader over positioned reads.
+- File-backed open reads fixed structures and index blocks without touching chunk data.
+- CLI export/range/line/verify paths use the file-backed reader.
+```
+
+Verification:
+
+```text
+- cargo test --test phase15_file_reader
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: open-time reads are limited to header/trailer, footer payload, metadata, index root, and index blocks.
+- Self-review pass 2 completed: range/line/export only decode overlapping chunks and match QztReader behavior.
+- Code review completed: ReadAt avoids shared mutable seek state and tests enforce no chunk-data reads at open.
+- Architecture review completed: file-backed access is the foundation for later verified evidence and streaming validation without changing the container format.
+```
 
 Depends on: Phase14 (CI exists to run the larger differential test matrix).
 This is the most important product-completeness phase: it closes the gap

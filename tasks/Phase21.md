@@ -127,7 +127,33 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Added read_range_verified, read_document, and read_document_verified for QztReader and QztFileReader.
+- Added evidence_ref example and concurrent file-backed verified-read coverage.
+```
+
+Verification:
+
+```text
+- cargo test --test phase21_evidence_retrieval
+- cargo run --example evidence_ref
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: verified reads return bytes only when the caller-provided BLAKE3 checksum matches.
+- Self-review pass 2 completed: document lookup resolves doc_id through Document Index and concurrent ReadAt reads avoid shared seek state.
+- Code review completed: tampered expected checksums fail closed with VerifiedChecksumMismatch.
+- Architecture review completed: Memory Pager integration proof consumes the Phase20 public API and preserves original-byte evidence semantics.
+```
 
 Depends on: Phase15 (file-backed reader), Phase20 (stable public surface for
 the example), and Phase10 Document Index (complete). This phase delivers the

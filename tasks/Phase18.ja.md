@@ -115,7 +115,34 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- Phase23 corpus generators を使う deterministic competitive benchmark options/reporting を追加。
+- QZT file-backed range restore と whole-file raw zstd decode を比較。
+- bench-compete feature 配下に ripgrep / SQLite FTS5 hit-count correctness hooks を追加。
+```
+
+検証:
+
+```text
+- cargo test --test phase18_competitive_benchmark
+- cargo test --features bench-compete --test phase18_competitive_benchmark
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: raw-zstd range comparison は timing report 前に byte equality を assert。
+- Self-review pass 2 completed: feature-gated ripgrep / SQLite FTS5 hooks は tool missing を skip し、hit-count disagreement では fail。
+- Code review completed: benchmark output は corpus、encoded sizes、decoded bytes、timings、search correctness counts を記録。
+- Architecture review completed: external tools は default gate の外に置きつつ、product validation 用の opt-in correctness path を保持。
+```
 
 依存: Phase15（公平な large-file QZT numbers には file-backed reader が必要）と Phase23a
 （shared C1-C6 corpus generators と acceptance thresholds）。product assessment と Release

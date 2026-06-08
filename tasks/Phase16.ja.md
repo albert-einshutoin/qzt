@@ -117,7 +117,32 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- deep verify を chunk streaming decode と incremental BLAKE3/text analysis に変更。
+- file-backed reader に chunk streaming export_to と range-scoped Document Index verification を追加。
+```
+
+検証:
+
+```text
+- cargo test --test phase16_streaming_verify
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: verify_deep が full original byte vector を materialize しないことを確認。
+- Self-review pass 2 completed: stale Document Index checks は whole-file export ではなく range-scoped reads を使う。
+- Code review completed: deep verification は original checksum、line count、newline mode、indexed document ranges を維持。
+- Architecture review completed: streaming verification は Phase15 ReadAt と合成でき、Core format bytes は変えない。
+```
 
 依存: Phase15。file-backed reader が ReadAt path を提供することで、大きい file に対する
 bounded-memory deep verify が意味を持ちます。hasher / analyzer refactor は in-memory reader で

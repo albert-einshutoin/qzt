@@ -1,16 +1,13 @@
 use std::fmt;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::process::ExitCode;
 
-use qzt::error::QztError;
-use qzt::reader::{QztReader, VerifyLevel};
-use qzt::search::{
-    NgramIndexBuildOptions, RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions,
-    TokenIndexBuildOptions,
+use qzt::{
+    build_search_sidecar, open_skeleton_details, pack_bytes_with_profile, NgramIndexBuildOptions,
+    QziSidecar, QztError, QztFileReader, QztFileWriter, QztReader, RawNgramIndex, RawTokenIndex,
+    SearchIndexSource, SearchOptions, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel,
+    WriterOptions,
 };
-use qzt::sidecar::{build_search_sidecar, QziSidecar, SidecarIndexKind};
-use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{pack_bytes_with_profile, WriterOptions};
 
 type CliResult<T> = std::result::Result<T, CliError>;
 
@@ -186,9 +183,38 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     let dense_line_index = dense_line_index.unwrap_or(profile == "memory");
     let result: CliResult<()> = (|| {
-        let input = std::fs::read(input_path)?;
-        let container = pack_bytes_with_profile(&input, options, &profile, dense_line_index)?;
-        std::fs::write(output_path, container)?;
+        if profile == "core" && !dense_line_index {
+            let mut input = std::fs::File::open(input_path)?;
+            let temp_output_path = format!("{output_path}.tmp");
+            let stream_result: CliResult<()> = (|| {
+                let output = std::fs::OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .create(true)
+                    .truncate(true)
+                    .open(&temp_output_path)?;
+                let mut writer = QztFileWriter::new(output, options)?;
+                let mut buffer = [0_u8; 64 * 1024];
+                loop {
+                    let read = input.read(&mut buffer)?;
+                    if read == 0 {
+                        break;
+                    }
+                    writer.push(&buffer[..read])?;
+                }
+                writer.finish()?;
+                Ok(())
+            })();
+            if stream_result.is_err() {
+                let _ = std::fs::remove_file(&temp_output_path);
+            }
+            stream_result?;
+            std::fs::rename(temp_output_path, output_path)?;
+        } else {
+            let input = std::fs::read(input_path)?;
+            let container = pack_bytes_with_profile(&input, options, &profile, dense_line_index)?;
+            std::fs::write(output_path, container)?;
+        }
         Ok(())
     })();
 
@@ -266,9 +292,10 @@ fn run_export(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let result: CliResult<Vec<u8>> = (|| {
-        let bytes = std::fs::read(path)?;
-        let reader = QztReader::open(bytes)?;
-        Ok(reader.export_all()?)
+        let reader = QztFileReader::open_path(path)?;
+        let mut output = Vec::new();
+        reader.export_to(&mut output)?;
+        Ok(output)
     })();
 
     match (result, output_path) {
@@ -305,8 +332,7 @@ fn run_range(mut args: impl Iterator<Item = String>) -> ExitCode {
             return ExitCode::from(2);
         };
         (|| {
-            let bytes = std::fs::read(&path)?;
-            let reader = QztReader::open(bytes)?;
+            let reader = QztFileReader::open_path(&path)?;
             Ok(reader.read_range(start, end.saturating_sub(start))?)
         })()
     } else {
@@ -315,9 +341,8 @@ fn run_range(mut args: impl Iterator<Item = String>) -> ExitCode {
             return ExitCode::from(2);
         };
         (|| {
-            let bytes = std::fs::read(&path)?;
-            let reader = QztReader::open(bytes)?;
-            Ok(read_line_range(&reader, start, end)?)
+            let reader = QztFileReader::open_path(&path)?;
+            Ok(read_line_range_file(&reader, start, end)?)
         })()
     };
 
@@ -347,8 +372,7 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let result: CliResult<()> = (|| {
-        let bytes = std::fs::read(path)?;
-        let reader = QztReader::open(bytes)?;
+        let reader = QztFileReader::open_path(path)?;
         reader.verify(level)?;
         Ok(())
     })();
@@ -385,8 +409,7 @@ fn run_line(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let result: CliResult<Vec<u8>> = (|| {
-        let bytes = std::fs::read(path)?;
-        let reader = QztReader::open(bytes)?;
+        let reader = QztFileReader::open_path(path)?;
         Ok(reader.read_line_raw(line_number)?)
     })();
 
@@ -454,6 +477,13 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                     return ExitCode::from(2);
                 };
                 options.max_decoded_bytes = value;
+            }
+            "--max-results" => {
+                let Some(value) = args.next().and_then(|value| value.parse::<u64>().ok()) else {
+                    eprintln!("qzt search: invalid --max-results");
+                    return ExitCode::from(2);
+                };
+                options.max_search_results = value;
             }
             _ => {
                 eprintln!("qzt search: unknown option '{arg}'");
@@ -612,11 +642,11 @@ fn parse_byte_limit(value: &str) -> Option<u64> {
     value.parse().ok()
 }
 
-fn read_line_range(
-    reader: &QztReader,
+fn read_line_range_file(
+    reader: &QztFileReader<std::fs::File>,
     start_one_based: u64,
     end_one_based: u64,
-) -> qzt::error::Result<Vec<u8>> {
+) -> qzt::Result<Vec<u8>> {
     let mut output = Vec::new();
     for line in start_one_based..=end_one_based {
         output.extend_from_slice(&reader.read_line_raw(line - 1)?);

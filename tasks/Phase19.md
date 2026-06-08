@@ -122,7 +122,33 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Threaded ResourceLimits into deterministic CBOR validation and schema block decode.
+- Added SearchOptions max_search_results cap.
+- Documented memory guarantees and added cargo-fuzz open+verify target.
+```
+
+Verification:
+
+```text
+- cargo test --test phase19_resource_governance
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: caller-supplied CBOR allocation budgets reject otherwise-valid oversized blocks before allocation.
+- Self-review pass 2 completed: search result caps stop result growth and mark reports capped.
+- Code review completed: resource limit errors use existing typed QztError paths and are covered by regression tests.
+- Architecture review completed: large-input hardening is centralized in ResourceLimits/SearchOptions and reused by reader/search paths.
+```
 
 Depends on: Phase15 and Phase17 (streaming paths enable large-input tests
 without full buffering). Resolves the M-1 CBOR-limits-wiring follow-up and adds

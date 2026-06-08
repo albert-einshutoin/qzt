@@ -121,7 +121,33 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- ResourceLimits を deterministic CBOR validation と schema block decode に配線。
+- SearchOptions max_search_results cap を追加。
+- memory guarantees doc と cargo-fuzz open+verify target を追加。
+```
+
+検証:
+
+```text
+- cargo test --test phase19_resource_governance
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: caller-supplied CBOR allocation budgets が otherwise-valid oversized blocks を allocation 前に拒否することを確認。
+- Self-review pass 2 completed: search result caps は result growth を止め、report を capped にする。
+- Code review completed: resource limit errors は既存の typed QztError paths を使い、regression tests で covered。
+- Architecture review completed: large-input hardening は ResourceLimits/SearchOptions に集約され、reader/search paths で再利用。
+```
 
 依存: Phase15 と Phase17（streaming paths により full buffering なしの large-input tests が可能になる）。
 M-1 CBOR-limits-wiring follow-up を解決し、search result cap と adversarial hardening を追加します。

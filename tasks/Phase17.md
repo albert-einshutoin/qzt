@@ -124,7 +124,33 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Added QztFileWriter push/finish over readable, writable, seekable output.
+- Streaming pack CLI writes through QztFileWriter for core/no-dense containers and leaves no output on invalid UTF-8.
+- Output remains byte-identical to pack_bytes for covered core fixtures.
+```
+
+Verification:
+
+```text
+- cargo test --test phase17_streaming_writer
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: removed compressed-chunk retention for checksum hashing and replaced it with bounded 64KiB prefix readback.
+- Self-review pass 2 completed: CLI temporary output uses read/write OpenOptions so finish can hash the final prefix.
+- Code review completed: finish is single-shot, poisoned writers fail closed, and invalid UTF-8 cannot leave a final output file.
+- Architecture review completed: writer memory is bounded by pending chunk, chunk table metadata, and fixed hash buffer rather than full source or compressed payload.
+```
 
 Depends on: Phase15 (shared WriteAt/ReadAt direction and decode core for the
 round-trip differential tests). Completes the large-data I/O model started by

@@ -120,7 +120,34 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Added WriterBuilder and crate-root re-exports for the curated technical-preview API.
+- Internal modules are hidden by default and exposed only through the internal-testing feature for conformance tests.
+- Added API stability policy and docs.rs metadata.
+```
+
+Verification:
+
+```text
+- cargo test --all-targets --all-features --test phase20_public_api
+- RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: WriterBuilder reproduces legacy pack entry points byte-for-byte in the public API smoke test.
+- Self-review pass 2 completed: binary and example imports use crate-root APIs instead of internal module paths.
+- Code review completed: compatibility for low-level tests is isolated behind internal-testing and documented as non-stable.
+- Architecture review completed: default embedders see a curated surface while the reference implementation keeps conformance-test access.
+```
 
 Depends on: Phase14 (CI runs the doc and surface-snapshot gates). Prerequisite
 for Phase21 (integration examples consume the stable public surface) and

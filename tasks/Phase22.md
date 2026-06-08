@@ -115,7 +115,32 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Added portable vector manifest, valid/corrupt hex fixtures, vector runner, and format-stability documentation.
+- Vector regeneration is deterministic and verifies both open/export/deep-verify and rejection paths.
+```
+
+Verification:
+
+```text
+- cargo test --test phase22_vectors
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: generated vectors are byte-identical across regeneration.
+- Self-review pass 2 completed: corrupt-header vector rejects while valid vectors export and verify deeply.
+- Code review completed: vector runner uses public reader/writer APIs and keeps fixture metadata explicit in manifest.tsv.
+- Architecture review completed: v0.1 format stability is documented without changing container bytes.
+```
 
 Depends on: Phase20 (the runner uses the stable public reader API), Phase23a
 (the vector set reuses the shared validation corpora), and the Phase9 Core

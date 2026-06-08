@@ -1,0 +1,4 @@
+name	kind	expect_open	expect_deep_verify	expect_export_text
+valid_c1	hex	ok	ok	alpha\nbeta\n
+valid_empty	hex	ok	ok	
+corrupt_header	hex	err	-	-

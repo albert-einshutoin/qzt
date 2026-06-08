@@ -129,7 +129,33 @@ spec とこの phase plan を更新します。
 
 ## 状態
 
-Pending。
+Complete。
+
+完了日: 2026-06-08
+
+実装範囲:
+
+```text
+- positioned reads 用の ReadAt と QztFileReader を追加。
+- file-backed open は fixed structures と index blocks だけを読み、chunk data には触れない。
+- CLI export/range/line/verify paths を file-backed reader へ接続。
+```
+
+検証:
+
+```text
+- cargo test --test phase15_file_reader
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: open-time reads が header/trailer、footer payload、metadata、index root、index blocks に限定されることを確認。
+- Self-review pass 2 completed: range/line/export は overlapping chunks だけを decode し、QztReader behavior と一致。
+- Code review completed: ReadAt は shared mutable seek state を避け、open 時に chunk-data reads がないことを test で保証。
+- Architecture review completed: file-backed access は後続の verified evidence / streaming validation の土台で、container format は変更しない。
+```
 
 依存: Phase14（より大きい differential test matrix を CI で実行できるようにするため）。
 これは Product Completeness で最も重要な Phase です。製品の主張と実装の差を閉じます。

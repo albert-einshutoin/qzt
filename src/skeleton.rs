@@ -1,8 +1,10 @@
+use crate::cbor::{validate_deterministic_with_limits, CborLimits};
 use crate::chunk_table::{validate_chunk_table_block, ChunkEntry};
 use crate::dense_line_index::DenseLineIndex;
 use crate::error::{QztError, Result};
 use crate::fixed::{validate_physical_ranges, FooterTrailer, Header, PhysicalRange};
 use crate::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
+use crate::io::ReadAt;
 use crate::limits::ResourceLimits;
 use crate::primitives::checked_physical_end;
 use crate::schema::{
@@ -144,6 +146,7 @@ pub fn open_skeleton_details_with_limits(
         return Err(QztError::FooterChecksumMismatch);
     }
 
+    validate_deterministic_with_limits(footer_payload_bytes, cbor_limits(limits))?;
     let footer_payload = FooterPayload::decode(footer_payload_bytes)?;
     if footer_payload.final_file_size != final_file_size {
         return Err(QztError::FinalFileSizeMismatch);
@@ -162,6 +165,7 @@ pub fn open_skeleton_details_with_limits(
     if Checksum::blake3(metadata_bytes) != footer_payload.metadata.checksum {
         return Err(QztError::MetadataChecksumMismatch);
     }
+    validate_deterministic_with_limits(metadata_bytes, cbor_limits(limits))?;
     let metadata = Metadata::decode(metadata_bytes)?;
     if metadata.container_id != header.container_id {
         return Err(QztError::ContainerIdMismatch);
@@ -172,6 +176,7 @@ pub fn open_skeleton_details_with_limits(
     if Checksum::blake3(index_root_bytes) != footer_payload.index_root.checksum {
         return Err(QztError::IndexRootChecksumMismatch);
     }
+    validate_deterministic_with_limits(index_root_bytes, cbor_limits(limits))?;
     let index_root = IndexRoot::decode(index_root_bytes)?;
     validate_source_consistency(&metadata, &index_root)?;
 
@@ -226,7 +231,158 @@ pub fn open_skeleton_details_with_limits(
     let dictionaries = parse_dictionary_blocks(bytes, &index_root, header.container_id, limits)?;
     validate_required_dictionaries(&chunk_entries, &dictionaries)?;
     let dense_line_index = parse_dense_line_index(bytes, &index_root, &chunk_entries)?;
-    let document_index = parse_document_index(bytes, &index_root, header.container_id)?;
+    let document_index = parse_document_index(bytes, &index_root, header.container_id, limits)?;
+
+    Ok(SkeletonDetails {
+        summary: SkeletonSummary {
+            container_id: header.container_id,
+            original_size: index_root.original_size,
+            chunk_count: index_root.chunk_count,
+            line_count: index_root.line_count,
+        },
+        chunk_entries,
+        metadata,
+        footer_payload,
+        footer_payload_offset: trailer.footer_payload_offset,
+        dictionaries,
+        dense_line_index,
+        document_index,
+    })
+}
+
+/// Opens structural details from a positioned reader without reading chunk data.
+pub fn open_skeleton_details_read_at<R: ReadAt>(
+    reader: &R,
+    final_file_size: u64,
+    limits: ResourceLimits,
+) -> Result<SkeletonDetails> {
+    if final_file_size < HEADER_LEN as u64 {
+        return Err(QztError::InvalidHeader);
+    }
+    if final_file_size < (HEADER_LEN + FOOTER_TRAILER_LEN) as u64 {
+        return Err(QztError::InvalidFooterTrailer);
+    }
+
+    let mut header_bytes = vec![0_u8; HEADER_LEN];
+    read_exact_at_qzt(reader, 0, &mut header_bytes)?;
+    let header = Header::decode(&header_bytes)?;
+
+    let trailer_offset = final_file_size
+        .checked_sub(FOOTER_TRAILER_LEN as u64)
+        .ok_or(QztError::InvalidFooterTrailer)?;
+    let mut trailer_bytes = vec![0_u8; FOOTER_TRAILER_LEN];
+    read_exact_at_qzt(reader, trailer_offset, &mut trailer_bytes)?;
+    let trailer = FooterTrailer::decode(&trailer_bytes)?;
+
+    let footer_payload_bytes = read_physical_at(
+        reader,
+        final_file_size,
+        PhysicalRange::new(trailer.footer_payload_offset, trailer.footer_payload_size),
+    )?;
+    if Checksum::blake3(&footer_payload_bytes).value != trailer.footer_payload_checksum_blake3 {
+        return Err(QztError::FooterChecksumMismatch);
+    }
+
+    validate_deterministic_with_limits(&footer_payload_bytes, cbor_limits(limits))?;
+    let footer_payload = FooterPayload::decode(&footer_payload_bytes)?;
+    if footer_payload.final_file_size != final_file_size {
+        return Err(QztError::FinalFileSizeMismatch);
+    }
+    if footer_payload.container_id != header.container_id {
+        return Err(QztError::ContainerIdMismatch);
+    }
+    if footer_payload.metadata.offset != header.metadata_offset
+        || footer_payload.metadata.size != header.metadata_size
+    {
+        return Err(QztError::MetadataInvalid);
+    }
+
+    enforce_index_block_size(footer_payload.metadata.size, limits)?;
+    let metadata_bytes = read_block_ref_at(reader, final_file_size, &footer_payload.metadata)?;
+    if Checksum::blake3(&metadata_bytes) != footer_payload.metadata.checksum {
+        return Err(QztError::MetadataChecksumMismatch);
+    }
+    validate_deterministic_with_limits(&metadata_bytes, cbor_limits(limits))?;
+    let metadata = Metadata::decode(&metadata_bytes)?;
+    if metadata.container_id != header.container_id {
+        return Err(QztError::ContainerIdMismatch);
+    }
+
+    enforce_index_block_size(footer_payload.index_root.size, limits)?;
+    let index_root_bytes = read_block_ref_at(reader, final_file_size, &footer_payload.index_root)?;
+    if Checksum::blake3(&index_root_bytes) != footer_payload.index_root.checksum {
+        return Err(QztError::IndexRootChecksumMismatch);
+    }
+    validate_deterministic_with_limits(&index_root_bytes, cbor_limits(limits))?;
+    let index_root = IndexRoot::decode(&index_root_bytes)?;
+    validate_source_consistency(&metadata, &index_root)?;
+
+    let chunk_table = index_root.chunk_table_block()?;
+    if chunk_table.codec != "qzt-ctbl-fixed-v1" {
+        return Err(QztError::ChunkTableInvalid);
+    }
+    for block in &index_root.blocks {
+        enforce_index_block_size(block.size, limits)?;
+    }
+
+    let chunk_table_bytes = read_physical_at(
+        reader,
+        final_file_size,
+        PhysicalRange::new(chunk_table.offset, chunk_table.size),
+    )?;
+    if Checksum::blake3(&chunk_table_bytes) != chunk_table.checksum {
+        return Err(QztError::ChunkTableChecksumMismatch);
+    }
+
+    let chunk_entries = validate_chunk_table_block(
+        &chunk_table_bytes,
+        index_root.chunk_count,
+        index_root.original_size,
+        index_root.line_count,
+    )?;
+    for entry in &chunk_entries {
+        if entry.uncompressed_size > limits.max_uncompressed_chunk_size {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+    }
+
+    let mut ranges = vec![
+        PhysicalRange::new(header.metadata_offset, header.metadata_size),
+        PhysicalRange::new(
+            footer_payload.index_root.offset,
+            footer_payload.index_root.size,
+        ),
+        PhysicalRange::new(trailer.footer_payload_offset, trailer.footer_payload_size),
+        PhysicalRange::new(chunk_table.offset, chunk_table.size),
+    ];
+    ranges.extend(index_root.blocks.iter().filter_map(|block| {
+        (!matches!(block.block_type.as_str(), "metadata" | "chunk_table"))
+            .then_some(PhysicalRange::new(block.offset, block.size))
+    }));
+    ranges.extend(
+        chunk_entries
+            .iter()
+            .map(|entry| PhysicalRange::new(entry.physical_offset, entry.compressed_size)),
+    );
+    validate_physical_ranges(final_file_size, &ranges)?;
+
+    let dictionaries = parse_dictionary_blocks_at(
+        reader,
+        final_file_size,
+        &index_root,
+        header.container_id,
+        limits,
+    )?;
+    validate_required_dictionaries(&chunk_entries, &dictionaries)?;
+    let dense_line_index =
+        parse_dense_line_index_at(reader, final_file_size, &index_root, &chunk_entries)?;
+    let document_index = parse_document_index_at(
+        reader,
+        final_file_size,
+        &index_root,
+        header.container_id,
+        limits,
+    )?;
 
     Ok(SkeletonDetails {
         summary: SkeletonSummary {
@@ -250,6 +406,13 @@ fn enforce_index_block_size(size: u64, limits: ResourceLimits) -> Result<()> {
         return Err(QztError::ResourceLimitExceeded);
     }
     Ok(())
+}
+
+fn cbor_limits(limits: ResourceLimits) -> CborLimits {
+    CborLimits {
+        max_allocation: limits.max_cbor_allocation,
+        max_items: limits.max_cbor_items,
+    }
 }
 
 fn parse_dictionary_blocks(
@@ -278,6 +441,7 @@ fn parse_dictionary_blocks(
             return Err(QztError::DictionaryChecksumMismatch);
         }
 
+        validate_deterministic_with_limits(dictionary_bytes, cbor_limits(limits))?;
         let block =
             DictionaryBlock::decode_with_limits(dictionary_bytes, limits.max_dictionary_size)?;
         if block.container_id != container_id {
@@ -357,6 +521,7 @@ fn parse_document_index(
     bytes: &[u8],
     index_root: &IndexRoot,
     container_id: [u8; 16],
+    limits: ResourceLimits,
 ) -> Result<Option<DocumentIndex>> {
     let mut document_index = None;
 
@@ -380,7 +545,135 @@ fn parse_document_index(
             return Err(QztError::ContainerCorrupt);
         }
 
+        validate_deterministic_with_limits(document_bytes, cbor_limits(limits))?;
         let block = DocumentIndex::decode(document_bytes)?;
+        if block.container_id != container_id {
+            return Err(QztError::ContainerIdMismatch);
+        }
+        document_index = Some(block);
+    }
+
+    Ok(document_index)
+}
+
+fn parse_dictionary_blocks_at<R: ReadAt>(
+    reader: &R,
+    final_file_size: u64,
+    index_root: &IndexRoot,
+    container_id: [u8; 16],
+    limits: ResourceLimits,
+) -> Result<Vec<DictionaryEntry>> {
+    let mut dictionaries = Vec::new();
+
+    for descriptor in index_root
+        .blocks
+        .iter()
+        .filter(|block| block.block_type == "dictionary")
+    {
+        if descriptor.required || descriptor.codec != "qzt-dict-cbor-v1" {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        enforce_index_block_size(descriptor.size, limits)?;
+        let dictionary_bytes = read_physical_at(
+            reader,
+            final_file_size,
+            PhysicalRange::new(descriptor.offset, descriptor.size),
+        )?;
+        if Checksum::blake3(&dictionary_bytes) != descriptor.checksum {
+            return Err(QztError::DictionaryChecksumMismatch);
+        }
+
+        validate_deterministic_with_limits(&dictionary_bytes, cbor_limits(limits))?;
+        let block =
+            DictionaryBlock::decode_with_limits(&dictionary_bytes, limits.max_dictionary_size)?;
+        if block.container_id != container_id {
+            return Err(QztError::ContainerIdMismatch);
+        }
+
+        for entry in block.dictionaries {
+            if dictionaries
+                .iter()
+                .any(|existing: &DictionaryEntry| existing.dictionary_id == entry.dictionary_id)
+            {
+                return Err(QztError::ContainerCorrupt);
+            }
+            dictionaries.push(entry);
+        }
+    }
+
+    Ok(dictionaries)
+}
+
+fn parse_dense_line_index_at<R: ReadAt>(
+    reader: &R,
+    final_file_size: u64,
+    index_root: &IndexRoot,
+    chunk_entries: &[ChunkEntry],
+) -> Result<Option<DenseLineIndex>> {
+    let mut dense = None;
+
+    for descriptor in index_root
+        .blocks
+        .iter()
+        .filter(|block| block.block_type == "dense_line_index")
+    {
+        if descriptor.required || descriptor.codec != "qzt-line-delta-varint-v1" {
+            return Err(QztError::ChunkTableInvalid);
+        }
+        if dense.is_some() {
+            return Err(QztError::ChunkTableInvalid);
+        }
+
+        let dense_bytes = read_physical_at(
+            reader,
+            final_file_size,
+            PhysicalRange::new(descriptor.offset, descriptor.size),
+        )?;
+        if Checksum::blake3(&dense_bytes) != descriptor.checksum {
+            return Err(QztError::ChunkTableChecksumMismatch);
+        }
+        dense = Some(DenseLineIndex::decode_for_chunks(
+            &dense_bytes,
+            chunk_entries,
+        )?);
+    }
+
+    Ok(dense)
+}
+
+fn parse_document_index_at<R: ReadAt>(
+    reader: &R,
+    final_file_size: u64,
+    index_root: &IndexRoot,
+    container_id: [u8; 16],
+    limits: ResourceLimits,
+) -> Result<Option<DocumentIndex>> {
+    let mut document_index = None;
+
+    for descriptor in index_root
+        .blocks
+        .iter()
+        .filter(|block| block.block_type == "document_index")
+    {
+        if descriptor.required || descriptor.codec != "qzt-doc-index-cbor-v1" {
+            return Err(QztError::ContainerCorrupt);
+        }
+        if document_index.is_some() {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        let document_bytes = read_physical_at(
+            reader,
+            final_file_size,
+            PhysicalRange::new(descriptor.offset, descriptor.size),
+        )?;
+        if Checksum::blake3(&document_bytes) != descriptor.checksum {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        validate_deterministic_with_limits(&document_bytes, cbor_limits(limits))?;
+        let block = DocumentIndex::decode(&document_bytes)?;
         if block.container_id != container_id {
             return Err(QztError::ContainerIdMismatch);
         }
@@ -426,6 +719,42 @@ fn fixed_point_footer_payload(
 
 fn slice_block_ref<'a>(bytes: &'a [u8], block: &BlockRef) -> Result<&'a [u8]> {
     slice_physical(bytes, PhysicalRange::new(block.offset, block.size))
+}
+
+fn read_block_ref_at<R: ReadAt>(
+    reader: &R,
+    final_file_size: u64,
+    block: &BlockRef,
+) -> Result<Vec<u8>> {
+    read_physical_at(
+        reader,
+        final_file_size,
+        PhysicalRange::new(block.offset, block.size),
+    )
+}
+
+fn read_physical_at<R: ReadAt>(
+    reader: &R,
+    final_file_size: u64,
+    range: PhysicalRange,
+) -> Result<Vec<u8>> {
+    let end = checked_physical_end(range.offset, range.size)?;
+    if end > final_file_size {
+        return Err(QztError::PhysicalRangeOutOfBounds);
+    }
+    let len = usize::try_from(range.size).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let mut bytes = vec![0_u8; len];
+    read_exact_at_qzt(reader, range.offset, &mut bytes)?;
+    Ok(bytes)
+}
+
+fn read_exact_at_qzt<R: ReadAt>(reader: &R, offset: u64, buf: &mut [u8]) -> Result<()> {
+    reader
+        .read_exact_at(offset, buf)
+        .map_err(|error| match error.kind() {
+            std::io::ErrorKind::UnexpectedEof => QztError::UnexpectedEof,
+            _ => QztError::ContainerCorrupt,
+        })
 }
 
 fn slice_physical(bytes: &[u8], range: PhysicalRange) -> Result<&[u8]> {

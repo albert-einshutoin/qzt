@@ -1,5 +1,8 @@
+use std::io::{Read, Seek, SeekFrom, Write};
+
 use crate::chunk_table::ChunkEntry;
 use crate::chunker::{plan_chunks, ChunkerOptions, NewlineMode};
+use crate::dense_line_index::line_start_offsets;
 use crate::dense_line_index::DenseLineIndex;
 use crate::error::{QztError, Result};
 use crate::fixed::{FooterTrailer, Header};
@@ -9,14 +12,31 @@ use crate::schema::{
     MetadataOptions,
 };
 
-/// Placeholder writer entry point reserved for a future streaming API.
+/// Streaming QZT writer over a readable, writable, seekable output.
+pub struct QztFileWriter<W: Read + Write + Seek> {
+    writer: W,
+    options: WriterOptions,
+    pending: Vec<u8>,
+    entries: Vec<ChunkEntry>,
+    input_hasher: blake3::Hasher,
+    physical_offset: u64,
+    logical_offset: u64,
+    line_starts_seen: u64,
+    lf_count: u64,
+    crlf_count: u64,
+    previous_byte: Option<u8>,
+    finished: bool,
+    poisoned: bool,
+}
+
+/// Compatibility name reserved by the v0.1 spec.
 #[doc(hidden)]
 pub struct QztWriter;
 
 impl QztWriter {
     /// Creates a QZT writer.
     pub fn new() -> Result<Self> {
-        Err(QztError::NotImplemented("QztWriter::new"))
+        Ok(Self)
     }
 }
 
@@ -36,6 +56,490 @@ impl Default for WriterOptions {
             },
             zstd_level: 0,
         }
+    }
+}
+
+/// Builder for QZT container bytes.
+#[derive(Debug, Clone)]
+pub struct WriterBuilder {
+    options: WriterOptions,
+    profile: String,
+    dense_line_index: bool,
+    container_id: Option<[u8; 16]>,
+    document_index: Option<DocumentIndex>,
+}
+
+impl Default for WriterBuilder {
+    fn default() -> Self {
+        Self {
+            options: WriterOptions::default(),
+            profile: "core".to_owned(),
+            dense_line_index: false,
+            container_id: None,
+            document_index: None,
+        }
+    }
+}
+
+impl WriterBuilder {
+    /// Creates a builder with default writer options.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Sets writer options.
+    #[must_use]
+    pub fn options(mut self, options: WriterOptions) -> Self {
+        self.options = options;
+        self
+    }
+
+    /// Sets a deterministic container id.
+    #[must_use]
+    pub fn container_id(mut self, container_id: [u8; 16]) -> Self {
+        self.container_id = Some(container_id);
+        self
+    }
+
+    /// Sets the metadata profile.
+    #[must_use]
+    pub fn profile(mut self, profile: impl Into<String>) -> Self {
+        self.profile = profile.into();
+        self
+    }
+
+    /// Enables or disables the optional Dense Line Index.
+    #[must_use]
+    pub fn dense_line_index(mut self, enabled: bool) -> Self {
+        self.dense_line_index = enabled;
+        self
+    }
+
+    /// Adds an optional Document Index block.
+    #[must_use]
+    pub fn document_index(mut self, document_index: DocumentIndex) -> Self {
+        self.document_index = Some(document_index);
+        self
+    }
+
+    /// Packs input bytes into a QZT container.
+    pub fn pack(self, input: &[u8]) -> Result<Vec<u8>> {
+        let document_index = self.document_index;
+        let container_id = self.container_id.unwrap_or_else(|| {
+            let hash = blake3::hash(input);
+            let mut container_id = [0_u8; 16];
+            container_id.copy_from_slice(&hash.as_bytes()[..16]);
+            container_id
+        });
+
+        let document_index = match (self.profile.as_str(), document_index) {
+            ("memory", Some(document_index)) => {
+                return pack_bytes_with_memory_profile(
+                    input,
+                    container_id,
+                    self.options,
+                    document_index,
+                );
+            }
+            (_, document_index) => document_index,
+        };
+
+        if self.profile == "memory" {
+            return Err(QztError::MetadataInvalid);
+        }
+
+        let dense_mode = if self.dense_line_index {
+            DenseLineIndexMode::Generate
+        } else {
+            DenseLineIndexMode::Omit
+        };
+        pack_bytes_internal(
+            input,
+            container_id,
+            self.options,
+            dense_mode,
+            document_index,
+            &self.profile,
+        )
+    }
+}
+
+impl<W: Read + Write + Seek> QztFileWriter<W> {
+    /// Creates a streaming writer and reserves the fixed header.
+    pub fn new(mut writer: W, options: WriterOptions) -> Result<Self> {
+        options.chunker.validate()?;
+        writer
+            .seek(SeekFrom::Start(0))
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        writer
+            .write_all(&[0_u8; HEADER_LEN])
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        Ok(Self {
+            writer,
+            options,
+            pending: Vec::new(),
+            entries: Vec::new(),
+            input_hasher: blake3::Hasher::new(),
+            physical_offset: HEADER_LEN as u64,
+            logical_offset: 0,
+            line_starts_seen: 0,
+            lf_count: 0,
+            crlf_count: 0,
+            previous_byte: None,
+            finished: false,
+            poisoned: false,
+        })
+    }
+
+    /// Pushes original UTF-8 bytes into the container stream.
+    pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
+        if self.finished || self.poisoned {
+            return Err(QztError::WriterAlreadyFinished);
+        }
+        let result = (|| {
+            self.input_hasher.update(bytes);
+            self.pending.extend_from_slice(bytes);
+            while self.pending.len() > self.options.chunker.max_chunk_size {
+                let end = choose_stream_chunk_end(&self.pending, self.options.chunker)?;
+                self.emit_pending_chunk(end)?;
+            }
+            Ok(())
+        })();
+        if result.is_err() {
+            self.poisoned = true;
+        }
+        result
+    }
+
+    /// Finishes the immutable container and patches the header.
+    pub fn finish(&mut self) -> Result<()> {
+        if self.finished || self.poisoned {
+            return Err(QztError::WriterAlreadyFinished);
+        }
+        let result = self.finish_inner();
+        if result.is_err() {
+            self.poisoned = true;
+        } else {
+            self.finished = true;
+        }
+        result
+    }
+
+    /// Returns the wrapped writer.
+    pub fn into_inner(self) -> W {
+        self.writer
+    }
+
+    fn finish_inner(&mut self) -> Result<()> {
+        while !self.pending.is_empty() {
+            let end = choose_known_chunk_end(&self.pending, self.options.chunker)?;
+            self.emit_pending_chunk(end)?;
+        }
+
+        let input_hash = self.input_hasher.finalize();
+        let mut container_id = [0_u8; 16];
+        container_id.copy_from_slice(&input_hash.as_bytes()[..16]);
+        let original_checksum = Checksum {
+            algorithm: "blake3".to_owned(),
+            value: *input_hash.as_bytes(),
+        };
+
+        let metadata_offset = self.physical_offset;
+        let metadata = Metadata::for_source_with_options(
+            container_id,
+            self.logical_offset,
+            original_checksum,
+            streaming_newline_mode_as_str(self.lf_count, self.crlf_count),
+            self.line_starts_seen,
+            MetadataOptions {
+                zstd_level: self.options.zstd_level,
+                target_chunk_size: u64::try_from(self.options.chunker.target_chunk_size)
+                    .map_err(|_| QztError::ResourceLimitExceeded)?,
+                max_chunk_size: u64::try_from(self.options.chunker.max_chunk_size)
+                    .map_err(|_| QztError::ResourceLimitExceeded)?,
+                dictionary_mode: "none",
+                profile: "core",
+                dense_line_index: false,
+                document_index: false,
+            },
+        );
+        let metadata_bytes = metadata.encode()?;
+        let metadata_size =
+            u64::try_from(metadata_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+
+        let chunk_table_offset = metadata_offset
+            .checked_add(metadata_size)
+            .ok_or(QztError::PhysicalRangeOutOfBounds)?;
+        let mut chunk_table_bytes =
+            Vec::with_capacity(self.entries.len() * crate::chunk_table::CHUNK_ENTRY_LEN);
+        for entry in &self.entries {
+            chunk_table_bytes.extend_from_slice(&entry.encode());
+        }
+        let chunk_table_size =
+            u64::try_from(chunk_table_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+
+        let index_root = IndexRoot {
+            container_id,
+            blocks: vec![BlockDescriptor::chunk_table(
+                chunk_table_offset,
+                chunk_table_size,
+                Checksum::blake3(&chunk_table_bytes),
+            )],
+            original_size: metadata.original_size,
+            original_checksum: metadata.original_checksum.clone(),
+            chunk_count: u64::try_from(self.entries.len())
+                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            line_count: metadata.line_count,
+        };
+        let index_root_bytes = index_root.encode()?;
+        let index_root_offset = chunk_table_offset
+            .checked_add(chunk_table_size)
+            .ok_or(QztError::PhysicalRangeOutOfBounds)?;
+        let index_root_size =
+            u64::try_from(index_root_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let footer_payload_offset = index_root_offset
+            .checked_add(index_root_size)
+            .ok_or(QztError::PhysicalRangeOutOfBounds)?;
+        let header = Header {
+            metadata_offset,
+            metadata_size,
+            index_hint_offset: index_root_offset,
+            container_id,
+        };
+
+        self.writer
+            .seek(SeekFrom::Start(metadata_offset))
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        self.writer
+            .write_all(&metadata_bytes)
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        self.writer
+            .write_all(&chunk_table_bytes)
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        self.writer
+            .write_all(&index_root_bytes)
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        self.writer
+            .seek(SeekFrom::Start(0))
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        self.writer
+            .write_all(&header.encode())
+            .map_err(|_| QztError::ContainerCorrupt)?;
+
+        let container_checksum = self.hash_prefix(footer_payload_offset)?;
+
+        let footer_payload = fixed_point_footer_payload(
+            container_id,
+            BlockRef {
+                offset: index_root_offset,
+                size: index_root_size,
+                checksum: Checksum::blake3(&index_root_bytes),
+            },
+            BlockRef {
+                offset: metadata_offset,
+                size: metadata_size,
+                checksum: Checksum::blake3(&metadata_bytes),
+            },
+            footer_payload_offset,
+            Some(container_checksum),
+        )?;
+        let footer_payload_bytes = footer_payload.encode()?;
+        let footer_trailer = FooterTrailer {
+            footer_payload_offset,
+            footer_payload_size: u64::try_from(footer_payload_bytes.len())
+                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            footer_payload_checksum_blake3: Checksum::blake3(&footer_payload_bytes).value,
+        };
+
+        self.writer
+            .seek(SeekFrom::Start(footer_payload_offset))
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        self.writer
+            .write_all(&footer_payload_bytes)
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        self.writer
+            .write_all(&footer_trailer.encode())
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        self.writer
+            .seek(SeekFrom::End(0))
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        Ok(())
+    }
+
+    fn hash_prefix(&mut self, prefix_len: u64) -> Result<Checksum> {
+        let mut hasher = blake3::Hasher::new();
+        let mut remaining = prefix_len;
+        let mut buffer = [0_u8; 64 * 1024];
+        self.writer
+            .seek(SeekFrom::Start(0))
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        while remaining > 0 {
+            let chunk_len = usize::try_from(remaining.min(buffer.len() as u64))
+                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            self.writer
+                .read_exact(&mut buffer[..chunk_len])
+                .map_err(|_| QztError::ContainerCorrupt)?;
+            hasher.update(&buffer[..chunk_len]);
+            remaining -= chunk_len as u64;
+        }
+        Ok(Checksum {
+            algorithm: "blake3".to_owned(),
+            value: *hasher.finalize().as_bytes(),
+        })
+    }
+
+    fn emit_pending_chunk(&mut self, end: usize) -> Result<()> {
+        let chunk = self
+            .pending
+            .get(..end)
+            .ok_or(QztError::ResourceLimitExceeded)?
+            .to_vec();
+        self.emit_chunk(&chunk)?;
+        self.pending.drain(..end);
+        Ok(())
+    }
+
+    fn emit_chunk(&mut self, uncompressed: &[u8]) -> Result<()> {
+        std::str::from_utf8(uncompressed).map_err(|_| QztError::InvalidUtf8)?;
+        let compressed = zstd::stream::encode_all(uncompressed, self.options.zstd_level)
+            .map_err(|_| QztError::ZstdEncodeError)?;
+        if compressed.is_empty() {
+            return Err(QztError::ChunkSizeMismatch);
+        }
+
+        let compressed_size =
+            u64::try_from(compressed.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let flags = if self.logical_offset > 0 && self.previous_byte != Some(b'\n') {
+            crate::chunk_table::STARTS_WITH_LINE_CONTINUATION
+        } else {
+            0
+        };
+        let line_count = u64::try_from(line_start_offsets(uncompressed, flags)?.len())
+            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let entry = ChunkEntry {
+            chunk_id: u64::try_from(self.entries.len())
+                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            physical_offset: self.physical_offset,
+            compressed_size,
+            logical_offset: self.logical_offset,
+            uncompressed_size: u64::try_from(uncompressed.len())
+                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            first_line: self.line_starts_seen,
+            line_count,
+            dictionary_id: 0,
+            flags,
+            compressed_checksum_blake3: Checksum::blake3(&compressed).value,
+            uncompressed_checksum_blake3: Checksum::blake3(uncompressed).value,
+        };
+
+        self.writer
+            .seek(SeekFrom::Start(self.physical_offset))
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        self.writer
+            .write_all(&compressed)
+            .map_err(|_| QztError::ContainerCorrupt)?;
+
+        self.update_newline_state(uncompressed)?;
+        self.line_starts_seen = self
+            .line_starts_seen
+            .checked_add(line_count)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        self.logical_offset = self
+            .logical_offset
+            .checked_add(entry.uncompressed_size)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        self.physical_offset = self
+            .physical_offset
+            .checked_add(compressed_size)
+            .ok_or(QztError::PhysicalRangeOutOfBounds)?;
+        self.entries.push(entry);
+        Ok(())
+    }
+
+    fn update_newline_state(&mut self, bytes: &[u8]) -> Result<()> {
+        for byte in bytes {
+            if *byte == b'\n' {
+                if self.previous_byte == Some(b'\r') {
+                    self.crlf_count = self
+                        .crlf_count
+                        .checked_add(1)
+                        .ok_or(QztError::ResourceLimitExceeded)?;
+                } else {
+                    self.lf_count = self
+                        .lf_count
+                        .checked_add(1)
+                        .ok_or(QztError::ResourceLimitExceeded)?;
+                }
+            }
+            self.previous_byte = Some(*byte);
+        }
+        Ok(())
+    }
+}
+
+fn choose_stream_chunk_end(input: &[u8], options: ChunkerOptions) -> Result<usize> {
+    let max_end = options.max_chunk_size;
+    if input.len() <= max_end {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+    choose_non_final_chunk_end(input, options.target_chunk_size, max_end)
+}
+
+fn choose_known_chunk_end(input: &[u8], options: ChunkerOptions) -> Result<usize> {
+    if input.len() <= options.target_chunk_size {
+        return Ok(input.len());
+    }
+    let max_end = options.max_chunk_size.min(input.len());
+    choose_non_final_chunk_end(input, options.target_chunk_size, max_end)
+}
+
+fn choose_non_final_chunk_end(input: &[u8], target_end: usize, max_end: usize) -> Result<usize> {
+    if let Some(line_end) = last_line_boundary(input, target_end) {
+        return Ok(line_end);
+    }
+    if let Some(line_end) = last_line_boundary(input, max_end) {
+        return Ok(line_end);
+    }
+    previous_valid_split(input, max_end).ok_or(QztError::ResourceLimitExceeded)
+}
+
+fn last_line_boundary(input: &[u8], end: usize) -> Option<usize> {
+    let mut cursor = 0_usize;
+    let mut boundary = None;
+    while cursor < end {
+        if input[cursor] == b'\n' {
+            boundary = Some(cursor + 1);
+        }
+        cursor += 1;
+    }
+    boundary.filter(|candidate| *candidate > 0 && !splits_crlf(input, *candidate))
+}
+
+fn previous_valid_split(input: &[u8], max_end: usize) -> Option<usize> {
+    (1..=max_end)
+        .rev()
+        .find(|candidate| is_utf8_boundary(input, *candidate) && !splits_crlf(input, *candidate))
+}
+
+fn is_utf8_boundary(input: &[u8], index: usize) -> bool {
+    index == 0
+        || index == input.len()
+        || input
+            .get(index)
+            .is_some_and(|byte| byte & 0b1100_0000 != 0b1000_0000)
+}
+
+fn splits_crlf(input: &[u8], end: usize) -> bool {
+    end > 0 && end < input.len() && input[end - 1] == b'\r' && input[end] == b'\n'
+}
+
+fn streaming_newline_mode_as_str(lf_count: u64, crlf_count: u64) -> &'static str {
+    match (lf_count > 0, crlf_count > 0) {
+        (false, false) => "none",
+        (true, false) => "lf",
+        (false, true) => "crlf",
+        (true, true) => "mixed",
     }
 }
 

@@ -1,16 +1,29 @@
+use std::fs::File;
 use std::io::{Read, Write};
+use std::path::Path;
 
 use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
 use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
+use crate::io::ReadAt;
 use crate::limits::ResourceLimits;
 use crate::primitives::{checked_logical_end, checked_physical_end};
-use crate::schema::Checksum;
-use crate::skeleton::{open_skeleton_details, open_skeleton_details_with_limits, SkeletonDetails};
+use crate::schema::{Checksum, DictionaryEntry, DocumentEntry};
+use crate::skeleton::{
+    open_skeleton_details, open_skeleton_details_read_at, open_skeleton_details_with_limits,
+    SkeletonDetails,
+};
 
 /// Reader for an in-memory QZT container.
 pub struct QztReader {
     bytes: Vec<u8>,
+    details: SkeletonDetails,
+}
+
+/// Reader for a positioned QZT source.
+pub struct QztFileReader<R> {
+    source: R,
+    len: u64,
     details: SkeletonDetails,
 }
 
@@ -119,6 +132,28 @@ impl QztReader {
         String::from_utf8(bytes).map_err(|_| QztError::InvalidUtf8Boundary)
     }
 
+    pub fn read_range_verified(
+        &self,
+        offset: u64,
+        length: u64,
+        expected: &Checksum,
+    ) -> Result<Vec<u8>> {
+        let bytes = self.read_range(offset, length)?;
+        verify_expected_checksum(&bytes, expected)?;
+        Ok(bytes)
+    }
+
+    pub fn read_document(&self, doc_id: &str) -> Result<Vec<u8>> {
+        let document = find_document(&self.details, doc_id)?;
+        self.read_range(document.logical_offset, document.byte_length)
+    }
+
+    pub fn read_document_verified(&self, doc_id: &str, expected: &Checksum) -> Result<Vec<u8>> {
+        let bytes = self.read_document(doc_id)?;
+        verify_expected_checksum(&bytes, expected)?;
+        Ok(bytes)
+    }
+
     pub fn read_line_raw(&self, line_zero_based: u64) -> Result<Vec<u8>> {
         if line_zero_based >= self.details.summary.line_count {
             return Err(QztError::LineOutOfRange);
@@ -211,78 +246,7 @@ impl QztReader {
 
     fn verify_deep(&self) -> Result<VerifyReport> {
         self.verify_normal()?;
-
-        let mut output = Vec::new();
-        for (chunk_index, entry) in self.details.chunk_entries.iter().enumerate() {
-            let expected_flags = if entry.logical_offset > 0 && output.last() != Some(&b'\n') {
-                STARTS_WITH_LINE_CONTINUATION
-            } else {
-                0
-            };
-            if entry.flags != expected_flags {
-                return Err(QztError::ChunkTableInvalid);
-            }
-
-            let decoded = self.decode_entry(entry)?;
-            if let Some(dense) = &self.details.dense_line_index {
-                dense.verify_chunk(chunk_index, &decoded, entry.flags)?;
-            }
-            output.extend_from_slice(&decoded);
-        }
-
-        if u64::try_from(output.len()).map_err(|_| QztError::ResourceLimitExceeded)?
-            != self.details.summary.original_size
-        {
-            return Err(QztError::ChunkSizeMismatch);
-        }
-        if Checksum::blake3(&output) != self.details.metadata.original_checksum {
-            return Err(QztError::UncompressedChunkChecksumMismatch);
-        }
-        std::str::from_utf8(&output).map_err(|_| QztError::InvalidUtf8)?;
-
-        let text = TextAnalysis::analyze(&output);
-        if text.line_count != self.details.metadata.line_count {
-            return Err(QztError::ContainerCorrupt);
-        }
-        if text.newline_mode != self.details.metadata.newline_mode {
-            return Err(QztError::NewlineModeMismatch);
-        }
-
-        for entry in &self.details.chunk_entries {
-            let start =
-                usize::try_from(entry.logical_offset).map_err(|_| QztError::ContainerCorrupt)?;
-            let end = start
-                .checked_add(
-                    usize::try_from(entry.uncompressed_size)
-                        .map_err(|_| QztError::ContainerCorrupt)?,
-                )
-                .ok_or(QztError::ContainerCorrupt)?;
-            let first_line = lower_bound(&text.line_starts, start);
-            let line_end = lower_bound(&text.line_starts, end);
-            let expected_first_line =
-                u64::try_from(first_line).map_err(|_| QztError::ContainerCorrupt)?;
-            let expected_line_count =
-                u64::try_from(line_end - first_line).map_err(|_| QztError::ContainerCorrupt)?;
-            if entry.first_line != expected_first_line || entry.line_count != expected_line_count {
-                return Err(QztError::ChunkTableInvalid);
-            }
-        }
-
-        if let Some(document_index) = &self.details.document_index {
-            verify_document_index(
-                document_index,
-                &output,
-                text.line_count,
-                &self.details.chunk_entries,
-            )?;
-        }
-
-        Ok(VerifyReport {
-            level: VerifyLevel::Deep,
-            checked_chunks: self.details.summary.chunk_count,
-            decoded_bytes: u64::try_from(output.len())
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
-        })
+        verify_deep_entries(&self.details, |entry| self.decode_entry(entry))
     }
 
     fn decode_entry(&self, entry: &ChunkEntry) -> Result<Vec<u8>> {
@@ -290,32 +254,7 @@ impl QztReader {
             entry.physical_offset,
             entry.compressed_size,
         ))?;
-        if Checksum::blake3(compressed).value != entry.compressed_checksum_blake3 {
-            return Err(QztError::CompressedChunkChecksumMismatch);
-        }
-
-        let dictionary = if entry.dictionary_id == 0 {
-            &[][..]
-        } else {
-            self.details
-                .dictionaries
-                .iter()
-                .find(|dictionary| dictionary.dictionary_id == entry.dictionary_id)
-                .map(|dictionary| dictionary.bytes.as_slice())
-                .ok_or(QztError::MissingDictionary)?
-        };
-        let decoder = zstd::stream::Decoder::with_dictionary(compressed, dictionary)
-            .map_err(|_| QztError::ZstdDecodeError)?;
-        let decoded = decode_with_output_limit(decoder, entry.uncompressed_size)?;
-        if u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?
-            != entry.uncompressed_size
-        {
-            return Err(QztError::ChunkSizeMismatch);
-        }
-        if Checksum::blake3(&decoded).value != entry.uncompressed_checksum_blake3 {
-            return Err(QztError::UncompressedChunkChecksumMismatch);
-        }
-        Ok(decoded)
+        decode_compressed_entry(entry, compressed, &self.details.dictionaries)
     }
 
     fn slice_physical(&self, range: PhysicalRange) -> Result<&[u8]> {
@@ -332,60 +271,472 @@ impl QztReader {
     }
 }
 
-struct TextAnalysis {
-    line_starts: Vec<usize>,
-    line_count: u64,
-    newline_mode: String,
+impl<R: ReadAt> QztFileReader<R> {
+    /// Opens a QZT reader over a positioned source with default resource limits.
+    pub fn open_read_at(source: R, len: u64) -> Result<Self> {
+        Self::open_read_at_with_limits(source, len, ResourceLimits::default())
+    }
+
+    /// Opens a QZT reader over a positioned source with explicit resource limits.
+    pub fn open_read_at_with_limits(source: R, len: u64, limits: ResourceLimits) -> Result<Self> {
+        let details = open_skeleton_details_read_at(&source, len, limits)?;
+        Ok(Self {
+            source,
+            len,
+            details,
+        })
+    }
+
+    /// Returns the wrapped positioned source.
+    pub fn into_inner(self) -> R {
+        self.source
+    }
+
+    pub fn info(&self) -> QztInfo {
+        QztInfo {
+            container_id: self.details.summary.container_id,
+            original_size: self.details.summary.original_size,
+            chunk_count: self.details.summary.chunk_count,
+            line_count: self.details.summary.line_count,
+        }
+    }
+
+    pub fn export_to<W: Write>(&self, mut writer: W) -> Result<()> {
+        for entry in &self.details.chunk_entries {
+            let decoded = self.decode_entry(entry)?;
+            writer
+                .write_all(&decoded)
+                .map_err(|_| QztError::ContainerCorrupt)?;
+        }
+        Ok(())
+    }
+
+    pub fn export_all(&self) -> Result<Vec<u8>> {
+        let mut output = Vec::new();
+        self.export_to(&mut output)?;
+        Ok(output)
+    }
+
+    pub fn read_range(&self, offset: u64, length: u64) -> Result<Vec<u8>> {
+        read_range_from_entries(
+            &self.details.chunk_entries,
+            self.details.summary.original_size,
+            offset,
+            length,
+            |entry| self.decode_entry(entry),
+        )
+    }
+
+    pub fn read_text_range(&self, offset: u64, length: u64) -> Result<String> {
+        let bytes = self.read_range(offset, length)?;
+        String::from_utf8(bytes).map_err(|_| QztError::InvalidUtf8Boundary)
+    }
+
+    pub fn read_range_verified(
+        &self,
+        offset: u64,
+        length: u64,
+        expected: &Checksum,
+    ) -> Result<Vec<u8>> {
+        let bytes = self.read_range(offset, length)?;
+        verify_expected_checksum(&bytes, expected)?;
+        Ok(bytes)
+    }
+
+    pub fn read_document(&self, doc_id: &str) -> Result<Vec<u8>> {
+        let document = find_document(&self.details, doc_id)?;
+        self.read_range(document.logical_offset, document.byte_length)
+    }
+
+    pub fn read_document_verified(&self, doc_id: &str, expected: &Checksum) -> Result<Vec<u8>> {
+        let bytes = self.read_document(doc_id)?;
+        verify_expected_checksum(&bytes, expected)?;
+        Ok(bytes)
+    }
+
+    pub fn read_line_raw(&self, line_zero_based: u64) -> Result<Vec<u8>> {
+        read_line_from_entries(&self.details, line_zero_based, |entry| {
+            self.decode_entry(entry)
+        })
+    }
+
+    pub fn read_line_text(&self, line_zero_based: u64) -> Result<String> {
+        String::from_utf8(self.read_line_raw(line_zero_based)?).map_err(|_| QztError::InvalidUtf8)
+    }
+
+    pub fn verify(&self, level: VerifyLevel) -> Result<VerifyReport> {
+        match level {
+            VerifyLevel::Quick => Ok(VerifyReport {
+                level,
+                checked_chunks: self.details.summary.chunk_count,
+                decoded_bytes: 0,
+            }),
+            VerifyLevel::Normal => self.verify_normal(),
+            VerifyLevel::Deep => self.verify_deep(),
+        }
+    }
+
+    fn verify_normal(&self) -> Result<VerifyReport> {
+        for entry in &self.details.chunk_entries {
+            let compressed = self.read_physical(PhysicalRange::new(
+                entry.physical_offset,
+                entry.compressed_size,
+            ))?;
+            if Checksum::blake3(&compressed).value != entry.compressed_checksum_blake3 {
+                return Err(QztError::CompressedChunkChecksumMismatch);
+            }
+        }
+
+        if let Some(expected) = &self.details.footer_payload.container_checksum {
+            let actual = self.hash_physical_prefix(self.details.footer_payload_offset)?;
+            if actual != *expected {
+                return Err(QztError::ContainerCorrupt);
+            }
+        }
+
+        Ok(VerifyReport {
+            level: VerifyLevel::Normal,
+            checked_chunks: self.details.summary.chunk_count,
+            decoded_bytes: 0,
+        })
+    }
+
+    fn verify_deep(&self) -> Result<VerifyReport> {
+        self.verify_normal()?;
+        verify_deep_entries(&self.details, |entry| self.decode_entry(entry))
+    }
+
+    fn decode_entry(&self, entry: &ChunkEntry) -> Result<Vec<u8>> {
+        let compressed = self.read_physical(PhysicalRange::new(
+            entry.physical_offset,
+            entry.compressed_size,
+        ))?;
+        decode_compressed_entry(entry, &compressed, &self.details.dictionaries)
+    }
+
+    fn read_physical(&self, range: PhysicalRange) -> Result<Vec<u8>> {
+        let end = checked_physical_end(range.offset, range.size)?;
+        if end > self.len {
+            return Err(QztError::PhysicalRangeOutOfBounds);
+        }
+        let len = usize::try_from(range.size).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let mut bytes = vec![0_u8; len];
+        self.source
+            .read_exact_at(range.offset, &mut bytes)
+            .map_err(|error| match error.kind() {
+                std::io::ErrorKind::UnexpectedEof => QztError::UnexpectedEof,
+                _ => QztError::ContainerCorrupt,
+            })?;
+        Ok(bytes)
+    }
+
+    fn hash_physical_prefix(&self, end: u64) -> Result<Checksum> {
+        if end > self.len {
+            return Err(QztError::PhysicalRangeOutOfBounds);
+        }
+        let mut hasher = blake3::Hasher::new();
+        let mut offset = 0_u64;
+        let mut buffer = vec![0_u8; 64 * 1024];
+        while offset < end {
+            let remaining = end - offset;
+            let read_len = usize::try_from(remaining.min(buffer.len() as u64))
+                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            self.source
+                .read_exact_at(offset, &mut buffer[..read_len])
+                .map_err(|error| match error.kind() {
+                    std::io::ErrorKind::UnexpectedEof => QztError::UnexpectedEof,
+                    _ => QztError::ContainerCorrupt,
+                })?;
+            hasher.update(&buffer[..read_len]);
+            offset = offset
+                .checked_add(read_len as u64)
+                .ok_or(QztError::PhysicalRangeOutOfBounds)?;
+        }
+        Ok(Checksum {
+            algorithm: "blake3".to_owned(),
+            value: *hasher.finalize().as_bytes(),
+        })
+    }
 }
 
-impl TextAnalysis {
-    fn analyze(input: &[u8]) -> Self {
-        if input.is_empty() {
-            return Self {
-                line_starts: Vec::new(),
-                line_count: 0,
-                newline_mode: "none".to_owned(),
-            };
+impl QztFileReader<File> {
+    /// Opens a QZT file from a filesystem path.
+    pub fn open_path(path: impl AsRef<Path>) -> Result<Self> {
+        let file = File::open(path).map_err(|_| QztError::ContainerCorrupt)?;
+        let len = file
+            .metadata()
+            .map_err(|_| QztError::ContainerCorrupt)?
+            .len();
+        Self::open_read_at(file, len)
+    }
+}
+
+fn read_range_from_entries(
+    entries: &[ChunkEntry],
+    original_size: u64,
+    offset: u64,
+    length: u64,
+    mut decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
+) -> Result<Vec<u8>> {
+    let end = checked_logical_end(offset, length)?;
+    if end > original_size {
+        return Err(QztError::LogicalRangeOutOfBounds);
+    }
+    if length == 0 {
+        return Ok(Vec::new());
+    }
+
+    let mut output = Vec::new();
+    let mut index = range_start_chunk_index(entries, offset)?;
+    while let Some(entry) = entries.get(index) {
+        let chunk_end = checked_logical_end(entry.logical_offset, entry.uncompressed_size)?;
+        if entry.logical_offset >= end {
+            break;
         }
 
-        let mut line_starts = vec![0];
-        let mut lf_count = 0_u64;
-        let mut crlf_count = 0_u64;
+        let decoded = decode_entry(entry)?;
+        let copy_start = offset.max(entry.logical_offset);
+        let copy_end = end.min(chunk_end);
+        let local_start = usize::try_from(copy_start - entry.logical_offset)
+            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let local_end = usize::try_from(copy_end - entry.logical_offset)
+            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        output.extend_from_slice(&decoded[local_start..local_end]);
+        index += 1;
+    }
 
-        for index in 0..input.len() {
-            if input[index] != b'\n' {
-                continue;
-            }
+    if u64::try_from(output.len()).map_err(|_| QztError::ResourceLimitExceeded)? != length {
+        return Err(QztError::ContainerCorrupt);
+    }
 
-            if index > 0 && input[index - 1] == b'\r' {
-                crlf_count += 1;
-            } else {
-                lf_count += 1;
-            }
+    Ok(output)
+}
 
-            if index + 1 < input.len() {
-                line_starts.push(index + 1);
-            }
+fn read_line_from_entries(
+    details: &SkeletonDetails,
+    line_zero_based: u64,
+    mut decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
+) -> Result<Vec<u8>> {
+    if line_zero_based >= details.summary.line_count {
+        return Err(QztError::LineOutOfRange);
+    }
+
+    let start_index = line_start_chunk_index(&details.chunk_entries, line_zero_based)?;
+    let start_entry = details
+        .chunk_entries
+        .get(start_index)
+        .ok_or(QztError::LineOutOfRange)?;
+    let start_decoded = decode_entry(start_entry)?;
+    let local_index = usize::try_from(line_zero_based - start_entry.first_line)
+        .map_err(|_| QztError::LineOutOfRange)?;
+    let local_start = if let Some(dense) = &details.dense_line_index {
+        usize::try_from(dense.line_start_offset(start_index, local_index)?)
+            .map_err(|_| QztError::ResourceLimitExceeded)?
+    } else {
+        let starts = local_line_starts(&start_decoded, start_entry.flags);
+        starts
+            .get(local_index)
+            .copied()
+            .ok_or(QztError::LineOutOfRange)?
+    };
+
+    let mut output = Vec::new();
+    if append_until_lf(&start_decoded, local_start, &mut output) {
+        return Ok(output);
+    }
+
+    let mut current_index = start_index + 1;
+    while let Some(entry) = details.chunk_entries.get(current_index) {
+        let decoded = decode_entry(entry)?;
+        let found_end = append_until_lf(&decoded, 0, &mut output);
+        if found_end {
+            return Ok(output);
+        }
+        current_index += 1;
+    }
+
+    Ok(output)
+}
+
+fn verify_deep_entries(
+    details: &SkeletonDetails,
+    mut decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
+) -> Result<VerifyReport> {
+    let mut original_hasher = blake3::Hasher::new();
+    let mut text = StreamingTextAnalysis::new(details.summary.original_size);
+    let mut decoded_bytes = 0_u64;
+
+    for (chunk_index, entry) in details.chunk_entries.iter().enumerate() {
+        let expected_flags = if entry.logical_offset > 0 && text.previous_byte != Some(b'\n') {
+            STARTS_WITH_LINE_CONTINUATION
+        } else {
+            0
+        };
+        if entry.flags != expected_flags {
+            return Err(QztError::ChunkTableInvalid);
+        }
+        if entry.first_line != text.line_starts_seen {
+            return Err(QztError::ChunkTableInvalid);
         }
 
-        let newline_mode = match (lf_count > 0, crlf_count > 0) {
+        let decoded = decode_entry(entry)?;
+        std::str::from_utf8(&decoded).map_err(|_| QztError::InvalidUtf8)?;
+        if let Some(dense) = &details.dense_line_index {
+            dense.verify_chunk(chunk_index, &decoded, entry.flags)?;
+        }
+
+        let chunk_line_count = u64::try_from(local_line_starts(&decoded, entry.flags).len())
+            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        if entry.line_count != chunk_line_count {
+            return Err(QztError::ChunkTableInvalid);
+        }
+
+        original_hasher.update(&decoded);
+        text.update(&decoded, entry.flags)?;
+        decoded_bytes = decoded_bytes
+            .checked_add(u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+    }
+
+    if decoded_bytes != details.summary.original_size {
+        return Err(QztError::ChunkSizeMismatch);
+    }
+    let original_checksum = Checksum {
+        algorithm: "blake3".to_owned(),
+        value: *original_hasher.finalize().as_bytes(),
+    };
+    if original_checksum != details.metadata.original_checksum {
+        return Err(QztError::UncompressedChunkChecksumMismatch);
+    }
+    if text.line_starts_seen != details.metadata.line_count {
+        return Err(QztError::ContainerCorrupt);
+    }
+    if text.newline_mode() != details.metadata.newline_mode {
+        return Err(QztError::NewlineModeMismatch);
+    }
+
+    if let Some(document_index) = &details.document_index {
+        verify_document_index_ranges(
+            document_index,
+            details.metadata.line_count,
+            &details.chunk_entries,
+            |entry| decode_entry(entry),
+        )?;
+    }
+
+    Ok(VerifyReport {
+        level: VerifyLevel::Deep,
+        checked_chunks: details.summary.chunk_count,
+        decoded_bytes,
+    })
+}
+
+fn decode_compressed_entry(
+    entry: &ChunkEntry,
+    compressed: &[u8],
+    dictionaries: &[DictionaryEntry],
+) -> Result<Vec<u8>> {
+    if Checksum::blake3(compressed).value != entry.compressed_checksum_blake3 {
+        return Err(QztError::CompressedChunkChecksumMismatch);
+    }
+
+    let dictionary = if entry.dictionary_id == 0 {
+        &[][..]
+    } else {
+        dictionaries
+            .iter()
+            .find(|dictionary| dictionary.dictionary_id == entry.dictionary_id)
+            .map(|dictionary| dictionary.bytes.as_slice())
+            .ok_or(QztError::MissingDictionary)?
+    };
+    let decoder = zstd::stream::Decoder::with_dictionary(compressed, dictionary)
+        .map_err(|_| QztError::ZstdDecodeError)?;
+    let decoded = decode_with_output_limit(decoder, entry.uncompressed_size)?;
+    if u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?
+        != entry.uncompressed_size
+    {
+        return Err(QztError::ChunkSizeMismatch);
+    }
+    if Checksum::blake3(&decoded).value != entry.uncompressed_checksum_blake3 {
+        return Err(QztError::UncompressedChunkChecksumMismatch);
+    }
+    Ok(decoded)
+}
+
+fn find_document<'a>(details: &'a SkeletonDetails, doc_id: &str) -> Result<&'a DocumentEntry> {
+    details
+        .document_index
+        .as_ref()
+        .ok_or(QztError::MissingRequiredBlock)?
+        .documents
+        .iter()
+        .find(|document| document.doc_id == doc_id)
+        .ok_or(QztError::MissingRequiredBlock)
+}
+
+fn verify_expected_checksum(bytes: &[u8], expected: &Checksum) -> Result<()> {
+    if expected.algorithm != "blake3" {
+        return Err(QztError::ContainerCorrupt);
+    }
+    if Checksum::blake3(bytes) != *expected {
+        return Err(QztError::VerifiedChecksumMismatch);
+    }
+    Ok(())
+}
+
+struct StreamingTextAnalysis {
+    line_starts_seen: u64,
+    lf_count: u64,
+    crlf_count: u64,
+    previous_byte: Option<u8>,
+}
+
+impl StreamingTextAnalysis {
+    fn new(_original_size: u64) -> Self {
+        Self {
+            line_starts_seen: 0,
+            lf_count: 0,
+            crlf_count: 0,
+            previous_byte: None,
+        }
+    }
+
+    fn update(&mut self, decoded: &[u8], flags: u32) -> Result<()> {
+        let starts = local_line_starts(decoded, flags);
+        self.line_starts_seen = self
+            .line_starts_seen
+            .checked_add(u64::try_from(starts.len()).map_err(|_| QztError::ResourceLimitExceeded)?)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+
+        for byte in decoded {
+            if *byte == b'\n' {
+                if self.previous_byte == Some(b'\r') {
+                    self.crlf_count = self
+                        .crlf_count
+                        .checked_add(1)
+                        .ok_or(QztError::ResourceLimitExceeded)?;
+                } else {
+                    self.lf_count = self
+                        .lf_count
+                        .checked_add(1)
+                        .ok_or(QztError::ResourceLimitExceeded)?;
+                }
+            }
+            self.previous_byte = Some(*byte);
+        }
+
+        Ok(())
+    }
+
+    fn newline_mode(&self) -> String {
+        match (self.lf_count > 0, self.crlf_count > 0) {
             (false, false) => "none",
             (true, false) => "lf",
             (false, true) => "crlf",
             (true, true) => "mixed",
         }
-        .to_owned();
-
-        Self {
-            line_count: line_starts.len() as u64,
-            line_starts,
-            newline_mode,
-        }
+        .to_owned()
     }
-}
-
-fn lower_bound(values: &[usize], target: usize) -> usize {
-    values.partition_point(|value| *value < target)
 }
 
 fn range_start_chunk_index(entries: &[ChunkEntry], offset: u64) -> Result<usize> {
@@ -475,15 +826,20 @@ fn append_until_lf(decoded: &[u8], start: usize, output: &mut Vec<u8>) -> bool {
     false
 }
 
-fn verify_document_index(
+fn verify_document_index_ranges(
     document_index: &crate::schema::DocumentIndex,
-    original: &[u8],
     line_count: u64,
     chunk_entries: &[ChunkEntry],
+    mut decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
 ) -> Result<()> {
     for document in &document_index.documents {
         let end = checked_logical_end(document.logical_offset, document.byte_length)?;
-        if end > original.len() as u64 {
+        let original_size = chunk_entries
+            .last()
+            .map(|entry| checked_logical_end(entry.logical_offset, entry.uncompressed_size))
+            .transpose()?
+            .unwrap_or(0);
+        if end > original_size {
             return Err(QztError::LogicalRangeOutOfBounds);
         }
         let line_end = checked_logical_end(document.first_line, document.line_count)?;
@@ -498,11 +854,14 @@ fn verify_document_index(
             return Err(QztError::ContainerCorrupt);
         }
 
-        let start =
-            usize::try_from(document.logical_offset).map_err(|_| QztError::ContainerCorrupt)?;
-        let end = usize::try_from(end).map_err(|_| QztError::ContainerCorrupt)?;
-        let bytes = original.get(start..end).ok_or(QztError::ContainerCorrupt)?;
-        if Checksum::blake3(bytes) != document.checksum {
+        let bytes = read_range_from_entries(
+            chunk_entries,
+            original_size,
+            document.logical_offset,
+            document.byte_length,
+            |entry| decode_entry(entry),
+        )?;
+        if Checksum::blake3(&bytes) != document.checksum {
             return Err(QztError::ContainerCorrupt);
         }
 

@@ -116,7 +116,34 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Added deterministic competitive benchmark options/reporting using Phase23 corpus generators.
+- Compared QZT file-backed range restore with whole-file raw zstd decode.
+- Added bench-compete feature hooks for ripgrep and SQLite FTS5 hit-count correctness.
+```
+
+Verification:
+
+```text
+- cargo test --test phase18_competitive_benchmark
+- cargo test --features bench-compete --test phase18_competitive_benchmark
+- make check
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: raw-zstd range comparison asserts byte equality before reporting timings.
+- Self-review pass 2 completed: feature-gated ripgrep and SQLite FTS5 hooks skip missing tools but fail on hit-count disagreement.
+- Code review completed: benchmark output records corpus, encoded sizes, decoded bytes, timings, and search correctness counts.
+- Architecture review completed: external tools stay outside the default gate while preserving an opt-in correctness path for product validation.
+```
 
 Depends on: Phase15 (fair large-file QZT numbers require the file-backed
 reader) and Phase23a (shared C1-C6 corpus generators and acceptance thresholds).

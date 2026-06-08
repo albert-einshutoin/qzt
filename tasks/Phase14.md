@@ -119,7 +119,33 @@ and this phase plan before continuing.
 
 ## Status
 
-Pending.
+Complete.
+
+Completed on: 2026-06-08
+
+Implementation scope:
+
+```text
+- Added dual MIT/Apache-2.0 licensing, public Cargo metadata, MSRV, docs.rs metadata, CONTRIBUTING, SECURITY, CHANGELOG, and CI.
+- Kept crates.io publish disabled and documented the publish gate as a release-owner decision after public API stabilization.
+```
+
+Verification:
+
+```text
+- make check
+- RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
+- cargo package --offline --allow-dirty
+```
+
+Review notes:
+
+```text
+- Self-review pass 1 completed: package metadata, license files, and CI commands match the release-hygiene done criteria.
+- Self-review pass 2 completed: publish remains explicitly gated; online package dry-run was replaced by offline packageability because crates.io DNS is unavailable in this sandbox.
+- Code review completed: release files are additive and do not change container bytes or CLI behavior.
+- Architecture review completed: public hygiene is separated from crates.io publication and does not force a release before API stabilization.
+```
 
 Depends on: none. This is the cheapest, highest-leverage product-readiness
 phase and should land first in the Product Completeness Track.
