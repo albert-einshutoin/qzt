@@ -29,14 +29,47 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 | 12 | N-gram index, planner, and benchmark reporting | Complete | Raw n-gram candidate search | Rarest-first planner and performance reports |
 | 13 | Search sidecar and high-performance search goal MVP | Complete | `.qzi` sidecar validation | Memory-mappable high-performance search flow |
 
+## Product Completeness Track (post-v0.1)
+
+These phases raise maturity toward the spec's product goal: the Cold Evidence Container embedded by Memory Pager and AI memory systems. None change container format bytes. The track has an engine sub-track (14-19) and a consumer sub-track (20-22).
+
+Engine sub-track:
+
+| Phase | Name | State | Minimum MVP | Goal MVP |
+|---:|---|---|---|---|
+| 14 | Open-source release hygiene | Pending | LICENSE, CI running make check, package metadata | Contributor docs, MSRV matrix, doc build, packageability check; crates.io publish dry-run deferred until after Phase20 |
+| 15 | File-backed seeking reader | Pending | ReadAt trait and QztFileReader open reading only the index region | Bounded-memory range/line/export, CLI wired to file reader |
+| 16 | Streaming verification and export | Pending | Streaming verify_deep with no full-original Vec | Bounded-memory export and file-backed deep verify |
+| 17 | Streaming writer | Pending | QztFileWriter push/finish | Byte-identical to pack_bytes, bounded memory, streaming pack CLI |
+| 18 | Competitive benchmark harness | Pending | QZT vs raw-zstd range restore on a large corpus | QZT vs SQLite FTS5 and ripgrep with correctness gate |
+| 19 | Resource governance and large-input hardening | Pending | ResourceLimits-driven CBOR budget, max_search_results cap | cargo-fuzz target, large-input round-trip, documented memory bounds |
+
+Consumer sub-track:
+
+| Phase | Name | State | Minimum MVP | Goal MVP |
+|---:|---|---|---|---|
+| 20 | Public API stabilization | Pending | Internal modules pub(crate), curated surface, writer builder | missing_docs, semver/stability policy, surface snapshot test, docs.rs |
+| 21 | Verified evidence retrieval and Memory Pager integration | Pending | read_range_verified / read_document_verified, evidence_ref example | End-to-end integration test, doc_id resolution, concurrent verified reads, documented integration pattern |
+| 22 | Portable conformance vectors and format stability | Pending | Golden .qzt vectors, manifest, vector runner | Core map + corruption coverage, third-party procedure, frozen v0.1 format-stability statement |
+
+Validation (cross-cutting):
+
+| Phase | Name | State | Minimum MVP | Goal MVP |
+|---:|---|---|---|---|
+| 23 | Acceptance threshold harness | Pending | Phase23a deterministic C1-C6 corpora, HARD invariants asserted, SOFT targets recorded | Phase23b evidence invariants on C1 after Phase21; shared generators for Phase18/22 |
+
+Dependency order: 14 (independent) -> 15 (foundation). Then sub-tracks in parallel. Engine: 15 -> 16, 17 -> 18 -> 19 (18 reuses Phase23a corpora). Consumer: 20 -> 21 -> 22, where 20 depends on 14, 21 depends on 15 and 20, and 22 depends on 20, Phase23a, and the Phase9 conformance map. Validation: 23a right after 15 for corpus generators and non-evidence HARD invariants; 23b after 21 for C1 evidence invariants. Acceptance thresholds are defined in docs/QZT_v0.1_Validation_Corpus.md.
+
 ## Current Focus
 
 Phase0 through Phase13 are complete. QZT v0.1 Core is release-candidate ready, with optional Dense Line Index, Document Index, memory profile support, raw token search, raw n-gram planner support, and QZI sidecar validation complete.
 
+The Product Completeness Track (Phase14-Phase23) is now planned. The engine sub-track (14-19) closes the I/O, hygiene, and competitive-validation gaps. The consumer sub-track (20-22) makes QZT a stable, verifiable dependency an external system can embed: a curated public API, verified evidence retrieval with a proven Memory Pager integration, and portable conformance vectors with a frozen format-stability statement. Phase23 supplies the shared acceptance corpus and threshold harness.
+
 Next action:
 
 ```text
-All planned phases are complete and the first release hardening benchmark gate is in place. Next work should be driven by competitive benchmarks or explicit product scope changes.
+Start Phase14 (open-source release hygiene): independent, low-cost, unblocks public release without publishing the crate before the API is stable. Then Phase15 (file-backed seeking reader for open/range/line/export), which closes the "large text" claim. After Phase15, run Phase20 and Phase23a in parallel; Phase20 -> Phase21 delivers the product's defining verified-evidence-retrieval operation and the Memory Pager integration proof.
 ```
 
 ## Completion Tracks
@@ -48,6 +81,9 @@ All planned phases are complete and the first release hardening benchmark gate i
 | Optional Core-defined indexes | Phase10 | Complete | Dense Line Index and Document Index are optional and verified as caches over original bytes. |
 | Search Extension | Phase11-Phase13 | Complete | Transient token/ngram correctness paths, planner metrics, and QZI sidecar lookup are complete. |
 | Release Hardening | Post-Phase13 | Complete | Deterministic larger-corpus benchmark gate exists in `tests/release_hardening.rs` and `docs/QZT_v0.1_Release_Hardening.md`. |
+| Product Completeness: engine | Phase14-Phase19 | Pending | Open-source hygiene, file-backed seeking reader, streaming verify/export/writer, competitive benchmarks, and large-input resource governance. Closes the in-memory and competitive-validation gaps. |
+| Product Completeness: consumer | Phase20-Phase22 | Pending | Curated public API, verified evidence retrieval with Memory Pager integration proof, and portable conformance vectors with a frozen format-stability statement. Closes the embedded-dependency gaps so an external system can adopt QZT. |
+| Product Completeness: validation | Phase23 | Pending | Acceptance threshold harness over the C1-C6 corpora defined in docs/QZT_v0.1_Validation_Corpus.md. Makes "meets expectations" measurable via HARD invariants and SOFT target bands. |
 
 ## Verification Log
 

@@ -31,11 +31,53 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 | 12 | N-gram index, planner, benchmark reporting | Complete | Raw n-gram candidate search | rarest-first planner と performance reports |
 | 13 | Search sidecar and high-performance search goal MVP | Complete | `.qzi` sidecar validation | memory-mappable high-performance search flow |
 
+## Product Completeness Track (post-v0.1)
+
+これらの Phase は、Memory Pager や AI memory systems に embed される Cold Evidence Container という
+spec の product goal に向けて maturity を上げます。container format bytes は変更しません。この track は
+engine sub-track (14-19) と consumer sub-track (20-22) を持ちます。
+
+Engine sub-track:
+
+| Phase | 名前 | 状態 | Minimum MVP | Goal MVP |
+|---:|---|---|---|---|
+| 14 | Open-source release hygiene | Pending | LICENSE、CI running make check、package metadata | Contributor docs、MSRV matrix、doc build、packageability check。crates.io publish dry-run は Phase20 後まで defer |
+| 15 | File-backed seeking reader | Pending | ReadAt trait と、index region だけ読む QztFileReader open | Bounded-memory range/line/export、CLI file reader 接続 |
+| 16 | Streaming verification and export | Pending | full-original Vec なしの streaming verify_deep | Bounded-memory export と file-backed deep verify |
+| 17 | Streaming writer | Pending | QztFileWriter push/finish | pack_bytes と byte-identical、bounded memory、streaming pack CLI |
+| 18 | Competitive benchmark harness | Pending | large corpus で QZT vs raw-zstd range restore | QZT vs SQLite FTS5 / ripgrep、correctness gate |
+| 19 | Resource governance and large-input hardening | Pending | ResourceLimits-driven CBOR budget、max_search_results cap | cargo-fuzz target、large-input round-trip、documented memory bounds |
+
+Consumer sub-track:
+
+| Phase | 名前 | 状態 | Minimum MVP | Goal MVP |
+|---:|---|---|---|---|
+| 20 | Public API stabilization | Pending | Internal modules pub(crate)、curated surface、writer builder | missing_docs、semver/stability policy、surface snapshot test、docs.rs |
+| 21 | Verified evidence retrieval and Memory Pager integration | Pending | read_range_verified / read_document_verified、evidence_ref example | E2E integration test、doc_id resolution、concurrent verified reads、documented integration pattern |
+| 22 | Portable conformance vectors and format stability | Pending | Golden .qzt vectors、manifest、vector runner | Core map + corruption coverage、third-party procedure、frozen v0.1 format-stability statement |
+
+Validation (cross-cutting):
+
+| Phase | 名前 | 状態 | Minimum MVP | Goal MVP |
+|---:|---|---|---|---|
+| 23 | Acceptance threshold harness | Pending | Phase23a deterministic C1-C6 corpora、HARD invariants asserted、SOFT targets recorded | Phase23b evidence invariants on C1 after Phase21、shared generators for Phase18/22 |
+
+Dependency order: 14 (independent) -> 15 (foundation)。その後 sub-tracks を parallel に進めます。Engine は 15 -> 16, 17 -> 18 -> 19（18 は Phase23a corpora を再利用）。Consumer は 20 -> 21 -> 22。20 は 14 に依存し、21 は 15 と 20 に依存し、22 は 20、Phase23a、Phase9 conformance map に依存します。Validation は 15 直後に 23a で corpus generators と non-evidence HARD invariants を作り、21 後に 23b で C1 evidence invariants を追加します。Acceptance thresholds は docs/QZT_v0.1_Validation_Corpus.md で定義します。
+
 ## Current focus
 
 Phase0 から Phase13 は完了しています。QZT v0.1 Core は release candidate ready です。Dense Line Index、Document Index、memory profile、raw token search、raw n-gram planner、QZI sidecar validation も完了しています。
 
-次の作業は、競合 benchmark または明示的な product scope change によって決めるべきです。
+Product Completeness Track (Phase14-Phase23) も計画済みです。engine sub-track (14-19) は I/O、
+hygiene、competitive-validation gaps を閉じます。consumer sub-track (20-22) は QZT を外部 system が
+embed できる stable / verifiable dependency にします。Phase23 は shared acceptance corpus と threshold
+harness を提供します。
+
+Next action:
+
+```text
+Phase14 (open-source release hygiene) から開始する。independent で低コスト、API 安定前に crate を publish せずに public release を unblock する。次に Phase15 (open/range/line/export の file-backed seeking reader) を実施し、「large text」 claim を閉じる。Phase15 後は Phase20 と Phase23a を parallel に進め、Phase20 -> Phase21 で product を定義する verified-evidence-retrieval operation と Memory Pager integration proof を届ける。
+```
 
 ## Completion tracks
 
@@ -46,6 +88,9 @@ Phase0 から Phase13 は完了しています。QZT v0.1 Core は release candi
 | Optional Core-defined indexes | Complete | Dense Line Index と Document Index は optional cache として検証済み。 |
 | Search Extension | Complete | token/ngram correctness path、planner metrics、QZI sidecar lookup が完了。 |
 | Release Hardening | Complete | `tests/release_hardening.rs` と release hardening note が存在。 |
+| Product Completeness: engine | Pending | Phase14-Phase19。open-source hygiene、file-backed seeking reader、streaming verify/export/writer、competitive benchmarks、large-input resource governance。 |
+| Product Completeness: consumer | Pending | Phase20-Phase22。curated public API、Memory Pager integration proof 付き verified evidence retrieval、portable conformance vectors と frozen format-stability statement。 |
+| Product Completeness: validation | Pending | Phase23。docs/QZT_v0.1_Validation_Corpus.md の C1-C6 corpora に対する acceptance threshold harness。HARD invariants と provisional SOFT target bands で「期待値を満たす」を測定可能にする。 |
 
 ## Verification summary
 

@@ -124,3 +124,71 @@ Phase13 Search sidecar and high-performance search goal MVP
 ```
 
 Core conformance が安定するまで Search Extension 実装は開始しません。ただし design-only work は例外です。
+
+Optional indexes と extension profiles は、Phase が release target に含むと明示しない限り、Core release readiness を block してはいけません。
+
+## Product Completeness Track (post-v0.1)
+
+Phase0-Phase13 は format-complete な v0.1 reference implementation を届けます。Product Completeness
+Track は maturity を "reference implementation / technical preview" から spec の product goal、
+つまり Memory Pager や AI memory systems に embed される Cold Evidence Container へ近づけます。
+これらの Phase は process、scalability、integration work であり、container format bytes や
+`export(pack(input)) == input` invariant は変更しません。
+
+この track には 2 つの sub-track があります。engine sub-track は I/O model と hardening を
+production-credible にします。consumer sub-track は、QZT を外部 system が embed できる stable で
+verifiable な dependency にします。
+
+Engine sub-track:
+
+```text
+Phase14 Open-source release hygiene: LICENSE, CI, package metadata, contributor docs
+Phase15 File-backed seeking reader (QztFileReader): bounded-memory open/range/line/export over file paths
+Phase16 Streaming verification and export: verify_deep と export から O(file size) memory を除去
+Phase17 Streaming writer (QztFileWriter): RAM より大きい container を build、pack_bytes と byte-identical
+Phase18 Competitive benchmark harness: QZT vs raw zstd, seekable zstd, SQLite FTS5, ripgrep
+Phase19 Resource governance and large-input hardening: ResourceLimits を CBOR に配線、search result cap、fuzz 拡張
+```
+
+Consumer sub-track:
+
+```text
+Phase20 Public API stabilization: lib.rs surface curate, writer builder, missing_docs, semver/stability policy, surface snapshot test
+Phase21 Verified evidence retrieval and Memory Pager integration: read_document / read_range_verified / read_document_verified, evidence_ref example, concurrent verified reads
+Phase22 Portable conformance vectors and format stability: golden .qzt vectors, vector runner, third-party verification, frozen v0.1 format-stability statement
+```
+
+Validation (cross-cutting):
+
+```text
+Phase23 Acceptance threshold harness: deterministic C1-C6 corpora, HARD invariants asserted, SOFT targets band-checked (see docs/QZT_v0.1_Validation_Corpus.md)
+```
+
+`docs/QZT_v0.1_Validation_Corpus.md` は、QZT を何の text に対して validate し、どの result を
+expectations を満たすものと判定するかを定義します（HARD invariants と SOFT target bands）。
+Phase23a はその doc を executable にし、Phase18 と Phase22 が再利用する corpus generators を所有します。
+Phase23b は Phase21 の verified evidence API が land した後に evidence invariants を追加します。
+
+Dependency order:
+
+```text
+Phase14 -> independent, land first
+Phase15 -> foundation for Phase16, Phase17, Phase18, Phase21, Phase23a
+Phase16 -> depends on Phase15
+Phase17 -> depends on Phase15
+Phase18 -> depends on Phase15 and Phase23a (shared corpora)
+Phase19 -> depends on Phase15 and Phase17
+Phase20 -> depends on Phase14; prerequisite for Phase21 and Phase22
+Phase21 -> depends on Phase15 and Phase20; adds the base read_document API and concurrent verified reads
+Phase22 -> depends on Phase20, Phase23a, and the Phase9 conformance map
+Phase23a -> depends on Phase15; builds C1-C6 generators and HARD invariants that do not require evidence APIs
+Phase23b -> depends on Phase21; adds C1 evidence-retrieval invariants to the same harness
+```
+
+Recommended sequence: Phase14、次に Phase15。その後は sub-tracks を parallel に進めます。
+Engine は Phase16 と Phase17 をどちらの順でも進め、Phase23a corpora が存在した後に Phase18、
+その後 Phase19。Consumer は Phase20、Phase21、Phase22 の順。Validation は Phase15 の直後に
+Phase23a を実行し、Phase21 が land したら Phase23b で拡張します。
+
+これらの Phase は container format bytes を変更してはいけません。byte layout を変える必要がある変更は、
+この track ではなく新しい format version に属します。
