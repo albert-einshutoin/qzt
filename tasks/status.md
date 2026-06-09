@@ -1,6 +1,6 @@
 # QZT Task Status
 
-Last updated: 2026-06-07
+Last updated: 2026-06-08
 
 ## Current Rule
 
@@ -109,6 +109,7 @@ No pending Product Completeness phases remain. Next work should be a release-own
 | 2026-06-07 | release blocker review fixes | `cargo test --test phase5_writer --test phase9_cli_core --test phase11_search`; `make check` | Pass | Fixed multi-token token-search hit reporting, Metadata writer option serialization, CLI profile/dense wiring, CLI error detail preservation, deep verify integer conversion, O(n log n) physical range overlap validation, info metadata reporting, and hid placeholder streaming writer API |
 | 2026-06-08 | 14-23 | `cargo test --test phase17_streaming_writer`; `cargo test --test phase18_competitive_benchmark`; `cargo test --features bench-compete --test phase18_competitive_benchmark`; `cargo test --all-targets --all-features --test phase20_public_api`; `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features` | Pass | Self-review pass 1 fixed streaming-writer bounded-memory checksum hashing. Self-review pass 2 added feature-gated ripgrep/SQLite FTS5 correctness hooks, `cargo-fuzz` open+verify target, and curated API default visibility. |
 | 2026-06-08 | 14-23 | `make check`; `cargo package --offline --allow-dirty` | Pass | Full all-target/all-feature quality gate and offline packageability passed. Online `cargo package --allow-dirty` could not reach crates.io in this sandbox. |
+| 2026-06-08 | design review follow-ups | `cargo fmt --all -- --check`; `cargo clippy --all-targets --all-features -- -D warnings`; `cargo test --all-targets --all-features` | Pass | Applied design-review recommendations (DR-1..DR-6). 151 tests pass (+12). |
 
 ## Review Follow-ups
 
@@ -130,6 +131,20 @@ No pending Product Completeness phases remain. Next work should be a release-own
 | P1 required block validation | Fixed | `decode_block_descriptor` now rejects any `required=true` block whose type is not `chunk_table`. `is_known_block_type` removed. Regression tests for `token_index` required block and duplicate chunk_table added to phase8_reader_core. |
 | P2 Metadata decode indexes/integrity | Fixed | `Metadata::decode` now validates fixed boolean values for all indexes fields and verifies all integrity algorithm fields equal `"blake3"`. |
 | P0/P2 README limitations | Fixed | English README now contains a "v0.1 Technical Preview — Limitations" section covering in-memory reader, transient search, token co-occurrence semantics, normalized search, and benchmark gaps. |
+
+## Design Review Follow-ups (2026-06-08)
+
+Applied from the combined design + product review. No container format bytes change; all are read-path / verify-path / docs / test improvements behind the unchanged public API.
+
+| Item | State | Notes |
+|---|---|---|
+| DR-1 README phase plan stale | Fixed | "Phase Plan" rewritten to cover Phase0-13 + Product Completeness 14-23; stale "QztFileReader planned" limitation corrected to the real remaining gap (search loads the whole container). |
+| DR-2 `QztReader` read-path duplication | Fixed | `QztReader::read_range` / `read_line_raw` now delegate to the shared `read_range_from_entries` / `read_line_from_entries` free functions, removing ~75 lines of parallel logic that mirrored `QztFileReader`. |
+| DR-3 deep-verify document re-decode + O(documents x chunks) | Fixed | Single-pass `DocumentHasher` hashes document ranges from the chunks already decoded by deep verify (no second decode pass). `document_chunk_range` now uses two binary searches instead of an O(chunks) scan per document. Handles arbitrary caller-supplied document order/overlap; empty documents verified without decoded bytes. Unit + integration coverage added. |
+| DR-4 `read_document` O(documents) scan + unused `doc_id_hash` | Fixed | `SkeletonDetails` builds a `doc_id -> index` lookup once at open; `find_document` is now O(1) and keeps first-occurrence semantics on duplicate ids. |
+| DR-5 `find_document` error conflation | Fixed | Added `QztError::DocumentNotFound`; "no document index" (`MissingRequiredBlock`) and "id not present" (`DocumentNotFound`) are now distinct. |
+| DR-6 thin property coverage + dead param | Fixed | Added `tests/property_roundtrip.rs` (`export(pack(x)) == x`, `read_range == slice`). Removed the unused `StreamingTextAnalysis::new` parameter. |
+| DR-7 search uses in-memory reader (P-2) | Deferred | Wiring `qzt search` / sidecar to `QztFileReader` is a larger cross-module API change (`build_from_container`, `QziSidecar::open`, and `search` all take `&[u8]` / `&QztReader`). Tracked as a post-v0.1 milestone; README limitation updated to reflect current state. |
 
 ## Open Decisions
 

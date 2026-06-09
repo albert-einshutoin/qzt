@@ -146,3 +146,134 @@ fn document(fixture: DocumentFixture<'_>) -> DocumentEntry {
         checksum: Checksum::blake3(range),
     }
 }
+
+// --- Review follow-up coverage: single-pass document verification + lookup ---
+
+const TWO_LINES: &[u8] = b"aaaaaaaa\nbbbbbbbb\n"; // 18 bytes, two 9-byte lines
+
+fn two_chunk_container(documents: Vec<DocumentEntry>) -> Vec<u8> {
+    let document_index = DocumentIndex {
+        container_id: [0xc0; 16],
+        documents,
+    };
+    // target/max 9 -> two chunks [0,9) and [9,18)
+    pack_bytes_with_document_index(TWO_LINES, [0xc0; 16], options(9, 9), document_index)
+        .expect("document-index container should pack structurally")
+}
+
+#[test]
+fn document_spanning_multiple_chunks_deep_verifies() {
+    let whole = document(DocumentFixture {
+        doc_id: "whole",
+        input: TWO_LINES,
+        logical_offset: 0,
+        byte_length: 18,
+        first_line: 0,
+        line_count: 2,
+        chunk_start: 0,
+        chunk_end: 2,
+    });
+    let reader = QztReader::open(two_chunk_container(vec![whole])).expect("opens");
+    assert!(reader.verify(VerifyLevel::Deep).is_ok());
+}
+
+#[test]
+fn out_of_order_documents_deep_verify() {
+    let second = document(DocumentFixture {
+        doc_id: "doc-two",
+        input: TWO_LINES,
+        logical_offset: 9,
+        byte_length: 9,
+        first_line: 1,
+        line_count: 1,
+        chunk_start: 1,
+        chunk_end: 2,
+    });
+    let first = document(DocumentFixture {
+        doc_id: "doc-one",
+        input: TWO_LINES,
+        logical_offset: 0,
+        byte_length: 9,
+        first_line: 0,
+        line_count: 1,
+        chunk_start: 0,
+        chunk_end: 1,
+    });
+    // Listed later-range-first on purpose.
+    let reader = QztReader::open(two_chunk_container(vec![second, first])).expect("opens");
+    assert!(reader.verify(VerifyLevel::Deep).is_ok());
+}
+
+#[test]
+fn empty_document_deep_verifies_without_decoded_bytes() {
+    let empty = document(DocumentFixture {
+        doc_id: "empty",
+        input: TWO_LINES,
+        logical_offset: 9,
+        byte_length: 0,
+        first_line: 1,
+        line_count: 0,
+        chunk_start: 0,
+        chunk_end: 0,
+    });
+    let reader = QztReader::open(two_chunk_container(vec![empty])).expect("opens");
+    assert!(reader.verify(VerifyLevel::Deep).is_ok());
+}
+
+#[test]
+fn document_checksum_mismatch_is_rejected_by_deep_verify() {
+    let mut wrong = document(DocumentFixture {
+        doc_id: "whole",
+        input: TWO_LINES,
+        logical_offset: 0,
+        byte_length: 18,
+        first_line: 0,
+        line_count: 2,
+        chunk_start: 0,
+        chunk_end: 2,
+    });
+    wrong.checksum = Checksum::blake3(b"not the document bytes");
+    let reader = QztReader::open(two_chunk_container(vec![wrong])).expect("opens");
+    assert_eq!(
+        reader.verify(VerifyLevel::Deep),
+        Err(QztError::ContainerCorrupt)
+    );
+}
+
+#[test]
+fn read_document_resolves_by_id_and_reports_missing() {
+    let first = document(DocumentFixture {
+        doc_id: "doc-one",
+        input: TWO_LINES,
+        logical_offset: 0,
+        byte_length: 9,
+        first_line: 0,
+        line_count: 1,
+        chunk_start: 0,
+        chunk_end: 1,
+    });
+    let second = document(DocumentFixture {
+        doc_id: "doc-two",
+        input: TWO_LINES,
+        logical_offset: 9,
+        byte_length: 9,
+        first_line: 1,
+        line_count: 1,
+        chunk_start: 1,
+        chunk_end: 2,
+    });
+    let reader = QztReader::open(two_chunk_container(vec![first, second])).expect("opens");
+
+    assert_eq!(
+        reader.read_document("doc-one").expect("doc-one"),
+        b"aaaaaaaa\n"
+    );
+    assert_eq!(
+        reader.read_document("doc-two").expect("doc-two"),
+        b"bbbbbbbb\n"
+    );
+    assert_eq!(
+        reader.read_document("missing"),
+        Err(QztError::DocumentNotFound)
+    );
+}

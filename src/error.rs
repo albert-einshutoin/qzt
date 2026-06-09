@@ -20,6 +20,7 @@ pub enum QztError {
     IndexRootChecksumMismatch,
     MissingRequiredBlock,
     UnknownRequiredBlock,
+    DocumentNotFound,
     InvalidFlags,
     ChunkTableChecksumMismatch,
     ChunkTableInvalid,

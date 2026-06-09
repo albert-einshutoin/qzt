@@ -26,9 +26,10 @@ When publishing QZT externally, it should be positioned as a
 QZT v0.1 is a reference implementation focused on spec coverage and correctness.
 Known limitations before production use:
 
-- **In-memory reader**: `QztReader` holds the entire container in memory.
-  A file-backed seeking reader (`QztFileReader<R: Read + Seek>`) is planned
-  before production use.  Large-file support is a post-v0.1 milestone.
+- **Search loads the whole container**: `export`, `range`, `line`, and `verify`
+  use the bounded-memory `QztFileReader`, but `qzt search` still reads the entire
+  container (and sidecar) into memory via `QztReader`. Wiring search to the
+  file-backed seeking reader is a post-v0.1 milestone.
 - **Transient search index**: `qzt search` without `--sidecar` rebuilds the
   search index on every invocation by reading and decompressing the whole
   container.  For repeated searches, use `qzt sidecar-rebuild` once and then
@@ -79,9 +80,18 @@ qzt search output.qzt "error" --sidecar output.qzt.qzi
 
 ## Phase Plan
 
-Implementation proceeds from [tasks/Phase0.md](tasks/Phase0.md) through
-[tasks/Phase13.md](tasks/Phase13.md). Japanese versions are available as
-`*.ja.md` files in the same directory.
+Implementation proceeded in two tracks, all phases complete:
 
-Progress is tracked in [tasks/status.md](tasks/status.md) and
-[tasks/status.ja.md](tasks/status.ja.md).
+- **v0.1 Core (Phase 0–13)**: deterministic CBOR, fixed structures, UTF-8
+  chunker, no-dictionary zstd writer, reader open/info/export, verify levels,
+  sparse/dense line index, document index, dictionaries, resource limits, and
+  the transient search extension with QZI sidecar.
+- **Product Completeness (Phase 14–23)**: open-source hygiene, file-backed
+  seeking reader (`QztFileReader`), streaming verify/export/writer, competitive
+  benchmarks, resource governance, a curated public API, verified evidence
+  retrieval, and portable conformance vectors with a frozen format-stability
+  statement.
+
+Phase docs live in [tasks/](tasks/); Japanese versions are available as
+`*.ja.md` files in the same directory. Current progress is tracked in
+[tasks/status.md](tasks/status.md) and [tasks/status.ja.md](tasks/status.ja.md).

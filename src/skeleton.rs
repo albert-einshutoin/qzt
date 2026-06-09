@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::cbor::{validate_deterministic_with_limits, CborLimits};
 use crate::chunk_table::{validate_chunk_table_block, ChunkEntry};
 use crate::dense_line_index::DenseLineIndex;
@@ -32,6 +34,22 @@ pub struct SkeletonDetails {
     pub dictionaries: Vec<DictionaryEntry>,
     pub dense_line_index: Option<DenseLineIndex>,
     pub document_index: Option<DocumentIndex>,
+    /// `doc_id` -> position in `document_index.documents`, built once at open so
+    /// repeated document lookups avoid an O(documents) linear scan. Keeps the
+    /// first occurrence when duplicate `doc_id`s are present.
+    pub document_lookup: HashMap<String, usize>,
+}
+
+/// Builds the `doc_id` lookup table for an optional document index.
+fn build_document_lookup(document_index: Option<&DocumentIndex>) -> HashMap<String, usize> {
+    let Some(document_index) = document_index else {
+        return HashMap::new();
+    };
+    let mut lookup = HashMap::with_capacity(document_index.documents.len());
+    for (index, document) in document_index.documents.iter().enumerate() {
+        lookup.entry(document.doc_id.clone()).or_insert(index);
+    }
+    lookup
 }
 
 /// Writes an empty, structurally valid QZT Core container skeleton.
@@ -246,6 +264,7 @@ pub fn open_skeleton_details_with_limits(
         footer_payload_offset: trailer.footer_payload_offset,
         dictionaries,
         dense_line_index,
+        document_lookup: build_document_lookup(document_index.as_ref()),
         document_index,
     })
 }
@@ -397,6 +416,7 @@ pub fn open_skeleton_details_read_at<R: ReadAt>(
         footer_payload_offset: trailer.footer_payload_offset,
         dictionaries,
         dense_line_index,
+        document_lookup: build_document_lookup(document_index.as_ref()),
         document_index,
     })
 }

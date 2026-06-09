@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::Path;
@@ -93,38 +94,13 @@ impl QztReader {
     }
 
     pub fn read_range(&self, offset: u64, length: u64) -> Result<Vec<u8>> {
-        let end = checked_logical_end(offset, length)?;
-        if end > self.details.summary.original_size {
-            return Err(QztError::LogicalRangeOutOfBounds);
-        }
-        if length == 0 {
-            return Ok(Vec::new());
-        }
-
-        let mut output = Vec::new();
-        let mut index = range_start_chunk_index(&self.details.chunk_entries, offset)?;
-        while let Some(entry) = self.details.chunk_entries.get(index) {
-            let chunk_end = checked_logical_end(entry.logical_offset, entry.uncompressed_size)?;
-            if entry.logical_offset >= end {
-                break;
-            }
-
-            let decoded = self.decode_entry(entry)?;
-            let copy_start = offset.max(entry.logical_offset);
-            let copy_end = end.min(chunk_end);
-            let local_start = usize::try_from(copy_start - entry.logical_offset)
-                .map_err(|_| QztError::ResourceLimitExceeded)?;
-            let local_end = usize::try_from(copy_end - entry.logical_offset)
-                .map_err(|_| QztError::ResourceLimitExceeded)?;
-            output.extend_from_slice(&decoded[local_start..local_end]);
-            index += 1;
-        }
-
-        if u64::try_from(output.len()).map_err(|_| QztError::ResourceLimitExceeded)? != length {
-            return Err(QztError::ContainerCorrupt);
-        }
-
-        Ok(output)
+        read_range_from_entries(
+            &self.details.chunk_entries,
+            self.details.summary.original_size,
+            offset,
+            length,
+            |entry| self.decode_entry(entry),
+        )
     }
 
     pub fn read_text_range(&self, offset: u64, length: u64) -> Result<String> {
@@ -155,47 +131,9 @@ impl QztReader {
     }
 
     pub fn read_line_raw(&self, line_zero_based: u64) -> Result<Vec<u8>> {
-        if line_zero_based >= self.details.summary.line_count {
-            return Err(QztError::LineOutOfRange);
-        }
-
-        let start_index = line_start_chunk_index(&self.details.chunk_entries, line_zero_based)?;
-
-        let start_entry = self
-            .details
-            .chunk_entries
-            .get(start_index)
-            .ok_or(QztError::LineOutOfRange)?;
-        let start_decoded = self.decode_entry(start_entry)?;
-        let local_index = usize::try_from(line_zero_based - start_entry.first_line)
-            .map_err(|_| QztError::LineOutOfRange)?;
-        let local_start = if let Some(dense) = &self.details.dense_line_index {
-            usize::try_from(dense.line_start_offset(start_index, local_index)?)
-                .map_err(|_| QztError::ResourceLimitExceeded)?
-        } else {
-            let starts = local_line_starts(&start_decoded, start_entry.flags);
-            starts
-                .get(local_index)
-                .copied()
-                .ok_or(QztError::LineOutOfRange)?
-        };
-
-        let mut output = Vec::new();
-        if append_until_lf(&start_decoded, local_start, &mut output) {
-            return Ok(output);
-        }
-
-        let mut current_index = start_index + 1;
-        while let Some(entry) = self.details.chunk_entries.get(current_index) {
-            let decoded = self.decode_entry(entry)?;
-            let found_end = append_until_lf(&decoded, 0, &mut output);
-            if found_end {
-                return Ok(output);
-            }
-            current_index += 1;
-        }
-
-        Ok(output)
+        read_line_from_entries(&self.details, line_zero_based, |entry| {
+            self.decode_entry(entry)
+        })
     }
 
     pub fn read_line_text(&self, line_zero_based: u64) -> Result<String> {
@@ -563,7 +501,8 @@ fn verify_deep_entries(
     mut decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
 ) -> Result<VerifyReport> {
     let mut original_hasher = blake3::Hasher::new();
-    let mut text = StreamingTextAnalysis::new(details.summary.original_size);
+    let mut text = StreamingTextAnalysis::new();
+    let mut document_hasher = details.document_index.as_ref().map(DocumentHasher::new);
     let mut decoded_bytes = 0_u64;
 
     for (chunk_index, entry) in details.chunk_entries.iter().enumerate() {
@@ -593,6 +532,9 @@ fn verify_deep_entries(
 
         original_hasher.update(&decoded);
         text.update(&decoded, entry.flags)?;
+        if let Some(hasher) = document_hasher.as_mut() {
+            hasher.feed(entry.logical_offset, &decoded)?;
+        }
         decoded_bytes = decoded_bytes
             .checked_add(u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?)
             .ok_or(QztError::ResourceLimitExceeded)?;
@@ -616,11 +558,15 @@ fn verify_deep_entries(
     }
 
     if let Some(document_index) = &details.document_index {
+        let document_hashes = document_hasher
+            .map(DocumentHasher::finish)
+            .unwrap_or_default();
         verify_document_index_ranges(
             document_index,
+            details.summary.original_size,
             details.metadata.line_count,
             &details.chunk_entries,
-            |entry| decode_entry(entry),
+            &document_hashes,
         )?;
     }
 
@@ -664,14 +610,18 @@ fn decode_compressed_entry(
 }
 
 fn find_document<'a>(details: &'a SkeletonDetails, doc_id: &str) -> Result<&'a DocumentEntry> {
-    details
+    let document_index = details
         .document_index
         .as_ref()
-        .ok_or(QztError::MissingRequiredBlock)?
+        .ok_or(QztError::MissingRequiredBlock)?;
+    let index = *details
+        .document_lookup
+        .get(doc_id)
+        .ok_or(QztError::DocumentNotFound)?;
+    document_index
         .documents
-        .iter()
-        .find(|document| document.doc_id == doc_id)
-        .ok_or(QztError::MissingRequiredBlock)
+        .get(index)
+        .ok_or(QztError::DocumentNotFound)
 }
 
 fn verify_expected_checksum(bytes: &[u8], expected: &Checksum) -> Result<()> {
@@ -692,7 +642,7 @@ struct StreamingTextAnalysis {
 }
 
 impl StreamingTextAnalysis {
-    fn new(_original_size: u64) -> Self {
+    fn new() -> Self {
         Self {
             line_starts_seen: 0,
             lf_count: 0,
@@ -828,17 +778,13 @@ fn append_until_lf(decoded: &[u8], start: usize, output: &mut Vec<u8>) -> bool {
 
 fn verify_document_index_ranges(
     document_index: &crate::schema::DocumentIndex,
+    original_size: u64,
     line_count: u64,
     chunk_entries: &[ChunkEntry],
-    mut decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
+    document_hashes: &HashMap<usize, [u8; 32]>,
 ) -> Result<()> {
-    for document in &document_index.documents {
+    for (index, document) in document_index.documents.iter().enumerate() {
         let end = checked_logical_end(document.logical_offset, document.byte_length)?;
-        let original_size = chunk_entries
-            .last()
-            .map(|entry| checked_logical_end(entry.logical_offset, entry.uncompressed_size))
-            .transpose()?
-            .unwrap_or(0);
         if end > original_size {
             return Err(QztError::LogicalRangeOutOfBounds);
         }
@@ -854,14 +800,21 @@ fn verify_document_index_ranges(
             return Err(QztError::ContainerCorrupt);
         }
 
-        let bytes = read_range_from_entries(
-            chunk_entries,
-            original_size,
-            document.logical_offset,
-            document.byte_length,
-            |entry| decode_entry(entry),
-        )?;
-        if Checksum::blake3(&bytes) != document.checksum {
+        // Non-empty documents are hashed in a single pass during the deep-verify
+        // chunk loop; empty documents need no decoded bytes.
+        let actual = if document.byte_length == 0 {
+            Checksum::blake3(&[])
+        } else {
+            let value = document_hashes
+                .get(&index)
+                .copied()
+                .ok_or(QztError::ContainerCorrupt)?;
+            Checksum {
+                algorithm: "blake3".to_owned(),
+                value,
+            }
+        };
+        if actual != document.checksum {
             return Err(QztError::ContainerCorrupt);
         }
 
@@ -875,33 +828,234 @@ fn verify_document_index_ranges(
     Ok(())
 }
 
+/// Chunk span `[chunk_start, chunk_end)` covering a logical document range.
+///
+/// Chunks are contiguous and ordered by logical offset, so the bounds are found
+/// with two binary searches instead of an O(chunks) scan per document.
 fn document_chunk_range(
     chunk_entries: &[ChunkEntry],
     offset: u64,
     length: u64,
 ) -> Result<(u64, u64)> {
-    let end = checked_logical_end(offset, length)?;
     if length == 0 {
         return Ok((0, 0));
     }
+    let end = checked_logical_end(offset, length)?;
 
-    let mut first = None;
-    let mut last_exclusive = None;
-    for entry in chunk_entries {
-        let chunk_end = checked_logical_end(entry.logical_offset, entry.uncompressed_size)?;
-        if chunk_end > offset && entry.logical_offset < end {
-            first.get_or_insert(entry.chunk_id);
-            last_exclusive = Some(
-                entry
-                    .chunk_id
-                    .checked_add(1)
-                    .ok_or(QztError::ChunkTableInvalid)?,
-            );
+    let first_index = range_start_chunk_index(chunk_entries, offset)?;
+    let last_index = range_start_chunk_index(chunk_entries, end - 1)?;
+    let first = chunk_entries
+        .get(first_index)
+        .ok_or(QztError::ChunkTableInvalid)?
+        .chunk_id;
+    let last = chunk_entries
+        .get(last_index)
+        .ok_or(QztError::ChunkTableInvalid)?
+        .chunk_id;
+    let last_exclusive = last.checked_add(1).ok_or(QztError::ChunkTableInvalid)?;
+    Ok((first, last_exclusive))
+}
+
+/// Single-pass BLAKE3 hasher for document ranges, fed decoded chunks in logical
+/// order during deep verify so document checksums never trigger a re-decode.
+///
+/// Documents are caller-supplied and may appear in any order or overlap, so the
+/// non-empty entries are sorted by logical offset and activated as the covering
+/// chunks arrive. Empty documents are verified separately without decoded bytes.
+struct DocumentHasher {
+    pending: Vec<PendingDocument>,
+    next: usize,
+    active: Vec<ActiveDocument>,
+    results: HashMap<usize, [u8; 32]>,
+}
+
+struct PendingDocument {
+    index: usize,
+    start: u64,
+    end: u64,
+}
+
+struct ActiveDocument {
+    index: usize,
+    start: u64,
+    end: u64,
+    hasher: blake3::Hasher,
+}
+
+impl DocumentHasher {
+    fn new(document_index: &crate::schema::DocumentIndex) -> Self {
+        let mut pending: Vec<PendingDocument> = document_index
+            .documents
+            .iter()
+            .enumerate()
+            .filter(|(_, document)| document.byte_length > 0)
+            .map(|(index, document)| PendingDocument {
+                index,
+                start: document.logical_offset,
+                end: document.logical_offset.saturating_add(document.byte_length),
+            })
+            .collect();
+        pending.sort_by(|a, b| a.start.cmp(&b.start).then(a.index.cmp(&b.index)));
+        Self {
+            pending,
+            next: 0,
+            active: Vec::new(),
+            results: HashMap::new(),
         }
     }
 
-    match (first, last_exclusive) {
-        (Some(first), Some(last_exclusive)) => Ok((first, last_exclusive)),
-        _ => Err(QztError::ChunkTableInvalid),
+    fn feed(&mut self, chunk_offset: u64, decoded: &[u8]) -> Result<()> {
+        let chunk_len =
+            u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let chunk_end = chunk_offset
+            .checked_add(chunk_len)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+
+        while let Some(pending) = self.pending.get(self.next) {
+            if pending.start >= chunk_end {
+                break;
+            }
+            self.active.push(ActiveDocument {
+                index: pending.index,
+                start: pending.start,
+                end: pending.end,
+                hasher: blake3::Hasher::new(),
+            });
+            self.next += 1;
+        }
+
+        let mut still_active = Vec::with_capacity(self.active.len());
+        for mut document in self.active.drain(..) {
+            let lower = chunk_offset.max(document.start);
+            let upper = chunk_end.min(document.end);
+            if lower < upper {
+                let local_start = usize::try_from(lower - chunk_offset)
+                    .map_err(|_| QztError::ResourceLimitExceeded)?;
+                let local_end = usize::try_from(upper - chunk_offset)
+                    .map_err(|_| QztError::ResourceLimitExceeded)?;
+                let slice = decoded
+                    .get(local_start..local_end)
+                    .ok_or(QztError::ContainerCorrupt)?;
+                document.hasher.update(slice);
+            }
+            if document.end <= chunk_end {
+                self.results
+                    .insert(document.index, *document.hasher.finalize().as_bytes());
+            } else {
+                still_active.push(document);
+            }
+        }
+        self.active = still_active;
+
+        Ok(())
+    }
+
+    fn finish(self) -> HashMap<usize, [u8; 32]> {
+        self.results
+    }
+}
+
+#[cfg(test)]
+mod document_hasher_tests {
+    use super::*;
+    use crate::schema::{Checksum, DocumentEntry, DocumentIndex};
+
+    fn entry(doc_id: &str, data: &[u8], offset: u64, length: u64) -> DocumentEntry {
+        let start = offset as usize;
+        let end = start + length as usize;
+        let mut doc_id_hash = [0_u8; 16];
+        doc_id_hash.copy_from_slice(&blake3::hash(doc_id.as_bytes()).as_bytes()[..16]);
+        DocumentEntry {
+            doc_id: doc_id.to_owned(),
+            doc_id_hash,
+            logical_offset: offset,
+            byte_length: length,
+            first_line: 0,
+            line_count: 0,
+            chunk_start: 0,
+            chunk_end: 0,
+            checksum: Checksum::blake3(&data[start..end]),
+        }
+    }
+
+    fn feed_in_chunks(
+        index: &DocumentIndex,
+        data: &[u8],
+        chunk: usize,
+    ) -> HashMap<usize, [u8; 32]> {
+        let mut hasher = DocumentHasher::new(index);
+        let mut offset = 0_usize;
+        while offset < data.len() {
+            let end = (offset + chunk).min(data.len());
+            hasher
+                .feed(offset as u64, &data[offset..end])
+                .expect("feed should succeed");
+            offset = end;
+        }
+        hasher.finish()
+    }
+
+    fn expected(data: &[u8], offset: u64, length: u64) -> [u8; 32] {
+        *blake3::hash(&data[offset as usize..(offset + length) as usize]).as_bytes()
+    }
+
+    #[test]
+    fn hashes_document_contained_in_a_single_chunk() {
+        let data = b"hello world!!!!!";
+        let index = DocumentIndex {
+            container_id: [0; 16],
+            documents: vec![entry("a", data, 6, 5)],
+        };
+        let results = feed_in_chunks(&index, data, 16);
+        assert_eq!(results.get(&0).copied(), Some(expected(data, 6, 5)));
+    }
+
+    #[test]
+    fn hashes_document_spanning_multiple_chunks() {
+        let data = b"abcdefghijklmnopqrstuvwxyz0123456789";
+        let index = DocumentIndex {
+            container_id: [0; 16],
+            documents: vec![entry("a", data, 2, 30)],
+        };
+        // Feed in 4-byte chunks so the document crosses several boundaries.
+        let results = feed_in_chunks(&index, data, 4);
+        assert_eq!(results.get(&0).copied(), Some(expected(data, 2, 30)));
+    }
+
+    #[test]
+    fn hashes_out_of_order_documents_by_their_original_index() {
+        let data = b"abcdefghijklmnopqrstuvwxyz012345";
+        // Listed with the later range first; results must key by document index.
+        let index = DocumentIndex {
+            container_id: [0; 16],
+            documents: vec![entry("late", data, 20, 12), entry("early", data, 0, 8)],
+        };
+        let results = feed_in_chunks(&index, data, 5);
+        assert_eq!(results.get(&0).copied(), Some(expected(data, 20, 12)));
+        assert_eq!(results.get(&1).copied(), Some(expected(data, 0, 8)));
+    }
+
+    #[test]
+    fn hashes_overlapping_documents_independently() {
+        let data = b"abcdefghijklmnop";
+        let index = DocumentIndex {
+            container_id: [0; 16],
+            documents: vec![entry("wide", data, 0, 16), entry("inner", data, 4, 6)],
+        };
+        let results = feed_in_chunks(&index, data, 3);
+        assert_eq!(results.get(&0).copied(), Some(expected(data, 0, 16)));
+        assert_eq!(results.get(&1).copied(), Some(expected(data, 4, 6)));
+    }
+
+    #[test]
+    fn empty_documents_are_excluded_from_results() {
+        let data = b"abcdefgh";
+        let index = DocumentIndex {
+            container_id: [0; 16],
+            documents: vec![entry("empty", data, 4, 0), entry("real", data, 0, 4)],
+        };
+        let results = feed_in_chunks(&index, data, 8);
+        assert!(!results.contains_key(&0));
+        assert_eq!(results.get(&1).copied(), Some(expected(data, 0, 4)));
     }
 }
