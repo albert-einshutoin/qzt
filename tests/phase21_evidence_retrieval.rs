@@ -109,21 +109,16 @@ struct DocFixture<'a> {
 }
 
 fn document(fixture: DocFixture<'_>) -> DocumentEntry {
-    let hash = blake3::hash(fixture.doc_id.as_bytes());
-    let mut doc_id_hash = [0_u8; 16];
-    doc_id_hash.copy_from_slice(&hash.as_bytes()[..16]);
     let start = fixture.logical_offset as usize;
     let end = start + fixture.byte_length as usize;
-
-    DocumentEntry {
-        doc_id: fixture.doc_id.to_owned(),
-        doc_id_hash,
-        logical_offset: fixture.logical_offset,
-        byte_length: fixture.byte_length,
-        first_line: fixture.first_line,
-        line_count: fixture.line_count,
-        chunk_start: fixture.chunk_start,
-        chunk_end: fixture.chunk_end,
-        checksum: Checksum::blake3(&fixture.input[start..end]),
-    }
+    DocumentEntry::new(
+        fixture.doc_id,
+        fixture.logical_offset,
+        fixture.byte_length,
+        fixture.first_line,
+        fixture.line_count,
+        fixture.chunk_start,
+        fixture.chunk_end,
+        Checksum::blake3(&fixture.input[start..end]),
+    )
 }

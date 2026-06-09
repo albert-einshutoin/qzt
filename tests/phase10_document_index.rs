@@ -130,21 +130,16 @@ fn document(fixture: DocumentFixture<'_>) -> DocumentEntry {
         .unwrap_or(start)
         .min(fixture.input.len());
     let range = fixture.input.get(start..end).unwrap_or(&[]);
-    let hash = blake3::hash(fixture.doc_id.as_bytes());
-    let mut doc_id_hash = [0_u8; 16];
-    doc_id_hash.copy_from_slice(&hash.as_bytes()[..16]);
-
-    DocumentEntry {
-        doc_id: fixture.doc_id.to_owned(),
-        doc_id_hash,
-        logical_offset: fixture.logical_offset,
-        byte_length: fixture.byte_length,
-        first_line: fixture.first_line,
-        line_count: fixture.line_count,
-        chunk_start: fixture.chunk_start,
-        chunk_end: fixture.chunk_end,
-        checksum: Checksum::blake3(range),
-    }
+    DocumentEntry::new(
+        fixture.doc_id,
+        fixture.logical_offset,
+        fixture.byte_length,
+        fixture.first_line,
+        fixture.line_count,
+        fixture.chunk_start,
+        fixture.chunk_end,
+        Checksum::blake3(range),
+    )
 }
 
 // --- Review follow-up coverage: single-pass document verification + lookup ---

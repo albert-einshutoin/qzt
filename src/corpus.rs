@@ -2,6 +2,7 @@ use crate::error::{QztError, Result};
 
 /// Validation corpus class from `docs/QZT_v0.1_Validation_Corpus.md`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[non_exhaustive]
 pub enum CorpusKind {
     /// C1 conversation transcripts.
     C1Conversation,

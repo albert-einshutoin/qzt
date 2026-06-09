@@ -39,6 +39,7 @@ pub struct QztInfo {
 
 /// Verification level.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum VerifyLevel {
     Quick,
     Normal,
@@ -963,19 +964,16 @@ mod document_hasher_tests {
     fn entry(doc_id: &str, data: &[u8], offset: u64, length: u64) -> DocumentEntry {
         let start = offset as usize;
         let end = start + length as usize;
-        let mut doc_id_hash = [0_u8; 16];
-        doc_id_hash.copy_from_slice(&blake3::hash(doc_id.as_bytes()).as_bytes()[..16]);
-        DocumentEntry {
-            doc_id: doc_id.to_owned(),
-            doc_id_hash,
-            logical_offset: offset,
-            byte_length: length,
-            first_line: 0,
-            line_count: 0,
-            chunk_start: 0,
-            chunk_end: 0,
-            checksum: Checksum::blake3(&data[start..end]),
-        }
+        DocumentEntry::new(
+            doc_id,
+            offset,
+            length,
+            0,
+            0,
+            0,
+            0,
+            Checksum::blake3(&data[start..end]),
+        )
     }
 
     fn feed_in_chunks(

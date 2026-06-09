@@ -731,6 +731,40 @@ pub struct DocumentEntry {
     pub checksum: Checksum,
 }
 
+impl DocumentEntry {
+    /// Constructs a `DocumentEntry`, computing `doc_id_hash` automatically from `doc_id`.
+    ///
+    /// Callers do not need to depend on blake3 directly; the hash is always derived correctly
+    /// from the provided id.
+    #[must_use]
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        doc_id: impl Into<String>,
+        logical_offset: u64,
+        byte_length: u64,
+        first_line: u64,
+        line_count: u64,
+        chunk_start: u64,
+        chunk_end: u64,
+        checksum: Checksum,
+    ) -> Self {
+        let doc_id = doc_id.into();
+        let mut doc_id_hash = [0_u8; 16];
+        doc_id_hash.copy_from_slice(&blake3::hash(doc_id.as_bytes()).as_bytes()[..16]);
+        Self {
+            doc_id,
+            doc_id_hash,
+            logical_offset,
+            byte_length,
+            first_line,
+            line_count,
+            chunk_start,
+            chunk_end,
+            checksum,
+        }
+    }
+}
+
 /// Index Root logical model.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IndexRoot {

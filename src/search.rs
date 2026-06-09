@@ -9,6 +9,7 @@ use crate::skeleton::open_skeleton_details;
 
 /// Search index source text model.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum SearchIndexSource {
     RawUtf8,
     NormalizedUtf8,

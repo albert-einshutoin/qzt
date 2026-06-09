@@ -2,7 +2,7 @@
 
 [English](status.md)
 
-最終更新: 2026-06-07
+最終更新: 2026-06-08
 
 ## 現在のルール
 
@@ -96,6 +96,8 @@ Next action:
 
 すべての Phase は `make check` または targeted tests で検証されています。2026-06-08 の Phase14-Phase23 完了時点では、`make check`、`RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features`、`cargo package --offline --allow-dirty` が通っています。通常の `cargo package --allow-dirty` は sandbox から crates.io に到達できず失敗しました。
 
+design review follow-ups (DR-1..DR-6) 適用後: `cargo fmt --all -- --check`、`cargo clippy --all-targets --all-features -- -D warnings`、`cargo test --all-targets --all-features` が通っています。151 テスト通過（+12）。
+
 Phase14-Phase23 のセルフレビューでは以下を修正済みです。
 
 ```text
@@ -145,6 +147,20 @@ Deferred:
 - CBOR limits wiring
 - post-v0.1 cleanup: technical-preview API の missing_docs warning を全 item docs に落とし込む
 ```
+
+## Design Review Follow-ups (2026-06-08)
+
+combined design + product review から適用しました。コンテナ format bytes の変更なし。すべて変更されていない public API の背後にある read-path / verify-path / docs / test の改善です。
+
+| Item | 状態 | Notes |
+|---|---|---|
+| DR-1 README phase plan 陳腐化 | Fixed | "Phase Plan" を Phase0-13 + Product Completeness 14-23 をカバーする内容に書き直し。陳腐化していた "QztFileReader planned" 制限を、実際に残っているギャップ（search がコンテナ全体を読み込む）に修正。日本語 README も同期済み。 |
+| DR-2 `QztReader` read-path 重複 | Fixed | `QztReader::read_range` / `read_line_raw` を shared free functions へ委譲し、`QztFileReader` と平行する ~75 行の重複ロジックを削除。 |
+| DR-3 deep-verify document 再デコード + O(documents × chunks) | Fixed | `DocumentHasher` を追加し、deep verify の chunk loop で既にデコード済みの chunk からドキュメント範囲をワンパスでハッシュ（再デコードなし）。`document_chunk_range` は二分探索 2 回に切り替え。任意の順序・重複ドキュメントに対応。空ドキュメントはデコード不要。ユニット + 統合テスト追加。 |
+| DR-4 `read_document` O(documents) scan + 未使用 `doc_id_hash` | Fixed | `SkeletonDetails` が open 時に `doc_id -> index` の HashMap を一度構築。`find_document` が O(1) になり、重複 id では先着優先を維持。 |
+| DR-5 `find_document` エラー混在 | Fixed | `QztError::DocumentNotFound` を追加。「document index なし」（`MissingRequiredBlock`）と「id 未登録」（`DocumentNotFound`）が区別可能に。 |
+| DR-6 プロパティカバレッジ薄さ + 不使用パラメータ | Fixed | `tests/property_roundtrip.rs` を追加（`export(pack(x)) == x`、`read_range == slice`）。未使用の `StreamingTextAnalysis::new` パラメータを削除。 |
+| DR-7 search でメモリ読み込みリーダー使用 (P-2) | Deferred | `qzt search` / sidecar を `QztFileReader` へ接続するには `build_from_container`、`QziSidecar::open`、`search` が `&[u8]` / `&QztReader` を受け取る larger cross-module API 変更が必要。post-v0.1 milestone として追跡。README 制限事項を現状に合わせて更新済み。 |
 
 ## Open decisions
 

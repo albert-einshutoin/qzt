@@ -83,9 +83,6 @@ struct DocumentFixture<'a> {
 }
 
 fn document(fixture: DocumentFixture<'_>) -> DocumentEntry {
-    let hash = blake3::hash(fixture.doc_id.as_bytes());
-    let mut doc_id_hash = [0_u8; 16];
-    doc_id_hash.copy_from_slice(&hash.as_bytes()[..16]);
     let fallback_end = usize::try_from(fixture.logical_offset)
         .ok()
         .and_then(|start| start.checked_add(usize::try_from(fixture.byte_length).ok()?))
@@ -97,20 +94,19 @@ fn document(fixture: DocumentFixture<'_>) -> DocumentEntry {
                 ..fallback_end.min(fixture.input.len()),
         )
         .unwrap_or(&[]);
-
-    DocumentEntry {
-        doc_id: fixture.doc_id.to_owned(),
-        doc_id_hash,
-        logical_offset: fixture.logical_offset,
-        byte_length: fixture.byte_length,
-        first_line: fixture.first_line,
-        line_count: fixture.line_count,
-        chunk_start: fixture.chunk_start,
-        chunk_end: fixture.chunk_end,
-        checksum: if fixture.checksum_bytes == b"actual" {
-            Checksum::blake3(range)
-        } else {
-            Checksum::blake3(fixture.checksum_bytes)
-        },
-    }
+    let checksum = if fixture.checksum_bytes == b"actual" {
+        Checksum::blake3(range)
+    } else {
+        Checksum::blake3(fixture.checksum_bytes)
+    };
+    DocumentEntry::new(
+        fixture.doc_id,
+        fixture.logical_offset,
+        fixture.byte_length,
+        fixture.first_line,
+        fixture.line_count,
+        fixture.chunk_start,
+        fixture.chunk_end,
+        checksum,
+    )
 }

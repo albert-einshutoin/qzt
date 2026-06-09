@@ -26,18 +26,14 @@ fn main() -> qzt::Result<()> {
 }
 
 fn document(doc_id: &str, input: &[u8]) -> DocumentEntry {
-    let hash = blake3::hash(doc_id.as_bytes());
-    let mut doc_id_hash = [0_u8; 16];
-    doc_id_hash.copy_from_slice(&hash.as_bytes()[..16]);
-    DocumentEntry {
-        doc_id: doc_id.to_owned(),
-        doc_id_hash,
-        logical_offset: 0,
-        byte_length: input.len() as u64,
-        first_line: 0,
-        line_count: 1,
-        chunk_start: 0,
-        chunk_end: 1,
-        checksum: Checksum::blake3(input),
-    }
+    DocumentEntry::new(
+        doc_id,
+        0,
+        input.len() as u64,
+        0,
+        1,
+        0,
+        1,
+        Checksum::blake3(input),
+    )
 }

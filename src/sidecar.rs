@@ -14,6 +14,7 @@ const HEADER_LEN: usize = 16;
 
 /// Search sidecar index kind.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum SidecarIndexKind {
     Token,
     Ngram { n: usize },
