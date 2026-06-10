@@ -30,8 +30,28 @@ Container format for UTF-8 text.
   the index `n`) and `query_has_no_indexable_tokens` (token query with no
   ASCII-alphanumeric tokens). The CLI prints the reason and a stderr warning
   instead of returning a confident empty result.
+- `QziFileSidecar`: file-backed sidecar reader with lazy lookup. Opening loads
+  only the manifest and term dictionary and stream-verifies section checksums;
+  posting lists and candidate granule records are fetched per query, so search
+  memory scales with the candidate set instead of the sidecar size.
+- `RawTokenIndex::build_from_file` / `RawNgramIndex::build_from_file` /
+  `build_search_sidecar_from_file`: index construction over `QztFileReader`
+  that decodes one chunk at a time (sidecar output is byte-identical to the
+  in-memory builder).
+- `RawTokenIndex::search_file` / `RawNgramIndex::search_file`: hit
+  verification over a file-backed container that decodes only candidate
+  chunks.
 
 ### Changed
+
+- `qzt search`, `qzt info`, and `qzt sidecar-rebuild` now run on the
+  bounded-memory `QztFileReader` instead of loading the whole container (and
+  sidecar) into memory. On a 42 MB / 400K-line corpus with an n-gram sidecar,
+  a rare sidecar query dropped from 518 MB to 9.8 MB max RSS (1.33 s to
+  0.04 s) and an 80K-hit dense query from 532 MB to 36 MB (1.11 s to 0.17 s).
+  Index builds still hold the posting map in memory.
+- The search index builder streams chunk-by-chunk and finds chunk spans by
+  binary search, removing the O(lines x chunks) granule scan.
 
 - Search hit verification reuses a single-chunk decode cache, so hit-dense
   queries decode each candidate chunk once instead of once per candidate

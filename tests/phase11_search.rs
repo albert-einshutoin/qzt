@@ -324,3 +324,47 @@ fn dense_query_amortizes_physical_chunk_decodes() {
     // exceed the original size.
     assert!(report.metrics.physical_decoded_bytes <= reader.info().original_size);
 }
+
+#[test]
+fn token_build_and_search_from_file_match_in_memory_paths() {
+    let mut input = String::new();
+    for index in 0..32 {
+        input.push_str(&format!("alpha beta line {index}\n"));
+    }
+    input.push_str("needle alpha\n");
+    let container = pack_bytes_with_container_id(input.as_bytes(), [0xc9; 16], options(64, 64))
+        .expect("container should pack");
+
+    let memory_index =
+        RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
+            .expect("in-memory build should work");
+    let file_reader =
+        qzt::reader::QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
+            .expect("file reader should open");
+    let file_index =
+        RawTokenIndex::build_from_file(&file_reader, TokenIndexBuildOptions::default())
+            .expect("file build should work");
+    assert_eq!(memory_index, file_index);
+
+    let memory_reader = QztReader::open(&container).expect("reader should open");
+    for query in ["needle", "alpha beta", "absent"] {
+        let memory = memory_index
+            .search(&memory_reader, query, SearchOptions::default())
+            .expect("in-memory search should run");
+        let file = memory_index
+            .search_file(&file_reader, query, SearchOptions::default())
+            .expect("file search should run");
+        assert_eq!(memory.hits, file.hits, "query {query:?}");
+        assert_eq!(memory.metrics.decoded_bytes, file.metrics.decoded_bytes);
+        assert_eq!(
+            memory.metrics.physical_decoded_bytes,
+            file.metrics.physical_decoded_bytes
+        );
+        assert_eq!(
+            memory.metrics.verified_matches,
+            file.metrics.verified_matches
+        );
+        assert_eq!(memory.capped, file.capped);
+        assert_eq!(memory.incomplete_reason, file.incomplete_reason);
+    }
+}

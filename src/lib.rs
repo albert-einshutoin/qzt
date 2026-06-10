@@ -118,7 +118,10 @@ pub use search::{
     NgramIndexBuildOptions, RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions,
     TokenIndexBuildOptions,
 };
-pub use sidecar::{build_search_sidecar, QziSidecar, SidecarIndexKind};
+pub use sidecar::{
+    build_search_sidecar, build_search_sidecar_from_file, QziFileSidecar, QziSidecar,
+    SidecarIndexKind,
+};
 #[doc(hidden)]
 pub use skeleton::open_skeleton_details;
 pub use writer::{

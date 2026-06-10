@@ -3,9 +3,9 @@ use std::time::Instant;
 
 use crate::chunk_table::ChunkEntry;
 use crate::error::{QztError, Result};
+use crate::io::ReadAt;
 use crate::primitives::checked_logical_end;
-use crate::reader::{ChunkDecodeCache, QztReader};
-use crate::skeleton::open_skeleton_details;
+use crate::reader::{ChunkDecodeCache, QztFileReader, QztReader};
 
 /// Search index source text model.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -113,7 +113,7 @@ pub struct PlannerDecision {
 }
 
 impl PlannerDecision {
-    fn new(required_keys: Vec<Vec<u8>>) -> Self {
+    pub(crate) fn new(required_keys: Vec<Vec<u8>>) -> Self {
         Self {
             required_keys,
             selected_keys: Vec::new(),
@@ -227,19 +227,35 @@ pub struct RawTokenIndex {
 
 impl RawTokenIndex {
     pub fn build_from_container(bytes: &[u8], options: TokenIndexBuildOptions) -> Result<Self> {
+        let len = u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let reader = QztFileReader::open_read_at(bytes, len)?;
+        Self::build_from_file(&reader, options)
+    }
+
+    /// Builds the index by decoding the container one chunk at a time, so the
+    /// full original text is never held in memory.
+    pub fn build_from_file<R: ReadAt>(
+        reader: &QztFileReader<R>,
+        options: TokenIndexBuildOptions,
+    ) -> Result<Self> {
         if options.source == SearchIndexSource::NormalizedUtf8 {
             return Err(QztError::NotImplemented("normalized_utf8 token index"));
         }
 
-        let details = open_skeleton_details(bytes)?;
-        let reader = QztReader::open(bytes)?;
-        let original = reader.export_all()?;
-        std::str::from_utf8(&original).map_err(|_| QztError::InvalidUtf8)?;
-
-        let granules = match options.posting_granularity {
-            PostingGranularity::Line => build_line_granules(&original, &details.chunk_entries)?,
+        let details = reader.skeleton_details();
+        let (granules, terms, postings) = match options.posting_granularity {
+            PostingGranularity::Line => build_line_index_streaming(
+                &details.chunk_entries,
+                details.summary.original_size,
+                |entry| reader.decode_entry(entry),
+                |line| {
+                    Ok(tokenize_ascii_lower(line)
+                        .into_iter()
+                        .map(|token| token.key)
+                        .collect())
+                },
+            )?,
         };
-        let (terms, postings) = build_term_dictionary(&original, &granules)?;
         Self::from_parts(
             details.summary.container_id,
             details.summary.original_size,
@@ -300,6 +316,29 @@ impl RawTokenIndex {
         reader: &QztReader,
         query: &str,
         options: SearchOptions,
+    ) -> Result<SearchReport> {
+        self.search_impl(query, options, &mut |offset, length, cache| {
+            reader.read_range_cached(offset, length, cache)
+        })
+    }
+
+    /// Search over a file-backed container, decoding only candidate chunks.
+    pub fn search_file<R: ReadAt>(
+        &self,
+        reader: &QztFileReader<R>,
+        query: &str,
+        options: SearchOptions,
+    ) -> Result<SearchReport> {
+        self.search_impl(query, options, &mut |offset, length, cache| {
+            reader.read_range_cached(offset, length, cache)
+        })
+    }
+
+    fn search_impl(
+        &self,
+        query: &str,
+        options: SearchOptions,
+        read_range_cached: RangeReadFn<'_>,
     ) -> Result<SearchReport> {
         let started = Instant::now();
         let query_keys = unique_query_keys(query.as_bytes());
@@ -374,67 +413,30 @@ impl RawTokenIndex {
             });
         }
 
-        let mut hits = Vec::new();
-        let mut capped = false;
-        let mut cache = ChunkDecodeCache::new();
-        for granule_id in candidates {
-            let granule_index =
-                usize::try_from(granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
-            let granule = self
-                .granules
-                .get(granule_index)
-                .ok_or(QztError::ContainerCorrupt)?;
-            let next_decoded = metrics
-                .decoded_bytes
-                .checked_add(granule.byte_length)
-                .ok_or(QztError::ResourceLimitExceeded)?;
-            if next_decoded > options.max_decoded_bytes {
-                capped = true;
-                break;
-            }
+        let verification = verify_candidates(
+            &candidates,
+            &mut |granule_id| {
+                let granule_index =
+                    usize::try_from(granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
+                self.granules
+                    .get(granule_index)
+                    .cloned()
+                    .ok_or(QztError::ContainerCorrupt)
+            },
+            read_range_cached,
+            &mut |decoded| verified_spans(decoded, &query_keys),
+            options,
+        )?;
 
-            let decoded = reader.read_range_cached(
-                granule.logical_offset,
-                granule.byte_length,
-                &mut cache,
-            )?;
-            metrics.decoded_bytes = next_decoded;
-            for span in verified_spans(&decoded, &query_keys) {
-                let span_offset =
-                    u64::try_from(span.start).map_err(|_| QztError::ResourceLimitExceeded)?;
-                let span_len = u64::try_from(span.end - span.start)
-                    .map_err(|_| QztError::ResourceLimitExceeded)?;
-                hits.push(SearchHit {
-                    logical_offset: granule
-                        .logical_offset
-                        .checked_add(span_offset)
-                        .ok_or(QztError::LogicalRangeOutOfBounds)?,
-                    byte_length: span_len,
-                    chunk_start: granule.chunk_start,
-                    chunk_end: granule.chunk_end,
-                    score: None,
-                    source: "verified_original_bytes",
-                });
-                if u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?
-                    >= options.max_search_results
-                {
-                    capped = true;
-                    break;
-                }
-            }
-            if capped {
-                break;
-            }
-        }
-
-        metrics.physical_decoded_bytes = cache.physical_decoded_bytes();
+        metrics.decoded_bytes = verification.decoded_bytes;
+        metrics.physical_decoded_bytes = verification.physical_decoded_bytes;
         metrics.verified_matches =
-            u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+            u64::try_from(verification.hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
         metrics.query_time_ms = elapsed_ms(started);
         Ok(SearchReport {
-            hits,
+            hits: verification.hits,
             metrics,
-            capped,
+            capped: verification.capped,
             planner,
             incomplete_reason: None,
         })
@@ -509,6 +511,17 @@ pub struct RawNgramIndex {
 
 impl RawNgramIndex {
     pub fn build_from_container(bytes: &[u8], options: NgramIndexBuildOptions) -> Result<Self> {
+        let len = u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let reader = QztFileReader::open_read_at(bytes, len)?;
+        Self::build_from_file(&reader, options)
+    }
+
+    /// Builds the index by decoding the container one chunk at a time, so the
+    /// full original text is never held in memory.
+    pub fn build_from_file<R: ReadAt>(
+        reader: &QztFileReader<R>,
+        options: NgramIndexBuildOptions,
+    ) -> Result<Self> {
         if options.source == SearchIndexSource::NormalizedUtf8 {
             return Err(QztError::NotImplemented("normalized_utf8 ngram index"));
         }
@@ -516,15 +529,18 @@ impl RawNgramIndex {
             return Err(QztError::ResourceLimitExceeded);
         }
 
-        let details = open_skeleton_details(bytes)?;
-        let reader = QztReader::open(bytes)?;
-        let original = reader.export_all()?;
-        std::str::from_utf8(&original).map_err(|_| QztError::InvalidUtf8)?;
-
-        let granules = match options.posting_granularity {
-            PostingGranularity::Line => build_line_granules(&original, &details.chunk_entries)?,
+        let details = reader.skeleton_details();
+        let (granules, terms, postings) = match options.posting_granularity {
+            PostingGranularity::Line => build_line_index_streaming(
+                &details.chunk_entries,
+                details.summary.original_size,
+                |entry| reader.decode_entry(entry),
+                |line| {
+                    let text = std::str::from_utf8(line).map_err(|_| QztError::InvalidUtf8)?;
+                    Ok(ngram_keys(text, options.n))
+                },
+            )?,
         };
-        let (terms, postings) = build_ngram_dictionary(&original, &granules, options.n)?;
         Self::from_parts(
             details.summary.container_id,
             details.summary.original_size,
@@ -608,6 +624,29 @@ impl RawNgramIndex {
         reader: &QztReader,
         query: &str,
         options: SearchOptions,
+    ) -> Result<SearchReport> {
+        self.search_impl(query, options, &mut |offset, length, cache| {
+            reader.read_range_cached(offset, length, cache)
+        })
+    }
+
+    /// Search over a file-backed container, decoding only candidate chunks.
+    pub fn search_file<R: ReadAt>(
+        &self,
+        reader: &QztFileReader<R>,
+        query: &str,
+        options: SearchOptions,
+    ) -> Result<SearchReport> {
+        self.search_impl(query, options, &mut |offset, length, cache| {
+            reader.read_range_cached(offset, length, cache)
+        })
+    }
+
+    fn search_impl(
+        &self,
+        query: &str,
+        options: SearchOptions,
+        read_range_cached: RangeReadFn<'_>,
     ) -> Result<SearchReport> {
         let started = Instant::now();
         let query_keys = ngram_keys_for_query(query, self.declaration.n)?;
@@ -702,67 +741,30 @@ impl RawNgramIndex {
             });
         }
 
-        let mut hits = Vec::new();
-        let mut capped = false;
-        let mut cache = ChunkDecodeCache::new();
-        for granule_id in candidates {
-            let granule_index =
-                usize::try_from(granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
-            let granule = self
-                .granules
-                .get(granule_index)
-                .ok_or(QztError::ContainerCorrupt)?;
-            let next_decoded = metrics
-                .decoded_bytes
-                .checked_add(granule.byte_length)
-                .ok_or(QztError::ResourceLimitExceeded)?;
-            if next_decoded > options.max_decoded_bytes {
-                capped = true;
-                break;
-            }
+        let verification = verify_candidates(
+            &candidates,
+            &mut |granule_id| {
+                let granule_index =
+                    usize::try_from(granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
+                self.granules
+                    .get(granule_index)
+                    .cloned()
+                    .ok_or(QztError::ContainerCorrupt)
+            },
+            read_range_cached,
+            &mut |decoded| substring_spans(decoded, query.as_bytes()),
+            options,
+        )?;
 
-            let decoded = reader.read_range_cached(
-                granule.logical_offset,
-                granule.byte_length,
-                &mut cache,
-            )?;
-            metrics.decoded_bytes = next_decoded;
-            for span in substring_spans(&decoded, query.as_bytes()) {
-                let span_offset =
-                    u64::try_from(span.start).map_err(|_| QztError::ResourceLimitExceeded)?;
-                let span_len = u64::try_from(span.end - span.start)
-                    .map_err(|_| QztError::ResourceLimitExceeded)?;
-                hits.push(SearchHit {
-                    logical_offset: granule
-                        .logical_offset
-                        .checked_add(span_offset)
-                        .ok_or(QztError::LogicalRangeOutOfBounds)?,
-                    byte_length: span_len,
-                    chunk_start: granule.chunk_start,
-                    chunk_end: granule.chunk_end,
-                    score: None,
-                    source: "verified_original_bytes",
-                });
-                if u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?
-                    >= options.max_search_results
-                {
-                    capped = true;
-                    break;
-                }
-            }
-            if capped {
-                break;
-            }
-        }
-
-        metrics.physical_decoded_bytes = cache.physical_decoded_bytes();
+        metrics.decoded_bytes = verification.decoded_bytes;
+        metrics.physical_decoded_bytes = verification.physical_decoded_bytes;
         metrics.verified_matches =
-            u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+            u64::try_from(verification.hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
         metrics.query_time_ms = elapsed_ms(started);
         Ok(SearchReport {
-            hits,
+            hits: verification.hits,
             metrics,
-            capped,
+            capped: verification.capped,
             planner,
             incomplete_reason: None,
         })
@@ -881,50 +883,73 @@ pub fn decode_delta_varint_u64(bytes: &[u8]) -> Result<Vec<u64>> {
     Ok(values)
 }
 
-fn build_line_granules(input: &[u8], chunk_entries: &[ChunkEntry]) -> Result<Vec<SearchGranule>> {
-    let starts = line_starts(input);
-    let mut granules = Vec::with_capacity(starts.len());
-    for (line_index, start) in starts.iter().enumerate() {
-        let end = starts.get(line_index + 1).copied().unwrap_or(input.len());
-        let logical_offset = u64::try_from(*start).map_err(|_| QztError::ResourceLimitExceeded)?;
-        let byte_length =
-            u64::try_from(end - start).map_err(|_| QztError::ResourceLimitExceeded)?;
-        let (chunk_start, chunk_end) = chunk_range_for(chunk_entries, logical_offset, byte_length)?;
-        granules.push(SearchGranule {
-            granule_id: u64::try_from(line_index).map_err(|_| QztError::ResourceLimitExceeded)?,
-            logical_offset,
-            byte_length,
-            chunk_start,
-            chunk_end,
-            first_line: Some(
-                u64::try_from(line_index).map_err(|_| QztError::ResourceLimitExceeded)?,
-            ),
-            line_count: Some(1),
-        });
-    }
-    Ok(granules)
-}
+/// Granules, sorted term dictionary, and per-term posting lists.
+type LineIndexParts = (Vec<SearchGranule>, Vec<TermDictionaryEntry>, Vec<Vec<u64>>);
 
-fn build_term_dictionary(
-    input: &[u8],
-    granules: &[SearchGranule],
-) -> Result<(Vec<TermDictionaryEntry>, Vec<Vec<u64>>)> {
+/// Builds line granules and a sorted term dictionary in one pass over the
+/// container chunks. Only one decoded chunk plus the trailing incomplete line
+/// is held at a time; the posting map still grows with vocabulary.
+fn build_line_index_streaming(
+    entries: &[ChunkEntry],
+    original_size: u64,
+    mut decode: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
+    mut keys_for_line: impl FnMut(&[u8]) -> Result<Vec<Vec<u8>>>,
+) -> Result<LineIndexParts> {
     let mut postings_by_key: BTreeMap<Vec<u8>, BTreeSet<u64>> = BTreeMap::new();
-    for granule in granules {
-        let start =
-            usize::try_from(granule.logical_offset).map_err(|_| QztError::ResourceLimitExceeded)?;
-        let end = usize::try_from(checked_logical_end(
-            granule.logical_offset,
-            granule.byte_length,
-        )?)
-        .map_err(|_| QztError::ResourceLimitExceeded)?;
-        let bytes = input.get(start..end).ok_or(QztError::ContainerCorrupt)?;
-        for token in tokenize_ascii_lower(bytes) {
-            postings_by_key
-                .entry(token.key)
-                .or_default()
-                .insert(granule.granule_id);
+    let mut granules: Vec<SearchGranule> = Vec::new();
+    let mut carry: Vec<u8> = Vec::new();
+    let mut line_start = 0_u64;
+
+    for entry in entries {
+        let decoded = decode(entry)?;
+        // Chunk boundaries are UTF-8 safe, so validating per chunk is
+        // equivalent to validating the whole original text.
+        std::str::from_utf8(&decoded).map_err(|_| QztError::InvalidUtf8)?;
+
+        let mut consumed = 0_usize;
+        for (index, byte) in decoded.iter().enumerate() {
+            if *byte != b'\n' {
+                continue;
+            }
+            let line_end = checked_logical_end(
+                entry.logical_offset,
+                u64::try_from(index + 1).map_err(|_| QztError::ResourceLimitExceeded)?,
+            )?;
+            let line_bytes: &[u8] = if carry.is_empty() {
+                &decoded[consumed..=index]
+            } else {
+                carry.extend_from_slice(&decoded[consumed..=index]);
+                &carry
+            };
+            emit_line_granule(
+                entries,
+                line_start,
+                line_end,
+                line_bytes,
+                &mut granules,
+                &mut postings_by_key,
+                &mut keys_for_line,
+            )?;
+            carry.clear();
+            consumed = index + 1;
+            line_start = line_end;
         }
+        if consumed < decoded.len() {
+            carry.extend_from_slice(&decoded[consumed..]);
+        }
+    }
+
+    if !carry.is_empty() {
+        let line_bytes = std::mem::take(&mut carry);
+        emit_line_granule(
+            entries,
+            line_start,
+            original_size,
+            &line_bytes,
+            &mut granules,
+            &mut postings_by_key,
+            &mut keys_for_line,
+        )?;
     }
 
     let mut terms = Vec::with_capacity(postings_by_key.len());
@@ -943,50 +968,69 @@ fn build_term_dictionary(
         });
         postings.push(posting_set.into_iter().collect());
     }
-    Ok((terms, postings))
+    Ok((granules, terms, postings))
 }
 
-fn build_ngram_dictionary(
-    input: &[u8],
-    granules: &[SearchGranule],
-    n: usize,
-) -> Result<(Vec<TermDictionaryEntry>, Vec<Vec<u64>>)> {
-    let mut postings_by_key: BTreeMap<Vec<u8>, BTreeSet<u64>> = BTreeMap::new();
-    for granule in granules {
-        let start =
-            usize::try_from(granule.logical_offset).map_err(|_| QztError::ResourceLimitExceeded)?;
-        let end = usize::try_from(checked_logical_end(
-            granule.logical_offset,
-            granule.byte_length,
-        )?)
-        .map_err(|_| QztError::ResourceLimitExceeded)?;
-        let bytes = input.get(start..end).ok_or(QztError::ContainerCorrupt)?;
-        let text = std::str::from_utf8(bytes).map_err(|_| QztError::InvalidUtf8)?;
-        for key in ngram_keys(text, n) {
-            postings_by_key
-                .entry(key)
-                .or_default()
-                .insert(granule.granule_id);
+fn emit_line_granule(
+    entries: &[ChunkEntry],
+    line_start: u64,
+    line_end: u64,
+    line_bytes: &[u8],
+    granules: &mut Vec<SearchGranule>,
+    postings_by_key: &mut BTreeMap<Vec<u8>, BTreeSet<u64>>,
+    keys_for_line: &mut impl FnMut(&[u8]) -> Result<Vec<Vec<u8>>>,
+) -> Result<()> {
+    let granule_id = u64::try_from(granules.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let byte_length = line_end
+        .checked_sub(line_start)
+        .ok_or(QztError::LogicalRangeOutOfBounds)?;
+    let (chunk_start, chunk_end) = chunk_span_for_range(entries, line_start, line_end)?;
+    granules.push(SearchGranule {
+        granule_id,
+        logical_offset: line_start,
+        byte_length,
+        chunk_start,
+        chunk_end,
+        first_line: Some(granule_id),
+        line_count: Some(1),
+    });
+    for key in keys_for_line(line_bytes)? {
+        postings_by_key.entry(key).or_default().insert(granule_id);
+    }
+    Ok(())
+}
+
+/// Chunk-id span `[chunk_start, chunk_end)` covering a non-empty logical
+/// range, found with two binary searches over the contiguous chunk table.
+fn chunk_span_for_range(entries: &[ChunkEntry], start: u64, end: u64) -> Result<(u64, u64)> {
+    let first_index = chunk_index_for_offset(entries, start)?;
+    let last_index = chunk_index_for_offset(entries, end.saturating_sub(1))?;
+    let first = entries
+        .get(first_index)
+        .ok_or(QztError::ChunkTableInvalid)?
+        .chunk_id;
+    let last = entries
+        .get(last_index)
+        .ok_or(QztError::ChunkTableInvalid)?
+        .chunk_id;
+    let last_exclusive = last.checked_add(1).ok_or(QztError::ChunkTableInvalid)?;
+    Ok((first, last_exclusive))
+}
+
+fn chunk_index_for_offset(entries: &[ChunkEntry], offset: u64) -> Result<usize> {
+    let mut low = 0_usize;
+    let mut high = entries.len();
+    while low < high {
+        let mid = low + (high - low) / 2;
+        let chunk_end =
+            checked_logical_end(entries[mid].logical_offset, entries[mid].uncompressed_size)?;
+        if chunk_end <= offset {
+            low = mid + 1;
+        } else {
+            high = mid;
         }
     }
-
-    let mut terms = Vec::with_capacity(postings_by_key.len());
-    let mut postings = Vec::with_capacity(postings_by_key.len());
-    for (key, posting_set) in postings_by_key {
-        terms.push(TermDictionaryEntry {
-            key: key.clone(),
-            key_hash: key_hash(&key),
-            document_frequency: 0,
-            granule_frequency: 0,
-            posting_offset: 0,
-            posting_size: 0,
-            skip_offset: 0,
-            skip_size: 0,
-            flags: 0,
-        });
-        postings.push(posting_set.into_iter().collect());
-    }
-    Ok((terms, postings))
+    Ok(low)
 }
 
 fn build_skip_points(posting_list: &[u64]) -> Result<Vec<SkipPoint>> {
@@ -1077,29 +1121,77 @@ fn validate_term_dictionary_shape(
     Ok(())
 }
 
-fn chunk_range_for(chunk_entries: &[ChunkEntry], offset: u64, length: u64) -> Result<(u64, u64)> {
-    if length == 0 {
-        return Ok((0, 0));
-    }
-    let end = checked_logical_end(offset, length)?;
-    let mut first = None;
-    let mut last_exclusive = None;
-    for entry in chunk_entries {
-        let chunk_end = checked_logical_end(entry.logical_offset, entry.uncompressed_size)?;
-        if chunk_end > offset && entry.logical_offset < end {
-            first.get_or_insert(entry.chunk_id);
-            last_exclusive = Some(
-                entry
-                    .chunk_id
-                    .checked_add(1)
-                    .ok_or(QztError::ChunkTableInvalid)?,
-            );
+/// Shared signature for cached range reads used during hit verification.
+pub(crate) type RangeReadFn<'a> =
+    &'a mut dyn FnMut(u64, u64, &mut ChunkDecodeCache) -> Result<Vec<u8>>;
+
+/// Outcome of verifying candidate granules against original bytes.
+pub(crate) struct CandidateVerification {
+    pub(crate) hits: Vec<SearchHit>,
+    pub(crate) capped: bool,
+    pub(crate) decoded_bytes: u64,
+    pub(crate) physical_decoded_bytes: u64,
+}
+
+/// Decodes each candidate granule (chunk decode cache shared across the loop)
+/// and confirms matches against original bytes. Shared by the in-memory
+/// indexes and the file-backed sidecar search.
+pub(crate) fn verify_candidates(
+    candidates: &[u64],
+    granule_at: &mut dyn FnMut(u64) -> Result<SearchGranule>,
+    read_range_cached: RangeReadFn<'_>,
+    spans_for: &mut dyn FnMut(&[u8]) -> Vec<TokenSpan>,
+    options: SearchOptions,
+) -> Result<CandidateVerification> {
+    let mut hits = Vec::new();
+    let mut capped = false;
+    let mut decoded_bytes = 0_u64;
+    let mut cache = ChunkDecodeCache::new();
+    for granule_id in candidates {
+        let granule = granule_at(*granule_id)?;
+        let next_decoded = decoded_bytes
+            .checked_add(granule.byte_length)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        if next_decoded > options.max_decoded_bytes {
+            capped = true;
+            break;
+        }
+
+        let decoded = read_range_cached(granule.logical_offset, granule.byte_length, &mut cache)?;
+        decoded_bytes = next_decoded;
+        for span in spans_for(&decoded) {
+            let span_offset =
+                u64::try_from(span.start).map_err(|_| QztError::ResourceLimitExceeded)?;
+            let span_len = u64::try_from(span.end - span.start)
+                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            hits.push(SearchHit {
+                logical_offset: granule
+                    .logical_offset
+                    .checked_add(span_offset)
+                    .ok_or(QztError::LogicalRangeOutOfBounds)?,
+                byte_length: span_len,
+                chunk_start: granule.chunk_start,
+                chunk_end: granule.chunk_end,
+                score: None,
+                source: "verified_original_bytes",
+            });
+            if u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?
+                >= options.max_search_results
+            {
+                capped = true;
+                break;
+            }
+        }
+        if capped {
+            break;
         }
     }
-    match (first, last_exclusive) {
-        (Some(first), Some(last_exclusive)) => Ok((first, last_exclusive)),
-        _ => Err(QztError::ChunkTableInvalid),
-    }
+    Ok(CandidateVerification {
+        hits,
+        capped,
+        decoded_bytes,
+        physical_decoded_bytes: cache.physical_decoded_bytes(),
+    })
 }
 
 fn count_candidate_chunks(granules: &[SearchGranule], candidates: &[u64]) -> Result<u64> {
@@ -1117,7 +1209,7 @@ fn count_candidate_chunks(granules: &[SearchGranule], candidates: &[u64]) -> Res
     u64::try_from(chunks.len()).map_err(|_| QztError::ResourceLimitExceeded)
 }
 
-fn intersect_postings(posting_lists: &[&[u64]]) -> Vec<u64> {
+pub(crate) fn intersect_postings(posting_lists: &[&[u64]]) -> Vec<u64> {
     let Some(first) = posting_lists.first() else {
         return Vec::new();
     };
@@ -1149,7 +1241,7 @@ fn intersect_two_sorted(left: &[u64], right: &[u64]) -> Vec<u64> {
     output
 }
 
-fn verified_spans(bytes: &[u8], query_keys: &[Vec<u8>]) -> Vec<TokenSpan> {
+pub(crate) fn verified_spans(bytes: &[u8], query_keys: &[Vec<u8>]) -> Vec<TokenSpan> {
     let tokens = tokenize_ascii_lower(bytes);
     if query_keys
         .iter()
@@ -1164,7 +1256,7 @@ fn verified_spans(bytes: &[u8], query_keys: &[Vec<u8>]) -> Vec<TokenSpan> {
     }
 }
 
-fn substring_spans(bytes: &[u8], query: &[u8]) -> Vec<TokenSpan> {
+pub(crate) fn substring_spans(bytes: &[u8], query: &[u8]) -> Vec<TokenSpan> {
     if query.is_empty() || query.len() > bytes.len() {
         return Vec::new();
     }
@@ -1183,7 +1275,7 @@ fn substring_spans(bytes: &[u8], query: &[u8]) -> Vec<TokenSpan> {
     spans
 }
 
-fn unique_query_keys(query: &[u8]) -> Vec<Vec<u8>> {
+pub(crate) fn unique_query_keys(query: &[u8]) -> Vec<Vec<u8>> {
     let mut keys = tokenize_ascii_lower(query)
         .into_iter()
         .map(|token| token.key)
@@ -1193,7 +1285,7 @@ fn unique_query_keys(query: &[u8]) -> Vec<Vec<u8>> {
     keys
 }
 
-fn ngram_keys_for_query(query: &str, n: usize) -> Result<Vec<Vec<u8>>> {
+pub(crate) fn ngram_keys_for_query(query: &str, n: usize) -> Result<Vec<Vec<u8>>> {
     if n == 0 {
         return Err(QztError::ResourceLimitExceeded);
     }
@@ -1249,24 +1341,11 @@ fn tokenize_ascii_lower(bytes: &[u8]) -> Vec<TokenSpan> {
     tokens
 }
 
-fn line_starts(input: &[u8]) -> Vec<usize> {
-    if input.is_empty() {
-        return Vec::new();
-    }
-    let mut starts = vec![0];
-    for index in 0..input.len() {
-        if input[index] == b'\n' && index + 1 < input.len() {
-            starts.push(index + 1);
-        }
-    }
-    starts
-}
-
 fn is_token_byte(byte: u8) -> bool {
     byte.is_ascii_alphanumeric() || byte == b'_' || byte == b'-'
 }
 
-fn key_hash(key: &[u8]) -> [u8; 16] {
+pub(crate) fn key_hash(key: &[u8]) -> [u8; 16] {
     let hash = blake3::hash(key);
     let mut output = [0_u8; 16];
     output.copy_from_slice(&hash.as_bytes()[..16]);
@@ -1309,13 +1388,13 @@ fn read_varuint(bytes: &[u8], cursor: &mut usize) -> Result<u64> {
     }
 }
 
-fn elapsed_ms(started: Instant) -> f64 {
+pub(crate) fn elapsed_ms(started: Instant) -> f64 {
     started.elapsed().as_secs_f64() * 1_000.0
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct TokenSpan {
-    key: Vec<u8>,
-    start: usize,
-    end: usize,
+pub(crate) struct TokenSpan {
+    pub(crate) key: Vec<u8>,
+    pub(crate) start: usize,
+    pub(crate) end: usize,
 }

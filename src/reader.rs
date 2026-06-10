@@ -6,6 +6,7 @@ use std::path::Path;
 use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
 use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
+use crate::format::FOOTER_TRAILER_LEN;
 use crate::io::ReadAt;
 use crate::limits::ResourceLimits;
 use crate::primitives::{checked_logical_end, checked_physical_end};
@@ -363,7 +364,44 @@ impl<R: ReadAt> QztFileReader<R> {
         verify_deep_entries(&self.details, |entry| self.decode_entry(entry))
     }
 
-    fn decode_entry(&self, entry: &ChunkEntry) -> Result<Vec<u8>> {
+    /// Range read that reuses `cache` across calls so consecutive reads in the
+    /// same chunk decode it only once. Used by search hit verification.
+    pub(crate) fn read_range_cached(
+        &self,
+        offset: u64,
+        length: u64,
+        cache: &mut ChunkDecodeCache,
+    ) -> Result<Vec<u8>> {
+        read_range_from_entries_cached(
+            &self.details.chunk_entries,
+            self.details.summary.original_size,
+            offset,
+            length,
+            cache,
+            |entry| self.decode_entry(entry),
+        )
+    }
+
+    /// Parsed structural details (metadata, chunk table, indexes).
+    ///
+    /// Exposed for the CLI and search wiring; not part of the documented
+    /// stable surface.
+    #[doc(hidden)]
+    pub fn skeleton_details(&self) -> &SkeletonDetails {
+        &self.details
+    }
+
+    /// BLAKE3 checksum of the footer payload region, streamed with a bounded
+    /// buffer. Used to bind search sidecars to this exact container.
+    pub(crate) fn footer_checksum(&self) -> Result<Checksum> {
+        let end = self
+            .len
+            .checked_sub(FOOTER_TRAILER_LEN as u64)
+            .ok_or(QztError::InvalidFooterTrailer)?;
+        self.hash_physical_range(self.details.footer_payload_offset, end)
+    }
+
+    pub(crate) fn decode_entry(&self, entry: &ChunkEntry) -> Result<Vec<u8>> {
         let compressed = self.read_physical(PhysicalRange::new(
             entry.physical_offset,
             entry.compressed_size,
@@ -388,11 +426,15 @@ impl<R: ReadAt> QztFileReader<R> {
     }
 
     fn hash_physical_prefix(&self, end: u64) -> Result<Checksum> {
-        if end > self.len {
+        self.hash_physical_range(0, end)
+    }
+
+    fn hash_physical_range(&self, start: u64, end: u64) -> Result<Checksum> {
+        if end > self.len || start > end {
             return Err(QztError::PhysicalRangeOutOfBounds);
         }
         let mut hasher = blake3::Hasher::new();
-        let mut offset = 0_u64;
+        let mut offset = start;
         let mut buffer = vec![0_u8; 64 * 1024];
         while offset < end {
             let remaining = end - offset;

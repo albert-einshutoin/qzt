@@ -100,6 +100,8 @@ design review follow-ups (DR-1..DR-6) 適用後: `cargo fmt --all -- --check`、
 
 quality review follow-ups (2026-06-10) 適用後: search の hit verification が chunk decode cache を再利用するようになり（4,124 ヒットのクエリが 16,376 ms → 49 ms、新メトリクス `physical_decoded_bytes` が chunk レベルの復号量を可視化）、n-gram 長未満・token 化不能なクエリは silent な 0 件ではなく `incomplete_reason` と CLI 警告を返し、`qzt export` は bounded memory でストリーム出力（45 MB コーパスで最大 RSS 9.6 MB）、品質ゲートに default-features の `cargo check --lib --bins` を追加、`bench-release` を修復（Phase20 の API curation 以降コンパイル不能だった）して `--release --all-features` で実行: 2.4 MB deterministic corpus で pack 137.745 MiB/s、export 473.350 MiB/s、range 532.576 MiB/s（2026-06-07 の記録は debug build の値）。155 テスト通過（+4）。
 
+bounded-memory search wiring（DR-7、2026-06-10）適用後: `qzt search`・`qzt info`・`qzt sidecar-rebuild` が `QztFileReader` 上で動作し、新しい `QziFileSidecar` は open 時に manifest と term dictionary のみ読み込み（各セクションは bounded buffer でストリーム検証）、posting list と候補 granule レコードはクエリごとに遅延 fetch します。42 MB / 40 万行コーパスでの before/after 実測（旧バイナリは直前コミットからビルド）: rare sidecar query 518 MB → 9.8 MB max RSS・1.33 s → 0.04 s、dense 8 万ヒット query 532 MB → 36 MB・1.11 s → 0.17 s、`qzt info` 9.6 MB → 2.0 MB。index builder はチャンク単位のストリーミング + 二分探索の chunk span 算出になり（O(lines × chunks) スキャンを除去）、再構築した sidecar バイト列は旧 builder と同一。sidecar なしの transient search と sidecar-rebuild は引き続き index 構築メモリが支配的（このコーパスで約 0.6〜1.3 GB）で、sidecar サイズ/構築の follow-up として追跡します。160 テスト通過（+5）。
+
 Phase14-Phase23 のセルフレビューでは以下を修正済みです。
 
 ```text
@@ -162,7 +164,7 @@ combined design + product review から適用しました。コンテナ format 
 | DR-4 `read_document` O(documents) scan + 未使用 `doc_id_hash` | Fixed | `SkeletonDetails` が open 時に `doc_id -> index` の HashMap を一度構築。`find_document` が O(1) になり、重複 id では先着優先を維持。 |
 | DR-5 `find_document` エラー混在 | Fixed | `QztError::DocumentNotFound` を追加。「document index なし」（`MissingRequiredBlock`）と「id 未登録」（`DocumentNotFound`）が区別可能に。 |
 | DR-6 プロパティカバレッジ薄さ + 不使用パラメータ | Fixed | `tests/property_roundtrip.rs` を追加（`export(pack(x)) == x`、`read_range == slice`）。未使用の `StreamingTextAnalysis::new` パラメータを削除。 |
-| DR-7 search でメモリ読み込みリーダー使用 (P-2) | Deferred | `qzt search` / sidecar を `QztFileReader` へ接続するには `build_from_container`、`QziSidecar::open`、`search` が `&[u8]` / `&QztReader` を受け取る larger cross-module API 変更が必要。post-v0.1 milestone として追跡。README 制限事項を現状に合わせて更新済み。 |
+| DR-7 search でメモリ読み込みリーダー使用 (P-2) | Fixed | 2026-06-10: `search_file` / `build_from_file` / `build_search_sidecar_from_file` / `QziFileSidecar` により search と sidecar lookup を `QztFileReader` へ接続（posting/granule は遅延 fetch）。CLI の search/info/sidecar-rebuild が file-backed パスを使用。既存の `&[u8]` / `&QztReader` エントリポイントは維持され、file-backed 実装へ委譲。 |
 
 ## Open decisions
 

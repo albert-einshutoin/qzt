@@ -26,14 +26,17 @@ When publishing QZT externally, it should be positioned as a
 QZT v0.1 is a reference implementation focused on spec coverage and correctness.
 Known limitations before production use:
 
-- **Search loads the whole container**: `export`, `range`, `line`, and `verify`
-  use the bounded-memory `QztFileReader`, but `qzt search` still reads the entire
-  container (and sidecar) into memory via `QztReader`. Wiring search to the
-  file-backed seeking reader is a post-v0.1 milestone.
+- **Index build memory scales with vocabulary**: every CLI command, including
+  `qzt search --sidecar`, now runs on the bounded-memory `QztFileReader`, and
+  sidecar search fetches only the queried posting lists and candidate granule
+  records (42 MB / 400K-line corpus: rare query 518 MB → 9.8 MB max RSS).
+  Building an index (`qzt sidecar-rebuild`, or `qzt search` without
+  `--sidecar`) still holds the full posting map in memory — roughly the
+  sidecar size expanded — so build sidecars on a machine sized for the corpus.
 - **Transient search index**: `qzt search` without `--sidecar` rebuilds the
-  search index on every invocation by reading and decompressing the whole
-  container.  For repeated searches, use `qzt sidecar-rebuild` once and then
-  `qzt search --sidecar <file.qzi>`.
+  search index on every invocation (chunk-at-a-time decode, but the full index
+  stays in memory).  For repeated searches, use `qzt sidecar-rebuild` once and
+  then `qzt search --sidecar <file.qzi>`.
 - **Token search is co-occurrence, not phrase search**: A multi-token query
   `"foo bar"` matches lines that contain both tokens in any order.  Tokens do
   not need to be adjacent.  This is not grep-compatible.
@@ -56,6 +59,7 @@ The gate runs:
 ```text
 - cargo fmt --all -- --check
 - cargo clippy --all-targets --all-features -- -D warnings
+- cargo check --lib --bins
 - cargo test --all-targets --all-features
 ```
 

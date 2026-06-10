@@ -1,16 +1,25 @@
+use std::fs::File;
+use std::path::Path;
+use std::time::Instant;
+
 use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
 use crate::format::FOOTER_TRAILER_LEN;
-use crate::reader::QztReader;
+use crate::io::ReadAt;
+use crate::reader::{QztFileReader, QztReader};
 use crate::schema::Checksum;
 use crate::search::{
-    decode_delta_varint_u64, encode_delta_varint_u64, NgramIndexBuildOptions, RawNgramIndex,
-    RawTokenIndex, SearchGranule, SearchOptions, SearchReport, TermDictionaryEntry,
+    decode_delta_varint_u64, elapsed_ms, encode_delta_varint_u64, intersect_postings, key_hash,
+    ngram_keys_for_query, substring_spans, unique_query_keys, verified_spans, verify_candidates,
+    NgramIndexBuildOptions, PlannerDecision, RawNgramIndex, RawTokenIndex, SearchGranule,
+    SearchMetrics, SearchOptions, SearchReport, TermDictionaryEntry,
 };
 use crate::skeleton::open_skeleton_details;
 
 const SIDECAR_MAGIC: &[u8; 8] = b"QZISIDE1";
 const HEADER_LEN: usize = 16;
+const GRANULE_RECORD_LEN: u64 = 56;
+const SECTION_HASH_BUFFER: usize = 64 * 1024;
 
 /// Search sidecar index kind.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -59,14 +68,26 @@ struct SectionRef {
 }
 
 pub fn build_search_sidecar(qzt_bytes: &[u8], kind: SidecarIndexKind) -> Result<Vec<u8>> {
-    let details = open_skeleton_details(qzt_bytes)?;
-    let footer_checksum = qzt_footer_checksum(qzt_bytes, details.footer_payload_offset)?;
+    let len = u64::try_from(qzt_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let reader = QztFileReader::open_read_at(qzt_bytes, len)?;
+    build_search_sidecar_from_file(&reader, kind)
+}
+
+/// Builds a QZI sidecar from a file-backed container, decoding one chunk at a
+/// time instead of materializing the full original text. Produces bytes
+/// identical to [`build_search_sidecar`].
+pub fn build_search_sidecar_from_file<R: ReadAt>(
+    reader: &QztFileReader<R>,
+    kind: SidecarIndexKind,
+) -> Result<Vec<u8>> {
+    let details = reader.skeleton_details();
+    let footer_checksum = reader.footer_checksum()?;
 
     let (index_type, ngram_n, complete, high_df_per_million, granules, terms, postings) = match kind
     {
         SidecarIndexKind::Token => {
-            let index = RawTokenIndex::build_from_container(
-                qzt_bytes,
+            let index = RawTokenIndex::build_from_file(
+                reader,
                 crate::search::TokenIndexBuildOptions::default(),
             )?;
             (
@@ -80,8 +101,8 @@ pub fn build_search_sidecar(qzt_bytes: &[u8], kind: SidecarIndexKind) -> Result<
             )
         }
         SidecarIndexKind::Ngram { n } => {
-            let index = RawNgramIndex::build_from_container(
-                qzt_bytes,
+            let index = RawNgramIndex::build_from_file(
+                reader,
                 NgramIndexBuildOptions {
                     n,
                     ..NgramIndexBuildOptions::default()
@@ -116,7 +137,7 @@ pub fn build_search_sidecar(qzt_bytes: &[u8], kind: SidecarIndexKind) -> Result<
 
     let manifest = SidecarManifest {
         source_container_id: details.summary.container_id,
-        source_original_checksum: details.metadata.original_checksum,
+        source_original_checksum: details.metadata.original_checksum.clone(),
         source_qzt_footer_checksum: footer_checksum,
         index_type,
         ngram_n,
@@ -242,6 +263,451 @@ impl QziSidecar {
             SidecarSearchIndex::Ngram(index) => index.search(reader, query, options),
         }
     }
+}
+
+/// File-backed QZI sidecar with lazy posting and granule lookup.
+///
+/// Opening loads only the manifest and the term dictionary into memory and
+/// stream-verifies all section checksums with a bounded buffer. Posting lists
+/// and granule records are fetched from the source per query, so search
+/// memory scales with the query's candidate set instead of the sidecar size.
+///
+/// Reported metrics differ from the in-memory [`QziSidecar`] in two
+/// deliberate ways: `posting_bytes_read` counts the bytes actually fetched
+/// (no skip-probe simulation), and `candidate_chunks` stays `0` when the
+/// candidate cap rejects the query before granule records are fetched.
+pub struct QziFileSidecar<R> {
+    manifest: SidecarManifest,
+    source: R,
+    section_base: u64,
+    granule_count: u64,
+    terms: Vec<TermDictionaryEntry>,
+}
+
+impl<R: ReadAt> QziFileSidecar<R> {
+    /// Opens a sidecar over a positioned source and binds it to `container`.
+    pub fn open_read_at<C: ReadAt>(
+        source: R,
+        len: u64,
+        container: &QztFileReader<C>,
+    ) -> Result<Self> {
+        let mut header = [0_u8; HEADER_LEN];
+        if len < HEADER_LEN as u64 {
+            return Err(QztError::InvalidHeader);
+        }
+        source
+            .read_exact_at(0, &mut header)
+            .map_err(map_read_error)?;
+        if &header[..8] != SIDECAR_MAGIC {
+            return Err(QztError::InvalidHeader);
+        }
+
+        let manifest_size = read_u64_le(&header[8..16])?;
+        let manifest_end = (HEADER_LEN as u64)
+            .checked_add(manifest_size)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        if manifest_end > len {
+            return Err(QztError::UnexpectedEof);
+        }
+        let manifest_bytes = read_vec(&source, HEADER_LEN as u64, manifest_size)?;
+        let manifest = decode_manifest(&manifest_bytes)?;
+
+        let details = container.skeleton_details();
+        if manifest.source_container_id != details.summary.container_id {
+            return Err(QztError::ContainerIdMismatch);
+        }
+        if manifest.source_original_checksum != details.metadata.original_checksum {
+            return Err(QztError::ContainerCorrupt);
+        }
+        if manifest.source_qzt_footer_checksum != container.footer_checksum()? {
+            return Err(QztError::ContainerCorrupt);
+        }
+        match manifest.index_type.as_str() {
+            "token" => {}
+            "ngram" => {
+                let n = manifest.ngram_n.ok_or(QztError::ContainerCorrupt)?;
+                if n == 0 {
+                    return Err(QztError::ContainerCorrupt);
+                }
+            }
+            _ => return Err(QztError::ContainerCorrupt),
+        }
+
+        let section_base = manifest_end;
+        for section in [&manifest.granules, &manifest.terms, &manifest.postings] {
+            verify_section_checksum(&source, len, section_base, section)?;
+        }
+
+        if manifest.granules.size < 8 {
+            return Err(QztError::ContainerCorrupt);
+        }
+        let granule_section_offset = section_base
+            .checked_add(manifest.granules.offset)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        let count_bytes = read_vec(&source, granule_section_offset, 8)?;
+        let granule_count = read_u64_le(&count_bytes)?;
+        let expected_granule_size = granule_count
+            .checked_mul(GRANULE_RECORD_LEN)
+            .and_then(|records| records.checked_add(8))
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        if expected_granule_size != manifest.granules.size {
+            return Err(QztError::ContainerCorrupt);
+        }
+
+        let terms_offset = section_base
+            .checked_add(manifest.terms.offset)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        let term_bytes = read_vec(&source, terms_offset, manifest.terms.size)?;
+        let terms = decode_terms(&term_bytes)?;
+        for term in &terms {
+            let posting_end = term
+                .posting_offset
+                .checked_add(term.posting_size)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            if posting_end > manifest.postings.size {
+                return Err(QztError::ContainerCorrupt);
+            }
+        }
+
+        Ok(Self {
+            manifest,
+            source,
+            section_base,
+            granule_count,
+            terms,
+        })
+    }
+
+    /// Validated sidecar manifest.
+    pub fn manifest(&self) -> &SidecarManifest {
+        &self.manifest
+    }
+
+    /// Search over a file-backed container. Fetches only the queried terms'
+    /// posting lists and the candidate granule records from the sidecar, and
+    /// decodes only candidate chunks from the container.
+    pub fn search<C: ReadAt>(
+        &self,
+        reader: &QztFileReader<C>,
+        query: &str,
+        options: SearchOptions,
+    ) -> Result<SearchReport> {
+        let started = Instant::now();
+        let is_ngram = self.manifest.index_type == "ngram";
+        let index_kind: &'static str = if is_ngram { "ngram" } else { "token" };
+        let query_keys = if is_ngram {
+            let n = self.manifest.ngram_n.ok_or(QztError::ContainerCorrupt)?;
+            ngram_keys_for_query(query, n)?
+        } else {
+            unique_query_keys(query.as_bytes())
+        };
+
+        let mut planner = PlannerDecision::new(query_keys.clone());
+        let mut metrics = self.empty_metrics(query, index_kind);
+        metrics.term_lookups =
+            u64::try_from(query_keys.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+
+        if query_keys.is_empty() {
+            metrics.query_time_ms = elapsed_ms(started);
+            return Ok(SearchReport {
+                hits: Vec::new(),
+                metrics,
+                capped: false,
+                planner,
+                incomplete_reason: Some(if is_ngram {
+                    "query_shorter_than_ngram_n"
+                } else {
+                    "query_has_no_indexable_tokens"
+                }),
+            });
+        }
+
+        let mut term_indexes = Vec::with_capacity(query_keys.len());
+        for key in &query_keys {
+            let Some(term_index) = self.term_index_for_key(key) else {
+                planner.missing_keys.push(key.clone());
+                metrics.query_time_ms = elapsed_ms(started);
+                return Ok(SearchReport {
+                    hits: Vec::new(),
+                    metrics,
+                    capped: false,
+                    planner,
+                    incomplete_reason: (is_ngram && !self.manifest.complete)
+                        .then_some("missing_required_key_in_incomplete_index"),
+                });
+            };
+            metrics.posting_bytes_read = metrics
+                .posting_bytes_read
+                .checked_add(self.terms[term_index].posting_size)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            term_indexes.push(term_index);
+        }
+
+        if is_ngram {
+            term_indexes.sort_by(|left, right| {
+                let left_high = self.is_high_df(*left);
+                let right_high = self.is_high_df(*right);
+                (left_high, self.terms[*left].granule_frequency)
+                    .cmp(&(right_high, self.terms[*right].granule_frequency))
+            });
+            for term_index in &term_indexes {
+                if self.is_high_df(*term_index) {
+                    planner
+                        .high_df_keys
+                        .push(self.terms[*term_index].key.clone());
+                }
+            }
+        } else {
+            term_indexes.sort_by_key(|index| self.terms[*index].granule_frequency);
+        }
+        planner.selected_keys = term_indexes
+            .iter()
+            .map(|index| self.terms[*index].key.clone())
+            .collect();
+
+        let posting_lists = term_indexes
+            .iter()
+            .map(|index| self.fetch_postings(*index))
+            .collect::<Result<Vec<_>>>()?;
+        let posting_refs = posting_lists.iter().map(Vec::as_slice).collect::<Vec<_>>();
+        let candidates = intersect_postings(&posting_refs);
+        metrics.candidate_granules =
+            u64::try_from(candidates.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+
+        if metrics.candidate_granules > options.max_candidate_granules
+            || options.max_search_results == 0
+        {
+            metrics.query_time_ms = elapsed_ms(started);
+            return Ok(SearchReport {
+                hits: Vec::new(),
+                metrics,
+                capped: true,
+                planner,
+                incomplete_reason: None,
+            });
+        }
+
+        let granules = candidates
+            .iter()
+            .map(|granule_id| self.fetch_granule(*granule_id))
+            .collect::<Result<Vec<_>>>()?;
+        metrics.candidate_chunks = count_chunks(&granules)?;
+
+        let verification = verify_candidates(
+            &candidates,
+            &mut |granule_id| {
+                let position = candidates
+                    .binary_search(&granule_id)
+                    .map_err(|_| QztError::ContainerCorrupt)?;
+                granules
+                    .get(position)
+                    .cloned()
+                    .ok_or(QztError::ContainerCorrupt)
+            },
+            &mut |offset, length, cache| reader.read_range_cached(offset, length, cache),
+            &mut |decoded| {
+                if is_ngram {
+                    substring_spans(decoded, query.as_bytes())
+                } else {
+                    verified_spans(decoded, &query_keys)
+                }
+            },
+            options,
+        )?;
+
+        metrics.decoded_bytes = verification.decoded_bytes;
+        metrics.physical_decoded_bytes = verification.physical_decoded_bytes;
+        metrics.verified_matches =
+            u64::try_from(verification.hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.query_time_ms = elapsed_ms(started);
+        Ok(SearchReport {
+            hits: verification.hits,
+            metrics,
+            capped: verification.capped,
+            planner,
+            incomplete_reason: None,
+        })
+    }
+
+    fn term_index_for_key(&self, key: &[u8]) -> Option<usize> {
+        let key_hash = key_hash(key);
+        self.terms
+            .iter()
+            .position(|term| term.key_hash == key_hash && term.key == key)
+    }
+
+    fn is_high_df(&self, term_index: usize) -> bool {
+        let granule_count = u128::from(self.granule_count.max(1));
+        let frequency = u128::from(self.terms[term_index].granule_frequency);
+        let per_million = frequency.saturating_mul(1_000_000) / granule_count;
+        per_million >= u128::from(self.manifest.high_df_per_million)
+    }
+
+    fn fetch_postings(&self, term_index: usize) -> Result<Vec<u64>> {
+        let term = self
+            .terms
+            .get(term_index)
+            .ok_or(QztError::ContainerCorrupt)?;
+        let offset = self
+            .section_base
+            .checked_add(self.manifest.postings.offset)
+            .and_then(|base| base.checked_add(term.posting_offset))
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        let bytes = read_vec(&self.source, offset, term.posting_size)?;
+        let postings = decode_delta_varint_u64(&bytes)?;
+        for granule_id in &postings {
+            if *granule_id >= self.granule_count {
+                return Err(QztError::ContainerCorrupt);
+            }
+        }
+        Ok(postings)
+    }
+
+    fn fetch_granule(&self, granule_id: u64) -> Result<SearchGranule> {
+        if granule_id >= self.granule_count {
+            return Err(QztError::ContainerCorrupt);
+        }
+        let record_offset = granule_id
+            .checked_mul(GRANULE_RECORD_LEN)
+            .and_then(|relative| relative.checked_add(8))
+            .and_then(|relative| relative.checked_add(self.manifest.granules.offset))
+            .and_then(|relative| relative.checked_add(self.section_base))
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        let bytes = read_vec(&self.source, record_offset, GRANULE_RECORD_LEN)?;
+
+        let mut cursor = 0_usize;
+        let granule = SearchGranule {
+            granule_id: read_u64_cursor(&bytes, &mut cursor)?,
+            logical_offset: read_u64_cursor(&bytes, &mut cursor)?,
+            byte_length: read_u64_cursor(&bytes, &mut cursor)?,
+            chunk_start: read_u64_cursor(&bytes, &mut cursor)?,
+            chunk_end: read_u64_cursor(&bytes, &mut cursor)?,
+            first_line: none_if_max(read_u64_cursor(&bytes, &mut cursor)?),
+            line_count: none_if_max(read_u64_cursor(&bytes, &mut cursor)?),
+        };
+        if granule.granule_id != granule_id {
+            return Err(QztError::ContainerCorrupt);
+        }
+        let end = granule
+            .logical_offset
+            .checked_add(granule.byte_length)
+            .ok_or(QztError::LogicalRangeOutOfBounds)?;
+        if end > self.manifest.source_size_bytes {
+            return Err(QztError::LogicalRangeOutOfBounds);
+        }
+        if granule.chunk_end < granule.chunk_start {
+            return Err(QztError::ChunkTableInvalid);
+        }
+        Ok(granule)
+    }
+
+    fn empty_metrics(&self, query: &str, index_kind: &'static str) -> SearchMetrics {
+        let index_size_bytes = self.manifest.index_size_bytes;
+        let index_size_ratio = if self.manifest.source_size_bytes == 0 {
+            0.0
+        } else {
+            index_size_bytes as f64 / self.manifest.source_size_bytes as f64
+        };
+
+        SearchMetrics {
+            query: query.to_owned(),
+            index_kind,
+            posting_granularity: "line",
+            index_size_bytes,
+            source_size_bytes: self.manifest.source_size_bytes,
+            index_size_ratio,
+            term_lookups: 0,
+            posting_bytes_read: 0,
+            candidate_granules: 0,
+            candidate_chunks: 0,
+            decoded_bytes: 0,
+            physical_decoded_bytes: 0,
+            verified_matches: 0,
+            query_time_ms: 0.0,
+        }
+    }
+}
+
+impl QziFileSidecar<File> {
+    /// Opens a sidecar file from a filesystem path and binds it to `container`.
+    pub fn open_path<C: ReadAt>(
+        path: impl AsRef<Path>,
+        container: &QztFileReader<C>,
+    ) -> Result<Self> {
+        let file = File::open(path).map_err(|_| QztError::ContainerCorrupt)?;
+        let len = file
+            .metadata()
+            .map_err(|_| QztError::ContainerCorrupt)?
+            .len();
+        Self::open_read_at(file, len, container)
+    }
+}
+
+fn count_chunks(granules: &[SearchGranule]) -> Result<u64> {
+    let mut chunks = std::collections::BTreeSet::new();
+    for granule in granules {
+        for chunk_id in granule.chunk_start..granule.chunk_end {
+            chunks.insert(chunk_id);
+        }
+    }
+    u64::try_from(chunks.len()).map_err(|_| QztError::ResourceLimitExceeded)
+}
+
+fn map_read_error(error: std::io::Error) -> QztError {
+    match error.kind() {
+        std::io::ErrorKind::UnexpectedEof => QztError::UnexpectedEof,
+        _ => QztError::ContainerCorrupt,
+    }
+}
+
+fn read_vec<R: ReadAt>(source: &R, offset: u64, size: u64) -> Result<Vec<u8>> {
+    let len = usize::try_from(size).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let mut bytes = vec![0_u8; len];
+    source
+        .read_exact_at(offset, &mut bytes)
+        .map_err(map_read_error)?;
+    Ok(bytes)
+}
+
+fn verify_section_checksum<R: ReadAt>(
+    source: &R,
+    len: u64,
+    section_base: u64,
+    section: &SectionRef,
+) -> Result<()> {
+    let start = section_base
+        .checked_add(section.offset)
+        .ok_or(QztError::ResourceLimitExceeded)?;
+    let end = start
+        .checked_add(section.size)
+        .ok_or(QztError::ResourceLimitExceeded)?;
+    if end > len {
+        return Err(QztError::UnexpectedEof);
+    }
+
+    let mut hasher = blake3::Hasher::new();
+    let mut buffer = vec![0_u8; SECTION_HASH_BUFFER];
+    let mut offset = start;
+    while offset < end {
+        let remaining = end - offset;
+        let read_len = usize::try_from(remaining.min(buffer.len() as u64))
+            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        source
+            .read_exact_at(offset, &mut buffer[..read_len])
+            .map_err(map_read_error)?;
+        hasher.update(&buffer[..read_len]);
+        offset = offset
+            .checked_add(read_len as u64)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+    }
+    let actual = Checksum {
+        algorithm: "blake3".to_owned(),
+        value: *hasher.finalize().as_bytes(),
+    };
+    if actual != section.checksum {
+        return Err(QztError::ContainerCorrupt);
+    }
+    Ok(())
 }
 
 fn encode_manifest(manifest: &SidecarManifest) -> Result<Vec<u8>> {

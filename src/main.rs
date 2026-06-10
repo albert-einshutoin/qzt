@@ -3,8 +3,8 @@ use std::io::{Read, Write};
 use std::process::ExitCode;
 
 use qzt::{
-    build_search_sidecar, open_skeleton_details, pack_bytes_with_profile, NgramIndexBuildOptions,
-    QziSidecar, QztError, QztFileReader, QztFileWriter, QztReader, RawNgramIndex, RawTokenIndex,
+    build_search_sidecar_from_file, pack_bytes_with_profile, NgramIndexBuildOptions,
+    QziFileSidecar, QztError, QztFileReader, QztFileWriter, RawNgramIndex, RawTokenIndex,
     SearchIndexSource, SearchOptions, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel,
     WriterOptions,
 };
@@ -232,11 +232,10 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
     };
 
     let result: CliResult<_> = (|| {
-        let bytes = std::fs::read(path)?;
-        let compressed_size = bytes.len();
-        let details = open_skeleton_details(&bytes)?;
-        let reader = QztReader::open(bytes)?;
-        Ok((reader.info(), details.metadata, compressed_size))
+        let compressed_size = std::fs::metadata(&path)?.len();
+        let reader = QztFileReader::open_path(&path)?;
+        let metadata = reader.skeleton_details().metadata.clone();
+        Ok((reader.info(), metadata, compressed_size))
     })();
 
     match result {
@@ -502,26 +501,23 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let result: CliResult<_> = (|| {
-        let bytes = std::fs::read(path)?;
-        let reader = QztReader::open(&bytes)?;
+        let reader = QztFileReader::open_path(&path)?;
         if let Some(sidecar_path) = &sidecar_path {
-            let sidecar_bytes = std::fs::read(sidecar_path)?;
-            let sidecar = QziSidecar::open(&bytes, &sidecar_bytes)?;
+            let sidecar = QziFileSidecar::open_path(sidecar_path, &reader)?;
             Ok(sidecar.search(&reader, &query, options)?)
         } else if index_kind == "ngram" {
-            let index = RawNgramIndex::build_from_container(
-                &bytes,
+            let index = RawNgramIndex::build_from_file(
+                &reader,
                 NgramIndexBuildOptions {
                     source: SearchIndexSource::RawUtf8,
                     n: ngram,
                     ..NgramIndexBuildOptions::default()
                 },
             )?;
-            Ok(index.search(&reader, &query, options)?)
+            Ok(index.search_file(&reader, &query, options)?)
         } else {
-            let index =
-                RawTokenIndex::build_from_container(&bytes, TokenIndexBuildOptions::default())?;
-            Ok(index.search(&reader, &query, options)?)
+            let index = RawTokenIndex::build_from_file(&reader, TokenIndexBuildOptions::default())?;
+            Ok(index.search_file(&reader, &query, options)?)
         }
     })();
 
@@ -619,8 +615,8 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
         SidecarIndexKind::Token
     };
     let result: CliResult<()> = (|| {
-        let bytes = std::fs::read(path)?;
-        let sidecar = build_search_sidecar(&bytes, kind)?;
+        let reader = QztFileReader::open_path(&path)?;
+        let sidecar = build_search_sidecar_from_file(&reader, kind)?;
         std::fs::write(output_path, sidecar)?;
         Ok(())
     })();
