@@ -460,7 +460,7 @@ fn percentile_micros(samples: &[u128], percentile: u64) -> u128 {
 
     debug_assert!(percentile <= 100);
     let clamped_percentile = if percentile > 100 { 100 } else { percentile };
-    let rank = ((clamped_percentile as usize * samples.len()) + 99) / 100;
+    let rank = (clamped_percentile as usize * samples.len()).div_ceil(100);
     let index = rank.saturating_sub(1).min(samples.len() - 1);
     samples[index]
 }
