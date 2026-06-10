@@ -62,6 +62,12 @@ The automated gate asserts:
 - common n-gram query is capped before candidate decode
 - token and n-gram sidecar sizes are reported
 - pack/export/range throughput metrics are non-zero
+
+- For future release runs, keep metric gates deterministic:
+  - candidate/cap/decode counters are compared with semantic checks; timing remains evidence-only
+  - index size comparison is path-aware:
+    - in-memory estimate and file-sidecar manifest size are intentionally not semantically equivalent
+    - high-skip workloads can intentionally reverse index size ordering
 ```
 
 ## Self-Review

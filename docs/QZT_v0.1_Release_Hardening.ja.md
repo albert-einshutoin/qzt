@@ -60,6 +60,12 @@ release_bench corpus_bytes=2423996 lines=24000 packed_bytes=132320 compression_r
 - common n-gram query が candidate decode 前に cap される
 - token / n-gram sidecar size が報告される
 - pack/export/range throughput metric が 0 ではない
+
+- 将来の release run では指標ゲートを決定論的に保つこと:
+  - candidate/cap/decode カウンタは semantic check で比較し、timing は evidence のみ扱いにする
+  - index size 比較は path-aware にする:
+    - in-memory 見積りと file-sidecar manifest サイズは意図的に非同値
+    - 高 skip ワークロードでは index size の大小関係が反転しうる
 ```
 
 ## Self-review
