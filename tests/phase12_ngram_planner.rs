@@ -8,8 +8,8 @@ use qzt::search::{
     NgramIndexBuildOptions, NgramUnit, RawNgramIndex, SearchIndexSource, SearchOptions,
 };
 use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
-mod phase13_search_report;
-use phase13_search_report::assert_semantic_report_eq;
+mod support;
+use support::assert_semantic_report_eq;
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
     WriterOptions {

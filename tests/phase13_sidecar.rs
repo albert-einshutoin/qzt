@@ -9,8 +9,8 @@ use qzt::schema::Checksum;
 use qzt::search::{NgramIndexBuildOptions, RawNgramIndex, SearchOptions};
 use qzt::sidecar::{build_search_sidecar, QziFileSidecar, QziSidecar, SidecarIndexKind};
 use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
-mod phase13_search_report;
-use phase13_search_report::assert_semantic_report_eq;
+mod support;
+use support::assert_semantic_report_eq;
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
     WriterOptions {
