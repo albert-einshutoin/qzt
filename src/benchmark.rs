@@ -15,6 +15,8 @@ pub struct ReleaseBenchmarkOptions {
     pub line_count: usize,
     pub chunk_size: usize,
     pub range_size: u64,
+    pub query_repetitions: usize,
+    pub query_warmup_repetitions: usize,
 }
 
 impl Default for ReleaseBenchmarkOptions {
@@ -23,6 +25,8 @@ impl Default for ReleaseBenchmarkOptions {
             line_count: 24_000,
             chunk_size: 8 * 1024,
             range_size: 256 * 1024,
+            query_repetitions: 5,
+            query_warmup_repetitions: 2,
         }
     }
 }
@@ -50,6 +54,11 @@ pub struct ReleaseBenchmarkReport {
     pub common_ngram_decoded_bytes: u64,
     pub common_ngram_capped: bool,
     pub raw_scan_decoded_bytes: u64,
+    pub query_repetitions: usize,
+    pub query_warmup_repetitions: usize,
+    pub rare_token_query: ReleaseBenchmarkQueryReport,
+    pub missing_token_query: ReleaseBenchmarkQueryReport,
+    pub common_ngram_query: ReleaseBenchmarkQueryReport,
 }
 
 /// Competitive benchmark smoke configuration.
@@ -92,11 +101,49 @@ pub struct CompetitiveBenchmarkReport {
     pub sqlite_fts5_hit_count: Option<u64>,
 }
 
+/// Query-level release benchmark telemetry.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ReleaseBenchmarkQueryReport {
+    pub name: &'static str,
+    pub query: &'static str,
+    pub iterations: usize,
+    pub warmup_iterations: usize,
+    pub candidate_granules: u64,
+    pub candidate_chunks: u64,
+    pub decoded_bytes: u64,
+    pub verified_matches: u64,
+    pub capped: bool,
+    pub p50_query_time_micros: u128,
+    pub p95_query_time_micros: u128,
+    pub p99_query_time_micros: u128,
+}
+
+impl fmt::Display for ReleaseBenchmarkQueryReport {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{} query={} iterations={} warmup={} candidate_granules={} candidate_chunks={} decoded_bytes={} verified_matches={} capped={} p50_us={} p95_us={} p99_us={}",
+            self.name,
+            self.query,
+            self.iterations,
+            self.warmup_iterations,
+            self.candidate_granules,
+            self.candidate_chunks,
+            self.decoded_bytes,
+            self.verified_matches,
+            self.capped,
+            self.p50_query_time_micros,
+            self.p95_query_time_micros,
+            self.p99_query_time_micros
+        )
+    }
+}
+
 impl fmt::Display for ReleaseBenchmarkReport {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "release_bench corpus_bytes={} lines={} packed_bytes={} compression_ratio={:.6} qzi_token_bytes={} qzi_token_ratio={:.6} qzi_ngram_bytes={} qzi_ngram_ratio={:.6} pack_mib_s={:.3} export_mib_s={:.3} range_mib_s={:.3} rare_token_candidate_granules={} rare_token_candidate_chunks={} rare_token_decoded_bytes={} rare_token_verified_matches={} common_ngram_candidate_granules={} common_ngram_decoded_bytes={} common_ngram_capped={} raw_scan_decoded_bytes={}",
+            "release_bench corpus_bytes={} lines={} packed_bytes={} compression_ratio={:.6} qzi_token_bytes={} qzi_token_ratio={:.6} qzi_ngram_bytes={} qzi_ngram_ratio={:.6} pack_mib_s={:.3} export_mib_s={:.3} range_mib_s={:.3} rare_token_candidate_granules={} rare_token_candidate_chunks={} rare_token_decoded_bytes={} rare_token_verified_matches={} common_ngram_candidate_granules={} common_ngram_decoded_bytes={} common_ngram_capped={} raw_scan_decoded_bytes={} query_repetitions={} query_warmup_repetitions={} rare_token_query=\"{}\" missing_token_query=\"{}\" common_ngram_query=\"{}\"",
             self.corpus_bytes,
             self.line_count,
             self.packed_bytes,
@@ -115,14 +162,23 @@ impl fmt::Display for ReleaseBenchmarkReport {
             self.common_ngram_candidate_granules,
             self.common_ngram_decoded_bytes,
             self.common_ngram_capped,
-            self.raw_scan_decoded_bytes
+            self.raw_scan_decoded_bytes,
+            self.query_repetitions,
+            self.query_warmup_repetitions,
+            self.rare_token_query,
+            self.missing_token_query,
+            self.common_ngram_query
         )
     }
 }
 
 /// Runs a deterministic larger-corpus benchmark smoke.
 pub fn run_release_benchmark(options: ReleaseBenchmarkOptions) -> Result<ReleaseBenchmarkReport> {
-    if options.line_count == 0 || options.chunk_size == 0 || options.range_size == 0 {
+    if options.line_count == 0
+        || options.chunk_size == 0
+        || options.range_size == 0
+        || options.query_repetitions == 0
+    {
         return Err(QztError::ResourceLimitExceeded);
     }
 
@@ -165,17 +221,44 @@ pub fn run_release_benchmark(options: ReleaseBenchmarkOptions) -> Result<Release
         u64::try_from(qzi_ngram.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
 
     let token_sidecar = QziSidecar::open(&packed, &qzi_token)?;
-    let rare_report =
-        token_sidecar.search(&reader, "rare-token-unique", SearchOptions::default())?;
+    let rare_token_query = run_query_case(
+        &token_sidecar,
+        &reader,
+        ReleaseBenchmarkQuery {
+            name: "rare-token",
+            query: "rare-token-unique",
+            search_options: SearchOptions::default(),
+        },
+        options.query_warmup_repetitions,
+        options.query_repetitions,
+    )?;
+
+    let missing_token_query = run_query_case(
+        &token_sidecar,
+        &reader,
+        ReleaseBenchmarkQuery {
+            name: "missing-token",
+            query: "missing-token-for-release-benchmark",
+            search_options: SearchOptions::default(),
+        },
+        options.query_warmup_repetitions,
+        options.query_repetitions,
+    )?;
 
     let ngram_sidecar = QziSidecar::open(&packed, &qzi_ngram)?;
-    let common_report = ngram_sidecar.search(
+    let common_ngram_query = run_query_case(
+        &ngram_sidecar,
         &reader,
-        "aaa",
-        SearchOptions {
-            max_candidate_granules: 10,
-            ..SearchOptions::default()
+        ReleaseBenchmarkQuery {
+            name: "common-ngram",
+            query: "aaa",
+            search_options: SearchOptions {
+                max_candidate_granules: 10,
+                ..SearchOptions::default()
+            },
         },
+        options.query_warmup_repetitions,
+        options.query_repetitions,
     )?;
 
     Ok(ReleaseBenchmarkReport {
@@ -192,14 +275,19 @@ pub fn run_release_benchmark(options: ReleaseBenchmarkOptions) -> Result<Release
         pack_mib_s: mib_s(corpus_bytes, pack_elapsed),
         export_mib_s: mib_s(corpus_bytes, export_elapsed),
         range_mib_s: mib_s(range_bytes, range_elapsed),
-        rare_token_candidate_granules: rare_report.metrics.candidate_granules,
-        rare_token_candidate_chunks: rare_report.metrics.candidate_chunks,
-        rare_token_decoded_bytes: rare_report.metrics.decoded_bytes,
-        rare_token_verified_matches: rare_report.metrics.verified_matches,
-        common_ngram_candidate_granules: common_report.metrics.candidate_granules,
-        common_ngram_decoded_bytes: common_report.metrics.decoded_bytes,
-        common_ngram_capped: common_report.capped,
+        rare_token_candidate_granules: rare_token_query.candidate_granules,
+        rare_token_candidate_chunks: rare_token_query.candidate_chunks,
+        rare_token_decoded_bytes: rare_token_query.decoded_bytes,
+        rare_token_verified_matches: rare_token_query.verified_matches,
+        common_ngram_candidate_granules: common_ngram_query.candidate_granules,
+        common_ngram_decoded_bytes: common_ngram_query.decoded_bytes,
+        common_ngram_capped: common_ngram_query.capped,
         raw_scan_decoded_bytes: corpus_bytes,
+        query_repetitions: options.query_repetitions,
+        query_warmup_repetitions: options.query_warmup_repetitions,
+        rare_token_query,
+        missing_token_query,
+        common_ngram_query,
     })
 }
 
@@ -299,6 +387,91 @@ fn release_corpus(line_count: usize) -> Vec<u8> {
         }
     }
     corpus
+}
+
+#[derive(Debug, Clone, Copy)]
+struct ReleaseBenchmarkQuery {
+    name: &'static str,
+    query: &'static str,
+    search_options: SearchOptions,
+}
+
+fn run_query_case(
+    sidecar: &QziSidecar,
+    reader: &QztReader,
+    query: ReleaseBenchmarkQuery,
+    warmup_repetitions: usize,
+    query_repetitions: usize,
+) -> Result<ReleaseBenchmarkQueryReport> {
+    for _ in 0..warmup_repetitions {
+        let _ = sidecar.search(reader, query.query, query.search_options)?;
+    }
+
+    let mut samples = Vec::with_capacity(query_repetitions);
+    let mut baseline = None;
+    for _ in 0..query_repetitions {
+        let started = Instant::now();
+        let current = sidecar.search(reader, query.query, query.search_options)?;
+        samples.push(started.elapsed().as_micros());
+        let current = ReleaseBenchmarkQueryReportBaseline {
+            candidate_granules: current.metrics.candidate_granules,
+            candidate_chunks: current.metrics.candidate_chunks,
+            decoded_bytes: current.metrics.decoded_bytes,
+            verified_matches: current.metrics.verified_matches,
+            capped: current.capped,
+        };
+        if let Some(previous) = baseline {
+            if current != previous {
+                return Err(QztError::BenchmarkMetricsMismatch);
+            }
+        } else {
+            baseline = Some(current);
+        }
+    }
+
+    let Some(baseline) = baseline else {
+        return Err(QztError::ResourceLimitExceeded);
+    };
+    samples.sort_unstable();
+    let p50_query_time_micros = percentile_micros(&samples, 50);
+    let p95_query_time_micros = percentile_micros(&samples, 95);
+    let p99_query_time_micros = percentile_micros(&samples, 99);
+
+    Ok(ReleaseBenchmarkQueryReport {
+        name: query.name,
+        query: query.query,
+        iterations: query_repetitions,
+        warmup_iterations: warmup_repetitions,
+        candidate_granules: baseline.candidate_granules,
+        candidate_chunks: baseline.candidate_chunks,
+        decoded_bytes: baseline.decoded_bytes,
+        verified_matches: baseline.verified_matches,
+        capped: baseline.capped,
+        p50_query_time_micros,
+        p95_query_time_micros,
+        p99_query_time_micros,
+    })
+}
+
+fn percentile_micros(samples: &[u128], percentile: u64) -> u128 {
+    if samples.is_empty() {
+        return 0;
+    }
+
+    debug_assert!(percentile <= 100);
+    let clamped_percentile = if percentile > 100 { 100 } else { percentile };
+    let rank = (clamped_percentile as usize * samples.len()).div_ceil(100);
+    let index = rank.saturating_sub(1).min(samples.len() - 1);
+    samples[index]
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct ReleaseBenchmarkQueryReportBaseline {
+    candidate_granules: u64,
+    candidate_chunks: u64,
+    decoded_bytes: u64,
+    verified_matches: u64,
+    capped: bool,
 }
 
 fn ratio(numerator: u64, denominator: u64) -> f64 {
