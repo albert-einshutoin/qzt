@@ -30,6 +30,20 @@ The same test is also included in:
 make check
 ```
 
+Profile-only run (non-gating, ignored test):
+
+```bash
+make bench-profile
+```
+
+You can override the profile repetition counts with environment variables:
+
+```bash
+QZT_RELEASE_BENCH_QUERY_REPETITIONS=500 \
+QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=20 \
+make bench-profile
+```
+
 ## Corpus
 
 The release hardening test uses a deterministic synthetic text corpus:
@@ -49,6 +63,21 @@ The corpus is intentionally repetitive so that it exercises both compression and
 `cargo test --test release_hardening -- --nocapture` prints a single `release_bench` line with both legacy counters and the new query-case telemetry.
 
 These values are local smoke evidence only. They are not a release SLA.
+
+## Latest Local Profile Output (3 runs, release build)
+
+`make bench-profile` was run with `QZT_RELEASE_BENCH_QUERY_REPETITIONS=500` and
+`QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=20` on a local machine.
+
+```text
+Case            Run1 p50/p95/p99 (µs)   Run2 p50/p95/p99 (µs)   Run3 p50/p95/p99 (µs)
+rare-token      46 / 50 / 58            45 / 48 / 58            45 / 49 / 59
+missing-token   36 / 38 / 43            36 / 39 / 46            36 / 39 / 56
+common-ngram    194 / 271 / 571         191 / 205 / 277         192 / 204 / 278
+```
+
+Run-to-run counters were identical across all runs and 4500 query calls in this configuration
+(`3 cases × 500 repetitions × 3 runs`).
 
 ## Release Gate Assertions
 

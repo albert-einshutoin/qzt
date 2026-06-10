@@ -28,6 +28,21 @@ cargo test --test release_hardening -- --nocapture
 
 同じテストは `make check` にも含まれます。
 
+プロファイル専用実行（ベンチ補助、gating対象外）:
+
+```bash
+make bench-profile
+```
+
+`QZT_RELEASE_BENCH_QUERY_REPETITIONS` / `QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS` で
+反復回数を上書きできます。
+
+```bash
+QZT_RELEASE_BENCH_QUERY_REPETITIONS=500 \
+QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=20 \
+make bench-profile
+```
+
 ## Corpus
 
 release hardening test は deterministic な合成テキスト corpus を使います。
@@ -47,6 +62,21 @@ common n-gram: aaa
 `cargo test --test release_hardening -- --nocapture` で出力される `release_bench` 1行には、既存 counter と query-case テレメトリの両方が含まれます。
 
 これはローカル smoke evidence であり、release SLA ではありません。
+
+## 最新ローカルプロファイル結果（3回実行、release build）
+
+`QZT_RELEASE_BENCH_QUERY_REPETITIONS=500` と
+`QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=20` で `make bench-profile` を3回実行した結果。
+
+```text
+case               run1 p50/p95/p99 (µs)   run2 p50/p95/p99 (µs)   run3 p50/p95/p99 (µs)
+rare-token         46 / 50 / 58            45 / 48 / 58            45 / 49 / 59
+missing-token      36 / 38 / 43            36 / 39 / 46            36 / 39 / 56
+common-ngram       194 / 271 / 571         191 / 205 / 277         192 / 204 / 278
+```
+
+この設定では 3 ケース × 500 repetitions × 3 実行分、計 4500 クエリで
+候補カウンタの一致を確認できています（反復内決定性ガード）。
 
 ## Release gate assertions
 
