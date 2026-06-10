@@ -280,3 +280,47 @@ fn assert_success(command: &mut Command) {
         String::from_utf8_lossy(&output.stderr)
     );
 }
+
+#[test]
+fn unindexable_query_reports_incomplete_reason() {
+    let input = b"alpha one\nbeta two\n";
+    let container = pack_bytes_with_container_id(input, [0xc7; 16], options(64, 64))
+        .expect("container should pack");
+    let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
+        .expect("raw line token index should build");
+    let reader = QztReader::open(&container).expect("reader should open");
+
+    let report = index
+        .search(&reader, "証拠", SearchOptions::default())
+        .expect("search should run");
+
+    assert!(report.hits.is_empty());
+    assert_eq!(
+        report.incomplete_reason,
+        Some("query_has_no_indexable_tokens")
+    );
+}
+
+#[test]
+fn dense_query_amortizes_physical_chunk_decodes() {
+    let mut input = String::new();
+    for index in 0..128 {
+        input.push_str(&format!("common line {index}\n"));
+    }
+    let container = pack_bytes_with_container_id(input.as_bytes(), [0xc8; 16], options(64, 64))
+        .expect("container should pack");
+    let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
+        .expect("raw line token index should build");
+    let reader = QztReader::open(&container).expect("reader should open");
+
+    let report = index
+        .search(&reader, "common", SearchOptions::default())
+        .expect("search should run");
+
+    assert_eq!(report.metrics.verified_matches, 128);
+    assert!(report.metrics.physical_decoded_bytes > 0);
+    // Sorted candidates decode each overlapping chunk at most once; without
+    // the chunk decode cache this would be candidates x chunk size and far
+    // exceed the original size.
+    assert!(report.metrics.physical_decoded_bytes <= reader.info().original_size);
+}

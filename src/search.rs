@@ -4,7 +4,7 @@ use std::time::Instant;
 use crate::chunk_table::ChunkEntry;
 use crate::error::{QztError, Result};
 use crate::primitives::checked_logical_end;
-use crate::reader::QztReader;
+use crate::reader::{ChunkDecodeCache, QztReader};
 use crate::skeleton::open_skeleton_details;
 
 /// Search index source text model.
@@ -193,6 +193,10 @@ pub struct SearchMetrics {
     pub candidate_granules: u64,
     pub candidate_chunks: u64,
     pub decoded_bytes: u64,
+    /// Total uncompressed bytes physically decompressed during hit
+    /// verification (chunk-level work, as opposed to the logical granule
+    /// bytes counted by `decoded_bytes`).
+    pub physical_decoded_bytes: u64,
     pub verified_matches: u64,
     pub query_time_ms: f64,
 }
@@ -311,7 +315,7 @@ impl RawTokenIndex {
                 metrics,
                 capped: false,
                 planner,
-                incomplete_reason: None,
+                incomplete_reason: Some("query_has_no_indexable_tokens"),
             });
         }
 
@@ -372,6 +376,7 @@ impl RawTokenIndex {
 
         let mut hits = Vec::new();
         let mut capped = false;
+        let mut cache = ChunkDecodeCache::new();
         for granule_id in candidates {
             let granule_index =
                 usize::try_from(granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
@@ -388,7 +393,11 @@ impl RawTokenIndex {
                 break;
             }
 
-            let decoded = reader.read_range(granule.logical_offset, granule.byte_length)?;
+            let decoded = reader.read_range_cached(
+                granule.logical_offset,
+                granule.byte_length,
+                &mut cache,
+            )?;
             metrics.decoded_bytes = next_decoded;
             for span in verified_spans(&decoded, &query_keys) {
                 let span_offset =
@@ -418,6 +427,7 @@ impl RawTokenIndex {
             }
         }
 
+        metrics.physical_decoded_bytes = cache.physical_decoded_bytes();
         metrics.verified_matches =
             u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
         metrics.query_time_ms = elapsed_ms(started);
@@ -457,6 +467,7 @@ impl RawTokenIndex {
             candidate_granules: 0,
             candidate_chunks: 0,
             decoded_bytes: 0,
+            physical_decoded_bytes: 0,
             verified_matches: 0,
             query_time_ms: 0.0,
         }
@@ -612,7 +623,7 @@ impl RawNgramIndex {
                 metrics,
                 capped: false,
                 planner,
-                incomplete_reason: None,
+                incomplete_reason: Some("query_shorter_than_ngram_n"),
             });
         }
 
@@ -693,6 +704,7 @@ impl RawNgramIndex {
 
         let mut hits = Vec::new();
         let mut capped = false;
+        let mut cache = ChunkDecodeCache::new();
         for granule_id in candidates {
             let granule_index =
                 usize::try_from(granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
@@ -709,7 +721,11 @@ impl RawNgramIndex {
                 break;
             }
 
-            let decoded = reader.read_range(granule.logical_offset, granule.byte_length)?;
+            let decoded = reader.read_range_cached(
+                granule.logical_offset,
+                granule.byte_length,
+                &mut cache,
+            )?;
             metrics.decoded_bytes = next_decoded;
             for span in substring_spans(&decoded, query.as_bytes()) {
                 let span_offset =
@@ -739,6 +755,7 @@ impl RawNgramIndex {
             }
         }
 
+        metrics.physical_decoded_bytes = cache.physical_decoded_bytes();
         metrics.verified_matches =
             u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
         metrics.query_time_ms = elapsed_ms(started);
@@ -797,6 +814,7 @@ impl RawNgramIndex {
             candidate_granules: 0,
             candidate_chunks: 0,
             decoded_bytes: 0,
+            physical_decoded_bytes: 0,
             verified_matches: 0,
             query_time_ms: 0.0,
         }

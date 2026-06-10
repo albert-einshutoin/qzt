@@ -188,6 +188,24 @@ impl QztReader {
         verify_deep_entries(&self.details, |entry| self.decode_entry(entry))
     }
 
+    /// Range read that reuses `cache` across calls so consecutive reads in the
+    /// same chunk decode it only once. Used by search hit verification.
+    pub(crate) fn read_range_cached(
+        &self,
+        offset: u64,
+        length: u64,
+        cache: &mut ChunkDecodeCache,
+    ) -> Result<Vec<u8>> {
+        read_range_from_entries_cached(
+            &self.details.chunk_entries,
+            self.details.summary.original_size,
+            offset,
+            length,
+            cache,
+            |entry| self.decode_entry(entry),
+        )
+    }
+
     fn decode_entry(&self, entry: &ChunkEntry) -> Result<Vec<u8>> {
         let compressed = self.slice_physical(PhysicalRange::new(
             entry.physical_offset,
@@ -410,11 +428,74 @@ impl QztFileReader<File> {
     }
 }
 
+/// Single-entry cache of the most recently decoded chunk.
+///
+/// Range reads decode whole chunks so the per-chunk checksums can be verified
+/// before any byte is returned. Callers that issue many small range reads in
+/// ascending order (for example search hit verification over sorted granules)
+/// reuse one cache across calls so each chunk is decoded at most once instead
+/// of once per read.
+pub(crate) struct ChunkDecodeCache {
+    chunk_id: Option<u64>,
+    decoded: Vec<u8>,
+    physical_decoded_bytes: u64,
+}
+
+impl ChunkDecodeCache {
+    pub(crate) fn new() -> Self {
+        Self {
+            chunk_id: None,
+            decoded: Vec::new(),
+            physical_decoded_bytes: 0,
+        }
+    }
+
+    /// Total uncompressed bytes decoded through this cache (cache misses only).
+    pub(crate) fn physical_decoded_bytes(&self) -> u64 {
+        self.physical_decoded_bytes
+    }
+
+    fn decoded_entry(
+        &mut self,
+        entry: &ChunkEntry,
+        decode_entry: &mut impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
+    ) -> Result<&[u8]> {
+        if self.chunk_id != Some(entry.chunk_id) {
+            self.decoded = decode_entry(entry)?;
+            self.chunk_id = Some(entry.chunk_id);
+            self.physical_decoded_bytes = self
+                .physical_decoded_bytes
+                .checked_add(entry.uncompressed_size)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+        }
+        Ok(&self.decoded)
+    }
+}
+
 fn read_range_from_entries(
     entries: &[ChunkEntry],
     original_size: u64,
     offset: u64,
     length: u64,
+    decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
+) -> Result<Vec<u8>> {
+    let mut cache = ChunkDecodeCache::new();
+    read_range_from_entries_cached(
+        entries,
+        original_size,
+        offset,
+        length,
+        &mut cache,
+        decode_entry,
+    )
+}
+
+fn read_range_from_entries_cached(
+    entries: &[ChunkEntry],
+    original_size: u64,
+    offset: u64,
+    length: u64,
+    cache: &mut ChunkDecodeCache,
     mut decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
 ) -> Result<Vec<u8>> {
     let end = checked_logical_end(offset, length)?;
@@ -433,7 +514,7 @@ fn read_range_from_entries(
             break;
         }
 
-        let decoded = decode_entry(entry)?;
+        let decoded = cache.decoded_entry(entry, &mut decode_entry)?;
         let copy_start = offset.max(entry.logical_offset);
         let copy_end = end.min(chunk_end);
         let local_start = usize::try_from(copy_start - entry.logical_offset)

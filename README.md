@@ -39,6 +39,9 @@ Known limitations before production use:
   not need to be adjacent.  This is not grep-compatible.
 - **Normalized search not implemented**: `SearchIndexSource::NormalizedUtf8`
   (Unicode normalization, case folding, width folding) is not yet implemented.
+- **Sidecar size**: the QZI token/n-gram sidecars are uncompressed MVP
+  structures. On a realistic 45 MB log corpus the token sidecar measured about
+  2.1x the original text; budget sidecar storage accordingly.
 - **No production benchmark**: No comparison against SQLite FTS, Tantivy,
   Lucene, or seekable-zstd has been conducted for v0.1.
 
@@ -69,6 +72,12 @@ qzt verify output.qzt --deep
 qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi
 ```
+
+Range semantics: `--bytes A:B` is a half-open byte range `[A, B)`, while
+`--lines A:B` is 1-based and inclusive on both ends. An n-gram query shorter
+than the index `n` (default 3) cannot be answered by the index; instead of a
+confident empty result the CLI reports
+`incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
 
 ## Documentation
 

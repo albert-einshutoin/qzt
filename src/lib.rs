@@ -13,7 +13,10 @@ mod benchmark;
 #[cfg(feature = "internal-testing")]
 #[doc(hidden)]
 pub mod cbor;
+// Some module items exist only for the internal-testing surface; they are
+// unreachable (and therefore dead code) in the curated default build.
 #[cfg(not(feature = "internal-testing"))]
+#[allow(dead_code)]
 mod cbor;
 #[cfg(feature = "internal-testing")]
 #[doc(hidden)]
@@ -49,6 +52,7 @@ mod fixed;
 #[doc(hidden)]
 pub mod format;
 #[cfg(not(feature = "internal-testing"))]
+#[allow(dead_code)]
 mod format;
 #[cfg(feature = "internal-testing")]
 #[doc(hidden)]
@@ -74,6 +78,7 @@ mod reader;
 #[doc(hidden)]
 pub mod schema;
 #[cfg(not(feature = "internal-testing"))]
+#[allow(dead_code)]
 mod schema;
 #[cfg(feature = "internal-testing")]
 #[doc(hidden)]
@@ -89,11 +94,13 @@ mod sidecar;
 #[doc(hidden)]
 pub mod skeleton;
 #[cfg(not(feature = "internal-testing"))]
+#[allow(dead_code)]
 mod skeleton;
 #[cfg(feature = "internal-testing")]
 #[doc(hidden)]
 pub mod writer;
 #[cfg(not(feature = "internal-testing"))]
+#[allow(dead_code)]
 mod writer;
 
 pub use benchmark::{

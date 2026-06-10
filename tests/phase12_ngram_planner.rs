@@ -250,3 +250,27 @@ fn assert_success(command: &mut Command) {
         String::from_utf8_lossy(&output.stderr)
     );
 }
+
+#[test]
+fn query_shorter_than_n_reports_incomplete_reason() {
+    let container =
+        pack_bytes_with_container_id("中文証拠の行\n".as_bytes(), [0xd7; 16], options(64, 64))
+            .expect("container should pack");
+    let index = RawNgramIndex::build_from_container(
+        &container,
+        NgramIndexBuildOptions {
+            n: 3,
+            ..NgramIndexBuildOptions::default()
+        },
+    )
+    .expect("ngram index should build");
+    let reader = QztReader::open(&container).expect("reader should open");
+
+    let report = index
+        .search(&reader, "中文", SearchOptions::default())
+        .expect("search should run");
+
+    assert!(report.hits.is_empty());
+    assert_eq!(report.metrics.term_lookups, 0);
+    assert_eq!(report.incomplete_reason, Some("query_shorter_than_ngram_n"));
+}

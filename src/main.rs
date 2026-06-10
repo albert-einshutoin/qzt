@@ -76,11 +76,12 @@ fn print_help() {
     println!("  help       Show this help");
     println!("  pack       Pack a UTF-8 text file into QZT");
     println!("  info       Print container summary");
-    println!("  export     Restore original bytes");
-    println!("  range      Print original bytes in a half-open byte range");
-    println!("  line       Print one original line");
+    println!("  export     Restore original bytes (streams to -o file or stdout)");
+    println!("  range      Print original bytes (--bytes A:B half-open) or lines");
+    println!("             (--lines A:B 1-based inclusive)");
+    println!("  line       Print one original line (1-based; --zero-based to switch)");
     println!("  search     Search raw UTF-8 tokens with verified original-byte hits");
-    println!("  sidecar-rebuild  Rebuild a QZI search sidecar");
+    println!("  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)");
     println!("  verify     Verify container integrity");
     println!();
     println!("Options:");
@@ -291,20 +292,28 @@ fn run_export(mut args: impl Iterator<Item = String>) -> ExitCode {
         }
     }
 
-    let result: CliResult<Vec<u8>> = (|| {
-        let reader = QztFileReader::open_path(path)?;
-        let mut output = Vec::new();
-        reader.export_to(&mut output)?;
-        Ok(output)
+    let result: CliResult<()> = (|| {
+        let reader = QztFileReader::open_path(&path)?;
+        match &output_path {
+            Some(output_path) => {
+                let file = std::fs::File::create(output_path)?;
+                let mut writer = std::io::BufWriter::new(file);
+                reader.export_to(&mut writer)?;
+                writer.flush()?;
+            }
+            None => {
+                let stdout = std::io::stdout();
+                let mut writer = std::io::BufWriter::new(stdout.lock());
+                reader.export_to(&mut writer)?;
+                writer.flush()?;
+            }
+        }
+        Ok(())
     })();
 
-    match (result, output_path) {
-        (Ok(bytes), Some(output_path)) => match std::fs::write(output_path, bytes) {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(error) => command_failed("export", error.into()),
-        },
-        (Ok(bytes), None) => write_stdout(&bytes),
-        (Err(error), _) => command_failed("export", error),
+    match result {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(error) => command_failed("export", error),
     }
 }
 
@@ -525,7 +534,7 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                 );
             }
             println!(
-                "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={}",
+                "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
                 report.metrics.query,
                 report.metrics.index_kind,
                 report.metrics.posting_granularity,
@@ -537,10 +546,15 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                 report.metrics.candidate_granules,
                 report.metrics.candidate_chunks,
                 report.metrics.decoded_bytes,
+                report.metrics.physical_decoded_bytes,
                 report.metrics.verified_matches,
                 report.metrics.query_time_ms,
-                report.capped
+                report.capped,
+                report.incomplete_reason.unwrap_or("none")
             );
+            if let Some(reason) = report.incomplete_reason {
+                eprintln!("qzt search: warning: result may be incomplete ({reason})");
+            }
             ExitCode::SUCCESS
         }
         Err(error) => command_failed("search", error),

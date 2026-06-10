@@ -34,6 +34,9 @@ production use の前に残っている既知の制限は以下です。
   必要はありません。grep-compatible ではありません。
 - **Normalized search は未実装**: `SearchIndexSource::NormalizedUtf8`
   (Unicode normalization、case folding、width folding) はまだ実装されていません。
+- **Sidecar のサイズ**: QZI token / n-gram sidecar は非圧縮の MVP 構造です。
+  現実的な 45 MB のログコーパスでは token sidecar は原文の約 2.1 倍でした。
+  sidecar のストレージはその前提で見積もってください。
 - **Production benchmark は未実施**: v0.1 では SQLite FTS、Tantivy、Lucene、
   seekable-zstd との比較はまだ実施していません。
 
@@ -64,6 +67,11 @@ qzt verify output.qzt --deep
 qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi
 ```
+
+range の範囲指定: `--bytes A:B` は half-open なバイト範囲 `[A, B)`、
+`--lines A:B` は 1-based で両端を含みます。index の `n`（デフォルト 3）より
+短い n-gram query は index では回答できないため、確信を持った 0 件ではなく
+`incomplete_reason=query_shorter_than_ngram_n` と警告を出力します。
 
 ## ドキュメント
 

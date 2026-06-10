@@ -98,6 +98,8 @@ Next action:
 
 design review follow-ups (DR-1..DR-6) 適用後: `cargo fmt --all -- --check`、`cargo clippy --all-targets --all-features -- -D warnings`、`cargo test --all-targets --all-features` が通っています。151 テスト通過（+12）。
 
+quality review follow-ups (2026-06-10) 適用後: search の hit verification が chunk decode cache を再利用するようになり（4,124 ヒットのクエリが 16,376 ms → 49 ms、新メトリクス `physical_decoded_bytes` が chunk レベルの復号量を可視化）、n-gram 長未満・token 化不能なクエリは silent な 0 件ではなく `incomplete_reason` と CLI 警告を返し、`qzt export` は bounded memory でストリーム出力（45 MB コーパスで最大 RSS 9.6 MB）、品質ゲートに default-features の `cargo check --lib --bins` を追加、`bench-release` を修復（Phase20 の API curation 以降コンパイル不能だった）して `--release --all-features` で実行: 2.4 MB deterministic corpus で pack 137.745 MiB/s、export 473.350 MiB/s、range 532.576 MiB/s（2026-06-07 の記録は debug build の値）。155 テスト通過（+4）。
+
 Phase14-Phase23 のセルフレビューでは以下を修正済みです。
 
 ```text

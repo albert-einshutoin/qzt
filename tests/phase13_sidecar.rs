@@ -220,3 +220,25 @@ fn assert_success(command: &mut Command) {
         String::from_utf8_lossy(&output.stderr)
     );
 }
+
+#[test]
+fn dense_sidecar_query_amortizes_physical_chunk_decodes() {
+    let mut input = String::new();
+    for index in 0..128 {
+        input.push_str(&format!("aaa common {index}\n"));
+    }
+    let container = pack_bytes_with_container_id(input.as_bytes(), [0xe6; 16], options(64, 64))
+        .expect("container should pack");
+    let sidecar = build_search_sidecar(&container, SidecarIndexKind::Ngram { n: 3 })
+        .expect("sidecar should build");
+    let sidecar = QziSidecar::open(&container, &sidecar).expect("sidecar should open");
+    let reader = QztReader::open(&container).expect("reader should open");
+
+    let report = sidecar
+        .search(&reader, "common", SearchOptions::default())
+        .expect("sidecar search should run");
+
+    assert_eq!(report.metrics.verified_matches, 128);
+    assert!(report.metrics.physical_decoded_bytes > 0);
+    assert!(report.metrics.physical_decoded_bytes <= reader.info().original_size);
+}
