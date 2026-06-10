@@ -44,6 +44,7 @@ pub enum QztError {
     UnexpectedEof,
     WriterAlreadyFinished,
     VerifiedChecksumMismatch,
+    BenchmarkMetricsMismatch,
 
     /// Placeholder used until format-specific errors are introduced.
     NotImplemented(&'static str),

@@ -239,10 +239,7 @@ pub fn run_release_benchmark(options: ReleaseBenchmarkOptions) -> Result<Release
         ReleaseBenchmarkQuery {
             name: "missing-token",
             query: "missing-token-for-release-benchmark",
-            search_options: SearchOptions {
-                max_search_results: 1,
-                ..SearchOptions::default()
-            },
+            search_options: SearchOptions::default(),
         },
         options.query_warmup_repetitions,
         options.query_repetitions,
@@ -411,15 +408,28 @@ fn run_query_case(
     }
 
     let mut samples = Vec::with_capacity(query_repetitions);
-    let mut report = None;
+    let mut baseline = None;
     for _ in 0..query_repetitions {
         let started = Instant::now();
         let current = sidecar.search(reader, query.query, query.search_options)?;
         samples.push(started.elapsed().as_micros());
-        report = Some(current);
+        let current = ReleaseBenchmarkQueryReportBaseline {
+            candidate_granules: current.metrics.candidate_granules,
+            candidate_chunks: current.metrics.candidate_chunks,
+            decoded_bytes: current.metrics.decoded_bytes,
+            verified_matches: current.metrics.verified_matches,
+            capped: current.capped,
+        };
+        if let Some(previous) = baseline {
+            if current != previous {
+                return Err(QztError::BenchmarkMetricsMismatch);
+            }
+        } else {
+            baseline = Some(current);
+        }
     }
 
-    let Some(report) = report else {
+    let Some(baseline) = baseline else {
         return Err(QztError::ResourceLimitExceeded);
     };
     samples.sort_unstable();
@@ -432,11 +442,11 @@ fn run_query_case(
         query: query.query,
         iterations: query_repetitions,
         warmup_iterations: warmup_repetitions,
-        candidate_granules: report.metrics.candidate_granules,
-        candidate_chunks: report.metrics.candidate_chunks,
-        decoded_bytes: report.metrics.decoded_bytes,
-        verified_matches: report.metrics.verified_matches,
-        capped: report.capped,
+        candidate_granules: baseline.candidate_granules,
+        candidate_chunks: baseline.candidate_chunks,
+        decoded_bytes: baseline.decoded_bytes,
+        verified_matches: baseline.verified_matches,
+        capped: baseline.capped,
         p50_query_time_micros,
         p95_query_time_micros,
         p99_query_time_micros,
@@ -447,8 +457,21 @@ fn percentile_micros(samples: &[u128], percentile: u64) -> u128 {
     if samples.is_empty() {
         return 0;
     }
-    let index = (samples.len() - 1).saturating_mul(percentile as usize) / 100;
+
+    debug_assert!(percentile <= 100);
+    let clamped_percentile = if percentile > 100 { 100 } else { percentile };
+    let rank = ((clamped_percentile as usize * samples.len()) + 99) / 100;
+    let index = rank.saturating_sub(1).min(samples.len() - 1);
     samples[index]
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct ReleaseBenchmarkQueryReportBaseline {
+    candidate_granules: u64,
+    candidate_chunks: u64,
+    decoded_bytes: u64,
+    verified_matches: u64,
+    capped: bool,
 }
 
 fn ratio(numerator: u64, denominator: u64) -> f64 {
