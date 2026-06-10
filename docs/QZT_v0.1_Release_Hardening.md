@@ -36,6 +36,12 @@ Profile-only run (non-gating, ignored test):
 make bench-profile
 ```
 
+Matrix profiling across corpus sizes and character sets (1/10/100MB, ASCII/UTF-8-mixed/Japanese):
+
+```bash
+make bench-profile-matrix
+```
+
 You can override the profile repetition counts with environment variables:
 
 ```bash
@@ -43,6 +49,18 @@ QZT_RELEASE_BENCH_QUERY_REPETITIONS=500 \
 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=20 \
 make bench-profile
 ```
+
+You can run the matrix profile with the same variables:
+
+```bash
+QZT_RELEASE_BENCH_QUERY_REPETITIONS=500 \
+QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=20 \
+make bench-profile-matrix
+```
+
+For routine evidence checks, `QZT_RELEASE_BENCH_QUERY_REPETITIONS=5` and
+`QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=2` are practical defaults; use the
+default `500/20` only for formal release profiling runs.
 
 ## Corpus
 

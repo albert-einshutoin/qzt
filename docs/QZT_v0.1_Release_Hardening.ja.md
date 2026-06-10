@@ -34,6 +34,12 @@ cargo test --test release_hardening -- --nocapture
 make bench-profile
 ```
 
+コーパス特性行列 (1/10/100MB × ASCII/UTF-8混在/日本語) の実行:
+
+```bash
+make bench-profile-matrix
+```
+
 `QZT_RELEASE_BENCH_QUERY_REPETITIONS` / `QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS` で
 反復回数を上書きできます。
 
@@ -42,6 +48,17 @@ QZT_RELEASE_BENCH_QUERY_REPETITIONS=500 \
 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=20 \
 make bench-profile
 ```
+
+同じ環境変数で行列実行も行えます。
+
+```bash
+QZT_RELEASE_BENCH_QUERY_REPETITIONS=500 \
+QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=20 \
+make bench-profile-matrix
+```
+
+日常の evidence 取りは `QZT_RELEASE_BENCH_QUERY_REPETITIONS=5` `QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=2` の軽量設定を使い、
+本番リリース向けの正式計測は既定値(500/20)を使う運用を推奨します。
 
 ## Corpus
 

@@ -183,7 +183,31 @@ pub fn run_release_benchmark(options: ReleaseBenchmarkOptions) -> Result<Release
     }
 
     let corpus = release_corpus(options.line_count);
+    run_release_benchmark_with_corpus(corpus, options)
+}
+
+/// Runs a benchmark smoke over a caller-provided corpus.
+pub fn run_release_benchmark_with_corpus(
+    corpus: Vec<u8>,
+    mut options: ReleaseBenchmarkOptions,
+) -> Result<ReleaseBenchmarkReport> {
+    if corpus.is_empty()
+        || options.chunk_size == 0
+        || options.range_size == 0
+        || options.query_repetitions == 0
+    {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+
     let corpus_bytes = u64::try_from(corpus.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    if options.line_count == 0 {
+        options.line_count = line_count_from_corpus(&corpus);
+    }
+
+    if options.line_count == 0 {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+
     let writer_options = WriterOptions {
         chunker: ChunkerOptions {
             target_chunk_size: options.chunk_size,
@@ -387,6 +411,19 @@ fn release_corpus(line_count: usize) -> Vec<u8> {
         }
     }
     corpus
+}
+
+fn line_count_from_corpus(corpus: &[u8]) -> usize {
+    if corpus.is_empty() {
+        return 0;
+    }
+
+    let newline_count = corpus.iter().filter(|byte| **byte == b'\n').count();
+    if corpus.ends_with(b"\n") {
+        newline_count
+    } else {
+        newline_count + 1
+    }
 }
 
 #[derive(Debug, Clone, Copy)]

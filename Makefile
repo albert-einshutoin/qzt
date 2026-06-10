@@ -1,4 +1,4 @@
-.PHONY: fmt clippy check-default test check bench-release bench-profile
+.PHONY: fmt clippy check-default test check bench-release bench-profile bench-profile-matrix
 
 RELEASE_BENCH_QUERY_REPETITIONS ?= 500
 RELEASE_BENCH_QUERY_WARMUP_REPETITIONS ?= 20
@@ -29,3 +29,8 @@ bench-profile:
 	QZT_RELEASE_BENCH_QUERY_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_REPETITIONS) \
 	QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS) \
 	cargo test --release --all-features --test release_hardening release_benchmark_profile -- --ignored --nocapture
+
+bench-profile-matrix:
+	QZT_RELEASE_BENCH_QUERY_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_REPETITIONS) \
+	QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS) \
+	cargo test --release --all-features --test release_hardening release_benchmark_profile_matrix -- --ignored --nocapture
