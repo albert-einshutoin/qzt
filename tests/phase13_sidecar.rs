@@ -9,6 +9,8 @@ use qzt::schema::Checksum;
 use qzt::search::{NgramIndexBuildOptions, RawNgramIndex, SearchOptions};
 use qzt::sidecar::{build_search_sidecar, QziFileSidecar, QziSidecar, SidecarIndexKind};
 use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
+mod phase13_search_report;
+use phase13_search_report::assert_semantic_report_eq;
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
     WriterOptions {
@@ -89,15 +91,7 @@ fn sidecar_lookup_matches_transient_ngram_index_behavior() {
         .search(&reader, "東京", SearchOptions::default())
         .expect("transient search should run");
 
-    assert_eq!(sidecar_report.hits, transient_report.hits);
-    assert_eq!(
-        sidecar_report.metrics.candidate_granules,
-        transient_report.metrics.candidate_granules
-    );
-    assert_eq!(
-        sidecar_report.metrics.decoded_bytes,
-        transient_report.metrics.decoded_bytes
-    );
+    assert_semantic_report_eq(&sidecar_report, &transient_report, "sidecar vs transient");
 }
 
 #[test]
@@ -276,27 +270,7 @@ fn file_sidecar_search_matches_in_memory_sidecar_search() {
             let file = file_sidecar
                 .search(&file_reader, query, SearchOptions::default())
                 .expect("file sidecar search should run");
-            assert_eq!(memory.hits, file.hits, "query {query:?}");
-            assert_eq!(
-                memory.metrics.candidate_granules,
-                file.metrics.candidate_granules
-            );
-            assert_eq!(
-                memory.metrics.candidate_chunks,
-                file.metrics.candidate_chunks
-            );
-            assert_eq!(memory.metrics.decoded_bytes, file.metrics.decoded_bytes);
-            assert_eq!(
-                memory.metrics.physical_decoded_bytes,
-                file.metrics.physical_decoded_bytes
-            );
-            assert_eq!(
-                memory.metrics.verified_matches,
-                file.metrics.verified_matches
-            );
-            assert_eq!(memory.capped, file.capped);
-            assert_eq!(memory.incomplete_reason, file.incomplete_reason);
-            assert_eq!(memory.planner.selected_keys, file.planner.selected_keys);
+            assert_semantic_report_eq(&memory, &file, &format!("query {query:?}"));
         }
     }
 }

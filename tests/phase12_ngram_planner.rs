@@ -8,6 +8,8 @@ use qzt::search::{
     NgramIndexBuildOptions, NgramUnit, RawNgramIndex, SearchIndexSource, SearchOptions,
 };
 use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
+mod phase13_search_report;
+use phase13_search_report::assert_semantic_report_eq;
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
     WriterOptions {
@@ -304,17 +306,6 @@ fn ngram_build_and_search_from_file_match_in_memory_paths() {
         let file = memory_index
             .search_file(&file_reader, query, SearchOptions::default())
             .expect("file search should run");
-        assert_eq!(memory.hits, file.hits, "query {query:?}");
-        assert_eq!(memory.metrics.decoded_bytes, file.metrics.decoded_bytes);
-        assert_eq!(
-            memory.metrics.physical_decoded_bytes,
-            file.metrics.physical_decoded_bytes
-        );
-        assert_eq!(
-            memory.metrics.verified_matches,
-            file.metrics.verified_matches
-        );
-        assert_eq!(memory.capped, file.capped);
-        assert_eq!(memory.incomplete_reason, file.incomplete_reason);
+        assert_semantic_report_eq(&memory, &file, &format!("query {query:?}"));
     }
 }
