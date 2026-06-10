@@ -1,6 +1,4 @@
-use qzt::benchmark::{
-    run_release_benchmark, ReleaseBenchmarkOptions, ReleaseBenchmarkReport,
-};
+use qzt::benchmark::{run_release_benchmark, ReleaseBenchmarkOptions, ReleaseBenchmarkReport};
 
 #[test]
 fn release_benchmark_reports_reproducible_large_corpus_metrics() {
@@ -59,9 +57,18 @@ fn assert_release_benchmark_report(report: &ReleaseBenchmarkReport) {
 }
 
 fn env_usize(name: &str, default: usize) -> usize {
-    std::env::var(name)
-        .ok()
-        .and_then(|value| value.parse::<usize>().ok())
-        .filter(|value| *value > 0)
-        .unwrap_or(default)
+    let raw = match std::env::var(name) {
+        Ok(raw) => raw,
+        Err(_) => return default,
+    };
+
+    let parsed = raw
+        .parse::<usize>()
+        .unwrap_or_else(|_| panic!("{name} must be a positive integer, got {raw:?}"));
+
+    if parsed == 0 {
+        panic!("{name} must be greater than 0, got {raw:?}");
+    }
+
+    parsed
 }
