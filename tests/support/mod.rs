@@ -4,9 +4,13 @@ use qzt::search::SearchReport;
 ///
 /// Intentionally excluded fields:
 /// - metrics.query_time_ms: runtime dependent and non-deterministic
-/// - metrics.index_size_bytes: defined differently by storage model
+/// - metrics.index_size_bytes: defined differently by source of metric
+///   (`Raw` sidecar reports estimated in-memory bytes, while file sidecar
+///   reports serialized section payload bytes; on skip-heavy indexes this can
+///   make file-sidecar bytes smaller than in-memory estimates)
 /// - metrics.posting_bytes_read: differs when skip-data is simulated
-/// - planner.used_skip_data: file sidecar keeps it false even when skip data is used
+/// - planner.used_skip_data: file sidecar keeps it false even when the
+///   in-memory index would use skip data
 /// - metrics.candidate_chunks:
 ///   when capped=false, in-memory and file sidecar both report counts
 ///   consistently; when capped=true, file sidecar returns 0 early before counting

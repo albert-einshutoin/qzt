@@ -276,6 +276,83 @@ fn file_sidecar_search_matches_in_memory_sidecar_search() {
 }
 
 #[test]
+fn file_sidecar_index_size_bytes_follows_serialized_manifest_model() {
+    let mut non_skip_input = String::new();
+    for index in 0..96 {
+        non_skip_input.push_str(&format!("info common line {index}\n"));
+    }
+    non_skip_input.push_str("alpha needle line\n");
+    non_skip_input.push_str("beta needle line\n");
+    let non_skip_container =
+        pack_bytes_with_container_id(non_skip_input.as_bytes(), [0xea; 16], options(128, 128))
+            .expect("container should pack");
+    let non_skip_sidecar =
+        build_search_sidecar(&non_skip_container, SidecarIndexKind::Ngram { n: 3 })
+            .expect("sidecar should build");
+    let non_skip_memory =
+        QziSidecar::open(&non_skip_container, &non_skip_sidecar).expect("sidecar should open");
+    let non_skip_reader = QztReader::open(&non_skip_container).expect("reader should open");
+    let non_skip_file_reader = QztFileReader::open_read_at(
+        non_skip_container.as_slice(),
+        non_skip_container.len() as u64,
+    )
+    .expect("file reader should open");
+    let non_skip_file = QziFileSidecar::open_read_at(
+        non_skip_sidecar.as_slice(),
+        non_skip_sidecar.len() as u64,
+        &non_skip_file_reader,
+    )
+    .expect("file sidecar should open");
+
+    let non_skip_memory_report = non_skip_memory
+        .search(&non_skip_reader, "line", SearchOptions::default())
+        .expect("in-memory sidecar search should run");
+    let non_skip_file_report = non_skip_file
+        .search(&non_skip_file_reader, "line", SearchOptions::default())
+        .expect("file sidecar search should run");
+
+    assert_eq!(
+        non_skip_memory_report.metrics.index_size_bytes + 16,
+        non_skip_file_report.metrics.index_size_bytes,
+        "non-skip query should keep the +16 serialized header delta"
+    );
+
+    let mut skip_input = String::new();
+    for index in 0..1100 {
+        skip_input.push_str(&format!("aaa line {index}\n"));
+    }
+    let skip_container =
+        pack_bytes_with_container_id(skip_input.as_bytes(), [0xeb; 16], options(512, 512))
+            .expect("container should pack");
+    let skip_sidecar = build_search_sidecar(&skip_container, SidecarIndexKind::Ngram { n: 3 })
+        .expect("sidecar should build");
+    let skip_memory =
+        QziSidecar::open(&skip_container, &skip_sidecar).expect("sidecar should open");
+    let skip_reader = QztReader::open(&skip_container).expect("reader should open");
+    let skip_file_reader =
+        QztFileReader::open_read_at(skip_container.as_slice(), skip_container.len() as u64)
+            .expect("file reader should open");
+    let skip_file = QziFileSidecar::open_read_at(
+        skip_sidecar.as_slice(),
+        skip_sidecar.len() as u64,
+        &skip_file_reader,
+    )
+    .expect("file sidecar should open");
+
+    let skip_memory_report = skip_memory
+        .search(&skip_reader, "aaa", SearchOptions::default())
+        .expect("in-memory sidecar search should run");
+    let skip_file_report = skip_file
+        .search(&skip_file_reader, "aaa", SearchOptions::default())
+        .expect("file sidecar search should run");
+
+    assert!(
+        skip_file_report.metrics.index_size_bytes < skip_memory_report.metrics.index_size_bytes,
+        "skip-list encoding causes in-memory estimate to exceed serialized manifest size"
+    );
+}
+
+#[test]
 fn file_sidecar_search_reads_lazily_from_sidecar() {
     let mut input = String::new();
     for index in 0..256 {
