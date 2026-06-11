@@ -1,7 +1,7 @@
 use std::fmt;
 
 /// Top-level error type for QZT operations.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum QztError {
     InvalidMagic,
