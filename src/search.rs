@@ -306,6 +306,7 @@ impl RawTokenIndex {
         })
     }
 
+    #[cfg(feature = "internal-testing")]
     pub fn posting_list_for_key(&self, key: &[u8]) -> Option<&[u64]> {
         self.term_index_for_key(key)
             .and_then(|index| self.postings.get(index).map(Vec::as_slice))
@@ -610,6 +611,7 @@ impl RawNgramIndex {
         })
     }
 
+    #[cfg(feature = "internal-testing")]
     pub fn term_for_key(&self, key: &[u8]) -> Option<&TermDictionaryEntry> {
         self.term_index_for_key(key)
             .and_then(|index| self.terms.get(index))

@@ -5,7 +5,8 @@ use std::process::Command;
 fn library_can_be_imported() {
     assert_eq!(qzt::version(), env!("CARGO_PKG_VERSION"));
     assert_eq!(qzt::format::MAGIC, *b"QZT\0TXT1");
-    assert_eq!(qzt::format::VERSION, 1);
+    assert_eq!(qzt::format::MAJOR_VERSION, 0);
+    assert_eq!(qzt::format::MINOR_VERSION, 1);
 }
 
 #[test]

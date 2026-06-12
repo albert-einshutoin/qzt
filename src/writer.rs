@@ -30,17 +30,6 @@ pub struct QztFileWriter<W: Read + Write + Seek> {
     poisoned: bool,
 }
 
-/// Compatibility name reserved by the v0.1 spec.
-#[doc(hidden)]
-pub struct QztWriter;
-
-impl QztWriter {
-    /// Creates a QZT writer.
-    pub fn new() -> Result<Self> {
-        Ok(Self)
-    }
-}
-
 /// Writer options for the no-dictionary Phase5 writer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct WriterOptions {
