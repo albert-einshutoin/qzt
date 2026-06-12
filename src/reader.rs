@@ -451,10 +451,7 @@ impl<R: ReadAt> QztFileReader<R> {
                 .checked_add(read_len as u64)
                 .ok_or(QztError::PhysicalRangeOutOfBounds)?;
         }
-        Ok(Checksum {
-            algorithm: "blake3".to_owned(),
-            value: *hasher.finalize().as_bytes(),
-        })
+        Ok(Checksum::from_hasher(hasher))
     }
 }
 
@@ -667,10 +664,7 @@ fn verify_deep_entries(
     if decoded_bytes != details.summary.original_size {
         return Err(QztError::ChunkSizeMismatch);
     }
-    let original_checksum = Checksum {
-        algorithm: "blake3".to_owned(),
-        value: *original_hasher.finalize().as_bytes(),
-    };
+    let original_checksum = Checksum::from_hasher(original_hasher);
     if original_checksum != details.metadata.original_checksum {
         return Err(QztError::UncompressedChunkChecksumMismatch);
     }
@@ -747,7 +741,7 @@ fn find_document<'a>(details: &'a SkeletonDetails, doc_id: &str) -> Result<&'a D
 }
 
 fn verify_expected_checksum(bytes: &[u8], expected: &Checksum) -> Result<()> {
-    if expected.algorithm != "blake3" {
+    if expected.algorithm != crate::schema::CHECKSUM_ALGORITHM_BLAKE3 {
         return Err(QztError::ContainerCorrupt);
     }
     if Checksum::blake3(bytes) != *expected {
@@ -931,10 +925,7 @@ fn verify_document_index_ranges(
                 .get(&index)
                 .copied()
                 .ok_or(QztError::ContainerCorrupt)?;
-            Checksum {
-                algorithm: "blake3".to_owned(),
-                value,
-            }
+            Checksum::from_raw_bytes(value)
         };
         if actual != document.checksum {
             return Err(QztError::ContainerCorrupt);

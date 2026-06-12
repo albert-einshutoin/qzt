@@ -689,10 +689,7 @@ fn verify_section_checksum<R: ReadAt>(
             .checked_add(read_len as u64)
             .ok_or(QztError::ResourceLimitExceeded)?;
     }
-    let actual = Checksum {
-        algorithm: "blake3".to_owned(),
-        value: *hasher.finalize().as_bytes(),
-    };
+    let actual = Checksum::from_hasher(hasher);
     if actual != section.checksum {
         return Err(QztError::ContainerCorrupt);
     }
@@ -832,13 +829,12 @@ fn required_section(map: &[(CborValue, CborValue)], key: &str) -> Result<Section
 fn required_checksum(map: &[(CborValue, CborValue)], key: &str) -> Result<Checksum> {
     let checksum = as_map(required_value(map, key)?)?;
     let algorithm = required_text(checksum, "algorithm")?;
-    if algorithm != "blake3" {
+    if algorithm != crate::schema::CHECKSUM_ALGORITHM_BLAKE3 {
         return Err(QztError::ContainerCorrupt);
     }
-    Ok(Checksum {
-        algorithm,
-        value: required_bstr32(checksum, "value")?,
-    })
+    Ok(Checksum::from_raw_bytes(required_bstr32(
+        checksum, "value",
+    )?))
 }
 
 fn required_value<'a>(map: &'a [(CborValue, CborValue)], key: &str) -> Result<&'a CborValue> {

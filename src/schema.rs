@@ -8,7 +8,8 @@ const SCHEMA_METADATA: &str = "qzt.metadata.v1";
 const SCHEMA_INDEX_ROOT: &str = "qzt.index-root.v1";
 const SCHEMA_DICTIONARY: &str = "qzt.dictionary.v1";
 const SCHEMA_DOCUMENT_INDEX: &str = "qzt.document-index.v1";
-const CHECKSUM_BLAKE3: &str = "blake3";
+/// BLAKE3 algorithm identifier used in all QZT checksum fields.
+pub(crate) const CHECKSUM_ALGORITHM_BLAKE3: &str = "blake3";
 const CHUNK_TABLE_TYPE: &str = "chunk_table";
 const CHUNK_TABLE_CODEC: &str = "qzt-ctbl-fixed-v1";
 const DICTIONARY_TYPE: &str = "dictionary";
@@ -26,11 +27,34 @@ pub struct Checksum {
 }
 
 impl Checksum {
+    /// Computes a BLAKE3 checksum over the given bytes.
     #[must_use]
     pub fn blake3(bytes: &[u8]) -> Self {
         Self {
-            algorithm: CHECKSUM_BLAKE3.to_owned(),
+            algorithm: CHECKSUM_ALGORITHM_BLAKE3.to_owned(),
             value: *blake3::hash(bytes).as_bytes(),
+        }
+    }
+
+    /// Finalizes a streaming BLAKE3 hasher into a [`Checksum`].
+    ///
+    /// Takes the hasher by value to prevent reuse after finalization.
+    #[must_use]
+    pub(crate) fn from_hasher(hasher: blake3::Hasher) -> Self {
+        Self {
+            algorithm: CHECKSUM_ALGORITHM_BLAKE3.to_owned(),
+            value: *hasher.finalize().as_bytes(),
+        }
+    }
+
+    /// Constructs a BLAKE3 [`Checksum`] from pre-computed raw hash bytes.
+    ///
+    /// The caller is responsible for ensuring the bytes were produced by BLAKE3.
+    #[must_use]
+    pub(crate) fn from_raw_bytes(value: [u8; 32]) -> Self {
+        Self {
+            algorithm: CHECKSUM_ALGORITHM_BLAKE3.to_owned(),
+            value,
         }
     }
 }
@@ -296,15 +320,15 @@ impl Metadata {
                 CborValue::Map(vec![
                     text_pair(
                         "compressed_chunk_checksum",
-                        CborValue::Text(CHECKSUM_BLAKE3.to_owned()),
+                        CborValue::Text(CHECKSUM_ALGORITHM_BLAKE3.to_owned()),
                     ),
                     text_pair(
                         "uncompressed_chunk_checksum",
-                        CborValue::Text(CHECKSUM_BLAKE3.to_owned()),
+                        CborValue::Text(CHECKSUM_ALGORITHM_BLAKE3.to_owned()),
                     ),
                     text_pair(
                         "index_checksum",
-                        CborValue::Text(CHECKSUM_BLAKE3.to_owned()),
+                        CborValue::Text(CHECKSUM_ALGORITHM_BLAKE3.to_owned()),
                     ),
                 ]),
             ),
@@ -457,19 +481,19 @@ impl Metadata {
         expect_text_field(
             integrity,
             "compressed_chunk_checksum",
-            CHECKSUM_BLAKE3,
+            CHECKSUM_ALGORITHM_BLAKE3,
             QztError::MetadataInvalid,
         )?;
         expect_text_field(
             integrity,
             "uncompressed_chunk_checksum",
-            CHECKSUM_BLAKE3,
+            CHECKSUM_ALGORITHM_BLAKE3,
             QztError::MetadataInvalid,
         )?;
         expect_text_field(
             integrity,
             "index_checksum",
-            CHECKSUM_BLAKE3,
+            CHECKSUM_ALGORITHM_BLAKE3,
             QztError::MetadataInvalid,
         )?;
 
@@ -1157,14 +1181,13 @@ fn required_checksum(
     let checksum = required_map(map, key, error)?;
     reject_unknown_keys(checksum, &["algorithm", "value"], error)?;
     let algorithm = required_text(checksum, "algorithm", error)?;
-    if algorithm != CHECKSUM_BLAKE3 {
+    if algorithm != CHECKSUM_ALGORITHM_BLAKE3 {
         return Err(error);
     }
 
-    Ok(Checksum {
-        algorithm,
-        value: required_bstr32(checksum, "value", error)?,
-    })
+    Ok(Checksum::from_raw_bytes(required_bstr32(
+        checksum, "value", error,
+    )?))
 }
 
 fn optional_checksum(

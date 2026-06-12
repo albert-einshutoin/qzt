@@ -237,10 +237,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         let input_hash = self.input_hasher.finalize();
         let mut container_id = [0_u8; 16];
         container_id.copy_from_slice(&input_hash.as_bytes()[..16]);
-        let original_checksum = Checksum {
-            algorithm: "blake3".to_owned(),
-            value: *input_hash.as_bytes(),
-        };
+        let original_checksum = Checksum::from_hasher(std::mem::take(&mut self.input_hasher));
 
         let metadata_offset = self.physical_offset;
         let metadata = Metadata::for_source_with_options(
@@ -374,10 +371,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             hasher.update(&buffer[..chunk_len]);
             remaining -= chunk_len as u64;
         }
-        Ok(Checksum {
-            algorithm: "blake3".to_owned(),
-            value: *hasher.finalize().as_bytes(),
-        })
+        Ok(Checksum::from_hasher(hasher))
     }
 
     fn emit_pending_chunk(&mut self, end: usize) -> Result<()> {
