@@ -1,3 +1,4 @@
+#![cfg(feature = "internal-testing")]
 use std::fmt::Write as _;
 use std::fs;
 use std::process::Command;
