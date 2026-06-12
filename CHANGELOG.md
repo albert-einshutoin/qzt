@@ -7,6 +7,17 @@ Container format for UTF-8 text.
 
 ### Added
 
+- `qzt pack -` reads from stdin instead of a file when the input path is `-`
+  (Unix pipeline convention). Example:
+  `journalctl --since today | qzt pack - -o today.qzt`
+  Stdin input is only supported on the streaming code path
+  (`--profile core` without `--dense-line-index on`). Combining `-` with a
+  non-streaming profile or `--dense-line-index on` exits with code 2 and prints
+  a clear explanation to stderr so users are not surprised by silent OOM on
+  large log streams. The `-o <path>` output flag remains required (stdout output
+  is not possible because `QztFileWriter` requires seek). The existing atomic
+  `.tmp` → rename write and all file-input behaviour are unchanged.
+
 - `qzt search <file.qzt> <query> [--sidecar …] --format json` emits a single
   JSON object to stdout:
   `{"hits":[{"logical_offset":…,"byte_length":…,"chunk_start":…,"chunk_end":…,"source":"verified_original_bytes"},…],"metrics":{"query":"…","index_kind":"…","posting_granularity":"…","index_size_bytes":…,"source_size_bytes":…,"index_size_ratio":…,"term_lookups":…,"posting_bytes_read":…,"candidate_granules":…,"candidate_chunks":…,"decoded_bytes":…,"physical_decoded_bytes":…,"verified_matches":…,"query_time_ms":…},"capped":bool,"incomplete_reason":null|"…"}`.

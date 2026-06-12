@@ -67,6 +67,7 @@ The gate runs:
 
 ```sh
 qzt pack input.txt -o output.qzt
+journalctl --since today | qzt pack - -o today.qzt
 qzt info output.qzt
 qzt info output.qzt --format json
 qzt export output.qzt -o restored.txt

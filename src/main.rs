@@ -79,6 +79,10 @@ fn print_help() {
     println!("Commands:");
     println!("  help       Show this help");
     println!("  pack       Pack a UTF-8 text file into QZT");
+    println!("             Use '-' as the input path to read from stdin:");
+    println!("             journalctl --since today | qzt pack - -o today.qzt");
+    println!("             (stdin requires --profile core without --dense-line-index;");
+    println!("              stdout output is not supported; -o <path> is always required)");
     println!("  info       Print container summary (--format json for machine-readable output)");
     println!("  export     Restore original bytes (streams to -o file or stdout)");
     println!("  range      Print original bytes (--bytes A:B half-open) or lines");
@@ -197,10 +201,24 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
         return ExitCode::from(2);
     }
 
+    let stdin_input = input_path == "-";
     let dense_line_index = dense_line_index.unwrap_or(profile == "memory");
+
+    // stdin is only supported on the streaming path (core profile, no dense line index).
+    // Silently buffering all of stdin would defeat the memory-safety promise for large logs.
+    if stdin_input && (profile != "core" || dense_line_index) {
+        eprintln!("qzt pack: stdin input requires --profile core without --dense-line-index");
+        eprintln!("(other profiles need the whole input in memory; write to a file first)");
+        return ExitCode::from(2);
+    }
+
     let result: CliResult<()> = (|| {
         if profile == "core" && !dense_line_index {
-            let mut input = std::fs::File::open(input_path)?;
+            let mut input: Box<dyn Read> = if stdin_input {
+                Box::new(std::io::stdin().lock())
+            } else {
+                Box::new(std::fs::File::open(&input_path)?)
+            };
             let temp_output_path = format!("{output_path}.tmp");
             let stream_result: CliResult<()> = (|| {
                 let output = std::fs::OpenOptions::new()
