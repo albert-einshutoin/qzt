@@ -9,7 +9,7 @@ use crate::fixed::PhysicalRange;
 use crate::format::FOOTER_TRAILER_LEN;
 use crate::io::ReadAt;
 use crate::limits::ResourceLimits;
-use crate::primitives::{checked_logical_end, checked_physical_end};
+use crate::primitives::{checked_logical_end, checked_physical_end, u64_to_usize, usize_to_u64};
 use crate::schema::{Checksum, DictionaryEntry, DocumentEntry};
 use crate::skeleton::{
     open_skeleton_details, open_skeleton_details_read_at, open_skeleton_details_with_limits,
@@ -414,7 +414,7 @@ impl<R: ReadAt> QztFileReader<R> {
         if end > self.len {
             return Err(QztError::PhysicalRangeOutOfBounds);
         }
-        let len = usize::try_from(range.size).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let len = u64_to_usize(range.size)?;
         let mut bytes = vec![0_u8; len];
         self.source
             .read_exact_at(range.offset, &mut bytes)
@@ -567,7 +567,7 @@ fn read_range_from_entries_cached(
         index += 1;
     }
 
-    if u64::try_from(output.len()).map_err(|_| QztError::ResourceLimitExceeded)? != length {
+    if usize_to_u64(output.len())? != length {
         return Err(QztError::ContainerCorrupt);
     }
 
@@ -660,7 +660,7 @@ fn verify_deep_entries(
             hasher.feed(entry.logical_offset, &decoded)?;
         }
         decoded_bytes = decoded_bytes
-            .checked_add(u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?)
+            .checked_add(usize_to_u64(decoded.len())?)
             .ok_or(QztError::ResourceLimitExceeded)?;
     }
 
@@ -722,9 +722,7 @@ fn decode_compressed_entry(
     let decoder = zstd::stream::Decoder::with_dictionary(compressed, dictionary)
         .map_err(|_| QztError::ZstdDecodeError)?;
     let decoded = decode_with_output_limit(decoder, entry.uncompressed_size)?;
-    if u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?
-        != entry.uncompressed_size
-    {
+    if usize_to_u64(decoded.len())? != entry.uncompressed_size {
         return Err(QztError::ChunkSizeMismatch);
     }
     if Checksum::blake3(&decoded).value != entry.uncompressed_checksum_blake3 {
@@ -779,7 +777,7 @@ impl StreamingTextAnalysis {
         let starts = local_line_starts(decoded, flags);
         self.line_starts_seen = self
             .line_starts_seen
-            .checked_add(u64::try_from(starts.len()).map_err(|_| QztError::ResourceLimitExceeded)?)
+            .checked_add(usize_to_u64(starts.len())?)
             .ok_or(QztError::ResourceLimitExceeded)?;
 
         for byte in decoded {
@@ -858,7 +856,7 @@ fn decode_with_output_limit(
     decoder: zstd::stream::Decoder<'_, &[u8]>,
     expected_size: u64,
 ) -> Result<Vec<u8>> {
-    let capacity = usize::try_from(expected_size).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let capacity = u64_to_usize(expected_size)?;
     let read_limit = expected_size
         .checked_add(1)
         .ok_or(QztError::ResourceLimitExceeded)?;
@@ -868,7 +866,7 @@ fn decode_with_output_limit(
         .read_to_end(&mut decoded)
         .map_err(|_| QztError::ZstdDecodeError)?;
 
-    if u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)? > expected_size {
+    if usize_to_u64(decoded.len())? > expected_size {
         return Err(QztError::ResourceLimitExceeded);
     }
 
@@ -1029,8 +1027,7 @@ impl DocumentHasher {
     }
 
     fn feed(&mut self, chunk_offset: u64, decoded: &[u8]) -> Result<()> {
-        let chunk_len =
-            u64::try_from(decoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let chunk_len = usize_to_u64(decoded.len())?;
         let chunk_end = chunk_offset
             .checked_add(chunk_len)
             .ok_or(QztError::ResourceLimitExceeded)?;

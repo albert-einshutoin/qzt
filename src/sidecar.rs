@@ -6,6 +6,7 @@ use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
 use crate::format::FOOTER_TRAILER_LEN;
 use crate::io::ReadAt;
+use crate::primitives::{u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
 use crate::schema::Checksum;
 use crate::search::{
@@ -68,7 +69,7 @@ struct SectionRef {
 }
 
 pub fn build_search_sidecar(qzt_bytes: &[u8], kind: SidecarIndexKind) -> Result<Vec<u8>> {
-    let len = u64::try_from(qzt_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let len = usize_to_u64(qzt_bytes.len())?;
     let reader = QztFileReader::open_read_at(qzt_bytes, len)?;
     build_search_sidecar_from_file(&reader, kind)
 }
@@ -124,15 +125,12 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
     let posting_bytes = encode_posting_section(&postings)?;
     let term_bytes = encode_terms(&terms)?;
 
-    let terms_offset =
-        u64::try_from(granule_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let terms_offset = usize_to_u64(granule_bytes.len())?;
     let postings_offset = terms_offset
-        .checked_add(u64::try_from(term_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?)
+        .checked_add(usize_to_u64(term_bytes.len())?)
         .ok_or(QztError::ResourceLimitExceeded)?;
     let index_size_bytes = postings_offset
-        .checked_add(
-            u64::try_from(posting_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
-        )
+        .checked_add(usize_to_u64(posting_bytes.len())?)
         .ok_or(QztError::ResourceLimitExceeded)?;
 
     let manifest = SidecarManifest {
@@ -152,13 +150,12 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
         },
         terms: SectionRef {
             offset: terms_offset,
-            size: u64::try_from(term_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
+            size: usize_to_u64(term_bytes.len())?,
             checksum: Checksum::blake3(&term_bytes),
         },
         postings: SectionRef {
             offset: postings_offset,
-            size: u64::try_from(posting_bytes.len())
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            size: usize_to_u64(posting_bytes.len())?,
             checksum: Checksum::blake3(&posting_bytes),
         },
     };
@@ -172,11 +169,7 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
             + posting_bytes.len(),
     );
     bytes.extend_from_slice(SIDECAR_MAGIC);
-    bytes.extend_from_slice(
-        &u64::try_from(manifest_bytes.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?
-            .to_le_bytes(),
-    );
+    bytes.extend_from_slice(&usize_to_u64(manifest_bytes.len())?.to_le_bytes());
     bytes.extend_from_slice(&manifest_bytes);
     bytes.extend_from_slice(&granule_bytes);
     bytes.extend_from_slice(&term_bytes);
@@ -191,8 +184,7 @@ impl QziSidecar {
         }
 
         let manifest_size = read_u64_le(&sidecar_bytes[8..16])?;
-        let manifest_size_usize =
-            usize::try_from(manifest_size).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let manifest_size_usize = u64_to_usize(manifest_size)?;
         let manifest_end = HEADER_LEN
             .checked_add(manifest_size_usize)
             .ok_or(QztError::ResourceLimitExceeded)?;
@@ -404,8 +396,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
 
         let mut planner = PlannerDecision::new(query_keys.clone());
         let mut metrics = self.empty_metrics(query, index_kind);
-        metrics.term_lookups =
-            u64::try_from(query_keys.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.term_lookups = usize_to_u64(query_keys.len())?;
 
         if query_keys.is_empty() {
             metrics.query_time_ms = elapsed_ms(started);
@@ -471,8 +462,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
             .collect::<Result<Vec<_>>>()?;
         let posting_refs = posting_lists.iter().map(Vec::as_slice).collect::<Vec<_>>();
         let candidates = intersect_postings(&posting_refs);
-        metrics.candidate_granules =
-            u64::try_from(candidates.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.candidate_granules = usize_to_u64(candidates.len())?;
 
         if metrics.candidate_granules > options.max_candidate_granules
             || options.max_search_results == 0
@@ -517,8 +507,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
 
         metrics.decoded_bytes = verification.decoded_bytes;
         metrics.physical_decoded_bytes = verification.physical_decoded_bytes;
-        metrics.verified_matches =
-            u64::try_from(verification.hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.verified_matches = usize_to_u64(verification.hits.len())?;
         metrics.query_time_ms = elapsed_ms(started);
         Ok(SearchReport {
             hits: verification.hits,
@@ -650,7 +639,7 @@ fn count_chunks(granules: &[SearchGranule]) -> Result<u64> {
             chunks.insert(chunk_id);
         }
     }
-    u64::try_from(chunks.len()).map_err(|_| QztError::ResourceLimitExceeded)
+    usize_to_u64(chunks.len())
 }
 
 fn map_read_error(error: std::io::Error) -> QztError {
@@ -661,7 +650,7 @@ fn map_read_error(error: std::io::Error) -> QztError {
 }
 
 fn read_vec<R: ReadAt>(source: &R, offset: u64, size: u64) -> Result<Vec<u8>> {
-    let len = usize::try_from(size).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let len = u64_to_usize(size)?;
     let mut bytes = vec![0_u8; len];
     source
         .read_exact_at(offset, &mut bytes)
@@ -781,9 +770,11 @@ fn decode_manifest(bytes: &[u8]) -> Result<SidecarManifest> {
     let index_type = required_text(map, "index_type")?;
     let ngram_n = match required_value(map, "ngram_n")? {
         CborValue::Null => None,
-        CborValue::Integer(value) if *value >= 0 => {
-            Some(usize::try_from(*value).map_err(|_| QztError::ResourceLimitExceeded)?)
-        }
+        CborValue::Integer(value) if *value >= 0 => Some(
+            (*value)
+                .try_into()
+                .map_err(|_| QztError::ResourceLimitExceeded)?,
+        ),
         _ => return Err(QztError::ContainerCorrupt),
     };
     let complete = required_bool(map, "complete")?;
@@ -881,9 +872,9 @@ fn required_bool(map: &[(CborValue, CborValue)], key: &str) -> Result<bool> {
 
 fn required_u64(map: &[(CborValue, CborValue)], key: &str) -> Result<u64> {
     match required_value(map, key)? {
-        CborValue::Integer(value) if *value >= 0 => {
-            u64::try_from(*value).map_err(|_| QztError::ResourceLimitExceeded)
-        }
+        CborValue::Integer(value) if *value >= 0 => (*value)
+            .try_into()
+            .map_err(|_| QztError::ResourceLimitExceeded),
         _ => Err(QztError::ContainerCorrupt),
     }
 }
@@ -916,10 +907,10 @@ fn section_slice<'a>(
     section: &SectionRef,
 ) -> Result<&'a [u8]> {
     let start = section_base
-        .checked_add(usize::try_from(section.offset).map_err(|_| QztError::ResourceLimitExceeded)?)
+        .checked_add(u64_to_usize(section.offset)?)
         .ok_or(QztError::ResourceLimitExceeded)?;
     let end = start
-        .checked_add(usize::try_from(section.size).map_err(|_| QztError::ResourceLimitExceeded)?)
+        .checked_add(u64_to_usize(section.size)?)
         .ok_or(QztError::ResourceLimitExceeded)?;
     let slice = bytes.get(start..end).ok_or(QztError::UnexpectedEof)?;
     if Checksum::blake3(slice) != section.checksum {
@@ -929,8 +920,7 @@ fn section_slice<'a>(
 }
 
 fn qzt_footer_checksum(qzt_bytes: &[u8], footer_payload_offset: u64) -> Result<Checksum> {
-    let start =
-        usize::try_from(footer_payload_offset).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let start = u64_to_usize(footer_payload_offset)?;
     let end = qzt_bytes
         .len()
         .checked_sub(FOOTER_TRAILER_LEN)
@@ -941,10 +931,7 @@ fn qzt_footer_checksum(qzt_bytes: &[u8], footer_payload_offset: u64) -> Result<C
 
 fn encode_granules(granules: &[SearchGranule]) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
-    write_u64(
-        u64::try_from(granules.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
-        &mut bytes,
-    );
+    write_u64(usize_to_u64(granules.len())?, &mut bytes);
     for granule in granules {
         write_u64(granule.granule_id, &mut bytes);
         write_u64(granule.logical_offset, &mut bytes);
@@ -960,8 +947,7 @@ fn encode_granules(granules: &[SearchGranule]) -> Result<Vec<u8>> {
 fn decode_granules(bytes: &[u8]) -> Result<Vec<SearchGranule>> {
     let mut cursor = 0_usize;
     let count = read_u64_cursor(bytes, &mut cursor)?;
-    let mut granules =
-        Vec::with_capacity(usize::try_from(count).map_err(|_| QztError::ResourceLimitExceeded)?);
+    let mut granules = Vec::with_capacity(u64_to_usize(count)?);
     for _ in 0..count {
         let granule_id = read_u64_cursor(bytes, &mut cursor)?;
         let logical_offset = read_u64_cursor(bytes, &mut cursor)?;
@@ -988,15 +974,9 @@ fn decode_granules(bytes: &[u8]) -> Result<Vec<SearchGranule>> {
 
 fn encode_terms(terms: &[TermDictionaryEntry]) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
-    write_u64(
-        u64::try_from(terms.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
-        &mut bytes,
-    );
+    write_u64(usize_to_u64(terms.len())?, &mut bytes);
     for term in terms {
-        write_u64(
-            u64::try_from(term.key.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
-            &mut bytes,
-        );
+        write_u64(usize_to_u64(term.key.len())?, &mut bytes);
         bytes.extend_from_slice(&term.key);
         bytes.extend_from_slice(&term.key_hash);
         write_u64(term.document_frequency, &mut bytes);
@@ -1013,11 +993,9 @@ fn encode_terms(terms: &[TermDictionaryEntry]) -> Result<Vec<u8>> {
 fn decode_terms(bytes: &[u8]) -> Result<Vec<TermDictionaryEntry>> {
     let mut cursor = 0_usize;
     let count = read_u64_cursor(bytes, &mut cursor)?;
-    let mut terms =
-        Vec::with_capacity(usize::try_from(count).map_err(|_| QztError::ResourceLimitExceeded)?);
+    let mut terms = Vec::with_capacity(u64_to_usize(count)?);
     for _ in 0..count {
-        let key_len = usize::try_from(read_u64_cursor(bytes, &mut cursor)?)
-            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let key_len = u64_to_usize(read_u64_cursor(bytes, &mut cursor)?)?;
         let key = read_exact(bytes, &mut cursor, key_len)?.to_vec();
         let mut key_hash = [0_u8; 16];
         key_hash.copy_from_slice(read_exact(bytes, &mut cursor, 16)?);
@@ -1050,12 +1028,9 @@ fn encode_posting_section(postings: &[Vec<u64>]) -> Result<Vec<u8>> {
 fn decode_posting_section(bytes: &[u8], terms: &[TermDictionaryEntry]) -> Result<Vec<Vec<u64>>> {
     let mut postings = Vec::with_capacity(terms.len());
     for term in terms {
-        let start =
-            usize::try_from(term.posting_offset).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let start = u64_to_usize(term.posting_offset)?;
         let end = start
-            .checked_add(
-                usize::try_from(term.posting_size).map_err(|_| QztError::ResourceLimitExceeded)?,
-            )
+            .checked_add(u64_to_usize(term.posting_size)?)
             .ok_or(QztError::ResourceLimitExceeded)?;
         let encoded = bytes.get(start..end).ok_or(QztError::UnexpectedEof)?;
         postings.push(decode_delta_varint_u64(encoded)?);

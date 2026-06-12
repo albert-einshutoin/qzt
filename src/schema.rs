@@ -1,5 +1,6 @@
 use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
+use crate::primitives::usize_to_u64;
 use std::collections::BTreeSet;
 
 const SCHEMA_FOOTER: &str = "qzt.footer.v1";
@@ -952,9 +953,7 @@ fn decode_dictionary_entry(value: &CborValue, max_dictionary_size: u64) -> Resul
     }
 
     let bytes = required_bytes(map, "bytes", QztError::ContainerCorrupt)?;
-    if u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?
-        > max_dictionary_size
-    {
+    if usize_to_u64(bytes.len())? > max_dictionary_size {
         return Err(QztError::ResourceLimitExceeded);
     }
 

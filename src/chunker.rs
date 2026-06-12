@@ -1,5 +1,6 @@
 use crate::chunk_table::STARTS_WITH_LINE_CONTINUATION;
 use crate::error::{QztError, Result};
+use crate::primitives::usize_to_u64;
 
 /// Writer options required by deterministic chunk planning.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -80,13 +81,11 @@ pub fn plan_chunks(input: &[u8], options: ChunkerOptions) -> Result<ChunkPlan> {
         };
 
         chunks.push(PlannedChunk {
-            chunk_id: u64::try_from(chunks.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
-            logical_offset: u64::try_from(start).map_err(|_| QztError::ResourceLimitExceeded)?,
-            uncompressed_size: u64::try_from(end - start)
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
-            first_line: u64::try_from(first_line).map_err(|_| QztError::ResourceLimitExceeded)?,
-            line_count: u64::try_from(line_end - first_line)
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            chunk_id: usize_to_u64(chunks.len())?,
+            logical_offset: usize_to_u64(start)?,
+            uncompressed_size: usize_to_u64(end - start)?,
+            first_line: usize_to_u64(first_line)?,
+            line_count: usize_to_u64(line_end - first_line)?,
             flags,
         });
 
@@ -95,8 +94,7 @@ pub fn plan_chunks(input: &[u8], options: ChunkerOptions) -> Result<ChunkPlan> {
 
     Ok(ChunkPlan {
         chunks,
-        line_count: u64::try_from(line_info.line_starts.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
+        line_count: usize_to_u64(line_info.line_starts.len())?,
         newline_mode: line_info.newline_mode,
     })
 }

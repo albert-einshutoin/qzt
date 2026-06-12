@@ -1,5 +1,15 @@
 use crate::error::{QztError, Result};
 
+/// Converts a `usize` to `u64`. Returns `ResourceLimitExceeded` on overflow.
+pub(crate) fn usize_to_u64(value: usize) -> Result<u64> {
+    u64::try_from(value).map_err(|_| QztError::ResourceLimitExceeded)
+}
+
+/// Converts a `u64` offset or length to `usize`. Returns `ResourceLimitExceeded` on overflow.
+pub(crate) fn u64_to_usize(value: u64) -> Result<usize> {
+    usize::try_from(value).map_err(|_| QztError::ResourceLimitExceeded)
+}
+
 /// Reads a little-endian u16 from an exact two-byte slice.
 pub fn read_u16_le(bytes: &[u8]) -> Result<u16> {
     let bytes: [u8; 2] = bytes.try_into().map_err(|_| QztError::UnexpectedEof)?;

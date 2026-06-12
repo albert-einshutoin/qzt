@@ -1,4 +1,5 @@
 use crate::error::{QztError, Result};
+use crate::primitives::{u64_to_usize, usize_to_u64};
 
 /// Resource budget for deterministic CBOR decoding.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -108,7 +109,9 @@ pub fn validate_text_key_schema_with_limits(
 fn encode_value(value: &CborValue, out: &mut Vec<u8>) -> Result<()> {
     match value {
         CborValue::Integer(value) if *value >= 0 => {
-            let value = u64::try_from(*value).map_err(|_| QztError::ResourceLimitExceeded)?;
+            let value: u64 = (*value)
+                .try_into()
+                .map_err(|_| QztError::ResourceLimitExceeded)?;
             encode_type_and_argument(0, value, out);
         }
         CborValue::Integer(value) => {
@@ -120,21 +123,21 @@ fn encode_value(value: &CborValue, out: &mut Vec<u8>) -> Result<()> {
             encode_type_and_argument(1, magnitude, out);
         }
         CborValue::Bytes(bytes) => {
-            encode_type_and_argument(2, len_to_u64(bytes.len())?, out);
+            encode_type_and_argument(2, usize_to_u64(bytes.len())?, out);
             out.extend_from_slice(bytes);
         }
         CborValue::Text(text) => {
-            encode_type_and_argument(3, len_to_u64(text.len())?, out);
+            encode_type_and_argument(3, usize_to_u64(text.len())?, out);
             out.extend_from_slice(text.as_bytes());
         }
         CborValue::Array(values) => {
-            encode_type_and_argument(4, len_to_u64(values.len())?, out);
+            encode_type_and_argument(4, usize_to_u64(values.len())?, out);
             for value in values {
                 encode_value(value, out)?;
             }
         }
         CborValue::Map(entries) => {
-            encode_type_and_argument(5, len_to_u64(entries.len())?, out);
+            encode_type_and_argument(5, usize_to_u64(entries.len())?, out);
             let mut encoded_entries = Vec::with_capacity(entries.len());
 
             for (key, value) in entries {
@@ -185,10 +188,6 @@ fn encode_type_and_argument(major: u8, value: u64, out: &mut Vec<u8>) {
             out.extend_from_slice(&value.to_be_bytes());
         }
     }
-}
-
-fn len_to_u64(len: usize) -> Result<u64> {
-    u64::try_from(len).map_err(|_| QztError::ResourceLimitExceeded)
 }
 
 struct Parser<'a> {
@@ -283,7 +282,7 @@ impl Parser<'_> {
         if len > max || len > usize::MAX as u64 {
             return Err(QztError::ResourceLimitExceeded);
         }
-        usize::try_from(len).map_err(|_| QztError::ResourceLimitExceeded)
+        u64_to_usize(len)
     }
 
     fn read_argument(&mut self, additional: u8) -> Result<u64> {
