@@ -170,22 +170,24 @@ fn encode_value(value: &CborValue, out: &mut Vec<u8>) -> Result<()> {
 #[allow(clippy::cast_possible_truncation)] // value ranges are guaranteed by the match arms
 fn encode_type_and_argument(major: u8, value: u64, out: &mut Vec<u8>) {
     let prefix = major << 5;
+    // CBOR additional information 24/25/26/27 (0x18..=0x1b) selects a
+    // u8/u16/u32/u64 argument (RFC 8949 section 3).
     match value {
         0..=23 => out.push(prefix | value as u8),
         24..=0xff => {
-            out.push(prefix | 24);
+            out.push(prefix | 0x18);
             out.push(value as u8);
         }
         0x100..=0xffff => {
-            out.push(prefix | 25);
+            out.push(prefix | 0x19);
             out.extend_from_slice(&(value as u16).to_be_bytes());
         }
         0x1_0000..=0xffff_ffff => {
-            out.push(prefix | 26);
+            out.push(prefix | 0x1a);
             out.extend_from_slice(&(value as u32).to_be_bytes());
         }
         _ => {
-            out.push(prefix | 27);
+            out.push(prefix | 0x1b);
             out.extend_from_slice(&value.to_be_bytes());
         }
     }
