@@ -84,6 +84,15 @@ than the index `n` (default 3) cannot be answered by the index; instead of a
 confident empty result the CLI reports
 `incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
 
+## Exit Codes
+
+```text
+Exit codes:
+  0  success (verify: container is valid)
+  1  command failed (verify: container is corrupt or unreadable)
+  2  usage error (unknown option / missing argument)
+```
+
 ## Documentation
 
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](docs/QZT_v0.1_Core_Spec.md)

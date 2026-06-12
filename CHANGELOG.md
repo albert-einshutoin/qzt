@@ -7,6 +7,16 @@ Container format for UTF-8 text.
 
 ### Added
 
+- `qzt verify` now prints two report lines after the existing compatibility line:
+  `Checked chunks: <n>` and `Decoded bytes: <n>` (decoded bytes is 0 for
+  `quick`/`normal` levels, and equals the original size for `deep`).
+- `qzt verify --format json` outputs a single-line JSON object to stdout:
+  `{"ok":true,"level":"deep","checked_chunks":297,"decoded_bytes":2423996}` on
+  success, or `{"ok":false,"level":"deep","error":"..."}` (exit code 1) on
+  failure. In JSON mode, all output goes to stdout; stderr is silent so JSON
+  consumers need only read stdout.
+- Exit codes are now documented in `qzt --help` and in `README.md` /
+  `README.ja.md`: `0` = success, `1` = command failed, `2` = usage error.
 - `qzt info` now appends three identity lines after the existing output:
   `Container ID` (lowercase hex UUID), `Original checksum` (`blake3:<hex>`),
   and `Newline mode`. Existing lines are unchanged.

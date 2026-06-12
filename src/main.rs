@@ -8,7 +8,7 @@ use qzt::{
     build_search_sidecar_from_file, pack_bytes_with_profile, NgramIndexBuildOptions,
     QziFileSidecar, QztError, QztFileReader, QztFileWriter, RawNgramIndex, RawTokenIndex,
     SearchIndexSource, SearchOptions, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel,
-    WriterOptions,
+    VerifyReport, WriterOptions,
 };
 
 type CliResult<T> = std::result::Result<T, CliError>;
@@ -84,11 +84,16 @@ fn print_help() {
     println!("  line       Print one original line (1-based; --zero-based to switch)");
     println!("  search     Search raw UTF-8 tokens with verified original-byte hits");
     println!("  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)");
-    println!("  verify     Verify container integrity");
+    println!("  verify     Verify container integrity (--format json for machine-readable output)");
     println!();
     println!("Options:");
     println!("  -h, --help     Show this help");
     println!("  -V, --version  Show version");
+    println!();
+    println!("Exit codes:");
+    println!("  0  success (verify: container is valid)");
+    println!("  1  command failed (verify: container is corrupt or unreadable)");
+    println!("  2  usage error (unknown option / missing argument)");
 }
 
 fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
@@ -446,6 +451,27 @@ fn run_range(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 }
 
+/// Output format requested by the caller of `qzt verify`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum VerifyFormat {
+    Text,
+    Json,
+}
+
+/// Converts a [`VerifyLevel`] to the lowercase CLI flag string used in JSON output.
+///
+/// Uses a match instead of `Display` on the library type to keep the conversion
+/// CLI-local; `VerifyLevel` intentionally does not implement `Display`.
+/// The `_` arm is required because `VerifyLevel` is `#[non_exhaustive]`.
+fn verify_level_as_str(level: VerifyLevel) -> &'static str {
+    match level {
+        VerifyLevel::Quick => "quick",
+        VerifyLevel::Normal => "normal",
+        VerifyLevel::Deep => "deep",
+        _ => "unknown",
+    }
+}
+
 fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
     let Some(path) = args.next() else {
         eprintln!("qzt verify: missing file");
@@ -453,11 +479,28 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
     };
 
     let mut level = VerifyLevel::Normal;
-    for arg in args {
+    let mut format = VerifyFormat::Text;
+    while let Some(arg) = args.next() {
         match arg.as_str() {
             "--quick" => level = VerifyLevel::Quick,
             "--normal" => level = VerifyLevel::Normal,
             "--deep" => level = VerifyLevel::Deep,
+            "--format" => {
+                let Some(value) = args.next() else {
+                    eprintln!("qzt verify: missing --format value");
+                    return ExitCode::from(2);
+                };
+                match value.as_str() {
+                    "text" => format = VerifyFormat::Text,
+                    "json" => format = VerifyFormat::Json,
+                    _ => {
+                        eprintln!(
+                            "qzt verify: unknown --format value '{value}' (expected text or json)"
+                        );
+                        return ExitCode::from(2);
+                    }
+                }
+            }
             _ => {
                 eprintln!("qzt verify: unknown option '{arg}'");
                 return ExitCode::from(2);
@@ -465,18 +508,40 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
         }
     }
 
-    let result: CliResult<()> = (|| {
+    let result: CliResult<VerifyReport> = (|| {
         let reader = QztFileReader::open_path(path)?;
-        reader.verify(level)?;
-        Ok(())
+        Ok(reader.verify(level)?)
     })();
 
     match result {
-        Ok(()) => {
-            println!("Verify: {level:?} ok");
+        Ok(report) => {
+            let level_str = verify_level_as_str(report.level);
+            if format == VerifyFormat::Text {
+                // First line is byte-identical to the pre-existing output for script
+                // compatibility; report lines are appended below it.
+                println!("Verify: {:?} ok", report.level);
+                println!("Checked chunks: {}", report.checked_chunks);
+                println!("Decoded bytes: {}", report.decoded_bytes);
+            } else {
+                let chunks = report.checked_chunks;
+                let bytes = report.decoded_bytes;
+                println!(
+                    "{{\"ok\":true,\"level\":\"{level_str}\",\"checked_chunks\":{chunks},\"decoded_bytes\":{bytes}}}"
+                );
+            }
             ExitCode::SUCCESS
         }
-        Err(error) => command_failed("verify", &error),
+        Err(ref error) => {
+            if format == VerifyFormat::Json {
+                // JSON consumers read stdout only; no stderr output in JSON mode.
+                let error_msg = cli_json::escape(&error.to_string());
+                let level_str = verify_level_as_str(level);
+                println!("{{\"ok\":false,\"level\":\"{level_str}\",\"error\":\"{error_msg}\"}}");
+                ExitCode::from(1)
+            } else {
+                command_failed("verify", error)
+            }
+        }
     }
 }
 
