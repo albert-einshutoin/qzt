@@ -52,6 +52,8 @@ fn pack_reads_stdin_and_roundtrips() {
         .unwrap()
         .write_all(b"line1\nline2\n")
         .unwrap();
+    // Close the write end of the pipe so `qzt pack` receives EOF and can exit.
+    drop(child.stdin.take());
     let status = child.wait().unwrap();
     assert!(
         status.success(),
