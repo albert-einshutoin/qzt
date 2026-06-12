@@ -7,6 +7,7 @@ use crate::dense_line_index::DenseLineIndex;
 use crate::error::{QztError, Result};
 use crate::fixed::{FooterTrailer, Header};
 use crate::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
+use crate::primitives::{u64_to_usize, usize_to_u64};
 use crate::schema::{
     BlockDescriptor, BlockRef, Checksum, DocumentIndex, FooterPayload, IndexRoot, Metadata,
     MetadataOptions,
@@ -27,17 +28,6 @@ pub struct QztFileWriter<W: Read + Write + Seek> {
     previous_byte: Option<u8>,
     finished: bool,
     poisoned: bool,
-}
-
-/// Compatibility name reserved by the v0.1 spec.
-#[doc(hidden)]
-pub struct QztWriter;
-
-impl QztWriter {
-    /// Creates a QZT writer.
-    pub fn new() -> Result<Self> {
-        Ok(Self)
-    }
 }
 
 /// Writer options for the no-dictionary Phase5 writer.
@@ -139,15 +129,11 @@ impl WriterBuilder {
                     input,
                     container_id,
                     self.options,
-                    document_index,
+                    &document_index,
                 );
             }
             (_, document_index) => document_index,
         };
-
-        if self.profile == "memory" {
-            return Err(QztError::MetadataInvalid);
-        }
 
         let dense_mode = if self.dense_line_index {
             DenseLineIndexMode::Generate
@@ -159,7 +145,7 @@ impl WriterBuilder {
             container_id,
             self.options,
             dense_mode,
-            document_index,
+            document_index.as_ref(),
             &self.profile,
         )
     }
@@ -240,10 +226,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         let input_hash = self.input_hasher.finalize();
         let mut container_id = [0_u8; 16];
         container_id.copy_from_slice(&input_hash.as_bytes()[..16]);
-        let original_checksum = Checksum {
-            algorithm: "blake3".to_owned(),
-            value: *input_hash.as_bytes(),
-        };
+        let original_checksum = Checksum::from_raw_bytes(*input_hash.as_bytes());
 
         let metadata_offset = self.physical_offset;
         let metadata = Metadata::for_source_with_options(
@@ -254,19 +237,18 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             self.line_starts_seen,
             MetadataOptions {
                 zstd_level: self.options.zstd_level,
-                target_chunk_size: u64::try_from(self.options.chunker.target_chunk_size)
-                    .map_err(|_| QztError::ResourceLimitExceeded)?,
-                max_chunk_size: u64::try_from(self.options.chunker.max_chunk_size)
-                    .map_err(|_| QztError::ResourceLimitExceeded)?,
+                target_chunk_size: usize_to_u64(self.options.chunker.target_chunk_size)?,
+                max_chunk_size: usize_to_u64(self.options.chunker.max_chunk_size)?,
                 dictionary_mode: "none",
+                // The streaming writer is always "core"; profile is intentionally
+                // non-configurable here. Profile validation lives in pack_bytes_internal.
                 profile: "core",
                 dense_line_index: false,
                 document_index: false,
             },
         );
         let metadata_bytes = metadata.encode()?;
-        let metadata_size =
-            u64::try_from(metadata_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let metadata_size = usize_to_u64(metadata_bytes.len())?;
 
         let chunk_table_offset = metadata_offset
             .checked_add(metadata_size)
@@ -276,8 +258,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         for entry in &self.entries {
             chunk_table_bytes.extend_from_slice(&entry.encode());
         }
-        let chunk_table_size =
-            u64::try_from(chunk_table_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let chunk_table_size = usize_to_u64(chunk_table_bytes.len())?;
 
         let index_root = IndexRoot {
             container_id,
@@ -288,16 +269,14 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             )],
             original_size: metadata.original_size,
             original_checksum: metadata.original_checksum.clone(),
-            chunk_count: u64::try_from(self.entries.len())
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            chunk_count: usize_to_u64(self.entries.len())?,
             line_count: metadata.line_count,
         };
         let index_root_bytes = index_root.encode()?;
         let index_root_offset = chunk_table_offset
             .checked_add(chunk_table_size)
             .ok_or(QztError::PhysicalRangeOutOfBounds)?;
-        let index_root_size =
-            u64::try_from(index_root_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let index_root_size = usize_to_u64(index_root_bytes.len())?;
         let footer_payload_offset = index_root_offset
             .checked_add(index_root_size)
             .ok_or(QztError::PhysicalRangeOutOfBounds)?;
@@ -329,26 +308,27 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
 
         let container_checksum = self.hash_prefix(footer_payload_offset)?;
 
+        let index_root_ref = BlockRef {
+            offset: index_root_offset,
+            size: index_root_size,
+            checksum: Checksum::blake3(&index_root_bytes),
+        };
+        let metadata_ref = BlockRef {
+            offset: metadata_offset,
+            size: metadata_size,
+            checksum: Checksum::blake3(&metadata_bytes),
+        };
         let footer_payload = fixed_point_footer_payload(
             container_id,
-            BlockRef {
-                offset: index_root_offset,
-                size: index_root_size,
-                checksum: Checksum::blake3(&index_root_bytes),
-            },
-            BlockRef {
-                offset: metadata_offset,
-                size: metadata_size,
-                checksum: Checksum::blake3(&metadata_bytes),
-            },
+            &index_root_ref,
+            &metadata_ref,
             footer_payload_offset,
-            Some(container_checksum),
+            Some(&container_checksum),
         )?;
         let footer_payload_bytes = footer_payload.encode()?;
         let footer_trailer = FooterTrailer {
             footer_payload_offset,
-            footer_payload_size: u64::try_from(footer_payload_bytes.len())
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            footer_payload_size: usize_to_u64(footer_payload_bytes.len())?,
             footer_payload_checksum_blake3: Checksum::blake3(&footer_payload_bytes).value,
         };
 
@@ -370,23 +350,19 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
     fn hash_prefix(&mut self, prefix_len: u64) -> Result<Checksum> {
         let mut hasher = blake3::Hasher::new();
         let mut remaining = prefix_len;
-        let mut buffer = [0_u8; 64 * 1024];
+        let mut buffer = vec![0_u8; 64 * 1024];
         self.writer
             .seek(SeekFrom::Start(0))
             .map_err(|_| QztError::ContainerCorrupt)?;
         while remaining > 0 {
-            let chunk_len = usize::try_from(remaining.min(buffer.len() as u64))
-                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            let chunk_len = u64_to_usize(remaining.min(buffer.len() as u64))?;
             self.writer
                 .read_exact(&mut buffer[..chunk_len])
                 .map_err(|_| QztError::ContainerCorrupt)?;
             hasher.update(&buffer[..chunk_len]);
             remaining -= chunk_len as u64;
         }
-        Ok(Checksum {
-            algorithm: "blake3".to_owned(),
-            value: *hasher.finalize().as_bytes(),
-        })
+        Ok(Checksum::from_hasher(&hasher))
     }
 
     fn emit_pending_chunk(&mut self, end: usize) -> Result<()> {
@@ -408,23 +384,19 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             return Err(QztError::ChunkSizeMismatch);
         }
 
-        let compressed_size =
-            u64::try_from(compressed.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let compressed_size = usize_to_u64(compressed.len())?;
         let flags = if self.logical_offset > 0 && self.previous_byte != Some(b'\n') {
             crate::chunk_table::STARTS_WITH_LINE_CONTINUATION
         } else {
             0
         };
-        let line_count = u64::try_from(line_start_offsets(uncompressed, flags)?.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let line_count = usize_to_u64(line_start_offsets(uncompressed, flags)?.len())?;
         let entry = ChunkEntry {
-            chunk_id: u64::try_from(self.entries.len())
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            chunk_id: usize_to_u64(self.entries.len())?,
             physical_offset: self.physical_offset,
             compressed_size,
             logical_offset: self.logical_offset,
-            uncompressed_size: u64::try_from(uncompressed.len())
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            uncompressed_size: usize_to_u64(uncompressed.len())?,
             first_line: self.line_starts_seen,
             line_count,
             dictionary_id: 0,
@@ -578,7 +550,6 @@ pub fn pack_bytes_with_profile_and_container_id(
     profile: &str,
     dense_line_index: bool,
 ) -> Result<Vec<u8>> {
-    validate_profile(profile)?;
     let dense_mode = if dense_line_index {
         DenseLineIndexMode::Generate
     } else {
@@ -644,7 +615,7 @@ pub fn pack_bytes_with_document_index(
     input: &[u8],
     container_id: [u8; 16],
     options: WriterOptions,
-    document_index: DocumentIndex,
+    document_index: &DocumentIndex,
 ) -> Result<Vec<u8>> {
     pack_bytes_internal(
         input,
@@ -661,7 +632,7 @@ pub fn pack_bytes_with_memory_profile(
     input: &[u8],
     container_id: [u8; 16],
     options: WriterOptions,
-    document_index: DocumentIndex,
+    document_index: &DocumentIndex,
 ) -> Result<Vec<u8>> {
     pack_bytes_internal(
         input,
@@ -691,22 +662,22 @@ fn pack_bytes_internal(
     container_id: [u8; 16],
     options: WriterOptions,
     dense_mode: DenseLineIndexMode,
-    document_index: Option<DocumentIndex>,
+    document_index: Option<&DocumentIndex>,
     profile: &str,
 ) -> Result<Vec<u8>> {
+    validate_profile(profile)?;
+    if profile == "memory" && document_index.is_none() {
+        return Err(QztError::MetadataInvalid);
+    }
     let plan = plan_chunks(input, options.chunker)?;
     let mut compressed_chunks = Vec::with_capacity(plan.chunks.len());
     let mut entries = Vec::with_capacity(plan.chunks.len());
     let mut physical_offset = HEADER_LEN as u64;
 
     for chunk in &plan.chunks {
-        let start =
-            usize::try_from(chunk.logical_offset).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let start = u64_to_usize(chunk.logical_offset)?;
         let end = start
-            .checked_add(
-                usize::try_from(chunk.uncompressed_size)
-                    .map_err(|_| QztError::ResourceLimitExceeded)?,
-            )
+            .checked_add(u64_to_usize(chunk.uncompressed_size)?)
             .ok_or(QztError::ResourceLimitExceeded)?;
         let uncompressed = input.get(start..end).ok_or(QztError::ContainerCorrupt)?;
         let compressed = zstd::stream::encode_all(uncompressed, options.zstd_level)
@@ -716,8 +687,7 @@ fn pack_bytes_internal(
             return Err(QztError::ChunkSizeMismatch);
         }
 
-        let compressed_size =
-            u64::try_from(compressed.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let compressed_size = usize_to_u64(compressed.len())?;
         let entry = ChunkEntry {
             chunk_id: chunk.chunk_id,
             physical_offset,
@@ -751,9 +721,9 @@ fn pack_bytes_internal(
         &plan,
         &compressed_chunks,
         &entries,
-        OptionalBlocks {
+        &OptionalBlocks {
             dense_line_index: dense_line_index.as_ref(),
-            document_index: document_index.as_ref(),
+            document_index,
             profile,
             writer_options: options,
         },
@@ -771,7 +741,7 @@ fn assemble_container(
     plan: &crate::chunker::ChunkPlan,
     compressed_chunks: &[Vec<u8>],
     entries: &[ChunkEntry],
-    optional: OptionalBlocks<'_>,
+    optional: &OptionalBlocks<'_>,
 ) -> Result<Vec<u8>> {
     if compressed_chunks.len() != entries.len() {
         return Err(QztError::ContainerCorrupt);
@@ -789,16 +759,14 @@ fn assemble_container(
         .unwrap_or(HEADER_LEN as u64);
     let metadata = Metadata::for_source_with_options(
         container_id,
-        u64::try_from(input.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
+        usize_to_u64(input.len())?,
         Checksum::blake3(input),
         newline_mode_as_str(plan.newline_mode),
         plan.line_count,
         MetadataOptions {
             zstd_level: optional.writer_options.zstd_level,
-            target_chunk_size: u64::try_from(optional.writer_options.chunker.target_chunk_size)
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
-            max_chunk_size: u64::try_from(optional.writer_options.chunker.max_chunk_size)
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            target_chunk_size: usize_to_u64(optional.writer_options.chunker.target_chunk_size)?,
+            max_chunk_size: usize_to_u64(optional.writer_options.chunker.max_chunk_size)?,
             dictionary_mode: "none",
             profile: optional.profile,
             dense_line_index: optional.dense_line_index.is_some(),
@@ -806,8 +774,7 @@ fn assemble_container(
         },
     );
     let metadata_bytes = metadata.encode()?;
-    let metadata_size =
-        u64::try_from(metadata_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let metadata_size = usize_to_u64(metadata_bytes.len())?;
 
     let dense_line_index_bytes = optional
         .dense_line_index
@@ -818,7 +785,7 @@ fn assemble_container(
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
     let dense_line_index_size = dense_line_index_bytes
         .as_ref()
-        .map(|bytes| u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded))
+        .map(|bytes| usize_to_u64(bytes.len()))
         .transpose()?
         .unwrap_or(0);
 
@@ -831,7 +798,7 @@ fn assemble_container(
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
     let document_index_size = document_index_bytes
         .as_ref()
-        .map(|bytes| u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded))
+        .map(|bytes| usize_to_u64(bytes.len()))
         .transpose()?
         .unwrap_or(0);
 
@@ -843,8 +810,7 @@ fn assemble_container(
     let chunk_table_offset = document_index_offset
         .checked_add(document_index_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
-    let chunk_table_size =
-        u64::try_from(chunk_table_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let chunk_table_size = usize_to_u64(chunk_table_bytes.len())?;
 
     let mut blocks = vec![BlockDescriptor::chunk_table(
         chunk_table_offset,
@@ -854,14 +820,14 @@ fn assemble_container(
     if let Some(bytes) = &dense_line_index_bytes {
         blocks.push(BlockDescriptor::dense_line_index(
             dense_line_index_offset,
-            u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
+            usize_to_u64(bytes.len())?,
             Checksum::blake3(bytes),
         ));
     }
     if let Some(bytes) = &document_index_bytes {
         blocks.push(BlockDescriptor::document_index(
             document_index_offset,
-            u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
+            usize_to_u64(bytes.len())?,
             Checksum::blake3(bytes),
         ));
     }
@@ -871,15 +837,14 @@ fn assemble_container(
         blocks,
         original_size: metadata.original_size,
         original_checksum: metadata.original_checksum.clone(),
-        chunk_count: u64::try_from(entries.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
+        chunk_count: usize_to_u64(entries.len())?,
         line_count: metadata.line_count,
     };
     let index_root_bytes = index_root.encode()?;
     let index_root_offset = chunk_table_offset
         .checked_add(chunk_table_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
-    let index_root_size =
-        u64::try_from(index_root_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let index_root_size = usize_to_u64(index_root_bytes.len())?;
     let footer_payload_offset = index_root_offset
         .checked_add(index_root_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
@@ -906,26 +871,28 @@ fn assemble_container(
     prefix.extend_from_slice(&chunk_table_bytes);
     prefix.extend_from_slice(&index_root_bytes);
 
+    let index_root_ref = BlockRef {
+        offset: index_root_offset,
+        size: index_root_size,
+        checksum: Checksum::blake3(&index_root_bytes),
+    };
+    let metadata_ref = BlockRef {
+        offset: metadata_offset,
+        size: metadata_size,
+        checksum: Checksum::blake3(&metadata_bytes),
+    };
+    let prefix_checksum = Checksum::blake3(&prefix);
     let footer_payload = fixed_point_footer_payload(
         container_id,
-        BlockRef {
-            offset: index_root_offset,
-            size: index_root_size,
-            checksum: Checksum::blake3(&index_root_bytes),
-        },
-        BlockRef {
-            offset: metadata_offset,
-            size: metadata_size,
-            checksum: Checksum::blake3(&metadata_bytes),
-        },
+        &index_root_ref,
+        &metadata_ref,
         footer_payload_offset,
-        Some(Checksum::blake3(&prefix)),
+        Some(&prefix_checksum),
     )?;
     let footer_payload_bytes = footer_payload.encode()?;
     let footer_trailer = FooterTrailer {
         footer_payload_offset,
-        footer_payload_size: u64::try_from(footer_payload_bytes.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
+        footer_payload_size: usize_to_u64(footer_payload_bytes.len())?,
         footer_payload_checksum_blake3: Checksum::blake3(&footer_payload_bytes).value,
     };
 
@@ -937,10 +904,10 @@ fn assemble_container(
 
 fn fixed_point_footer_payload(
     container_id: [u8; 16],
-    index_root: BlockRef,
-    metadata: BlockRef,
+    index_root: &BlockRef,
+    metadata: &BlockRef,
     footer_payload_offset: u64,
-    container_checksum: Option<Checksum>,
+    container_checksum: Option<&Checksum>,
 ) -> Result<FooterPayload> {
     let mut final_file_size = 0_u64;
 
@@ -955,10 +922,9 @@ fn fixed_point_footer_payload(
             metadata: metadata.clone(),
             final_file_size,
             footer_flags: 0,
-            container_checksum: container_checksum.clone(),
+            container_checksum: container_checksum.cloned(),
         };
-        let size = u64::try_from(candidate.encode()?.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let size = usize_to_u64(candidate.encode()?.len())?;
         let next = footer_payload_offset
             .checked_add(size)
             .and_then(|value| value.checked_add(FOOTER_TRAILER_LEN as u64))
@@ -974,6 +940,11 @@ fn fixed_point_footer_payload(
     Err(QztError::ContainerCorrupt)
 }
 
+/// Validates that `profile` is one of the values defined by the QZT v0.1 spec.
+///
+/// Accepted values: `"minimal"`, `"core"`, `"log"`, `"archive"`, `"memory"`.
+///
+/// Returns [`QztError::MetadataInvalid`] for any other string.
 fn validate_profile(profile: &str) -> Result<()> {
     if matches!(profile, "minimal" | "core" | "log" | "archive" | "memory") {
         Ok(())

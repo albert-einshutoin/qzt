@@ -1,3 +1,4 @@
+use std::fmt::Write as _;
 use std::fs;
 use std::process::Command;
 
@@ -98,7 +99,7 @@ fn sidecar_lookup_matches_transient_ngram_index_behavior() {
 fn common_term_sidecar_query_is_capped_without_decoding_candidates() {
     let mut input = String::new();
     for index in 0..128 {
-        input.push_str(&format!("aaa common {index}\n"));
+        let _ = writeln!(input, "aaa common {index}");
     }
     let container = pack_bytes_with_container_id(input.as_bytes(), [0xe4; 16], options(256, 256))
         .expect("container should pack");
@@ -126,7 +127,7 @@ fn common_term_sidecar_query_is_capped_without_decoding_candidates() {
 fn rare_term_sidecar_query_decodes_only_candidate_overlapping_chunks() {
     let mut input = String::new();
     for index in 0..64 {
-        input.push_str(&format!("info line {index}\n"));
+        let _ = writeln!(input, "info line {index}");
     }
     input.push_str("zzztarget\n");
     let container = pack_bytes_with_container_id(input.as_bytes(), [0xe5; 16], options(64, 64))
@@ -220,7 +221,7 @@ fn assert_success(command: &mut Command) {
 fn dense_sidecar_query_amortizes_physical_chunk_decodes() {
     let mut input = String::new();
     for index in 0..128 {
-        input.push_str(&format!("aaa common {index}\n"));
+        let _ = writeln!(input, "aaa common {index}");
     }
     let container = pack_bytes_with_container_id(input.as_bytes(), [0xe6; 16], options(64, 64))
         .expect("container should pack");
@@ -242,7 +243,7 @@ fn dense_sidecar_query_amortizes_physical_chunk_decodes() {
 fn file_sidecar_search_matches_in_memory_sidecar_search() {
     let mut input = String::new();
     for index in 0..96 {
-        input.push_str(&format!("info common line {index}\n"));
+        let _ = writeln!(input, "info common line {index}");
     }
     input.push_str("alpha needle line\n");
     input.push_str("beta needle line\n");
@@ -279,7 +280,7 @@ fn file_sidecar_search_matches_in_memory_sidecar_search() {
 fn file_sidecar_index_size_bytes_follows_serialized_manifest_model() {
     let mut non_skip_input = String::new();
     for index in 0..96 {
-        non_skip_input.push_str(&format!("info common line {index}\n"));
+        let _ = writeln!(non_skip_input, "info common line {index}");
     }
     non_skip_input.push_str("alpha needle line\n");
     non_skip_input.push_str("beta needle line\n");
@@ -319,7 +320,7 @@ fn file_sidecar_index_size_bytes_follows_serialized_manifest_model() {
 
     let mut skip_input = String::new();
     for index in 0..1100 {
-        skip_input.push_str(&format!("aaa line {index}\n"));
+        let _ = writeln!(skip_input, "aaa line {index}");
     }
     let skip_container =
         pack_bytes_with_container_id(skip_input.as_bytes(), [0xeb; 16], options(512, 512))
@@ -356,7 +357,7 @@ fn file_sidecar_index_size_bytes_follows_serialized_manifest_model() {
 fn file_sidecar_search_reads_lazily_from_sidecar() {
     let mut input = String::new();
     for index in 0..256 {
-        input.push_str(&format!("info line number {index}\n"));
+        let _ = writeln!(input, "info line number {index}");
     }
     input.push_str("zzztarget unique\n");
     let container = pack_bytes_with_container_id(input.as_bytes(), [0xe8; 16], options(512, 512))

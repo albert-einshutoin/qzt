@@ -1,4 +1,5 @@
 use crate::error::{QztError, Result};
+use crate::primitives::{u64_to_usize, usize_to_u64};
 
 /// Resource budget for deterministic CBOR decoding.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -108,7 +109,9 @@ pub fn validate_text_key_schema_with_limits(
 fn encode_value(value: &CborValue, out: &mut Vec<u8>) -> Result<()> {
     match value {
         CborValue::Integer(value) if *value >= 0 => {
-            let value = u64::try_from(*value).map_err(|_| QztError::ResourceLimitExceeded)?;
+            let value: u64 = (*value)
+                .try_into()
+                .map_err(|_| QztError::ResourceLimitExceeded)?;
             encode_type_and_argument(0, value, out);
         }
         CborValue::Integer(value) => {
@@ -120,21 +123,21 @@ fn encode_value(value: &CborValue, out: &mut Vec<u8>) -> Result<()> {
             encode_type_and_argument(1, magnitude, out);
         }
         CborValue::Bytes(bytes) => {
-            encode_type_and_argument(2, len_to_u64(bytes.len())?, out);
+            encode_type_and_argument(2, usize_to_u64(bytes.len())?, out);
             out.extend_from_slice(bytes);
         }
         CborValue::Text(text) => {
-            encode_type_and_argument(3, len_to_u64(text.len())?, out);
+            encode_type_and_argument(3, usize_to_u64(text.len())?, out);
             out.extend_from_slice(text.as_bytes());
         }
         CborValue::Array(values) => {
-            encode_type_and_argument(4, len_to_u64(values.len())?, out);
+            encode_type_and_argument(4, usize_to_u64(values.len())?, out);
             for value in values {
                 encode_value(value, out)?;
             }
         }
         CborValue::Map(entries) => {
-            encode_type_and_argument(5, len_to_u64(entries.len())?, out);
+            encode_type_and_argument(5, usize_to_u64(entries.len())?, out);
             let mut encoded_entries = Vec::with_capacity(entries.len());
 
             for (key, value) in entries {
@@ -164,31 +167,30 @@ fn encode_value(value: &CborValue, out: &mut Vec<u8>) -> Result<()> {
     Ok(())
 }
 
+#[allow(clippy::cast_possible_truncation)] // value ranges are guaranteed by the match arms
 fn encode_type_and_argument(major: u8, value: u64, out: &mut Vec<u8>) {
     let prefix = major << 5;
+    // CBOR additional information 24/25/26/27 (0x18..=0x1b) selects a
+    // u8/u16/u32/u64 argument (RFC 8949 section 3).
     match value {
         0..=23 => out.push(prefix | value as u8),
         24..=0xff => {
-            out.push(prefix | 24);
+            out.push(prefix | 0x18);
             out.push(value as u8);
         }
         0x100..=0xffff => {
-            out.push(prefix | 25);
+            out.push(prefix | 0x19);
             out.extend_from_slice(&(value as u16).to_be_bytes());
         }
         0x1_0000..=0xffff_ffff => {
-            out.push(prefix | 26);
+            out.push(prefix | 0x1a);
             out.extend_from_slice(&(value as u32).to_be_bytes());
         }
         _ => {
-            out.push(prefix | 27);
+            out.push(prefix | 0x1b);
             out.extend_from_slice(&value.to_be_bytes());
         }
     }
-}
-
-fn len_to_u64(len: usize) -> Result<u64> {
-    u64::try_from(len).map_err(|_| QztError::ResourceLimitExceeded)
 }
 
 struct Parser<'a> {
@@ -216,7 +218,7 @@ impl Parser<'_> {
             4 => self.parse_array(additional),
             5 => self.parse_map(additional),
             6 => Err(QztError::NonCanonicalCbor),
-            7 => self.parse_simple(additional),
+            7 => Self::parse_simple(additional),
             _ => unreachable!("CBOR major type is three bits"),
         }
     }
@@ -269,7 +271,7 @@ impl Parser<'_> {
         Ok(CborValue::Map(entries))
     }
 
-    fn parse_simple(&mut self, additional: u8) -> Result<CborValue> {
+    fn parse_simple(additional: u8) -> Result<CborValue> {
         match additional {
             20 => Ok(CborValue::Bool(false)),
             21 => Ok(CborValue::Bool(true)),
@@ -283,7 +285,7 @@ impl Parser<'_> {
         if len > max || len > usize::MAX as u64 {
             return Err(QztError::ResourceLimitExceeded);
         }
-        usize::try_from(len).map_err(|_| QztError::ResourceLimitExceeded)
+        u64_to_usize(len)
     }
 
     fn read_argument(&mut self, additional: u8) -> Result<u64> {
@@ -298,21 +300,21 @@ impl Parser<'_> {
             }
             25 => {
                 let value = u64::from(u16::from_be_bytes(self.read_array()?));
-                if value <= u64::from(u8::MAX) {
+                if u8::try_from(value).is_ok() {
                     return Err(QztError::NonCanonicalCbor);
                 }
                 Ok(value)
             }
             26 => {
                 let value = u64::from(u32::from_be_bytes(self.read_array()?));
-                if value <= u64::from(u16::MAX) {
+                if u16::try_from(value).is_ok() {
                     return Err(QztError::NonCanonicalCbor);
                 }
                 Ok(value)
             }
             27 => {
                 let value = u64::from_be_bytes(self.read_array()?);
-                if value <= u64::from(u32::MAX) {
+                if u32::try_from(value).is_ok() {
                     return Err(QztError::NonCanonicalCbor);
                 }
                 Ok(value)

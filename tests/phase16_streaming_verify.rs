@@ -1,7 +1,10 @@
 use qzt::chunker::ChunkerOptions;
 use qzt::reader::{QztFileReader, QztReader, VerifyLevel};
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
-use qzt::writer::{pack_bytes_with_document_index, pack_bytes_with_profile, WriterOptions};
+use qzt::writer::{
+    pack_bytes_with_document_index, pack_bytes_with_memory_profile, pack_bytes_with_profile,
+    WriterOptions,
+};
 
 fn options() -> WriterOptions {
     WriterOptions {
@@ -15,8 +18,27 @@ fn options() -> WriterOptions {
 
 #[test]
 fn file_backed_deep_verify_matches_in_memory_deep_verify() {
+    // The memory profile requires a DocumentIndex; provide a minimal one that
+    // covers the entire input as a single document.
     let input = b"alpha\nbeta\ngamma\nlong line continues across chunks\n";
-    let container = pack_bytes_with_profile(input, options(), "memory", true)
+    // count newlines; small test slice so naive bytecount is acceptable
+    #[allow(clippy::naive_bytecount)]
+    let line_count = input.iter().filter(|&&b| b == b'\n').count() as u64;
+    let document_index = DocumentIndex {
+        container_id: [0x16; 16],
+        documents: vec![DocumentEntry::new(
+            "all",
+            0,
+            input.len() as u64,
+            0,
+            line_count,
+            0,
+            // chunk count: ceil(len / max_chunk_size) = ceil(51/8) = 7
+            7,
+            Checksum::blake3(input),
+        )],
+    };
+    let container = pack_bytes_with_memory_profile(input, [0x16; 16], options(), &document_index)
         .expect("memory profile should pack");
     let memory = QztReader::open(&container).expect("memory reader should open");
     let file =
@@ -33,7 +55,7 @@ fn deep_verify_rejects_stale_document_index_with_range_scoped_read() {
     let input = b"doc-one\ndoc-two\n";
     let document_index = DocumentIndex {
         container_id: [0x61; 16],
-        documents: vec![document(DocumentFixture {
+        documents: vec![document(&DocumentFixture {
             doc_id: "doc-one",
             input,
             logical_offset: 0,
@@ -45,7 +67,7 @@ fn deep_verify_rejects_stale_document_index_with_range_scoped_read() {
             checksum_bytes: b"wrong",
         })],
     };
-    let container = pack_bytes_with_document_index(input, [0x61; 16], options(), document_index)
+    let container = pack_bytes_with_document_index(input, [0x61; 16], options(), &document_index)
         .expect("document-index container should pack");
     let file =
         QztFileReader::open_read_at(&container[..], container.len() as u64).expect("file open");
@@ -82,7 +104,7 @@ struct DocumentFixture<'a> {
     checksum_bytes: &'a [u8],
 }
 
-fn document(fixture: DocumentFixture<'_>) -> DocumentEntry {
+fn document(fixture: &DocumentFixture<'_>) -> DocumentEntry {
     let fallback_end = usize::try_from(fixture.logical_offset)
         .ok()
         .and_then(|start| start.checked_add(usize::try_from(fixture.byte_length).ok()?))

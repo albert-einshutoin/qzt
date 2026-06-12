@@ -4,7 +4,7 @@ use std::time::Instant;
 use crate::chunk_table::ChunkEntry;
 use crate::error::{QztError, Result};
 use crate::io::ReadAt;
-use crate::primitives::checked_logical_end;
+use crate::primitives::{checked_logical_end, u64_to_usize, usize_to_u64};
 use crate::reader::{ChunkDecodeCache, QztFileReader, QztReader};
 
 /// Search index source text model.
@@ -227,7 +227,7 @@ pub struct RawTokenIndex {
 
 impl RawTokenIndex {
     pub fn build_from_container(bytes: &[u8], options: TokenIndexBuildOptions) -> Result<Self> {
-        let len = u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let len = usize_to_u64(bytes.len())?;
         let reader = QztFileReader::open_read_at(bytes, len)?;
         Self::build_from_file(&reader, options)
     }
@@ -239,7 +239,9 @@ impl RawTokenIndex {
         options: TokenIndexBuildOptions,
     ) -> Result<Self> {
         if options.source == SearchIndexSource::NormalizedUtf8 {
-            return Err(QztError::NotImplemented("normalized_utf8 token index"));
+            return Err(QztError::UnsupportedIndexMode(
+                "normalized_utf8 token index",
+            ));
         }
 
         let details = reader.skeleton_details();
@@ -280,11 +282,9 @@ impl RawTokenIndex {
         for (term, posting_list) in terms.iter_mut().zip(&postings) {
             let encoded = encode_delta_varint_u64(posting_list)?;
             term.document_frequency = 0;
-            term.granule_frequency =
-                u64::try_from(posting_list.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+            term.granule_frequency = usize_to_u64(posting_list.len())?;
             term.posting_offset = posting_offset;
-            term.posting_size =
-                u64::try_from(encoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+            term.posting_size = usize_to_u64(encoded.len())?;
             term.skip_offset = 0;
             term.skip_size = 0;
             posting_offset = posting_offset
@@ -306,6 +306,7 @@ impl RawTokenIndex {
         })
     }
 
+    #[cfg(feature = "internal-testing")]
     pub fn posting_list_for_key(&self, key: &[u8]) -> Option<&[u64]> {
         self.term_index_for_key(key)
             .and_then(|index| self.postings.get(index).map(Vec::as_slice))
@@ -344,8 +345,7 @@ impl RawTokenIndex {
         let query_keys = unique_query_keys(query.as_bytes());
         let mut planner = PlannerDecision::new(query_keys.clone());
         let mut metrics = self.empty_metrics(query);
-        metrics.term_lookups =
-            u64::try_from(query_keys.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.term_lookups = usize_to_u64(query_keys.len())?;
 
         if query_keys.is_empty() {
             metrics.query_time_ms = elapsed_ms(started);
@@ -388,8 +388,7 @@ impl RawTokenIndex {
             .map(|index| self.postings[*index].as_slice())
             .collect::<Vec<_>>();
         let candidates = intersect_postings(&posting_refs);
-        metrics.candidate_granules =
-            u64::try_from(candidates.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.candidate_granules = usize_to_u64(candidates.len())?;
         metrics.candidate_chunks = count_candidate_chunks(&self.granules, &candidates)?;
 
         if metrics.candidate_granules > options.max_candidate_granules {
@@ -416,8 +415,7 @@ impl RawTokenIndex {
         let verification = verify_candidates(
             &candidates,
             &mut |granule_id| {
-                let granule_index =
-                    usize::try_from(granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
+                let granule_index = u64_to_usize(granule_id)?;
                 self.granules
                     .get(granule_index)
                     .cloned()
@@ -430,8 +428,7 @@ impl RawTokenIndex {
 
         metrics.decoded_bytes = verification.decoded_bytes;
         metrics.physical_decoded_bytes = verification.physical_decoded_bytes;
-        metrics.verified_matches =
-            u64::try_from(verification.hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.verified_matches = usize_to_u64(verification.hits.len())?;
         metrics.query_time_ms = elapsed_ms(started);
         Ok(SearchReport {
             hits: verification.hits,
@@ -511,7 +508,7 @@ pub struct RawNgramIndex {
 
 impl RawNgramIndex {
     pub fn build_from_container(bytes: &[u8], options: NgramIndexBuildOptions) -> Result<Self> {
-        let len = u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let len = usize_to_u64(bytes.len())?;
         let reader = QztFileReader::open_read_at(bytes, len)?;
         Self::build_from_file(&reader, options)
     }
@@ -523,7 +520,9 @@ impl RawNgramIndex {
         options: NgramIndexBuildOptions,
     ) -> Result<Self> {
         if options.source == SearchIndexSource::NormalizedUtf8 {
-            return Err(QztError::NotImplemented("normalized_utf8 ngram index"));
+            return Err(QztError::UnsupportedIndexMode(
+                "normalized_utf8 ngram index",
+            ));
         }
         if options.n == 0 {
             return Err(QztError::ResourceLimitExceeded);
@@ -570,14 +569,11 @@ impl RawNgramIndex {
             let encoded = encode_delta_varint_u64(posting_list)?;
             let skips = build_skip_points(posting_list)?;
             term.document_frequency = 0;
-            term.granule_frequency =
-                u64::try_from(posting_list.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+            term.granule_frequency = usize_to_u64(posting_list.len())?;
             term.posting_offset = posting_offset;
-            term.posting_size =
-                u64::try_from(encoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+            term.posting_size = usize_to_u64(encoded.len())?;
             term.skip_offset = skip_offset;
-            term.skip_size = u64::try_from(skips.len().saturating_mul(24))
-                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            term.skip_size = usize_to_u64(skips.len().saturating_mul(24))?;
             posting_offset = posting_offset
                 .checked_add(term.posting_size)
                 .ok_or(QztError::ResourceLimitExceeded)?;
@@ -614,6 +610,7 @@ impl RawNgramIndex {
         })
     }
 
+    #[cfg(feature = "internal-testing")]
     pub fn term_for_key(&self, key: &[u8]) -> Option<&TermDictionaryEntry> {
         self.term_index_for_key(key)
             .and_then(|index| self.terms.get(index))
@@ -652,8 +649,7 @@ impl RawNgramIndex {
         let query_keys = ngram_keys_for_query(query, self.declaration.n)?;
         let mut planner = PlannerDecision::new(query_keys.clone());
         let mut metrics = self.empty_metrics(query);
-        metrics.term_lookups =
-            u64::try_from(query_keys.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.term_lookups = usize_to_u64(query_keys.len())?;
 
         if query_keys.is_empty() {
             metrics.query_time_ms = elapsed_ms(started);
@@ -716,8 +712,7 @@ impl RawNgramIndex {
             .map(|index| self.postings[*index].as_slice())
             .collect::<Vec<_>>();
         let candidates = intersect_postings(&posting_refs);
-        metrics.candidate_granules =
-            u64::try_from(candidates.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.candidate_granules = usize_to_u64(candidates.len())?;
         metrics.candidate_chunks = count_candidate_chunks(&self.granules, &candidates)?;
 
         if metrics.candidate_granules > options.max_candidate_granules {
@@ -744,8 +739,7 @@ impl RawNgramIndex {
         let verification = verify_candidates(
             &candidates,
             &mut |granule_id| {
-                let granule_index =
-                    usize::try_from(granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
+                let granule_index = u64_to_usize(granule_id)?;
                 self.granules
                     .get(granule_index)
                     .cloned()
@@ -758,8 +752,7 @@ impl RawNgramIndex {
 
         metrics.decoded_bytes = verification.decoded_bytes;
         metrics.physical_decoded_bytes = verification.physical_decoded_bytes;
-        metrics.verified_matches =
-            u64::try_from(verification.hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        metrics.verified_matches = usize_to_u64(verification.hits.len())?;
         metrics.query_time_ms = elapsed_ms(started);
         Ok(SearchReport {
             hits: verification.hits,
@@ -779,7 +772,7 @@ impl RawNgramIndex {
 
     fn is_high_df(&self, term_index: usize) -> bool {
         let granule_count = self.granules.len().max(1) as u128;
-        let frequency = self.terms[term_index].granule_frequency as u128;
+        let frequency = u128::from(self.terms[term_index].granule_frequency);
         let per_million = frequency.saturating_mul(1_000_000) / granule_count;
         per_million >= u128::from(self.planner_config.high_df_per_million)
     }
@@ -789,8 +782,7 @@ impl RawNgramIndex {
         if self.skip_data[term_index].is_empty() {
             return Ok(term.posting_size);
         }
-        let skip_probe_bytes = u64::try_from(self.skip_data[term_index].len().saturating_mul(24))
-            .map_err(|_| QztError::ResourceLimitExceeded)?
+        let skip_probe_bytes = usize_to_u64(self.skip_data[term_index].len().saturating_mul(24))?
             .checked_add(16)
             .ok_or(QztError::ResourceLimitExceeded)?;
         Ok(skip_probe_bytes.min(term.posting_size))
@@ -911,10 +903,7 @@ fn build_line_index_streaming(
             if *byte != b'\n' {
                 continue;
             }
-            let line_end = checked_logical_end(
-                entry.logical_offset,
-                u64::try_from(index + 1).map_err(|_| QztError::ResourceLimitExceeded)?,
-            )?;
+            let line_end = checked_logical_end(entry.logical_offset, usize_to_u64(index + 1)?)?;
             let line_bytes: &[u8] = if carry.is_empty() {
                 &decoded[consumed..=index]
             } else {
@@ -980,7 +969,7 @@ fn emit_line_granule(
     postings_by_key: &mut BTreeMap<Vec<u8>, BTreeSet<u64>>,
     keys_for_line: &mut impl FnMut(&[u8]) -> Result<Vec<Vec<u8>>>,
 ) -> Result<()> {
-    let granule_id = u64::try_from(granules.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let granule_id = usize_to_u64(granules.len())?;
     let byte_length = line_end
         .checked_sub(line_start)
         .ok_or(QztError::LogicalRangeOutOfBounds)?;
@@ -1042,11 +1031,10 @@ fn build_skip_points(posting_list: &[u64]) -> Result<Vec<SkipPoint>> {
     let mut encoded = Vec::new();
     let mut previous = 0_u64;
     for (index, granule_id) in posting_list.iter().enumerate() {
-        let byte_offset =
-            u64::try_from(encoded.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let byte_offset = usize_to_u64(encoded.len())?;
         if index > 0 && index % 128 == 0 {
             points.push(SkipPoint {
-                entry_index: u64::try_from(index).map_err(|_| QztError::ResourceLimitExceeded)?,
+                entry_index: usize_to_u64(index)?,
                 granule_id: *granule_id,
                 posting_byte_offset: byte_offset,
             });
@@ -1111,8 +1099,7 @@ fn validate_term_dictionary_shape(
             }
         }
         for granule_id in posting_list {
-            let granule_index =
-                usize::try_from(*granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
+            let granule_index = u64_to_usize(*granule_id)?;
             if granule_index >= granule_count {
                 return Err(QztError::ContainerCorrupt);
             }
@@ -1160,10 +1147,8 @@ pub(crate) fn verify_candidates(
         let decoded = read_range_cached(granule.logical_offset, granule.byte_length, &mut cache)?;
         decoded_bytes = next_decoded;
         for span in spans_for(&decoded) {
-            let span_offset =
-                u64::try_from(span.start).map_err(|_| QztError::ResourceLimitExceeded)?;
-            let span_len = u64::try_from(span.end - span.start)
-                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            let span_offset = usize_to_u64(span.start)?;
+            let span_len = usize_to_u64(span.end - span.start)?;
             hits.push(SearchHit {
                 logical_offset: granule
                     .logical_offset
@@ -1175,9 +1160,7 @@ pub(crate) fn verify_candidates(
                 score: None,
                 source: "verified_original_bytes",
             });
-            if u64::try_from(hits.len()).map_err(|_| QztError::ResourceLimitExceeded)?
-                >= options.max_search_results
-            {
+            if usize_to_u64(hits.len())? >= options.max_search_results {
                 capped = true;
                 break;
             }
@@ -1197,8 +1180,7 @@ pub(crate) fn verify_candidates(
 fn count_candidate_chunks(granules: &[SearchGranule], candidates: &[u64]) -> Result<u64> {
     let mut chunks = BTreeSet::new();
     for granule_id in candidates {
-        let granule_index =
-            usize::try_from(*granule_id).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let granule_index = u64_to_usize(*granule_id)?;
         let granule = granules
             .get(granule_index)
             .ok_or(QztError::ContainerCorrupt)?;
@@ -1206,7 +1188,7 @@ fn count_candidate_chunks(granules: &[SearchGranule], candidates: &[u64]) -> Res
             chunks.insert(chunk_id);
         }
     }
-    u64::try_from(chunks.len()).map_err(|_| QztError::ResourceLimitExceeded)
+    usize_to_u64(chunks.len())
 }
 
 pub(crate) fn intersect_postings(posting_lists: &[&[u64]]) -> Vec<u64> {
@@ -1352,6 +1334,7 @@ pub(crate) fn key_hash(key: &[u8]) -> [u8; 16] {
     output
 }
 
+#[allow(clippy::cast_possible_truncation)] // value ranges guaranteed by the loop invariants
 fn write_varuint(mut value: u64, output: &mut Vec<u8>) {
     while value >= 0x80 {
         output.push((value as u8 & 0x7f) | 0x80);

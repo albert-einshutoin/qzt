@@ -1,5 +1,5 @@
 use crate::error::{QztError, Result};
-use crate::primitives::{read_u32_le, read_u64_le, write_u32_le, write_u64_le};
+use crate::primitives::{read_u32_le, read_u64_le, usize_to_u64, write_u32_le, write_u64_le};
 
 pub const CHUNK_ENTRY_LEN: usize = 128;
 pub const STARTS_WITH_LINE_CONTINUATION: u32 = 1;
@@ -74,8 +74,7 @@ pub fn validate_chunk_table_block(
         return Err(QztError::ChunkTableInvalid);
     }
 
-    let actual_count = u64::try_from(bytes.len() / CHUNK_ENTRY_LEN)
-        .map_err(|_| QztError::ResourceLimitExceeded)?;
+    let actual_count = usize_to_u64(bytes.len() / CHUNK_ENTRY_LEN)?;
     if actual_count != chunk_count {
         return Err(QztError::ChunkCountMismatch);
     }

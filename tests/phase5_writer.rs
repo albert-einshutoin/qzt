@@ -82,8 +82,8 @@ fn compressed_and_uncompressed_checksums_match_exact_bytes() {
     let details = open_skeleton_details(&container).expect("container should open");
 
     for entry in details.chunk_entries {
-        let start = entry.physical_offset as usize;
-        let end = start + entry.compressed_size as usize;
+        let start = usize::try_from(entry.physical_offset).expect("fits in tests");
+        let end = start + usize::try_from(entry.compressed_size).expect("fits in tests");
         let compressed = &container[start..end];
         assert_eq!(
             *blake3::hash(compressed).as_bytes(),

@@ -5,103 +5,54 @@
 
 #![cfg_attr(not(feature = "internal-testing"), warn(missing_docs))]
 
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod benchmark;
-#[cfg(not(feature = "internal-testing"))]
-mod benchmark;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod cbor;
 // Some module items exist only for the internal-testing surface; they are
 // unreachable (and therefore dead code) in the curated default build.
-#[cfg(not(feature = "internal-testing"))]
-#[allow(dead_code)]
-mod cbor;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod chunk_table;
-#[cfg(not(feature = "internal-testing"))]
-mod chunk_table;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod chunker;
-#[cfg(not(feature = "internal-testing"))]
-mod chunker;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod corpus;
-#[cfg(not(feature = "internal-testing"))]
-mod corpus;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod dense_line_index;
-#[cfg(not(feature = "internal-testing"))]
-mod dense_line_index;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod error;
-#[cfg(not(feature = "internal-testing"))]
-mod error;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod fixed;
-#[cfg(not(feature = "internal-testing"))]
-mod fixed;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod format;
-#[cfg(not(feature = "internal-testing"))]
-#[allow(dead_code)]
-mod format;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod io;
-#[cfg(not(feature = "internal-testing"))]
-mod io;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod limits;
-#[cfg(not(feature = "internal-testing"))]
-mod limits;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod primitives;
-#[cfg(not(feature = "internal-testing"))]
-mod primitives;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod reader;
-#[cfg(not(feature = "internal-testing"))]
-mod reader;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod schema;
-#[cfg(not(feature = "internal-testing"))]
-#[allow(dead_code)]
-mod schema;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod search;
-#[cfg(not(feature = "internal-testing"))]
-mod search;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod sidecar;
-#[cfg(not(feature = "internal-testing"))]
-mod sidecar;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod skeleton;
-#[cfg(not(feature = "internal-testing"))]
-#[allow(dead_code)]
-mod skeleton;
-#[cfg(feature = "internal-testing")]
-#[doc(hidden)]
-pub mod writer;
-#[cfg(not(feature = "internal-testing"))]
-#[allow(dead_code)]
-mod writer;
+/// Declares a module that is private by default but exported (hidden) under
+/// the `internal-testing` feature so integration tests can reach internals.
+macro_rules! internal_module {
+    ($(#[$meta:meta])* $name:ident) => {
+        #[cfg(feature = "internal-testing")]
+        #[doc(hidden)]
+        pub mod $name;
+        #[cfg(not(feature = "internal-testing"))]
+        $(#[$meta])*
+        mod $name;
+    };
+}
+
+internal_module!(benchmark);
+internal_module!(
+    #[allow(dead_code)]
+    cbor
+);
+internal_module!(chunk_table);
+internal_module!(chunker);
+internal_module!(corpus);
+internal_module!(dense_line_index);
+internal_module!(error);
+internal_module!(fixed);
+internal_module!(
+    #[allow(dead_code)]
+    format
+);
+internal_module!(io);
+internal_module!(limits);
+internal_module!(primitives);
+internal_module!(reader);
+internal_module!(
+    #[allow(dead_code)]
+    schema
+);
+internal_module!(search);
+internal_module!(sidecar);
+internal_module!(
+    #[allow(dead_code)]
+    skeleton
+);
+internal_module!(
+    #[allow(dead_code)]
+    writer
+);
 
 pub use benchmark::{
     run_competitive_benchmark, run_release_benchmark, CompetitiveBenchmarkOptions,

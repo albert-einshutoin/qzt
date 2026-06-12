@@ -42,8 +42,33 @@ Container format for UTF-8 text.
   verification over a file-backed container that decodes only candidate
   chunks.
 
+### Fixed
+
+- `WriterBuilder::pack` now validates the profile string via `validate_profile`;
+  previously any arbitrary string was accepted, producing a container whose
+  metadata would be rejected at read time. All pack paths now call
+  `validate_profile` unconditionally inside `pack_bytes_internal`.
+- The `"memory"` profile requirement that a `DocumentIndex` must be provided is
+  now enforced on every pack path, not only on the `WriterBuilder` path.
+  Previously `pack_bytes_with_profile` could silently produce a `"memory"`
+  container without a Document Index. **Behaviour change**: calls that relied on
+  these previously-silent successes now return `QztError::MetadataInvalid`.
+
 ### Changed
 
+- `QztError::Display` now emits human-readable messages for all variants instead
+  of delegating to `{error:?}` (Debug output). Variant identifiers such as
+  `InvalidMagic` no longer appear raw in error text.
+- `QztError::NotImplemented` removed; replaced by two purpose-built variants:
+  - `QztError::Io(std::io::ErrorKind)` — preserves OS-level I/O error kind
+    (file not found, permission denied, write failure, …).
+  - `QztError::UnsupportedIndexMode(&'static str)` — signals that the requested
+    search index mode is not supported by this implementation.
+- `QztFileReader::open_path` and `QziFileSidecar::open_path` now return
+  `QztError::Io(kind)` instead of `QztError::ContainerCorrupt` when the
+  underlying `File::open` or `File::metadata` call fails.
+- `export_to` write failures now return `QztError::Io(kind)` instead of
+  `QztError::ContainerCorrupt`.
 - `qzt search`, `qzt info`, and `qzt sidecar-rebuild` now run on the
   bounded-memory `QztFileReader` instead of loading the whole container (and
   sidecar) into memory. On a 42 MB / 400K-line corpus with an n-gram sidecar,
@@ -64,6 +89,10 @@ Container format for UTF-8 text.
 - The quality gate (`make check` and CI) also compiles the default-features
   surface via `cargo check --lib --bins`; internal-testing-only items are
   explicitly `allow(dead_code)` in the curated build.
+- **Public API signatures** (pedantic pass, #9): `pack_bytes_with_document_index`
+  and `pack_bytes_with_memory_profile` now take `&DocumentIndex` instead of an
+  owned value; `run_release_benchmark_with_corpus` now takes `&[u8]` instead of
+  `Vec<u8>`.
 
 ### Deferred
 

@@ -1,5 +1,6 @@
 use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
 use crate::error::{QztError, Result};
+use crate::primitives::{u64_to_usize, usize_to_u64};
 
 /// Dense Line Index for fast in-chunk line start lookup.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -41,17 +42,10 @@ impl DenseLineIndex {
 
     pub fn encode(&self) -> Result<Vec<u8>> {
         let mut bytes = Vec::new();
-        write_varuint(
-            u64::try_from(self.entries.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
-            &mut bytes,
-        );
+        write_varuint(usize_to_u64(self.entries.len())?, &mut bytes);
         for entry in &self.entries {
             write_varuint(entry.chunk_id, &mut bytes);
-            write_varuint(
-                u64::try_from(entry.line_start_offsets.len())
-                    .map_err(|_| QztError::ResourceLimitExceeded)?,
-                &mut bytes,
-            );
+            write_varuint(usize_to_u64(entry.line_start_offsets.len())?, &mut bytes);
             let mut previous = 0_u64;
             for (index, offset) in entry.line_start_offsets.iter().enumerate() {
                 let delta = if index == 0 {
@@ -86,9 +80,7 @@ impl DenseLineIndex {
                 return Err(QztError::ChunkTableInvalid);
             }
 
-            let mut offsets = Vec::with_capacity(
-                usize::try_from(offset_count).map_err(|_| QztError::ResourceLimitExceeded)?,
-            );
+            let mut offsets = Vec::with_capacity(u64_to_usize(offset_count)?);
             let mut previous = 0_u64;
             for index in 0..offset_count {
                 let delta = read_varuint(bytes, &mut cursor)?;
@@ -151,13 +143,14 @@ pub fn line_start_offsets(decoded: &[u8], flags: u32) -> Result<Vec<u64>> {
 
     for index in 0..decoded.len() {
         if decoded[index] == b'\n' && index + 1 < decoded.len() {
-            starts.push(u64::try_from(index + 1).map_err(|_| QztError::ResourceLimitExceeded)?);
+            starts.push(usize_to_u64(index + 1)?);
         }
     }
 
     Ok(starts)
 }
 
+#[allow(clippy::cast_possible_truncation)] // value ranges guaranteed by the loop invariants
 fn write_varuint(mut value: u64, output: &mut Vec<u8>) {
     while value >= 0x80 {
         output.push((value as u8 & 0x7f) | 0x80);

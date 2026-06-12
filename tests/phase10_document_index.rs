@@ -20,7 +20,7 @@ fn document_index_ranges_are_verified_by_deep_verify() {
     let input = b"doc-one\n";
     let document_index = DocumentIndex {
         container_id: [0xb0; 16],
-        documents: vec![document(DocumentFixture {
+        documents: vec![document(&DocumentFixture {
             doc_id: "doc-one",
             input,
             logical_offset: input.len() as u64 + 1,
@@ -32,7 +32,7 @@ fn document_index_ranges_are_verified_by_deep_verify() {
         })],
     };
     let container =
-        pack_bytes_with_document_index(input, [0xb0; 16], options(64, 64), document_index)
+        pack_bytes_with_document_index(input, [0xb0; 16], options(64, 64), &document_index)
             .expect("document-index container should pack structurally");
     let reader = QztReader::open(container).expect("container should open structurally");
 
@@ -47,7 +47,7 @@ fn document_index_chunk_range_inconsistency_is_rejected_by_deep_verify() {
     let input = b"doc-one\ndoc-two\n";
     let document_index = DocumentIndex {
         container_id: [0xb1; 16],
-        documents: vec![document(DocumentFixture {
+        documents: vec![document(&DocumentFixture {
             doc_id: "doc-one",
             input,
             logical_offset: 0,
@@ -59,7 +59,7 @@ fn document_index_chunk_range_inconsistency_is_rejected_by_deep_verify() {
         })],
     };
     let container =
-        pack_bytes_with_document_index(input, [0xb1; 16], options(8, 8), document_index)
+        pack_bytes_with_document_index(input, [0xb1; 16], options(8, 8), &document_index)
             .expect("document-index container should pack structurally");
     let reader = QztReader::open(container).expect("container should open structurally");
 
@@ -75,7 +75,7 @@ fn memory_profile_writes_dense_and_document_index_flags_and_deep_verifies() {
     let document_index = DocumentIndex {
         container_id: [0xb2; 16],
         documents: vec![
-            document(DocumentFixture {
+            document(&DocumentFixture {
                 doc_id: "doc-one",
                 input,
                 logical_offset: 0,
@@ -85,7 +85,7 @@ fn memory_profile_writes_dense_and_document_index_flags_and_deep_verifies() {
                 chunk_start: 0,
                 chunk_end: 1,
             }),
-            document(DocumentFixture {
+            document(&DocumentFixture {
                 doc_id: "doc-two",
                 input,
                 logical_offset: 8,
@@ -98,7 +98,7 @@ fn memory_profile_writes_dense_and_document_index_flags_and_deep_verifies() {
         ],
     };
     let container =
-        pack_bytes_with_memory_profile(input, [0xb2; 16], options(8, 8), document_index)
+        pack_bytes_with_memory_profile(input, [0xb2; 16], options(8, 8), &document_index)
             .expect("memory profile should pack");
     let details = open_skeleton_details(&container).expect("memory profile should open");
 
@@ -123,7 +123,7 @@ struct DocumentFixture<'a> {
     chunk_end: u64,
 }
 
-fn document(fixture: DocumentFixture<'_>) -> DocumentEntry {
+fn document(fixture: &DocumentFixture<'_>) -> DocumentEntry {
     let start = usize::try_from(fixture.logical_offset).unwrap_or(fixture.input.len());
     let end = start
         .checked_add(usize::try_from(fixture.byte_length).unwrap_or(0))
@@ -152,13 +152,13 @@ fn two_chunk_container(documents: Vec<DocumentEntry>) -> Vec<u8> {
         documents,
     };
     // target/max 9 -> two chunks [0,9) and [9,18)
-    pack_bytes_with_document_index(TWO_LINES, [0xc0; 16], options(9, 9), document_index)
+    pack_bytes_with_document_index(TWO_LINES, [0xc0; 16], options(9, 9), &document_index)
         .expect("document-index container should pack structurally")
 }
 
 #[test]
 fn document_spanning_multiple_chunks_deep_verifies() {
-    let whole = document(DocumentFixture {
+    let whole = document(&DocumentFixture {
         doc_id: "whole",
         input: TWO_LINES,
         logical_offset: 0,
@@ -174,7 +174,7 @@ fn document_spanning_multiple_chunks_deep_verifies() {
 
 #[test]
 fn out_of_order_documents_deep_verify() {
-    let second = document(DocumentFixture {
+    let second = document(&DocumentFixture {
         doc_id: "doc-two",
         input: TWO_LINES,
         logical_offset: 9,
@@ -184,7 +184,7 @@ fn out_of_order_documents_deep_verify() {
         chunk_start: 1,
         chunk_end: 2,
     });
-    let first = document(DocumentFixture {
+    let first = document(&DocumentFixture {
         doc_id: "doc-one",
         input: TWO_LINES,
         logical_offset: 0,
@@ -201,7 +201,7 @@ fn out_of_order_documents_deep_verify() {
 
 #[test]
 fn empty_document_deep_verifies_without_decoded_bytes() {
-    let empty = document(DocumentFixture {
+    let empty = document(&DocumentFixture {
         doc_id: "empty",
         input: TWO_LINES,
         logical_offset: 9,
@@ -217,7 +217,7 @@ fn empty_document_deep_verifies_without_decoded_bytes() {
 
 #[test]
 fn document_checksum_mismatch_is_rejected_by_deep_verify() {
-    let mut wrong = document(DocumentFixture {
+    let mut wrong = document(&DocumentFixture {
         doc_id: "whole",
         input: TWO_LINES,
         logical_offset: 0,
@@ -237,7 +237,7 @@ fn document_checksum_mismatch_is_rejected_by_deep_verify() {
 
 #[test]
 fn read_document_resolves_by_id_and_reports_missing() {
-    let first = document(DocumentFixture {
+    let first = document(&DocumentFixture {
         doc_id: "doc-one",
         input: TWO_LINES,
         logical_offset: 0,
@@ -247,7 +247,7 @@ fn read_document_resolves_by_id_and_reports_missing() {
         chunk_start: 0,
         chunk_end: 1,
     });
-    let second = document(DocumentFixture {
+    let second = document(&DocumentFixture {
         doc_id: "doc-two",
         input: TWO_LINES,
         logical_offset: 9,

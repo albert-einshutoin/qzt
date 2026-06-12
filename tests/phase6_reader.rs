@@ -39,7 +39,7 @@ fn reader_open_info_and_export_work_for_phase5_container() {
 fn quick_verify_succeeds_without_decompressing_corrupt_compressed_chunk() {
     let mut container = pack(b"hello\nworld");
     let details = open_skeleton_details(&container).expect("container should open structurally");
-    let offset = details.chunk_entries[0].physical_offset as usize;
+    let offset = usize::try_from(details.chunk_entries[0].physical_offset).expect("fits in tests");
     container[offset] ^= 0xff;
 
     let reader = QztReader::open(container).expect("quick structural open should not decompress");
@@ -55,7 +55,7 @@ fn quick_verify_succeeds_without_decompressing_corrupt_compressed_chunk() {
 fn normal_verify_detects_compressed_chunk_checksum_mismatch() {
     let mut container = pack(b"hello\nworld");
     let details = open_skeleton_details(&container).expect("container should open structurally");
-    let offset = details.chunk_entries[0].physical_offset as usize;
+    let offset = usize::try_from(details.chunk_entries[0].physical_offset).expect("fits in tests");
     container[offset] ^= 0xff;
 
     let reader = QztReader::open(container).expect("open should remain structural");

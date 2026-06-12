@@ -42,7 +42,7 @@ fn verified_document_read_resolves_document_index() {
     let document_index = DocumentIndex {
         container_id: [0x21; 16],
         documents: vec![
-            document(DocFixture {
+            document(&DocFixture {
                 doc_id: "doc-one",
                 input,
                 logical_offset: 0,
@@ -52,7 +52,7 @@ fn verified_document_read_resolves_document_index() {
                 chunk_start: 0,
                 chunk_end: 1,
             }),
-            document(DocFixture {
+            document(&DocFixture {
                 doc_id: "doc-two",
                 input,
                 logical_offset: 8,
@@ -64,8 +64,8 @@ fn verified_document_read_resolves_document_index() {
             }),
         ],
     };
-    let container =
-        pack_bytes_with_document_index(input, [0x21; 16], options(), document_index).expect("pack");
+    let container = pack_bytes_with_document_index(input, [0x21; 16], options(), &document_index)
+        .expect("pack");
     let memory = QztReader::open(&container).expect("memory reader");
     let file =
         QztFileReader::open_read_at(&container[..], container.len() as u64).expect("file reader");
@@ -108,9 +108,11 @@ struct DocFixture<'a> {
     chunk_end: u64,
 }
 
-fn document(fixture: DocFixture<'_>) -> DocumentEntry {
-    let start = fixture.logical_offset as usize;
-    let end = start + fixture.byte_length as usize;
+fn document(fixture: &DocFixture<'_>) -> DocumentEntry {
+    let start =
+        usize::try_from(fixture.logical_offset).expect("logical_offset fits in usize in tests");
+    let end =
+        start + usize::try_from(fixture.byte_length).expect("byte_length fits in usize in tests");
     DocumentEntry::new(
         fixture.doc_id,
         fixture.logical_offset,

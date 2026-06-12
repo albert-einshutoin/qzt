@@ -89,7 +89,7 @@ fn cli_pack_rejects_invalid_utf8() {
     assert!(!output.status.success());
     assert!(!packed.exists());
     assert!(
-        String::from_utf8_lossy(&output.stderr).contains("InvalidUtf8"),
+        String::from_utf8_lossy(&output.stderr).contains("not valid UTF-8"),
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );
@@ -99,6 +99,9 @@ fn cli_pack_rejects_invalid_utf8() {
 
 #[test]
 fn cli_pack_profile_dense_and_writer_options_reach_metadata_and_info() {
+    // The "memory" profile requires a DocumentIndex which is not expressible via
+    // the CLI pack command. Use "archive" to verify that profile, dense-line-index,
+    // and writer options are correctly forwarded to the container metadata.
     let base = std::env::temp_dir().join(format!("qzt-phase9-profile-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
@@ -112,7 +115,7 @@ fn cli_pack_profile_dense_and_writer_options_reach_metadata_and_info() {
             .arg("-o")
             .arg(&packed)
             .arg("--profile")
-            .arg("memory")
+            .arg("archive")
             .arg("--dense-line-index")
             .arg("on")
             .arg("--chunk-size")
@@ -125,7 +128,7 @@ fn cli_pack_profile_dense_and_writer_options_reach_metadata_and_info() {
 
     let container = fs::read(&packed).expect("packed file should exist");
     let details = open_skeleton_details(&container).expect("container should open");
-    assert_eq!(details.metadata.profile, "memory");
+    assert_eq!(details.metadata.profile, "archive");
     assert!(details.metadata.dense_line_index);
     assert_eq!(details.metadata.zstd_level, 3);
     assert_eq!(details.metadata.target_chunk_size, 8);
@@ -138,7 +141,7 @@ fn cli_pack_profile_dense_and_writer_options_reach_metadata_and_info() {
             .arg(&packed),
     );
     let info = String::from_utf8(info).expect("info should be utf-8");
-    assert!(info.contains("Profile: memory"));
+    assert!(info.contains("Profile: archive"));
     assert!(info.contains("Zstd level: 3"));
     assert!(info.contains("Target chunk size: 8"));
     assert!(info.contains("Max chunk size: 8"));

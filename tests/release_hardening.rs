@@ -36,9 +36,6 @@ fn release_benchmark_profile() {
 #[test]
 #[ignore = "Profiling run. Execute with `make bench-profile-matrix`"]
 fn release_benchmark_profile_matrix() {
-    let query_repetitions = env_usize("QZT_RELEASE_BENCH_QUERY_REPETITIONS", 500);
-    let query_warmup_repetitions = env_usize("QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS", 20);
-
     const CORPUS_SIZES: [(&str, usize); 3] = [
         ("1MB", 1_000_000),
         ("10MB", 10_000_000),
@@ -50,11 +47,14 @@ fn release_benchmark_profile_matrix() {
         MatrixCorpusKind::Japanese,
     ];
 
+    let query_repetitions = env_usize("QZT_RELEASE_BENCH_QUERY_REPETITIONS", 500);
+    let query_warmup_repetitions = env_usize("QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS", 20);
+
     for (corpus_label, corpus_bytes) in CORPUS_SIZES {
         for kind in CORPUS_KINDS {
             let (corpus, line_count) = build_profile_corpus(corpus_bytes, kind);
             let report = run_release_benchmark_with_corpus(
-                corpus,
+                &corpus,
                 ReleaseBenchmarkOptions {
                     line_count,
                     query_repetitions,
@@ -171,18 +171,15 @@ fn build_profile_corpus(target_bytes: usize, kind: MatrixCorpusKind) -> (Vec<u8>
 }
 
 fn env_usize(name: &str, default: usize) -> usize {
-    let raw = match std::env::var(name) {
-        Ok(raw) => raw,
-        Err(_) => return default,
+    let Ok(raw) = std::env::var(name) else {
+        return default;
     };
 
     let parsed = raw
         .parse::<usize>()
         .unwrap_or_else(|_| panic!("{name} must be a positive integer, got {raw:?}"));
 
-    if parsed == 0 {
-        panic!("{name} must be greater than 0, got {raw:?}");
-    }
+    assert!(parsed > 0, "{name} must be greater than 0, got {raw:?}");
 
     parsed
 }

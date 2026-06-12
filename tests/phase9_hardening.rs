@@ -126,13 +126,17 @@ fn malformed_open_and_verify_fuzz_smoke_does_not_panic() {
 
     let mut state = 0x1234_5678_u64;
     for _ in 0..64 {
-        state = state.wrapping_mul(6364136223846793005).wrapping_add(1);
+        state = state
+            .wrapping_mul(6_364_136_223_846_793_005)
+            .wrapping_add(1);
+        #[allow(clippy::cast_possible_truncation)] // truncation is intentional for test RNG
         let len = (state as usize % 512) + 1;
         let mut bytes = Vec::with_capacity(len);
         for _ in 0..len {
             state = state
-                .wrapping_mul(2862933555777941757)
-                .wrapping_add(3037000493);
+                .wrapping_mul(2_862_933_555_777_941_757)
+                .wrapping_add(3_037_000_493);
+            #[allow(clippy::cast_possible_truncation)] // intentional truncation for test RNG
             bytes.push((state >> 32) as u8);
         }
         seeds.push(bytes);

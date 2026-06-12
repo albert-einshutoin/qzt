@@ -4,6 +4,7 @@ use std::time::{Duration, Instant};
 use crate::chunker::ChunkerOptions;
 use crate::corpus::{generate_validation_corpus, CorpusKind, ValidationCorpusOptions};
 use crate::error::{QztError, Result};
+use crate::primitives::{u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
 use crate::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
 use crate::sidecar::{build_search_sidecar, QziSidecar, SidecarIndexKind};
@@ -183,12 +184,12 @@ pub fn run_release_benchmark(options: ReleaseBenchmarkOptions) -> Result<Release
     }
 
     let corpus = release_corpus(options.line_count);
-    run_release_benchmark_with_corpus(corpus, options)
+    run_release_benchmark_with_corpus(&corpus, options)
 }
 
 /// Runs a benchmark smoke over a caller-provided corpus.
 pub fn run_release_benchmark_with_corpus(
-    corpus: Vec<u8>,
+    corpus: &[u8],
     mut options: ReleaseBenchmarkOptions,
 ) -> Result<ReleaseBenchmarkReport> {
     if corpus.is_empty()
@@ -199,9 +200,9 @@ pub fn run_release_benchmark_with_corpus(
         return Err(QztError::ResourceLimitExceeded);
     }
 
-    let corpus_bytes = u64::try_from(corpus.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let corpus_bytes = usize_to_u64(corpus.len())?;
     if options.line_count == 0 {
-        options.line_count = line_count_from_corpus(&corpus);
+        options.line_count = line_count_from_corpus(corpus);
     }
 
     if options.line_count == 0 {
@@ -217,9 +218,9 @@ pub fn run_release_benchmark_with_corpus(
     };
 
     let started = Instant::now();
-    let packed = pack_bytes_with_container_id(&corpus, [0xf0; 16], writer_options)?;
+    let packed = pack_bytes_with_container_id(corpus, [0xf0; 16], writer_options)?;
     let pack_elapsed = started.elapsed();
-    let packed_bytes = u64::try_from(packed.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let packed_bytes = usize_to_u64(packed.len())?;
 
     let reader = QztReader::open(&packed)?;
     let started = Instant::now();
@@ -235,14 +236,12 @@ pub fn run_release_benchmark_with_corpus(
     let started = Instant::now();
     let range = reader.read_range(range_offset, options.range_size)?;
     let range_elapsed = started.elapsed();
-    let range_bytes = u64::try_from(range.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let range_bytes = usize_to_u64(range.len())?;
 
     let qzi_token = build_search_sidecar(&packed, SidecarIndexKind::Token)?;
     let qzi_ngram = build_search_sidecar(&packed, SidecarIndexKind::Ngram { n: 3 })?;
-    let qzi_token_bytes =
-        u64::try_from(qzi_token.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
-    let qzi_ngram_bytes =
-        u64::try_from(qzi_ngram.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let qzi_token_bytes = usize_to_u64(qzi_token.len())?;
+    let qzi_ngram_bytes = usize_to_u64(qzi_ngram.len())?;
 
     let token_sidecar = QziSidecar::open(&packed, &qzi_token)?;
     let rare_token_query = run_query_case(
@@ -289,8 +288,7 @@ pub fn run_release_benchmark_with_corpus(
         corpus_bytes,
         line_count: options.line_count,
         packed_bytes,
-        exported_bytes: u64::try_from(exported.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
+        exported_bytes: usize_to_u64(exported.len())?,
         qzi_token_bytes,
         qzi_ngram_bytes,
         compression_ratio: ratio(packed_bytes, corpus_bytes),
@@ -330,7 +328,7 @@ pub fn run_competitive_benchmark(
             target_bytes: options.corpus_bytes,
         },
     )?;
-    let corpus_bytes = u64::try_from(corpus.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let corpus_bytes = usize_to_u64(corpus.len())?;
     let writer_options = WriterOptions {
         chunker: ChunkerOptions {
             target_chunk_size: options.chunk_size,
@@ -346,7 +344,8 @@ pub fn run_competitive_benchmark(
         .range_offset
         .min(corpus_bytes.saturating_sub(options.range_size));
     let length = options.range_size.min(corpus_bytes - offset);
-    let expected = &corpus[offset as usize..(offset + length) as usize];
+    let offset_start_us = u64_to_usize(offset)?;
+    let expected = &corpus[offset_start_us..(offset_start_us + u64_to_usize(length)?)];
 
     let qzt_reader = QztFileReader::open_read_at(&qzt[..], qzt.len() as u64)?;
     let started = Instant::now();
@@ -360,7 +359,9 @@ pub fn run_competitive_benchmark(
     let raw_decoded =
         zstd::stream::decode_all(raw_zstd.as_slice()).map_err(|_| QztError::ZstdDecodeError)?;
     let raw_elapsed = started.elapsed();
-    if raw_decoded[offset as usize..(offset + length) as usize] != *expected {
+    let offset_us = u64_to_usize(offset)?;
+    let end_us = u64_to_usize(offset + length)?;
+    if raw_decoded[offset_us..end_us] != *expected {
         return Err(QztError::ContainerCorrupt);
     }
 
@@ -373,13 +374,10 @@ pub fn run_competitive_benchmark(
     Ok(CompetitiveBenchmarkReport {
         corpus_id: options.corpus_kind.id(),
         corpus_bytes,
-        qzt_bytes: u64::try_from(qzt.len()).map_err(|_| QztError::ResourceLimitExceeded)?,
-        raw_zstd_bytes: u64::try_from(raw_zstd.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
-        qzt_range_bytes: u64::try_from(qzt_range.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
-        raw_zstd_decoded_bytes: u64::try_from(raw_decoded.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
+        qzt_bytes: usize_to_u64(qzt.len())?,
+        raw_zstd_bytes: usize_to_u64(raw_zstd.len())?,
+        qzt_range_bytes: usize_to_u64(qzt_range.len())?,
+        raw_zstd_decoded_bytes: usize_to_u64(raw_decoded.len())?,
         qzt_range_micros: qzt_range_elapsed.as_micros(),
         raw_zstd_range_micros: raw_elapsed.as_micros(),
         token_hit_count: token_report.metrics.verified_matches,
@@ -418,6 +416,7 @@ fn line_count_from_corpus(corpus: &[u8]) -> usize {
         return 0;
     }
 
+    #[allow(clippy::naive_bytecount)]
     let newline_count = corpus.iter().filter(|byte| **byte == b'\n').count();
     if corpus.ends_with(b"\n") {
         newline_count
@@ -490,6 +489,7 @@ fn run_query_case(
     })
 }
 
+#[allow(clippy::cast_possible_truncation)] // clamped_percentile <= 100, fits in usize
 fn percentile_micros(samples: &[u128], percentile: u64) -> u128 {
     if samples.is_empty() {
         return 0;
@@ -532,7 +532,7 @@ fn count_substring(haystack: &[u8], needle: &[u8]) -> Result<u64> {
         .windows(needle.len())
         .filter(|window| *window == needle)
         .count();
-    u64::try_from(count).map_err(|_| QztError::ResourceLimitExceeded)
+    usize_to_u64(count)
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -659,7 +659,7 @@ fn count_output_lines(output: &[u8]) -> Result<u64> {
         .split(|byte| *byte == b'\n')
         .filter(|line| !line.is_empty())
         .count();
-    u64::try_from(count).map_err(|_| QztError::ResourceLimitExceeded)
+    usize_to_u64(count)
 }
 
 #[cfg(feature = "bench-compete")]

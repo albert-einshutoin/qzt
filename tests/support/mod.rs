@@ -3,15 +3,15 @@ use qzt::search::SearchReport;
 /// Compare semantically-equivalent search behavior between two execution paths.
 ///
 /// Intentionally excluded fields:
-/// - metrics.query_time_ms: runtime dependent and non-deterministic
-/// - metrics.index_size_bytes: defined differently by source of metric
+/// - `metrics.query_time_ms`: runtime dependent and non-deterministic
+/// - `metrics.index_size_bytes`: defined differently by source of metric
 ///   (`Raw` sidecar reports estimated in-memory bytes, while file sidecar
 ///   reports serialized section payload bytes; on skip-heavy indexes this can
 ///   make file-sidecar bytes smaller than in-memory estimates)
-/// - metrics.posting_bytes_read: differs when skip-data is simulated
-/// - planner.used_skip_data: file sidecar keeps it false even when the
+/// - `metrics.posting_bytes_read`: differs when skip-data is simulated
+/// - `planner.used_skip_data`: file sidecar keeps it false even when the
 ///   in-memory index would use skip data
-/// - metrics.candidate_chunks:
+/// - `metrics.candidate_chunks`:
 ///   when capped=false, in-memory and file sidecar both report counts
 ///   consistently; when capped=true, file sidecar returns 0 early before counting
 ///   candidate chunks (see sidecar.rs), so this field is compared only when uncapped.

@@ -10,9 +10,6 @@ pub const MAJOR_VERSION: u16 = 0;
 /// QZT v0.1 minor version.
 pub const MINOR_VERSION: u16 = 1;
 
-/// QZT v0.1 format version.
-pub const VERSION: u16 = 1;
-
 /// Fixed Header size in bytes.
 pub const HEADER_LEN: usize = 128;
 

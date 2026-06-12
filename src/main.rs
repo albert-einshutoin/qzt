@@ -43,11 +43,11 @@ fn main() -> ExitCode {
     let _program = args.next();
 
     match args.next().as_deref() {
-        Some("help") | Some("--help") | Some("-h") | None => {
+        Some("help" | "--help" | "-h") | None => {
             print_help();
             ExitCode::SUCCESS
         }
-        Some("--version") | Some("-V") => {
+        Some("--version" | "-V") => {
             println!("{}", qzt::version());
             ExitCode::SUCCESS
         }
@@ -195,7 +195,7 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
                     .truncate(true)
                     .open(&temp_output_path)?;
                 let mut writer = QztFileWriter::new(output, options)?;
-                let mut buffer = [0_u8; 64 * 1024];
+                let mut buffer = vec![0_u8; 64 * 1024];
                 loop {
                     let read = input.read(&mut buffer)?;
                     if read == 0 {
@@ -221,7 +221,7 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(()) => ExitCode::SUCCESS,
-        Err(error) => command_failed("pack", error),
+        Err(error) => command_failed("pack", &error),
     }
 }
 
@@ -264,7 +264,7 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
             println!("Zstd stream compatible: no");
             ExitCode::SUCCESS
         }
-        Err(error) => command_failed("info", error),
+        Err(error) => command_failed("info", &error),
     }
 }
 
@@ -293,26 +293,23 @@ fn run_export(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     let result: CliResult<()> = (|| {
         let reader = QztFileReader::open_path(&path)?;
-        match &output_path {
-            Some(output_path) => {
-                let file = std::fs::File::create(output_path)?;
-                let mut writer = std::io::BufWriter::new(file);
-                reader.export_to(&mut writer)?;
-                writer.flush()?;
-            }
-            None => {
-                let stdout = std::io::stdout();
-                let mut writer = std::io::BufWriter::new(stdout.lock());
-                reader.export_to(&mut writer)?;
-                writer.flush()?;
-            }
+        if let Some(output_path) = &output_path {
+            let file = std::fs::File::create(output_path)?;
+            let mut writer = std::io::BufWriter::new(file);
+            reader.export_to(&mut writer)?;
+            writer.flush()?;
+        } else {
+            let stdout = std::io::stdout();
+            let mut writer = std::io::BufWriter::new(stdout.lock());
+            reader.export_to(&mut writer)?;
+            writer.flush()?;
         }
         Ok(())
     })();
 
     match result {
         Ok(()) => ExitCode::SUCCESS,
-        Err(error) => command_failed("export", error),
+        Err(error) => command_failed("export", &error),
     }
 }
 
@@ -356,7 +353,7 @@ fn run_range(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(bytes) => write_stdout(&bytes),
-        Err(error) => command_failed("range", error),
+        Err(error) => command_failed("range", &error),
     }
 }
 
@@ -390,7 +387,7 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
             println!("Verify: {level:?} ok");
             ExitCode::SUCCESS
         }
-        Err(error) => command_failed("verify", error),
+        Err(error) => command_failed("verify", &error),
     }
 }
 
@@ -423,7 +420,7 @@ fn run_line(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(bytes) => write_stdout(&bytes),
-        Err(error) => command_failed("line", error),
+        Err(error) => command_failed("line", &error),
     }
 }
 
@@ -553,7 +550,7 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
             }
             ExitCode::SUCCESS
         }
-        Err(error) => command_failed("search", error),
+        Err(error) => command_failed("search", &error),
     }
 }
 
@@ -623,7 +620,7 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(()) => ExitCode::SUCCESS,
-        Err(error) => command_failed("sidecar-rebuild", error),
+        Err(error) => command_failed("sidecar-rebuild", &error),
     }
 }
 
@@ -671,7 +668,7 @@ fn write_stdout(bytes: &[u8]) -> ExitCode {
     }
 }
 
-fn command_failed(command: &str, error: CliError) -> ExitCode {
+fn command_failed(command: &str, error: &CliError) -> ExitCode {
     eprintln!("qzt {command}: {error}");
     ExitCode::from(1)
 }

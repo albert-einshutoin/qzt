@@ -8,7 +8,7 @@ use crate::fixed::{validate_physical_ranges, FooterTrailer, Header, PhysicalRang
 use crate::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
 use crate::io::ReadAt;
 use crate::limits::ResourceLimits;
-use crate::primitives::checked_physical_end;
+use crate::primitives::{checked_physical_end, u64_to_usize, usize_to_u64};
 use crate::schema::{
     validate_source_consistency, BlockDescriptor, BlockRef, Checksum, DictionaryBlock,
     DictionaryEntry, DocumentIndex, FooterPayload, IndexRoot, Metadata,
@@ -57,8 +57,7 @@ pub fn write_empty_container(container_id: [u8; 16]) -> Result<Vec<u8>> {
     let metadata = Metadata::empty(container_id);
     let metadata_bytes = metadata.encode()?;
     let metadata_offset = HEADER_LEN as u64;
-    let metadata_size =
-        u64::try_from(metadata_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let metadata_size = usize_to_u64(metadata_bytes.len())?;
 
     let chunk_table_bytes = Vec::new();
     let chunk_table_offset = metadata_offset
@@ -83,32 +82,28 @@ pub fn write_empty_container(container_id: [u8; 16]) -> Result<Vec<u8>> {
     let index_root_offset = chunk_table_offset
         .checked_add(chunk_table_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
-    let index_root_size =
-        u64::try_from(index_root_bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let index_root_size = usize_to_u64(index_root_bytes.len())?;
 
     let footer_payload_offset = index_root_offset
         .checked_add(index_root_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
-    let footer_payload = fixed_point_footer_payload(
-        container_id,
-        BlockRef {
-            offset: index_root_offset,
-            size: index_root_size,
-            checksum: Checksum::blake3(&index_root_bytes),
-        },
-        BlockRef {
-            offset: metadata_offset,
-            size: metadata_size,
-            checksum: Checksum::blake3(&metadata_bytes),
-        },
-        footer_payload_offset,
-    )?;
+    let index_root_ref = BlockRef {
+        offset: index_root_offset,
+        size: index_root_size,
+        checksum: Checksum::blake3(&index_root_bytes),
+    };
+    let metadata_ref = BlockRef {
+        offset: metadata_offset,
+        size: metadata_size,
+        checksum: Checksum::blake3(&metadata_bytes),
+    };
+    let footer_payload =
+        fixed_point_footer_payload(container_id, &index_root_ref, &metadata_ref, footer_payload_offset)?;
 
     let footer_payload_bytes = footer_payload.encode()?;
     let footer_trailer = FooterTrailer {
         footer_payload_offset,
-        footer_payload_size: u64::try_from(footer_payload_bytes.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
+        footer_payload_size: usize_to_u64(footer_payload_bytes.len())?,
         footer_payload_checksum_blake3: Checksum::blake3(&footer_payload_bytes).value,
     };
 
@@ -151,8 +146,7 @@ pub fn open_skeleton_details_with_limits(
         return Err(QztError::InvalidFooterTrailer);
     }
 
-    let final_file_size =
-        u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let final_file_size = usize_to_u64(bytes.len())?;
     let header = Header::decode(&bytes[..HEADER_LEN])?;
     let trailer = FooterTrailer::decode(&bytes[bytes.len() - FOOTER_TRAILER_LEN..])?;
 
@@ -705,8 +699,8 @@ fn parse_document_index_at<R: ReadAt>(
 
 fn fixed_point_footer_payload(
     container_id: [u8; 16],
-    index_root: BlockRef,
-    metadata: BlockRef,
+    index_root: &BlockRef,
+    metadata: &BlockRef,
     footer_payload_offset: u64,
 ) -> Result<FooterPayload> {
     let mut final_file_size = 0_u64;
@@ -720,8 +714,7 @@ fn fixed_point_footer_payload(
             footer_flags: 0,
             container_checksum: None,
         };
-        let size = u64::try_from(candidate.encode()?.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let size = usize_to_u64(candidate.encode()?.len())?;
         let next = footer_payload_offset
             .checked_add(size)
             .and_then(|value| value.checked_add(FOOTER_TRAILER_LEN as u64))
@@ -762,7 +755,7 @@ fn read_physical_at<R: ReadAt>(
     if end > final_file_size {
         return Err(QztError::PhysicalRangeOutOfBounds);
     }
-    let len = usize::try_from(range.size).map_err(|_| QztError::ResourceLimitExceeded)?;
+    let len = u64_to_usize(range.size)?;
     let mut bytes = vec![0_u8; len];
     read_exact_at_qzt(reader, range.offset, &mut bytes)?;
     Ok(bytes)
