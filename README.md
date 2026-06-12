@@ -73,6 +73,11 @@ qzt export output.qzt -o restored.txt
 qzt range output.qzt --bytes 0:1024
 qzt range output.qzt --lines 1:10
 qzt line output.qzt 1
+qzt docs output.qzt
+qzt docs output.qzt --format json
+qzt doc output.qzt report-2026-06
+qzt doc output.qzt report-2026-06 -o out.txt
+qzt doc output.qzt report-2026-06 --no-verify
 qzt verify output.qzt --deep
 qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi

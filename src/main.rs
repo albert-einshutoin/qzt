@@ -5,7 +5,7 @@ use std::io::{Read, Write};
 use std::process::ExitCode;
 
 use qzt::{
-    build_search_sidecar_from_file, pack_bytes_with_profile, NgramIndexBuildOptions,
+    build_search_sidecar_from_file, pack_bytes_with_profile, Checksum, NgramIndexBuildOptions,
     QziFileSidecar, QztError, QztFileReader, QztFileWriter, RawNgramIndex, RawTokenIndex,
     SearchIndexSource, SearchOptions, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel,
     VerifyReport, WriterOptions,
@@ -58,6 +58,8 @@ fn main() -> ExitCode {
         Some("export") => run_export(args),
         Some("range") => run_range(args),
         Some("line") => run_line(args),
+        Some("docs") => run_docs(args),
+        Some("doc") => run_doc(args),
         Some("search") => run_search(args),
         Some("sidecar-rebuild") => run_sidecar_rebuild(args),
         Some("verify") => run_verify(args),
@@ -82,6 +84,10 @@ fn print_help() {
     println!("  range      Print original bytes (--bytes A:B half-open) or lines");
     println!("             (--lines A:B 1-based inclusive)");
     println!("  line       Print one original line (1-based; --zero-based to switch)");
+    println!(
+        "  docs       List documents in a Document Index (--format json for machine-readable)"
+    );
+    println!("  doc        Extract one document (verified by default; --no-verify to skip)");
     println!("  search     Search raw UTF-8 tokens with verified original-byte hits");
     println!("  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)");
     println!("  verify     Verify container integrity (--format json for machine-readable output)");
@@ -575,6 +581,207 @@ fn run_line(mut args: impl Iterator<Item = String>) -> ExitCode {
     match result {
         Ok(bytes) => write_stdout(&bytes),
         Err(error) => command_failed("line", &error),
+    }
+}
+
+/// Output format for `qzt docs`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DocsFormat {
+    Text,
+    Json,
+}
+
+/// Escapes a `doc_id` for tab-separated text output.
+///
+/// Replaces literal tab characters with `\t` and newlines with `\n` so that
+/// the tab-separated columns remain unambiguous when a `doc_id` contains those
+/// characters.
+fn escape_doc_id_text(id: &str) -> String {
+    let mut out = String::with_capacity(id.len());
+    for ch in id.chars() {
+        match ch {
+            '\t' => out.push_str("\\t"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            c => out.push(c),
+        }
+    }
+    out
+}
+
+fn run_docs(mut args: impl Iterator<Item = String>) -> ExitCode {
+    let Some(path) = args.next() else {
+        eprintln!("qzt docs: missing file");
+        return ExitCode::from(2);
+    };
+
+    let mut format = DocsFormat::Text;
+    while let Some(arg) = args.next() {
+        if arg.as_str() == "--format" {
+            let Some(value) = args.next() else {
+                eprintln!("qzt docs: missing --format value");
+                return ExitCode::from(2);
+            };
+            match value.as_str() {
+                "text" => format = DocsFormat::Text,
+                "json" => format = DocsFormat::Json,
+                _ => {
+                    eprintln!("qzt docs: unknown --format value '{value}' (expected text or json)");
+                    return ExitCode::from(2);
+                }
+            }
+        } else {
+            eprintln!("qzt docs: unknown option '{arg}'");
+            return ExitCode::from(2);
+        }
+    }
+
+    let result: CliResult<_> = (|| {
+        let reader = QztFileReader::open_path(&path)?;
+        let details = reader.skeleton_details();
+        let document_index = details
+            .document_index
+            .as_ref()
+            .ok_or(QztError::MissingRequiredBlock)?;
+        Ok(document_index.documents.clone())
+    })();
+
+    match result {
+        Ok(documents) => {
+            if format == DocsFormat::Text {
+                println!("doc_id\toffset\tbytes\tfirst_line\tlines\tchecksum");
+                for doc in &documents {
+                    let doc_id_escaped = escape_doc_id_text(&doc.doc_id);
+                    let checksum_hex = cli_json::hex(&doc.checksum.value);
+                    let first_line_one_based = doc.first_line.saturating_add(1);
+                    println!(
+                        "{}\t{}\t{}\t{}\t{}\t{}:{}",
+                        doc_id_escaped,
+                        doc.logical_offset,
+                        doc.byte_length,
+                        first_line_one_based,
+                        doc.line_count,
+                        cli_json::escape(&doc.checksum.algorithm),
+                        checksum_hex,
+                    );
+                }
+            } else {
+                // JSON output: {"documents":[...]}
+                print!("{{\"documents\":[");
+                for (i, doc) in documents.iter().enumerate() {
+                    if i > 0 {
+                        print!(",");
+                    }
+                    let doc_id_json = cli_json::escape(&doc.doc_id);
+                    let alg_json = cli_json::escape(&doc.checksum.algorithm);
+                    let checksum_hex = cli_json::hex(&doc.checksum.value);
+                    let first_line_one_based = doc.first_line.saturating_add(1);
+                    print!(
+                        concat!(
+                            "{{",
+                            "\"doc_id\":\"{doc_id}\",",
+                            "\"logical_offset\":{offset},",
+                            "\"byte_length\":{length},",
+                            "\"first_line\":{first_line},",
+                            "\"line_count\":{line_count},",
+                            "\"checksum\":{{\"algorithm\":\"{alg}\",\"value\":\"{chk}\"}}",
+                            "}}"
+                        ),
+                        doc_id = doc_id_json,
+                        offset = doc.logical_offset,
+                        length = doc.byte_length,
+                        first_line = first_line_one_based,
+                        line_count = doc.line_count,
+                        alg = alg_json,
+                        chk = checksum_hex,
+                    );
+                }
+                println!("}}]}}");
+            }
+            ExitCode::SUCCESS
+        }
+        Err(ref error) => {
+            eprintln!("qzt docs: {error}");
+            ExitCode::from(1)
+        }
+    }
+}
+
+fn run_doc(mut args: impl Iterator<Item = String>) -> ExitCode {
+    let Some(path) = args.next() else {
+        eprintln!("qzt doc: missing file");
+        return ExitCode::from(2);
+    };
+    let Some(doc_id) = args.next() else {
+        eprintln!("qzt doc: missing doc_id");
+        return ExitCode::from(2);
+    };
+
+    let mut output_path: Option<String> = None;
+    let mut no_verify = false;
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "-o" | "--output" => {
+                let Some(p) = args.next() else {
+                    eprintln!("qzt doc: missing output path");
+                    return ExitCode::from(2);
+                };
+                output_path = Some(p);
+            }
+            "--no-verify" => {
+                no_verify = true;
+            }
+            _ => {
+                eprintln!("qzt doc: unknown option '{arg}'");
+                return ExitCode::from(2);
+            }
+        }
+    }
+
+    let result: CliResult<Vec<u8>> = (|| {
+        let reader = QztFileReader::open_path(&path)?;
+        let bytes = if no_verify {
+            reader.read_document(&doc_id)?
+        } else {
+            // Look up the expected checksum from the Document Index entry.
+            let details = reader.skeleton_details();
+            let document_index = details
+                .document_index
+                .as_ref()
+                .ok_or(QztError::MissingRequiredBlock)?;
+            let pos = details
+                .document_lookup
+                .get(doc_id.as_str())
+                .copied()
+                .ok_or(QztError::DocumentNotFound)?;
+            let entry = &document_index.documents[pos];
+            let expected = Checksum {
+                algorithm: entry.checksum.algorithm.clone(),
+                value: entry.checksum.value,
+            };
+            reader.read_document_verified(&doc_id, &expected)?
+        };
+        Ok(bytes)
+    })();
+
+    match result {
+        Ok(bytes) => {
+            if let Some(ref out_path) = output_path {
+                match std::fs::write(out_path, &bytes) {
+                    Ok(()) => ExitCode::SUCCESS,
+                    Err(error) => {
+                        eprintln!("qzt doc: {error}");
+                        ExitCode::from(1)
+                    }
+                }
+            } else {
+                write_stdout(&bytes)
+            }
+        }
+        Err(ref error) => {
+            eprintln!("qzt doc: {error}");
+            ExitCode::from(1)
+        }
     }
 }
 

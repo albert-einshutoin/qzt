@@ -7,6 +7,22 @@ Container format for UTF-8 text.
 
 ### Added
 
+- `qzt docs <file.qzt>` lists the Document Index entries in tab-separated columns
+  (`doc_id`, `offset`, `bytes`, `first_line`, `lines`, `checksum`); the header is
+  the first stdout line. `--format json` emits
+  `{"documents":[{"doc_id":"…","logical_offset":…,"byte_length":…,"first_line":…,"line_count":…,"checksum":{"algorithm":"blake3","value":"…"}}]}`.
+  `first_line` is converted from its 0-based stored value to 1-based in both text
+  and JSON output (aligned with `qzt line` semantics). `doc_id` values containing
+  literal tabs or newlines are escaped as `\t` / `\n` in text mode; JSON uses the
+  existing `cli_json::escape` helper. A container without a Document Index exits 1
+  in both modes (distinct from a valid index with zero entries).
+- `qzt doc <file.qzt> <doc_id>` extracts one document by ID with BLAKE3
+  verification by default (reads the stored checksum from the Document Index and
+  calls `read_document_verified`). `--no-verify` skips the checksum check for a
+  faster path. `-o <path>` writes to a file instead of stdout. An unknown `doc_id`
+  or a missing Document Index exits 1; a verification failure (corrupt bytes) also
+  exits 1. JSON escape and hex helpers from `cli_json` are reused for all output.
+
 - `qzt verify` now prints two report lines after the existing compatibility line:
   `Checked chunks: <n>` and `Decoded bytes: <n>` (decoded bytes is 0 for
   `quick`/`normal` levels, and equals the original size for `deep`).
