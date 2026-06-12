@@ -634,10 +634,10 @@ impl QziFileSidecar<File> {
         path: impl AsRef<Path>,
         container: &QztFileReader<C>,
     ) -> Result<Self> {
-        let file = File::open(path).map_err(|_| QztError::ContainerCorrupt)?;
+        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
         let len = file
             .metadata()
-            .map_err(|_| QztError::ContainerCorrupt)?
+            .map_err(|error| QztError::Io(error.kind()))?
             .len();
         Self::open_read_at(file, len, container)
     }

@@ -179,7 +179,7 @@ fn normalized_token_index_is_rejected_in_phase11() {
 
     assert_eq!(
         error,
-        QztError::NotImplemented("normalized_utf8 token index")
+        QztError::UnsupportedIndexMode("normalized_utf8 token index")
     );
 }
 

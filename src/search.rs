@@ -239,7 +239,9 @@ impl RawTokenIndex {
         options: TokenIndexBuildOptions,
     ) -> Result<Self> {
         if options.source == SearchIndexSource::NormalizedUtf8 {
-            return Err(QztError::NotImplemented("normalized_utf8 token index"));
+            return Err(QztError::UnsupportedIndexMode(
+                "normalized_utf8 token index",
+            ));
         }
 
         let details = reader.skeleton_details();
@@ -523,7 +525,9 @@ impl RawNgramIndex {
         options: NgramIndexBuildOptions,
     ) -> Result<Self> {
         if options.source == SearchIndexSource::NormalizedUtf8 {
-            return Err(QztError::NotImplemented("normalized_utf8 ngram index"));
+            return Err(QztError::UnsupportedIndexMode(
+                "normalized_utf8 ngram index",
+            ));
         }
         if options.n == 0 {
             return Err(QztError::ResourceLimitExceeded);

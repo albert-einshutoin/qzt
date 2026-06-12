@@ -56,6 +56,20 @@ Container format for UTF-8 text.
 
 ### Changed
 
+- `QztError::Display` now emits human-readable messages for all variants instead
+  of delegating to `{error:?}` (Debug output). Variant identifiers such as
+  `InvalidMagic` no longer appear raw in error text.
+- `QztError::NotImplemented` removed; replaced by two purpose-built variants:
+  - `QztError::Io(std::io::ErrorKind)` — preserves OS-level I/O error kind
+    (file not found, permission denied, write failure, …).
+  - `QztError::UnsupportedIndexMode(&'static str)` — signals that the requested
+    search index mode is not supported by this implementation.
+- `QztFileReader::open_path` and `QziFileSidecar::open_path` now return
+  `QztError::Io(kind)` instead of `QztError::ContainerCorrupt` when the
+  underlying `File::open` or `File::metadata` call fails.
+- `export_to` write failures now return `QztError::Io(kind)` instead of
+  `QztError::ContainerCorrupt`.
+
 - `qzt search`, `qzt info`, and `qzt sidecar-rebuild` now run on the
   bounded-memory `QztFileReader` instead of loading the whole container (and
   sidecar) into memory. On a 42 MB / 400K-line corpus with an n-gram sidecar,

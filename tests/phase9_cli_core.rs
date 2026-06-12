@@ -89,7 +89,7 @@ fn cli_pack_rejects_invalid_utf8() {
     assert!(!output.status.success());
     assert!(!packed.exists());
     assert!(
-        String::from_utf8_lossy(&output.stderr).contains("InvalidUtf8"),
+        String::from_utf8_lossy(&output.stderr).contains("not valid UTF-8"),
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
     );

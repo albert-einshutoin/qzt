@@ -57,7 +57,7 @@ fn normalized_ngram_index_is_rejected_without_mapping_metadata() {
 
     assert_eq!(
         error,
-        QztError::NotImplemented("normalized_utf8 ngram index")
+        QztError::UnsupportedIndexMode("normalized_utf8 ngram index")
     );
 }
 

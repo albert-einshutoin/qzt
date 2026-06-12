@@ -90,6 +90,14 @@ fn file_reader_range_reads_only_overlapping_chunks() {
     assert_eq!(chunk_reads, 2);
 }
 
+#[test]
+fn open_path_reports_io_error_for_missing_file() {
+    assert_eq!(
+        QztFileReader::open_path("/nonexistent/qzt-test-missing.qzt").map(|_| ()),
+        Err(qzt::error::QztError::Io(std::io::ErrorKind::NotFound))
+    );
+}
+
 #[derive(Clone)]
 struct CountingReadAt {
     bytes: Arc<Vec<u8>>,
