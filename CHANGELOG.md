@@ -42,6 +42,18 @@ Container format for UTF-8 text.
   verification over a file-backed container that decodes only candidate
   chunks.
 
+### Fixed
+
+- `WriterBuilder::pack` now validates the profile string via `validate_profile`;
+  previously any arbitrary string was accepted, producing a container whose
+  metadata would be rejected at read time. All pack paths now call
+  `validate_profile` unconditionally inside `pack_bytes_internal`.
+- The `"memory"` profile requirement that a `DocumentIndex` must be provided is
+  now enforced on every pack path, not only on the `WriterBuilder` path.
+  Previously `pack_bytes_with_profile` could silently produce a `"memory"`
+  container without a Document Index. **Behaviour change**: calls that relied on
+  these previously-silent successes now return `QztError::MetadataInvalid`.
+
 ### Changed
 
 - `qzt search`, `qzt info`, and `qzt sidecar-rebuild` now run on the

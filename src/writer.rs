@@ -145,10 +145,6 @@ impl WriterBuilder {
             (_, document_index) => document_index,
         };
 
-        if self.profile == "memory" {
-            return Err(QztError::MetadataInvalid);
-        }
-
         let dense_mode = if self.dense_line_index {
             DenseLineIndexMode::Generate
         } else {
@@ -694,6 +690,10 @@ fn pack_bytes_internal(
     document_index: Option<DocumentIndex>,
     profile: &str,
 ) -> Result<Vec<u8>> {
+    validate_profile(profile)?;
+    if profile == "memory" && document_index.is_none() {
+        return Err(QztError::MetadataInvalid);
+    }
     let plan = plan_chunks(input, options.chunker)?;
     let mut compressed_chunks = Vec::with_capacity(plan.chunks.len());
     let mut entries = Vec::with_capacity(plan.chunks.len());
@@ -974,6 +974,11 @@ fn fixed_point_footer_payload(
     Err(QztError::ContainerCorrupt)
 }
 
+/// Validates that `profile` is one of the values defined by the QZT v0.1 spec.
+///
+/// Accepted values: `"minimal"`, `"core"`, `"log"`, `"archive"`, `"memory"`.
+///
+/// Returns [`QztError::MetadataInvalid`] for any other string.
 fn validate_profile(profile: &str) -> Result<()> {
     if matches!(profile, "minimal" | "core" | "log" | "archive" | "memory") {
         Ok(())
