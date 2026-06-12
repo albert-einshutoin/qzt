@@ -1082,7 +1082,7 @@ fn required_map<'a>(
     key: &str,
     error: QztError,
 ) -> Result<&'a [(CborValue, CborValue)]> {
-    as_map(field(map, key, error.clone())?, error)
+    as_map(field(map, key, error)?, error)
 }
 
 fn required_array<'a>(
@@ -1090,35 +1090,35 @@ fn required_array<'a>(
     key: &str,
     error: QztError,
 ) -> Result<&'a [CborValue]> {
-    match field(map, key, error.clone())? {
+    match field(map, key, error)? {
         CborValue::Array(values) => Ok(values),
         _ => Err(error),
     }
 }
 
 fn required_text(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<String> {
-    match field(map, key, error.clone())? {
+    match field(map, key, error)? {
         CborValue::Text(value) => Ok(value.clone()),
         _ => Err(error),
     }
 }
 
 fn required_bool(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<bool> {
-    match field(map, key, error.clone())? {
+    match field(map, key, error)? {
         CborValue::Bool(value) => Ok(*value),
         _ => Err(error),
     }
 }
 
 fn required_u64(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<u64> {
-    match field(map, key, error.clone())? {
+    match field(map, key, error)? {
         CborValue::Integer(value) => u64::try_from(*value).map_err(|_| error),
         _ => Err(error),
     }
 }
 
 fn required_i32(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<i32> {
-    match field(map, key, error.clone())? {
+    match field(map, key, error)? {
         CborValue::Integer(value) => i32::try_from(*value).map_err(|_| error),
         _ => Err(error),
     }
@@ -1133,7 +1133,7 @@ fn required_bstr32(map: &[(CborValue, CborValue)], key: &str, error: QztError) -
 }
 
 fn required_bytes(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<Vec<u8>> {
-    match field(map, key, error.clone())? {
+    match field(map, key, error)? {
         CborValue::Bytes(bytes) => Ok(bytes.clone()),
         _ => Err(error),
     }
@@ -1144,7 +1144,7 @@ fn required_bstr<const N: usize>(
     key: &str,
     error: QztError,
 ) -> Result<[u8; N]> {
-    match field(map, key, error.clone())? {
+    match field(map, key, error)? {
         CborValue::Bytes(bytes) => bytes.as_slice().try_into().map_err(|_| error),
         _ => Err(error),
     }
@@ -1155,9 +1155,9 @@ fn required_checksum(
     key: &str,
     error: QztError,
 ) -> Result<Checksum> {
-    let checksum = required_map(map, key, error.clone())?;
-    reject_unknown_keys(checksum, &["algorithm", "value"], error.clone())?;
-    let algorithm = required_text(checksum, "algorithm", error.clone())?;
+    let checksum = required_map(map, key, error)?;
+    reject_unknown_keys(checksum, &["algorithm", "value"], error)?;
+    let algorithm = required_text(checksum, "algorithm", error)?;
     if algorithm != CHECKSUM_BLAKE3 {
         return Err(error);
     }
@@ -1188,11 +1188,11 @@ fn required_block_ref(
     key: &str,
     error: QztError,
 ) -> Result<BlockRef> {
-    let block = required_map(map, key, error.clone())?;
-    reject_unknown_keys(block, &["offset", "size", "checksum"], error.clone())?;
+    let block = required_map(map, key, error)?;
+    reject_unknown_keys(block, &["offset", "size", "checksum"], error)?;
     Ok(BlockRef {
-        offset: required_u64(block, "offset", error.clone())?,
-        size: required_u64(block, "size", error.clone())?,
+        offset: required_u64(block, "offset", error)?,
+        size: required_u64(block, "size", error)?,
         checksum: required_checksum(block, "checksum", error)?,
     })
 }
@@ -1220,7 +1220,7 @@ fn expect_text_field(
     expected: &str,
     error: QztError,
 ) -> Result<()> {
-    if required_text(map, key, error.clone())? != expected {
+    if required_text(map, key, error)? != expected {
         return Err(error);
     }
     Ok(())
@@ -1232,14 +1232,14 @@ fn expect_bool_field(
     expected: bool,
     error: QztError,
 ) -> Result<()> {
-    if required_bool(map, key, error.clone())? != expected {
+    if required_bool(map, key, error)? != expected {
         return Err(error);
     }
     Ok(())
 }
 
 fn expect_version_field(map: &[(CborValue, CborValue)], error: QztError) -> Result<()> {
-    match field(map, "format_version", error.clone())? {
+    match field(map, "format_version", error)? {
         CborValue::Array(values)
             if values.as_slice() == [CborValue::Integer(0), CborValue::Integer(1)] =>
         {
