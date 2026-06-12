@@ -105,10 +105,15 @@ pub struct SkipPoint {
 /// Inspectable query planner decision.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PlannerDecision {
+    /// All index keys required to answer the query (one per query token/ngram).
     pub required_keys: Vec<Vec<u8>>,
+    /// Subset of required keys that were found in the index and used for posting intersection.
     pub selected_keys: Vec<Vec<u8>>,
+    /// Required keys absent from the index (query returns no hits when non-empty).
     pub missing_keys: Vec<Vec<u8>>,
+    /// Selected keys whose document frequency exceeds the high-DF threshold.
     pub high_df_keys: Vec<Vec<u8>>,
+    /// Whether skip-point data was used to accelerate posting list traversal.
     pub used_skip_data: bool,
 }
 

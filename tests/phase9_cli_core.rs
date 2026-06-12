@@ -322,6 +322,11 @@ fn verify_json_reports_ok_with_counts() {
         json.contains("\"checked_chunks\":") && !json.contains("\"checked_chunks\":0"),
         "checked_chunks must be >= 1: {json}"
     );
+    // decoded_bytes is part of the frozen CLI contract.
+    assert!(
+        json.contains("\"decoded_bytes\":"),
+        "must contain decoded_bytes field: {json}"
+    );
 
     let _ = fs::remove_dir_all(base);
 }
@@ -421,6 +426,106 @@ fn verify_deep_text_reports_decoded_bytes() {
     // Decoded bytes must equal the original content size.
     let expected = format!("Decoded bytes: {}", content.len());
     assert!(out.contains(&expected), "must contain '{expected}': {out}");
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// `qzt info <file> --format` with the flag as the last argument (missing value) exits 2.
+#[test]
+fn info_format_missing_value_exits_2() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-fmt-missing-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"a\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("info")
+        .arg(&packed)
+        .arg("--format")
+        .output()
+        .expect("command should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "--format with missing value must exit 2"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// `qzt verify --format bad` (unknown format value) exits with code 2.
+#[test]
+fn verify_unknown_format_exits_2() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-vfmt-bad-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"a\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("verify")
+        .arg(&packed)
+        .arg("--format")
+        .arg("yaml")
+        .output()
+        .expect("command should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "unknown --format value must exit 2"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// `qzt verify --format` with the flag as the last argument (missing value) exits 2.
+#[test]
+fn verify_format_missing_value_exits_2() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-vfmt-missing-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"a\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("verify")
+        .arg(&packed)
+        .arg("--format")
+        .output()
+        .expect("command should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "--format with missing value must exit 2"
+    );
 
     let _ = fs::remove_dir_all(base);
 }

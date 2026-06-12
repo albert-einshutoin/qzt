@@ -334,7 +334,7 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
                 println!("Container ID: {}", cli_json::hex(&info.container_id));
                 println!(
                     "Original checksum: {}:{}",
-                    cli_json::escape(&metadata.original_checksum.algorithm),
+                    metadata.original_checksum.algorithm,
                     cli_json::hex(&metadata.original_checksum.value),
                 );
                 println!("Newline mode: {}", metadata.newline_mode);
@@ -529,6 +529,10 @@ fn print_search_report_text(report: &SearchReport) {
 /// `incomplete_reason` is JSON `null` when absent and a quoted string when set.
 /// The stderr warning for incomplete results is still emitted in JSON mode so
 /// that the stdout JSON stream remains clean.
+///
+/// Note: the `score` field from [`SearchHit`] is intentionally omitted from
+/// JSON output — it is always `None` in the current implementation and is also
+/// absent from text output.
 fn print_search_report_json(report: &SearchReport) {
     let query_escaped = cli_json::escape(&report.metrics.query);
     let index_kind_escaped = cli_json::escape(report.metrics.index_kind);
@@ -561,6 +565,9 @@ fn print_search_report_json(report: &SearchReport) {
         None => "null".to_owned(),
         Some(reason) => format!("\"{}\"", cli_json::escape(reason)),
     };
+    // Guard against NaN/inf producing invalid JSON for the f64 metric fields.
+    debug_assert!(report.metrics.index_size_ratio.is_finite());
+    debug_assert!(report.metrics.query_time_ms.is_finite());
     println!(
         concat!(
             "],",
@@ -670,7 +677,7 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(report) => {
-            let level_str = verify_level_as_str(report.level);
+            let level_str = verify_level_as_str(level);
             if format == VerifyFormat::Text {
                 // First line is byte-identical to the pre-existing output for script
                 // compatibility; report lines are appended below it.

@@ -77,6 +77,7 @@ qzt doc output.qzt report-2026-06 --no-verify
 qzt verify output.qzt --deep
 qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi
+qzt search output.qzt "error" --sidecar output.qzt.qzi --format json
 ```
 
 range の範囲指定: `--bytes A:B` は half-open なバイト範囲 `[A, B)`、
