@@ -1,12 +1,14 @@
+mod cli_json;
+
 use std::fmt;
 use std::io::{Read, Write};
 use std::process::ExitCode;
 
 use qzt::{
-    build_search_sidecar_from_file, pack_bytes_with_profile, NgramIndexBuildOptions,
+    build_search_sidecar_from_file, pack_bytes_with_profile, Checksum, NgramIndexBuildOptions,
     QziFileSidecar, QztError, QztFileReader, QztFileWriter, RawNgramIndex, RawTokenIndex,
-    SearchIndexSource, SearchOptions, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel,
-    WriterOptions,
+    SearchIndexSource, SearchOptions, SearchReport, SidecarIndexKind, TokenIndexBuildOptions,
+    VerifyLevel, VerifyReport, WriterOptions,
 };
 
 type CliResult<T> = std::result::Result<T, CliError>;
@@ -56,6 +58,8 @@ fn main() -> ExitCode {
         Some("export") => run_export(args),
         Some("range") => run_range(args),
         Some("line") => run_line(args),
+        Some("docs") => run_docs(args),
+        Some("doc") => run_doc(args),
         Some("search") => run_search(args),
         Some("sidecar-rebuild") => run_sidecar_rebuild(args),
         Some("verify") => run_verify(args),
@@ -75,18 +79,33 @@ fn print_help() {
     println!("Commands:");
     println!("  help       Show this help");
     println!("  pack       Pack a UTF-8 text file into QZT");
-    println!("  info       Print container summary");
+    println!("             Use '-' as the input path to read from stdin:");
+    println!("             journalctl --since today | qzt pack - -o today.qzt");
+    println!("             (stdin requires --profile core without --dense-line-index;");
+    println!("              stdout output is not supported; -o <path> is always required)");
+    println!("  info       Print container summary (--format json for machine-readable output)");
     println!("  export     Restore original bytes (streams to -o file or stdout)");
     println!("  range      Print original bytes (--bytes A:B half-open) or lines");
     println!("             (--lines A:B 1-based inclusive)");
     println!("  line       Print one original line (1-based; --zero-based to switch)");
-    println!("  search     Search raw UTF-8 tokens with verified original-byte hits");
+    println!(
+        "  docs       List documents in a Document Index (--format json for machine-readable)"
+    );
+    println!("  doc        Extract one document (verified by default; --no-verify to skip)");
+    println!(
+        "  search     Search raw UTF-8 tokens with verified original-byte hits (--format json)"
+    );
     println!("  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)");
-    println!("  verify     Verify container integrity");
+    println!("  verify     Verify container integrity (--format json for machine-readable output)");
     println!();
     println!("Options:");
     println!("  -h, --help     Show this help");
     println!("  -V, --version  Show version");
+    println!();
+    println!("Exit codes:");
+    println!("  0  success (verify: container is valid)");
+    println!("  1  command failed (verify: container is corrupt or unreadable)");
+    println!("  2  usage error (unknown option / missing argument)");
 }
 
 fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
@@ -182,10 +201,24 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
         return ExitCode::from(2);
     }
 
+    let stdin_input = input_path == "-";
     let dense_line_index = dense_line_index.unwrap_or(profile == "memory");
+
+    // stdin is only supported on the streaming path (core profile, no dense line index).
+    // Silently buffering all of stdin would defeat the memory-safety promise for large logs.
+    if stdin_input && (profile != "core" || dense_line_index) {
+        eprintln!("qzt pack: stdin input requires --profile core without --dense-line-index");
+        eprintln!("(other profiles need the whole input in memory; write to a file first)");
+        return ExitCode::from(2);
+    }
+
     let result: CliResult<()> = (|| {
         if profile == "core" && !dense_line_index {
-            let mut input = std::fs::File::open(input_path)?;
+            let mut input: Box<dyn Read> = if stdin_input {
+                Box::new(std::io::stdin().lock())
+            } else {
+                Box::new(std::fs::File::open(&input_path)?)
+            };
             let temp_output_path = format!("{output_path}.tmp");
             let stream_result: CliResult<()> = (|| {
                 let output = std::fs::OpenOptions::new()
@@ -225,43 +258,130 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 }
 
+/// Output format requested by the caller of `qzt info`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum InfoFormat {
+    Text,
+    Json,
+}
+
 fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
     let Some(path) = args.next() else {
         eprintln!("qzt info: missing file");
         return ExitCode::from(2);
     };
 
+    let mut format = InfoFormat::Text;
+    while let Some(arg) = args.next() {
+        if arg.as_str() == "--format" {
+            let Some(value) = args.next() else {
+                eprintln!("qzt info: missing --format value");
+                return ExitCode::from(2);
+            };
+            match value.as_str() {
+                "text" => format = InfoFormat::Text,
+                "json" => format = InfoFormat::Json,
+                _ => {
+                    eprintln!("qzt info: unknown --format value '{value}' (expected text or json)");
+                    return ExitCode::from(2);
+                }
+            }
+        } else {
+            eprintln!("qzt info: unknown option '{arg}'");
+            return ExitCode::from(2);
+        }
+    }
+
     let result: CliResult<_> = (|| {
         let compressed_size = std::fs::metadata(&path)?.len();
         let reader = QztFileReader::open_path(&path)?;
-        let metadata = reader.skeleton_details().metadata.clone();
-        Ok((reader.info(), metadata, compressed_size))
+        let details = reader.skeleton_details();
+        let metadata = details.metadata.clone();
+        let document_count = details
+            .document_index
+            .as_ref()
+            .map_or(0, |index| index.documents.len());
+        Ok((reader.info(), metadata, compressed_size, document_count))
     })();
 
     match result {
-        Ok((info, metadata, compressed_size)) => {
+        Ok((info, metadata, compressed_size, document_count)) => {
             let line_index = if metadata.dense_line_index {
                 "sparse+dense"
             } else {
                 "sparse"
             };
-            println!("Format: QZT 0.1");
-            println!("Profile: {}", metadata.profile);
-            println!("Original size: {}", info.original_size);
-            println!("Compressed size: {compressed_size}");
-            println!("Chunks: {}", info.chunk_count);
-            println!("Lines: {}", info.line_count);
-            println!("Compression: zstd");
-            println!("Zstd level: {}", metadata.zstd_level);
-            println!("Target chunk size: {}", metadata.target_chunk_size);
-            println!("Max chunk size: {}", metadata.max_chunk_size);
-            println!("Line index: {line_index}");
-            println!(
-                "Document index: {}",
-                if metadata.document_index { "yes" } else { "no" }
-            );
-            println!("Checksum: blake3");
-            println!("Zstd stream compatible: no");
+            // Text output: existing lines unchanged, then three new lines appended.
+            if format == InfoFormat::Text {
+                println!("Format: QZT 0.1");
+                println!("Profile: {}", metadata.profile);
+                println!("Original size: {}", info.original_size);
+                println!("Compressed size: {compressed_size}");
+                println!("Chunks: {}", info.chunk_count);
+                println!("Lines: {}", info.line_count);
+                println!("Compression: zstd");
+                println!("Zstd level: {}", metadata.zstd_level);
+                println!("Target chunk size: {}", metadata.target_chunk_size);
+                println!("Max chunk size: {}", metadata.max_chunk_size);
+                println!("Line index: {line_index}");
+                println!(
+                    "Document index: {}",
+                    if metadata.document_index { "yes" } else { "no" }
+                );
+                println!("Checksum: blake3");
+                println!("Zstd stream compatible: no");
+                // New lines for container identity and original checksum.
+                println!("Container ID: {}", cli_json::hex(&info.container_id));
+                println!(
+                    "Original checksum: {}:{}",
+                    metadata.original_checksum.algorithm,
+                    cli_json::hex(&metadata.original_checksum.value),
+                );
+                println!("Newline mode: {}", metadata.newline_mode);
+            } else {
+                // JSON output: single object on stdout.
+                let container_id_hex = cli_json::hex(&info.container_id);
+                let checksum_alg = cli_json::escape(&metadata.original_checksum.algorithm);
+                let checksum_value = cli_json::hex(&metadata.original_checksum.value);
+                let profile = cli_json::escape(&metadata.profile);
+                let newline_mode = cli_json::escape(&metadata.newline_mode);
+                println!(
+                    concat!(
+                        "{{\n",
+                        "  \"format\": \"qzt-0.1\",\n",
+                        "  \"container_id\": \"{container_id}\",\n",
+                        "  \"profile\": \"{profile}\",\n",
+                        "  \"original_size\": {original_size},\n",
+                        "  \"compressed_size\": {compressed_size},\n",
+                        "  \"original_checksum\": {{\"algorithm\": \"{alg}\", \"value\": \"{chk}\"}},\n",
+                        "  \"newline_mode\": \"{newline_mode}\",\n",
+                        "  \"chunk_count\": {chunk_count},\n",
+                        "  \"line_count\": {line_count},\n",
+                        "  \"zstd_level\": {zstd_level},\n",
+                        "  \"target_chunk_size\": {target_chunk_size},\n",
+                        "  \"max_chunk_size\": {max_chunk_size},\n",
+                        "  \"dense_line_index\": {dense_line_index},\n",
+                        "  \"document_index\": {document_index},\n",
+                        "  \"document_count\": {document_count}\n",
+                        "}}"
+                    ),
+                    container_id = container_id_hex,
+                    profile = profile,
+                    original_size = info.original_size,
+                    compressed_size = compressed_size,
+                    alg = checksum_alg,
+                    chk = checksum_value,
+                    newline_mode = newline_mode,
+                    chunk_count = info.chunk_count,
+                    line_count = info.line_count,
+                    zstd_level = metadata.zstd_level,
+                    target_chunk_size = metadata.target_chunk_size,
+                    max_chunk_size = metadata.max_chunk_size,
+                    dense_line_index = metadata.dense_line_index,
+                    document_index = metadata.document_index,
+                    document_count = document_count,
+                );
+            }
             ExitCode::SUCCESS
         }
         Err(error) => command_failed("info", &error),
@@ -357,6 +477,163 @@ fn run_range(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 }
 
+/// Output format requested by the caller of `qzt search`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SearchFormat {
+    Text,
+    Json,
+}
+
+/// Prints the text-mode search report to stdout.
+///
+/// The output is byte-identical to the pre-existing format. Each hit is on its
+/// own line followed by a single `metrics` line and an optional stderr warning
+/// when `incomplete_reason` is set.
+fn print_search_report_text(report: &SearchReport) {
+    for hit in &report.hits {
+        println!(
+            "hit logical_offset={} byte_length={} chunk_start={} chunk_end={} source={}",
+            hit.logical_offset, hit.byte_length, hit.chunk_start, hit.chunk_end, hit.source
+        );
+    }
+    println!(
+        "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
+        report.metrics.query,
+        report.metrics.index_kind,
+        report.metrics.posting_granularity,
+        report.metrics.index_size_bytes,
+        report.metrics.source_size_bytes,
+        report.metrics.index_size_ratio,
+        report.metrics.term_lookups,
+        report.metrics.posting_bytes_read,
+        report.metrics.candidate_granules,
+        report.metrics.candidate_chunks,
+        report.metrics.decoded_bytes,
+        report.metrics.physical_decoded_bytes,
+        report.metrics.verified_matches,
+        report.metrics.query_time_ms,
+        report.capped,
+        report.incomplete_reason.unwrap_or("none")
+    );
+    if let Some(reason) = report.incomplete_reason {
+        eprintln!("qzt search: warning: result may be incomplete ({reason})");
+    }
+}
+
+/// Prints the JSON-mode search report to stdout.
+///
+/// Hits are written one element at a time so that large result sets do not
+/// require building a single giant `String`. The `source` field is passed
+/// through `cli_json::escape` because it is a `&'static str` from library code
+/// and is safe in practice, but the issue requires escaping it for correctness.
+/// `incomplete_reason` is JSON `null` when absent and a quoted string when set.
+/// The stderr warning for incomplete results is still emitted in JSON mode so
+/// that the stdout JSON stream remains clean.
+///
+/// Note: the `score` field from [`SearchHit`] is intentionally omitted from
+/// JSON output — it is always `None` in the current implementation and is also
+/// absent from text output.
+fn print_search_report_json(report: &SearchReport) {
+    let query_escaped = cli_json::escape(&report.metrics.query);
+    let index_kind_escaped = cli_json::escape(report.metrics.index_kind);
+    let granularity_escaped = cli_json::escape(report.metrics.posting_granularity);
+
+    print!("{{\"hits\":[");
+    for (i, hit) in report.hits.iter().enumerate() {
+        if i > 0 {
+            print!(",");
+        }
+        let source_escaped = cli_json::escape(hit.source);
+        print!(
+            concat!(
+                "{{",
+                "\"logical_offset\":{logical_offset},",
+                "\"byte_length\":{byte_length},",
+                "\"chunk_start\":{chunk_start},",
+                "\"chunk_end\":{chunk_end},",
+                "\"source\":\"{source}\"",
+                "}}"
+            ),
+            logical_offset = hit.logical_offset,
+            byte_length = hit.byte_length,
+            chunk_start = hit.chunk_start,
+            chunk_end = hit.chunk_end,
+            source = source_escaped,
+        );
+    }
+    let incomplete_json = match report.incomplete_reason {
+        None => "null".to_owned(),
+        Some(reason) => format!("\"{}\"", cli_json::escape(reason)),
+    };
+    // Guard against NaN/inf producing invalid JSON for the f64 metric fields.
+    debug_assert!(report.metrics.index_size_ratio.is_finite());
+    debug_assert!(report.metrics.query_time_ms.is_finite());
+    println!(
+        concat!(
+            "],",
+            "\"metrics\":{{",
+            "\"query\":\"{query}\",",
+            "\"index_kind\":\"{index_kind}\",",
+            "\"posting_granularity\":\"{posting_granularity}\",",
+            "\"index_size_bytes\":{index_size_bytes},",
+            "\"source_size_bytes\":{source_size_bytes},",
+            "\"index_size_ratio\":{index_size_ratio},",
+            "\"term_lookups\":{term_lookups},",
+            "\"posting_bytes_read\":{posting_bytes_read},",
+            "\"candidate_granules\":{candidate_granules},",
+            "\"candidate_chunks\":{candidate_chunks},",
+            "\"decoded_bytes\":{decoded_bytes},",
+            "\"physical_decoded_bytes\":{physical_decoded_bytes},",
+            "\"verified_matches\":{verified_matches},",
+            "\"query_time_ms\":{query_time_ms}",
+            "}},",
+            "\"capped\":{capped},",
+            "\"incomplete_reason\":{incomplete_reason}",
+            "}}"
+        ),
+        query = query_escaped,
+        index_kind = index_kind_escaped,
+        posting_granularity = granularity_escaped,
+        index_size_bytes = report.metrics.index_size_bytes,
+        source_size_bytes = report.metrics.source_size_bytes,
+        index_size_ratio = report.metrics.index_size_ratio,
+        term_lookups = report.metrics.term_lookups,
+        posting_bytes_read = report.metrics.posting_bytes_read,
+        candidate_granules = report.metrics.candidate_granules,
+        candidate_chunks = report.metrics.candidate_chunks,
+        decoded_bytes = report.metrics.decoded_bytes,
+        physical_decoded_bytes = report.metrics.physical_decoded_bytes,
+        verified_matches = report.metrics.verified_matches,
+        query_time_ms = report.metrics.query_time_ms,
+        capped = report.capped,
+        incomplete_reason = incomplete_json,
+    );
+    if let Some(reason) = report.incomplete_reason {
+        eprintln!("qzt search: warning: result may be incomplete ({reason})");
+    }
+}
+
+/// Output format requested by the caller of `qzt verify`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum VerifyFormat {
+    Text,
+    Json,
+}
+
+/// Converts a [`VerifyLevel`] to the lowercase CLI flag string used in JSON output.
+///
+/// Uses a match instead of `Display` on the library type to keep the conversion
+/// CLI-local; `VerifyLevel` intentionally does not implement `Display`.
+/// The `_` arm is required because `VerifyLevel` is `#[non_exhaustive]`.
+fn verify_level_as_str(level: VerifyLevel) -> &'static str {
+    match level {
+        VerifyLevel::Quick => "quick",
+        VerifyLevel::Normal => "normal",
+        VerifyLevel::Deep => "deep",
+        _ => "unknown",
+    }
+}
+
 fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
     let Some(path) = args.next() else {
         eprintln!("qzt verify: missing file");
@@ -364,11 +641,28 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
     };
 
     let mut level = VerifyLevel::Normal;
-    for arg in args {
+    let mut format = VerifyFormat::Text;
+    while let Some(arg) = args.next() {
         match arg.as_str() {
             "--quick" => level = VerifyLevel::Quick,
             "--normal" => level = VerifyLevel::Normal,
             "--deep" => level = VerifyLevel::Deep,
+            "--format" => {
+                let Some(value) = args.next() else {
+                    eprintln!("qzt verify: missing --format value");
+                    return ExitCode::from(2);
+                };
+                match value.as_str() {
+                    "text" => format = VerifyFormat::Text,
+                    "json" => format = VerifyFormat::Json,
+                    _ => {
+                        eprintln!(
+                            "qzt verify: unknown --format value '{value}' (expected text or json)"
+                        );
+                        return ExitCode::from(2);
+                    }
+                }
+            }
             _ => {
                 eprintln!("qzt verify: unknown option '{arg}'");
                 return ExitCode::from(2);
@@ -376,18 +670,40 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
         }
     }
 
-    let result: CliResult<()> = (|| {
+    let result: CliResult<VerifyReport> = (|| {
         let reader = QztFileReader::open_path(path)?;
-        reader.verify(level)?;
-        Ok(())
+        Ok(reader.verify(level)?)
     })();
 
     match result {
-        Ok(()) => {
-            println!("Verify: {level:?} ok");
+        Ok(report) => {
+            let level_str = verify_level_as_str(level);
+            if format == VerifyFormat::Text {
+                // First line is byte-identical to the pre-existing output for script
+                // compatibility; report lines are appended below it.
+                println!("Verify: {:?} ok", report.level);
+                println!("Checked chunks: {}", report.checked_chunks);
+                println!("Decoded bytes: {}", report.decoded_bytes);
+            } else {
+                let chunks = report.checked_chunks;
+                let bytes = report.decoded_bytes;
+                println!(
+                    "{{\"ok\":true,\"level\":\"{level_str}\",\"checked_chunks\":{chunks},\"decoded_bytes\":{bytes}}}"
+                );
+            }
             ExitCode::SUCCESS
         }
-        Err(error) => command_failed("verify", &error),
+        Err(ref error) => {
+            if format == VerifyFormat::Json {
+                // JSON consumers read stdout only; no stderr output in JSON mode.
+                let error_msg = cli_json::escape(&error.to_string());
+                let level_str = verify_level_as_str(level);
+                println!("{{\"ok\":false,\"level\":\"{level_str}\",\"error\":\"{error_msg}\"}}");
+                ExitCode::from(1)
+            } else {
+                command_failed("verify", error)
+            }
+        }
     }
 }
 
@@ -424,6 +740,207 @@ fn run_line(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 }
 
+/// Output format for `qzt docs`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DocsFormat {
+    Text,
+    Json,
+}
+
+/// Escapes a `doc_id` for tab-separated text output.
+///
+/// Replaces literal tab characters with `\t` and newlines with `\n` so that
+/// the tab-separated columns remain unambiguous when a `doc_id` contains those
+/// characters.
+fn escape_doc_id_text(id: &str) -> String {
+    let mut out = String::with_capacity(id.len());
+    for ch in id.chars() {
+        match ch {
+            '\t' => out.push_str("\\t"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            c => out.push(c),
+        }
+    }
+    out
+}
+
+fn run_docs(mut args: impl Iterator<Item = String>) -> ExitCode {
+    let Some(path) = args.next() else {
+        eprintln!("qzt docs: missing file");
+        return ExitCode::from(2);
+    };
+
+    let mut format = DocsFormat::Text;
+    while let Some(arg) = args.next() {
+        if arg.as_str() == "--format" {
+            let Some(value) = args.next() else {
+                eprintln!("qzt docs: missing --format value");
+                return ExitCode::from(2);
+            };
+            match value.as_str() {
+                "text" => format = DocsFormat::Text,
+                "json" => format = DocsFormat::Json,
+                _ => {
+                    eprintln!("qzt docs: unknown --format value '{value}' (expected text or json)");
+                    return ExitCode::from(2);
+                }
+            }
+        } else {
+            eprintln!("qzt docs: unknown option '{arg}'");
+            return ExitCode::from(2);
+        }
+    }
+
+    let result: CliResult<_> = (|| {
+        let reader = QztFileReader::open_path(&path)?;
+        let details = reader.skeleton_details();
+        let document_index = details
+            .document_index
+            .as_ref()
+            .ok_or(QztError::MissingRequiredBlock)?;
+        Ok(document_index.documents.clone())
+    })();
+
+    match result {
+        Ok(documents) => {
+            if format == DocsFormat::Text {
+                println!("doc_id\toffset\tbytes\tfirst_line\tlines\tchecksum");
+                for doc in &documents {
+                    let doc_id_escaped = escape_doc_id_text(&doc.doc_id);
+                    let checksum_hex = cli_json::hex(&doc.checksum.value);
+                    let first_line_one_based = doc.first_line.saturating_add(1);
+                    println!(
+                        "{}\t{}\t{}\t{}\t{}\t{}:{}",
+                        doc_id_escaped,
+                        doc.logical_offset,
+                        doc.byte_length,
+                        first_line_one_based,
+                        doc.line_count,
+                        cli_json::escape(&doc.checksum.algorithm),
+                        checksum_hex,
+                    );
+                }
+            } else {
+                // JSON output: {"documents":[...]}
+                print!("{{\"documents\":[");
+                for (i, doc) in documents.iter().enumerate() {
+                    if i > 0 {
+                        print!(",");
+                    }
+                    let doc_id_json = cli_json::escape(&doc.doc_id);
+                    let alg_json = cli_json::escape(&doc.checksum.algorithm);
+                    let checksum_hex = cli_json::hex(&doc.checksum.value);
+                    let first_line_one_based = doc.first_line.saturating_add(1);
+                    print!(
+                        concat!(
+                            "{{",
+                            "\"doc_id\":\"{doc_id}\",",
+                            "\"logical_offset\":{offset},",
+                            "\"byte_length\":{length},",
+                            "\"first_line\":{first_line},",
+                            "\"line_count\":{line_count},",
+                            "\"checksum\":{{\"algorithm\":\"{alg}\",\"value\":\"{chk}\"}}",
+                            "}}"
+                        ),
+                        doc_id = doc_id_json,
+                        offset = doc.logical_offset,
+                        length = doc.byte_length,
+                        first_line = first_line_one_based,
+                        line_count = doc.line_count,
+                        alg = alg_json,
+                        chk = checksum_hex,
+                    );
+                }
+                println!("}}]}}");
+            }
+            ExitCode::SUCCESS
+        }
+        Err(ref error) => {
+            eprintln!("qzt docs: {error}");
+            ExitCode::from(1)
+        }
+    }
+}
+
+fn run_doc(mut args: impl Iterator<Item = String>) -> ExitCode {
+    let Some(path) = args.next() else {
+        eprintln!("qzt doc: missing file");
+        return ExitCode::from(2);
+    };
+    let Some(doc_id) = args.next() else {
+        eprintln!("qzt doc: missing doc_id");
+        return ExitCode::from(2);
+    };
+
+    let mut output_path: Option<String> = None;
+    let mut no_verify = false;
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "-o" | "--output" => {
+                let Some(p) = args.next() else {
+                    eprintln!("qzt doc: missing output path");
+                    return ExitCode::from(2);
+                };
+                output_path = Some(p);
+            }
+            "--no-verify" => {
+                no_verify = true;
+            }
+            _ => {
+                eprintln!("qzt doc: unknown option '{arg}'");
+                return ExitCode::from(2);
+            }
+        }
+    }
+
+    let result: CliResult<Vec<u8>> = (|| {
+        let reader = QztFileReader::open_path(&path)?;
+        let bytes = if no_verify {
+            reader.read_document(&doc_id)?
+        } else {
+            // Look up the expected checksum from the Document Index entry.
+            let details = reader.skeleton_details();
+            let document_index = details
+                .document_index
+                .as_ref()
+                .ok_or(QztError::MissingRequiredBlock)?;
+            let pos = details
+                .document_lookup
+                .get(doc_id.as_str())
+                .copied()
+                .ok_or(QztError::DocumentNotFound)?;
+            let entry = &document_index.documents[pos];
+            let expected = Checksum {
+                algorithm: entry.checksum.algorithm.clone(),
+                value: entry.checksum.value,
+            };
+            reader.read_document_verified(&doc_id, &expected)?
+        };
+        Ok(bytes)
+    })();
+
+    match result {
+        Ok(bytes) => {
+            if let Some(ref out_path) = output_path {
+                match std::fs::write(out_path, &bytes) {
+                    Ok(()) => ExitCode::SUCCESS,
+                    Err(error) => {
+                        eprintln!("qzt doc: {error}");
+                        ExitCode::from(1)
+                    }
+                }
+            } else {
+                write_stdout(&bytes)
+            }
+        }
+        Err(ref error) => {
+            eprintln!("qzt doc: {error}");
+            ExitCode::from(1)
+        }
+    }
+}
+
 fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     let Some(path) = args.next() else {
         eprintln!("qzt search: missing file");
@@ -438,6 +955,7 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     let mut index_kind = "token";
     let mut ngram = 3_usize;
     let mut sidecar_path = None;
+    let mut format = SearchFormat::Text;
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--index" => {
@@ -490,6 +1008,22 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                 };
                 options.max_search_results = value;
             }
+            "--format" => {
+                let Some(value) = args.next() else {
+                    eprintln!("qzt search: missing --format value");
+                    return ExitCode::from(2);
+                };
+                match value.as_str() {
+                    "text" => format = SearchFormat::Text,
+                    "json" => format = SearchFormat::Json,
+                    _ => {
+                        eprintln!(
+                            "qzt search: unknown --format value '{value}' (expected text or json)"
+                        );
+                        return ExitCode::from(2);
+                    }
+                }
+            }
             _ => {
                 eprintln!("qzt search: unknown option '{arg}'");
                 return ExitCode::from(2);
@@ -520,33 +1054,9 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(report) => {
-            for hit in &report.hits {
-                println!(
-                    "hit logical_offset={} byte_length={} chunk_start={} chunk_end={} source={}",
-                    hit.logical_offset, hit.byte_length, hit.chunk_start, hit.chunk_end, hit.source
-                );
-            }
-            println!(
-                "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
-                report.metrics.query,
-                report.metrics.index_kind,
-                report.metrics.posting_granularity,
-                report.metrics.index_size_bytes,
-                report.metrics.source_size_bytes,
-                report.metrics.index_size_ratio,
-                report.metrics.term_lookups,
-                report.metrics.posting_bytes_read,
-                report.metrics.candidate_granules,
-                report.metrics.candidate_chunks,
-                report.metrics.decoded_bytes,
-                report.metrics.physical_decoded_bytes,
-                report.metrics.verified_matches,
-                report.metrics.query_time_ms,
-                report.capped,
-                report.incomplete_reason.unwrap_or("none")
-            );
-            if let Some(reason) = report.incomplete_reason {
-                eprintln!("qzt search: warning: result may be incomplete ({reason})");
+            match format {
+                SearchFormat::Text => print_search_report_text(&report),
+                SearchFormat::Json => print_search_report_json(&report),
             }
             ExitCode::SUCCESS
         }

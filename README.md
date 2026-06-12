@@ -67,14 +67,22 @@ The gate runs:
 
 ```sh
 qzt pack input.txt -o output.qzt
+journalctl --since today | qzt pack - -o today.qzt
 qzt info output.qzt
+qzt info output.qzt --format json
 qzt export output.qzt -o restored.txt
 qzt range output.qzt --bytes 0:1024
 qzt range output.qzt --lines 1:10
 qzt line output.qzt 1
+qzt docs output.qzt
+qzt docs output.qzt --format json
+qzt doc output.qzt report-2026-06
+qzt doc output.qzt report-2026-06 -o out.txt
+qzt doc output.qzt report-2026-06 --no-verify
 qzt verify output.qzt --deep
 qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi
+qzt search output.qzt "error" --sidecar output.qzt.qzi --format json
 ```
 
 Range semantics: `--bytes A:B` is a half-open byte range `[A, B)`, while
@@ -82,6 +90,15 @@ Range semantics: `--bytes A:B` is a half-open byte range `[A, B)`, while
 than the index `n` (default 3) cannot be answered by the index; instead of a
 confident empty result the CLI reports
 `incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
+
+## Exit Codes
+
+```text
+Exit codes:
+  0  success (verify: container is valid)
+  1  command failed (verify: container is corrupt or unreadable)
+  2  usage error (unknown option / missing argument)
+```
 
 ## Documentation
 

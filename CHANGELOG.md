@@ -7,6 +7,65 @@ Container format for UTF-8 text.
 
 ### Added
 
+- `qzt pack -` reads from stdin instead of a file when the input path is `-`
+  (Unix pipeline convention). Example:
+  `journalctl --since today | qzt pack - -o today.qzt`
+  Stdin input is only supported on the streaming code path
+  (`--profile core` without `--dense-line-index on`). Combining `-` with a
+  non-streaming profile or `--dense-line-index on` exits with code 2 and prints
+  a clear explanation to stderr so users are not surprised by silent OOM on
+  large log streams. The `-o <path>` output flag remains required (stdout output
+  is not possible because `QztFileWriter` requires seek). The existing atomic
+  `.tmp` → rename write and all file-input behaviour are unchanged.
+
+- `qzt search <file.qzt> <query> [--sidecar …] --format json` emits a single
+  JSON object to stdout:
+  `{"hits":[{"logical_offset":…,"byte_length":…,"chunk_start":…,"chunk_end":…,"source":"verified_original_bytes"},…],"metrics":{"query":"…","index_kind":"…","posting_granularity":"…","index_size_bytes":…,"source_size_bytes":…,"index_size_ratio":…,"term_lookups":…,"posting_bytes_read":…,"candidate_granules":…,"candidate_chunks":…,"decoded_bytes":…,"physical_decoded_bytes":…,"verified_matches":…,"query_time_ms":…},"capped":bool,"incomplete_reason":null|"…"}`.
+  Field names match the `SearchReport` / `SearchMetrics` / `SearchHit` Rust
+  struct fields directly. `incomplete_reason` is JSON `null` when there is no
+  reason; a string value (e.g. `"query_shorter_than_ngram_n"`) when set. The
+  `source` field and all string values are passed through `cli_json::escape` so
+  queries containing `"` or other special characters never corrupt the JSON.
+  The stderr incomplete-result warning is still emitted in JSON mode (stdout
+  remains clean). Zero-hit searches emit `"hits":[]`. Unknown `--format` values
+  exit with code 2. Default text output is unchanged (existing tests pass
+  without modification). `SearchReport`, `SearchHit`, and `SearchMetrics` are
+  now exported from the `qzt` crate public API.
+
+- `qzt docs <file.qzt>` lists the Document Index entries in tab-separated columns
+  (`doc_id`, `offset`, `bytes`, `first_line`, `lines`, `checksum`); the header is
+  the first stdout line. `--format json` emits
+  `{"documents":[{"doc_id":"…","logical_offset":…,"byte_length":…,"first_line":…,"line_count":…,"checksum":{"algorithm":"blake3","value":"…"}}]}`.
+  `first_line` is converted from its 0-based stored value to 1-based in both text
+  and JSON output (aligned with `qzt line` semantics). `doc_id` values containing
+  literal tabs or newlines are escaped as `\t` / `\n` in text mode; JSON uses the
+  existing `cli_json::escape` helper. A container without a Document Index exits 1
+  in both modes (distinct from a valid index with zero entries).
+- `qzt doc <file.qzt> <doc_id>` extracts one document by ID with BLAKE3
+  verification by default (reads the stored checksum from the Document Index and
+  calls `read_document_verified`). `--no-verify` skips the checksum check for a
+  faster path. `-o <path>` writes to a file instead of stdout. An unknown `doc_id`
+  or a missing Document Index exits 1; a verification failure (corrupt bytes) also
+  exits 1. JSON escape and hex helpers from `cli_json` are reused for all output.
+
+- `qzt verify` now prints two report lines after the existing compatibility line:
+  `Checked chunks: <n>` and `Decoded bytes: <n>` (decoded bytes is 0 for
+  `quick`/`normal` levels, and equals the original size for `deep`).
+- `qzt verify --format json` outputs a single-line JSON object to stdout:
+  `{"ok":true,"level":"deep","checked_chunks":297,"decoded_bytes":2423996}` on
+  success, or `{"ok":false,"level":"deep","error":"..."}` (exit code 1) on
+  failure. In JSON mode, all output goes to stdout; stderr is silent so JSON
+  consumers need only read stdout.
+- Exit codes are now documented in `qzt --help` and in `README.md` /
+  `README.ja.md`: `0` = success, `1` = command failed, `2` = usage error.
+- `qzt info` now appends three identity lines after the existing output:
+  `Container ID` (lowercase hex UUID), `Original checksum` (`blake3:<hex>`),
+  and `Newline mode`. Existing lines are unchanged.
+- `qzt info --format json` outputs a single JSON object to stdout with all
+  container fields including `container_id` and `original_checksum`. Unknown
+  `--format` values exit with code 2. JSON is hand-assembled without a serde
+  dependency via the new `src/cli_json.rs` helper module (also used by
+  subsequent Value Phase 1 commands).
 - Deterministic QZT Core writer and reader.
 - Chunk Table, sparse line index, optional Dense Line Index, and optional
   Document Index support.

@@ -1,6 +1,6 @@
 # QZT Task Status
 
-Last updated: 2026-06-13
+Last updated: 2026-06-13 (Value Phase 1)
 
 ## Current Rule
 
@@ -70,7 +70,7 @@ issue checklists.
 | Track | Scope | State | Source |
 |---|---|---|---|
 | Refactoring (5 phases, 24 issues #2-#30) | error type and helpers, duplicate removal, trait unification, structural consolidation, perf/CI polish; 1 real bug fix (#8) | In progress (Phase 1 complete: #2-#9 merged; Phase 2 next) | issue #31, [PostPhase23.md](PostPhase23.md) |
-| Product value (4 phases, 14 issues #33-#46) | CLI evidence loop with JSON output, attest and conformance kit, crates.io and binary distribution, benchmarks and tutorials | Planned | issue #47, [PostPhase23.md](PostPhase23.md) |
+| Product value (4 phases, 14 issues #33-#46) | CLI evidence loop with JSON output, attest and conformance kit, crates.io and binary distribution, benchmarks and tutorials | In progress (Value Phase 1 complete: #33-#37 merged; #38 waits for #22) | issue #47, [PostPhase23.md](PostPhase23.md) |
 
 ## Current Focus
 
@@ -85,11 +85,11 @@ product value roadmap (issue #47) are sequenced in
 Next action:
 
 ```text
-Execute tasks/PostPhase23.md Wave 1 value lane / Wave 2: Value Phase 1
-#33 (qzt info + JSON foundation) -> #34/#35/#36 -> #37 (#38 waits for #22),
-then refactor Phase 2 (#10-#16). Do not start #25 while #33-#37 are in
-flight. Release gates (v0.1.0 tag, crates.io publish) remain owner-approved
-decisions.
+Execute tasks/PostPhase23.md Wave 2 refactor lane: Phase 2 duplicate removal
+#10 -> #11; #12, #13, #16 in parallel; #14 (needs #3, #5); #15 (needs #4).
+Value lane: #38 (pack-docs) still waits for #22; #39 (attest) is a Wave 4
+item (needs #33, #34 - both merged). Release gates (v0.1.0 tag, crates.io
+publish) remain owner-approved decisions.
 ```
 
 ## Completion Tracks
@@ -134,6 +134,7 @@ decisions.
 | 2026-06-10 | bounded-memory search wiring (DR-7) | `make check`; 42 MB / 400K-line corpus before/after CLI measurements (old binary built from the previous commit) | Pass | `qzt search`, `qzt info`, and `qzt sidecar-rebuild` now run on `QztFileReader`; new `QziFileSidecar` opens with manifest + term dictionary only (sections stream-verified) and fetches posting lists / candidate granule records lazily per query. Rare sidecar query: 518 MB -> 9.8 MB max RSS, 1.33 s -> 0.04 s. Dense 80K-hit sidecar query: 532 MB -> 36 MB, 1.11 s -> 0.17 s. `qzt info`: 9.6 MB -> 2.0 MB. Index builders stream chunk-by-chunk with binary-search chunk spans (removing the O(lines x chunks) scan); rebuilt sidecar bytes are identical to the previous builder. Transient (no-sidecar) search and sidecar-rebuild remain index-build-bound (~0.6-1.3 GB on this corpus) - tracked as the sidecar size/build follow-up. 160 tests pass (+5). |
 | 2026-06-12 | post-Phase23 planning | `make check`; `git diff --check` | Pass | Post-Phase23 execution plan added (`tasks/PostPhase23.md`): wave ordering, parallelism rules, milestones M1-M6, and release gates for the GitHub roadmaps #31 (refactoring, issues #2-#30) and #47 (product value, issues #33-#46). 161 tests pass (+1). |
 | 2026-06-13 | refactor phase 1 | `make check`; `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features` | Pass | Refactor Phase 1 (#3-#9 on top of merged #2): real bug #8 fixed (profile validation moved into `pack_bytes_internal` so every pack path validates; `"memory"` requires a DocumentIndex on all paths), `QztError` Display humanized with new `Io(ErrorKind)` / `UnsupportedIndexMode` variants replacing `NotImplemented` (#3), `usize_to_u64`/`u64_to_usize` helpers replace ~155 boilerplate conversion sites (#4), `Checksum::from_hasher`/`from_raw_bytes` remove inline constructions (#5), lib.rs module declarations collapsed into `internal_module!` macro (#6), dead `QztWriter`/`format::VERSION` removed (#7), `[lints]` clippy pedantic baseline established with documented allows (#9; public `pack_bytes_with_document_index`/`pack_bytes_with_memory_profile` now take `&DocumentIndex`, `run_release_benchmark_with_corpus` takes `&[u8]`). 169 tests pass (+8). |
+| 2026-06-13 | value phase 1 | `make check`; `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features`; manual stdin-pipe pack + info/verify/search `--format json` smoke | Pass | Value Phase 1 (#33-#37): `qzt info` shows `container_id`/`original_checksum`/`newline_mode` and gains `--format json` plus the bin-only `cli_json` RFC 8259 escaping helpers (#33); `qzt verify` surfaces `VerifyReport` (checked chunks / decoded bytes), gains `--format json` (`{"ok":true,...}` / `{"ok":false,"error":...}` on stdout, exit 1) and the documented 0/1/2 exit-code contract (#34); new `qzt docs` (tab-separated or JSON Document Index listing, 1-based first_line) and `qzt doc` (BLAKE3-verified extraction by default, `--no-verify`, `-o`) commands (#35); `qzt search --format json` with escaped hit/metrics output and `SearchReport`/`SearchHit`/`SearchMetrics`/`PlannerDecision` re-exported from the crate root (#36); `qzt pack -` streams stdin on the bounded-memory `QztFileWriter` path, rejecting non-core/dense combinations with exit 2 (#37). 216 tests pass (+47). |
 
 ## Review Follow-ups
 

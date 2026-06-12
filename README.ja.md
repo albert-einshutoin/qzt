@@ -62,20 +62,37 @@ make check
 
 ```sh
 qzt pack input.txt -o output.qzt
+journalctl --since today | qzt pack - -o today.qzt
 qzt info output.qzt
+qzt info output.qzt --format json
 qzt export output.qzt -o restored.txt
 qzt range output.qzt --bytes 0:1024
 qzt range output.qzt --lines 1:10
 qzt line output.qzt 1
+qzt docs output.qzt
+qzt docs output.qzt --format json
+qzt doc output.qzt report-2026-06
+qzt doc output.qzt report-2026-06 -o out.txt
+qzt doc output.qzt report-2026-06 --no-verify
 qzt verify output.qzt --deep
 qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi
+qzt search output.qzt "error" --sidecar output.qzt.qzi --format json
 ```
 
 range の範囲指定: `--bytes A:B` は half-open なバイト範囲 `[A, B)`、
 `--lines A:B` は 1-based で両端を含みます。index の `n`（デフォルト 3）より
 短い n-gram query は index では回答できないため、確信を持った 0 件ではなく
 `incomplete_reason=query_shorter_than_ngram_n` と警告を出力します。
+
+## 終了コード
+
+```text
+Exit codes:
+  0  success (verify: container is valid)
+  1  command failed (verify: container is corrupt or unreadable)
+  2  usage error (unknown option / missing argument)
+```
 
 ## ドキュメント
 

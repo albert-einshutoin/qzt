@@ -66,8 +66,8 @@ pub use limits::ResourceLimits;
 pub use reader::{QztFileReader, QztInfo, QztReader, VerifyLevel, VerifyReport};
 pub use schema::{Checksum, DocumentEntry, DocumentIndex};
 pub use search::{
-    NgramIndexBuildOptions, RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions,
-    TokenIndexBuildOptions,
+    NgramIndexBuildOptions, PlannerDecision, RawNgramIndex, RawTokenIndex, SearchHit,
+    SearchIndexSource, SearchMetrics, SearchOptions, SearchReport, TokenIndexBuildOptions,
 };
 pub use sidecar::{
     build_search_sidecar, build_search_sidecar_from_file, QziFileSidecar, QziSidecar,
