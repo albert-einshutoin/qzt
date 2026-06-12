@@ -7,8 +7,8 @@ use std::process::ExitCode;
 use qzt::{
     build_search_sidecar_from_file, pack_bytes_with_profile, Checksum, NgramIndexBuildOptions,
     QziFileSidecar, QztError, QztFileReader, QztFileWriter, RawNgramIndex, RawTokenIndex,
-    SearchIndexSource, SearchOptions, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel,
-    VerifyReport, WriterOptions,
+    SearchIndexSource, SearchOptions, SearchReport, SidecarIndexKind, TokenIndexBuildOptions,
+    VerifyLevel, VerifyReport, WriterOptions,
 };
 
 type CliResult<T> = std::result::Result<T, CliError>;
@@ -88,7 +88,9 @@ fn print_help() {
         "  docs       List documents in a Document Index (--format json for machine-readable)"
     );
     println!("  doc        Extract one document (verified by default; --no-verify to skip)");
-    println!("  search     Search raw UTF-8 tokens with verified original-byte hits");
+    println!(
+        "  search     Search raw UTF-8 tokens with verified original-byte hits (--format json)"
+    );
     println!("  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)");
     println!("  verify     Verify container integrity (--format json for machine-readable output)");
     println!();
@@ -457,6 +459,135 @@ fn run_range(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 }
 
+/// Output format requested by the caller of `qzt search`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SearchFormat {
+    Text,
+    Json,
+}
+
+/// Prints the text-mode search report to stdout.
+///
+/// The output is byte-identical to the pre-existing format. Each hit is on its
+/// own line followed by a single `metrics` line and an optional stderr warning
+/// when `incomplete_reason` is set.
+fn print_search_report_text(report: &SearchReport) {
+    for hit in &report.hits {
+        println!(
+            "hit logical_offset={} byte_length={} chunk_start={} chunk_end={} source={}",
+            hit.logical_offset, hit.byte_length, hit.chunk_start, hit.chunk_end, hit.source
+        );
+    }
+    println!(
+        "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
+        report.metrics.query,
+        report.metrics.index_kind,
+        report.metrics.posting_granularity,
+        report.metrics.index_size_bytes,
+        report.metrics.source_size_bytes,
+        report.metrics.index_size_ratio,
+        report.metrics.term_lookups,
+        report.metrics.posting_bytes_read,
+        report.metrics.candidate_granules,
+        report.metrics.candidate_chunks,
+        report.metrics.decoded_bytes,
+        report.metrics.physical_decoded_bytes,
+        report.metrics.verified_matches,
+        report.metrics.query_time_ms,
+        report.capped,
+        report.incomplete_reason.unwrap_or("none")
+    );
+    if let Some(reason) = report.incomplete_reason {
+        eprintln!("qzt search: warning: result may be incomplete ({reason})");
+    }
+}
+
+/// Prints the JSON-mode search report to stdout.
+///
+/// Hits are written one element at a time so that large result sets do not
+/// require building a single giant `String`. The `source` field is passed
+/// through `cli_json::escape` because it is a `&'static str` from library code
+/// and is safe in practice, but the issue requires escaping it for correctness.
+/// `incomplete_reason` is JSON `null` when absent and a quoted string when set.
+/// The stderr warning for incomplete results is still emitted in JSON mode so
+/// that the stdout JSON stream remains clean.
+fn print_search_report_json(report: &SearchReport) {
+    let query_escaped = cli_json::escape(&report.metrics.query);
+    let index_kind_escaped = cli_json::escape(report.metrics.index_kind);
+    let granularity_escaped = cli_json::escape(report.metrics.posting_granularity);
+
+    print!("{{\"hits\":[");
+    for (i, hit) in report.hits.iter().enumerate() {
+        if i > 0 {
+            print!(",");
+        }
+        let source_escaped = cli_json::escape(hit.source);
+        print!(
+            concat!(
+                "{{",
+                "\"logical_offset\":{logical_offset},",
+                "\"byte_length\":{byte_length},",
+                "\"chunk_start\":{chunk_start},",
+                "\"chunk_end\":{chunk_end},",
+                "\"source\":\"{source}\"",
+                "}}"
+            ),
+            logical_offset = hit.logical_offset,
+            byte_length = hit.byte_length,
+            chunk_start = hit.chunk_start,
+            chunk_end = hit.chunk_end,
+            source = source_escaped,
+        );
+    }
+    let incomplete_json = match report.incomplete_reason {
+        None => "null".to_owned(),
+        Some(reason) => format!("\"{}\"", cli_json::escape(reason)),
+    };
+    println!(
+        concat!(
+            "],",
+            "\"metrics\":{{",
+            "\"query\":\"{query}\",",
+            "\"index_kind\":\"{index_kind}\",",
+            "\"posting_granularity\":\"{posting_granularity}\",",
+            "\"index_size_bytes\":{index_size_bytes},",
+            "\"source_size_bytes\":{source_size_bytes},",
+            "\"index_size_ratio\":{index_size_ratio},",
+            "\"term_lookups\":{term_lookups},",
+            "\"posting_bytes_read\":{posting_bytes_read},",
+            "\"candidate_granules\":{candidate_granules},",
+            "\"candidate_chunks\":{candidate_chunks},",
+            "\"decoded_bytes\":{decoded_bytes},",
+            "\"physical_decoded_bytes\":{physical_decoded_bytes},",
+            "\"verified_matches\":{verified_matches},",
+            "\"query_time_ms\":{query_time_ms}",
+            "}},",
+            "\"capped\":{capped},",
+            "\"incomplete_reason\":{incomplete_reason}",
+            "}}"
+        ),
+        query = query_escaped,
+        index_kind = index_kind_escaped,
+        posting_granularity = granularity_escaped,
+        index_size_bytes = report.metrics.index_size_bytes,
+        source_size_bytes = report.metrics.source_size_bytes,
+        index_size_ratio = report.metrics.index_size_ratio,
+        term_lookups = report.metrics.term_lookups,
+        posting_bytes_read = report.metrics.posting_bytes_read,
+        candidate_granules = report.metrics.candidate_granules,
+        candidate_chunks = report.metrics.candidate_chunks,
+        decoded_bytes = report.metrics.decoded_bytes,
+        physical_decoded_bytes = report.metrics.physical_decoded_bytes,
+        verified_matches = report.metrics.verified_matches,
+        query_time_ms = report.metrics.query_time_ms,
+        capped = report.capped,
+        incomplete_reason = incomplete_json,
+    );
+    if let Some(reason) = report.incomplete_reason {
+        eprintln!("qzt search: warning: result may be incomplete ({reason})");
+    }
+}
+
 /// Output format requested by the caller of `qzt verify`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum VerifyFormat {
@@ -799,6 +930,7 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     let mut index_kind = "token";
     let mut ngram = 3_usize;
     let mut sidecar_path = None;
+    let mut format = SearchFormat::Text;
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--index" => {
@@ -851,6 +983,22 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                 };
                 options.max_search_results = value;
             }
+            "--format" => {
+                let Some(value) = args.next() else {
+                    eprintln!("qzt search: missing --format value");
+                    return ExitCode::from(2);
+                };
+                match value.as_str() {
+                    "text" => format = SearchFormat::Text,
+                    "json" => format = SearchFormat::Json,
+                    _ => {
+                        eprintln!(
+                            "qzt search: unknown --format value '{value}' (expected text or json)"
+                        );
+                        return ExitCode::from(2);
+                    }
+                }
+            }
             _ => {
                 eprintln!("qzt search: unknown option '{arg}'");
                 return ExitCode::from(2);
@@ -881,33 +1029,9 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(report) => {
-            for hit in &report.hits {
-                println!(
-                    "hit logical_offset={} byte_length={} chunk_start={} chunk_end={} source={}",
-                    hit.logical_offset, hit.byte_length, hit.chunk_start, hit.chunk_end, hit.source
-                );
-            }
-            println!(
-                "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
-                report.metrics.query,
-                report.metrics.index_kind,
-                report.metrics.posting_granularity,
-                report.metrics.index_size_bytes,
-                report.metrics.source_size_bytes,
-                report.metrics.index_size_ratio,
-                report.metrics.term_lookups,
-                report.metrics.posting_bytes_read,
-                report.metrics.candidate_granules,
-                report.metrics.candidate_chunks,
-                report.metrics.decoded_bytes,
-                report.metrics.physical_decoded_bytes,
-                report.metrics.verified_matches,
-                report.metrics.query_time_ms,
-                report.capped,
-                report.incomplete_reason.unwrap_or("none")
-            );
-            if let Some(reason) = report.incomplete_reason {
-                eprintln!("qzt search: warning: result may be incomplete ({reason})");
+            match format {
+                SearchFormat::Text => print_search_report_text(&report),
+                SearchFormat::Json => print_search_report_json(&report),
             }
             ExitCode::SUCCESS
         }

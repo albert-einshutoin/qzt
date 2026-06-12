@@ -7,6 +7,20 @@ Container format for UTF-8 text.
 
 ### Added
 
+- `qzt search <file.qzt> <query> [--sidecar …] --format json` emits a single
+  JSON object to stdout:
+  `{"hits":[{"logical_offset":…,"byte_length":…,"chunk_start":…,"chunk_end":…,"source":"verified_original_bytes"},…],"metrics":{"query":"…","index_kind":"…","posting_granularity":"…","index_size_bytes":…,"source_size_bytes":…,"index_size_ratio":…,"term_lookups":…,"posting_bytes_read":…,"candidate_granules":…,"candidate_chunks":…,"decoded_bytes":…,"physical_decoded_bytes":…,"verified_matches":…,"query_time_ms":…},"capped":bool,"incomplete_reason":null|"…"}`.
+  Field names match the `SearchReport` / `SearchMetrics` / `SearchHit` Rust
+  struct fields directly. `incomplete_reason` is JSON `null` when there is no
+  reason; a string value (e.g. `"query_shorter_than_ngram_n"`) when set. The
+  `source` field and all string values are passed through `cli_json::escape` so
+  queries containing `"` or other special characters never corrupt the JSON.
+  The stderr incomplete-result warning is still emitted in JSON mode (stdout
+  remains clean). Zero-hit searches emit `"hits":[]`. Unknown `--format` values
+  exit with code 2. Default text output is unchanged (existing tests pass
+  without modification). `SearchReport`, `SearchHit`, and `SearchMetrics` are
+  now exported from the `qzt` crate public API.
+
 - `qzt docs <file.qzt>` lists the Document Index entries in tab-separated columns
   (`doc_id`, `offset`, `bytes`, `first_line`, `lines`, `checksum`); the header is
   the first stdout line. `--format json` emits
