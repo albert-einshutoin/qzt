@@ -2,7 +2,7 @@
 
 [English](status.md)
 
-最終更新: 2026-06-13
+最終更新: 2026-06-13（Value Phase 1）
 
 ## 現在のルール
 
@@ -74,7 +74,7 @@ Phase0-Phase23 は完了済みで、実行は 2 本の GitHub issue ロードマ
 | Track | スコープ | 状態 | Source |
 |---|---|---|---|
 | リファクタリング (5 フェーズ、24 issue #2-#30) | エラー型とヘルパー、重複排除、trait 統一、構造集約、性能/CI 仕上げ。実バグ 1 件修正 (#8) | In progress (Phase 1 完了: #2-#9 マージ済み、次は Phase 2) | issue #31、[PostPhase23.ja.md](PostPhase23.ja.md) |
-| プロダクト価値 (4 フェーズ、14 issue #33-#46) | JSON 出力付き CLI エビデンスループ、attest と適合性キット、crates.io とバイナリ配布、ベンチとチュートリアル | Planned | issue #47、[PostPhase23.ja.md](PostPhase23.ja.md) |
+| プロダクト価値 (4 フェーズ、14 issue #33-#46) | JSON 出力付き CLI エビデンスループ、attest と適合性キット、crates.io とバイナリ配布、ベンチとチュートリアル | In progress (Value Phase 1 完了: #33-#37 マージ済み、#38 は #22 待ち) | issue #47、[PostPhase23.ja.md](PostPhase23.ja.md) |
 
 ## Current focus
 
@@ -92,9 +92,10 @@ v0.1.0 technical-preview release に向けて順序付けています。
 Next action:
 
 ```text
-tasks/PostPhase23.ja.md の Wave 1 価値レーン / Wave 2 を実行する: Value Phase 1
-#33 (qzt info + JSON 基盤) -> #34/#35/#36 -> #37 (#38 は #22 待ち)、
-続いてリファクタ Phase 2 (#10-#16)。#33-#37 が in flight の間は #25 を開始しない。
+tasks/PostPhase23.ja.md の Wave 2 リファクタレーンを実行する: Phase 2 重複排除
+#10 -> #11、#12/#13/#16 は並走、#14 (#3, #5 の後)、#15 (#4 の後)。
+価値レーン: #38 (pack-docs) は引き続き #22 待ち。#39 (attest) は Wave 4 項目
+(#33, #34 はともにマージ済み)。
 リリースゲート (v0.1.0 タグ、crates.io publish) は引き続きオーナー承認制。
 ```
 
@@ -124,6 +125,8 @@ bounded-memory search wiring（DR-7、2026-06-10）適用後: `qzt search`・`qz
 post-Phase23 planning（2026-06-12）: Post-Phase23 実行計画（`tasks/PostPhase23.ja.md`）を追加。GitHub ロードマップ #31（リファクタリング、issue #2-#30）と #47（プロダクト価値、issue #33-#46）に対する wave 順序・並走ルール・マイルストーン M1-M6・リリースゲートを固定。`make check` と `git diff --check` が通っています。161 テスト通過（+1）。
 
 refactor phase 1（2026-06-13）: リファクタ Phase 1（マージ済み #2 の上に #3-#9）を完了。実バグ #8 を修正（profile 検証を `pack_bytes_internal` に移して全 pack 経路で検証、`"memory"` は全経路で DocumentIndex 必須に統一）、`QztError` の Display を人間可読化し `NotImplemented` を `Io(ErrorKind)` / `UnsupportedIndexMode` に置換（#3）、`usize_to_u64`/`u64_to_usize` ヘルパーで定型変換約 155 箇所を置換（#4）、`Checksum::from_hasher`/`from_raw_bytes` でインライン構築を一掃（#5）、lib.rs のモジュール宣言を `internal_module!` マクロに集約（#6）、デッドコード `QztWriter`/`format::VERSION` を削除（#7）、Cargo.toml に `[lints]` clippy pedantic ベースラインを確立（#9。public API 変更: `pack_bytes_with_document_index`/`pack_bytes_with_memory_profile` は `&DocumentIndex` を、`run_release_benchmark_with_corpus` は `&[u8]` を取る）。`make check` と `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features` が通っています。169 テスト通過（+8）。
+
+value phase 1（2026-06-13）: Value Phase 1（#33-#37）を完了。`qzt info` が `container_id`/`original_checksum`/`newline_mode` を表示し `--format json` を獲得（bin 専用の `cli_json` RFC 8259 エスケープヘルパーを新設、#33）。`qzt verify` は `VerifyReport`（checked chunks / decoded bytes）を表示し、`--format json`（成功 `{"ok":true,...}` / 失敗 `{"ok":false,"error":...}` を stdout に出力し exit 1）と 0/1/2 終了コード契約を整備（#34）。新コマンド `qzt docs`（タブ区切り / JSON の Document Index 一覧、first_line は 1-based 表示）と `qzt doc`（既定で BLAKE3 検証付き取り出し、`--no-verify`、`-o`）を追加（#35）。`qzt search --format json`（エスケープ済み hits/metrics、`SearchReport`/`SearchHit`/`SearchMetrics`/`PlannerDecision` を crate ルートから re-export、#36）。`qzt pack -` が bounded-memory な `QztFileWriter` 経路で stdin をストリーミング pack（core 以外 / dense 併用は exit 2 で拒否、#37）。`make check`、docs ビルド、stdin パイプ + JSON 出力の手動スモークが通っています。216 テスト通過（+47）。
 
 Phase14-Phase23 のセルフレビューでは以下を修正済みです。
 
