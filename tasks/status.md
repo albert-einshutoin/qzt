@@ -1,6 +1,6 @@
 # QZT Task Status
 
-Last updated: 2026-06-12
+Last updated: 2026-06-13
 
 ## Current Rule
 
@@ -69,7 +69,7 @@ issue checklists.
 
 | Track | Scope | State | Source |
 |---|---|---|---|
-| Refactoring (5 phases, 24 issues #2-#30) | error type and helpers, duplicate removal, trait unification, structural consolidation, perf/CI polish; 1 real bug fix (#8) | In progress (PR #32 = issue #2 in review, CI green) | issue #31, [PostPhase23.md](PostPhase23.md) |
+| Refactoring (5 phases, 24 issues #2-#30) | error type and helpers, duplicate removal, trait unification, structural consolidation, perf/CI polish; 1 real bug fix (#8) | In progress (Phase 1 complete: #2-#9 merged; Phase 2 next) | issue #31, [PostPhase23.md](PostPhase23.md) |
 | Product value (4 phases, 14 issues #33-#46) | CLI evidence loop with JSON output, attest and conformance kit, crates.io and binary distribution, benchmarks and tutorials | Planned | issue #47, [PostPhase23.md](PostPhase23.md) |
 
 ## Current Focus
@@ -85,10 +85,10 @@ product value roadmap (issue #47) are sequenced in
 Next action:
 
 ```text
-Execute tasks/PostPhase23.md Wave 0-1: merge PR #32 (issue #2, CI green), then
-finish Refactor Phase 1 with the real bug #8 first, then #3 -> #4/#5/#6/#7 ->
-#9. Value Phase 1 starts at #33 (qzt info + JSON foundation) and may run in
-parallel. Release gates (v0.1.0 tag, crates.io publish) remain owner-approved
+Execute tasks/PostPhase23.md Wave 1 value lane / Wave 2: Value Phase 1
+#33 (qzt info + JSON foundation) -> #34/#35/#36 -> #37 (#38 waits for #22),
+then refactor Phase 2 (#10-#16). Do not start #25 while #33-#37 are in
+flight. Release gates (v0.1.0 tag, crates.io publish) remain owner-approved
 decisions.
 ```
 
@@ -133,6 +133,7 @@ decisions.
 | 2026-06-10 | quality review follow-ups | `make check`; `make bench-release`; 45 MB-corpus CLI measurements | Pass | Search hit verification now reuses a chunk decode cache (4,124-hit query: 16,376 ms -> 49 ms; new `physical_decoded_bytes` metric exposes chunk-level decode work), short/unindexable queries report `incomplete_reason` plus a CLI warning instead of silent empty results, `qzt export` streams with bounded memory (9.6 MB max RSS on a 45 MB corpus), the gate adds a default-features `cargo check --lib --bins`, and `bench-release` was repaired (it had been failing to compile since the Phase20 API curation) to run `--release --all-features`: pack 137.745 MiB/s, export 473.350 MiB/s, range 532.576 MiB/s on the 2.4 MB deterministic corpus — the 2026-06-07 row recorded debug-build values. 155 tests pass (+4). |
 | 2026-06-10 | bounded-memory search wiring (DR-7) | `make check`; 42 MB / 400K-line corpus before/after CLI measurements (old binary built from the previous commit) | Pass | `qzt search`, `qzt info`, and `qzt sidecar-rebuild` now run on `QztFileReader`; new `QziFileSidecar` opens with manifest + term dictionary only (sections stream-verified) and fetches posting lists / candidate granule records lazily per query. Rare sidecar query: 518 MB -> 9.8 MB max RSS, 1.33 s -> 0.04 s. Dense 80K-hit sidecar query: 532 MB -> 36 MB, 1.11 s -> 0.17 s. `qzt info`: 9.6 MB -> 2.0 MB. Index builders stream chunk-by-chunk with binary-search chunk spans (removing the O(lines x chunks) scan); rebuilt sidecar bytes are identical to the previous builder. Transient (no-sidecar) search and sidecar-rebuild remain index-build-bound (~0.6-1.3 GB on this corpus) - tracked as the sidecar size/build follow-up. 160 tests pass (+5). |
 | 2026-06-12 | post-Phase23 planning | `make check`; `git diff --check` | Pass | Post-Phase23 execution plan added (`tasks/PostPhase23.md`): wave ordering, parallelism rules, milestones M1-M6, and release gates for the GitHub roadmaps #31 (refactoring, issues #2-#30) and #47 (product value, issues #33-#46). 161 tests pass (+1). |
+| 2026-06-13 | refactor phase 1 | `make check`; `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features` | Pass | Refactor Phase 1 (#3-#9 on top of merged #2): real bug #8 fixed (profile validation moved into `pack_bytes_internal` so every pack path validates; `"memory"` requires a DocumentIndex on all paths), `QztError` Display humanized with new `Io(ErrorKind)` / `UnsupportedIndexMode` variants replacing `NotImplemented` (#3), `usize_to_u64`/`u64_to_usize` helpers replace ~155 boilerplate conversion sites (#4), `Checksum::from_hasher`/`from_raw_bytes` remove inline constructions (#5), lib.rs module declarations collapsed into `internal_module!` macro (#6), dead `QztWriter`/`format::VERSION` removed (#7), `[lints]` clippy pedantic baseline established with documented allows (#9; public `pack_bytes_with_document_index`/`pack_bytes_with_memory_profile` now take `&DocumentIndex`, `run_release_benchmark_with_corpus` takes `&[u8]`). 169 tests pass (+8). |
 
 ## Review Follow-ups
 
