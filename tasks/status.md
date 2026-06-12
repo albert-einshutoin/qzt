@@ -1,6 +1,6 @@
 # QZT Task Status
 
-Last updated: 2026-06-08
+Last updated: 2026-06-12
 
 ## Current Rule
 
@@ -60,16 +60,36 @@ Validation (cross-cutting):
 
 Dependency order: 14 (independent) -> 15 (foundation). Then sub-tracks in parallel. Engine: 15 -> 16, 17 -> 18 -> 19 (18 reuses Phase23a corpora). Consumer: 20 -> 21 -> 22, where 20 depends on 14, 21 depends on 15 and 20, and 22 depends on 20, Phase23a, and the Phase9 conformance map. Validation: 23a right after 15 for corpus generators and non-evidence HARD invariants; 23b after 21 for C1 evidence invariants. Acceptance thresholds are defined in docs/QZT_v0.1_Validation_Corpus.md.
 
+## Post-Phase23 Execution Track (post-v0.1)
+
+Phase0-Phase23 are complete; execution continues on two GitHub-issue roadmaps.
+Their cross-track ordering, wave plan, milestones, and release gates are fixed
+in [PostPhase23.md](PostPhase23.md). Per-issue progress lives on the GitHub
+issue checklists.
+
+| Track | Scope | State | Source |
+|---|---|---|---|
+| Refactoring (5 phases, 24 issues #2-#30) | error type and helpers, duplicate removal, trait unification, structural consolidation, perf/CI polish; 1 real bug fix (#8) | In progress (PR #32 = issue #2 in review, CI green) | issue #31, [PostPhase23.md](PostPhase23.md) |
+| Product value (4 phases, 14 issues #33-#46) | CLI evidence loop with JSON output, attest and conformance kit, crates.io and binary distribution, benchmarks and tutorials | Planned | issue #47, [PostPhase23.md](PostPhase23.md) |
+
 ## Current Focus
 
 Phase0 through Phase13 are complete. QZT v0.1 Core is release-candidate ready, with optional Dense Line Index, Document Index, memory profile support, raw token search, raw n-gram planner support, and QZI sidecar validation complete.
 
 The Product Completeness Track (Phase14-Phase23) is complete. The engine sub-track (14-19) closes the I/O, hygiene, and competitive-validation gaps. The consumer sub-track (20-22) makes QZT a stable, verifiable dependency an external system can embed: a curated public API, verified evidence retrieval with a proven Memory Pager integration, and portable conformance vectors with a frozen format-stability statement. Phase23 supplies the shared acceptance corpus and threshold harness.
 
+Post-Phase23 execution is planned: the refactoring roadmap (issue #31) and the
+product value roadmap (issue #47) are sequenced in
+[PostPhase23.md](PostPhase23.md) toward a v0.1.0 technical-preview release.
+
 Next action:
 
 ```text
-No pending Product Completeness phases remain. Next work should be a release-owner decision: either cut a technical-preview release from the completed Phase0-Phase23 surface or open a new post-v0.1 maintenance/search-embedding track.
+Execute tasks/PostPhase23.md Wave 0-1: merge PR #32 (issue #2, CI green), then
+finish Refactor Phase 1 with the real bug #8 first, then #3 -> #4/#5/#6/#7 ->
+#9. Value Phase 1 starts at #33 (qzt info + JSON foundation) and may run in
+parallel. Release gates (v0.1.0 tag, crates.io publish) remain owner-approved
+decisions.
 ```
 
 ## Completion Tracks
@@ -112,6 +132,7 @@ No pending Product Completeness phases remain. Next work should be a release-own
 | 2026-06-08 | design review follow-ups | `cargo fmt --all -- --check`; `cargo clippy --all-targets --all-features -- -D warnings`; `cargo test --all-targets --all-features` | Pass | Applied design-review recommendations (DR-1..DR-6). 151 tests pass (+12). |
 | 2026-06-10 | quality review follow-ups | `make check`; `make bench-release`; 45 MB-corpus CLI measurements | Pass | Search hit verification now reuses a chunk decode cache (4,124-hit query: 16,376 ms -> 49 ms; new `physical_decoded_bytes` metric exposes chunk-level decode work), short/unindexable queries report `incomplete_reason` plus a CLI warning instead of silent empty results, `qzt export` streams with bounded memory (9.6 MB max RSS on a 45 MB corpus), the gate adds a default-features `cargo check --lib --bins`, and `bench-release` was repaired (it had been failing to compile since the Phase20 API curation) to run `--release --all-features`: pack 137.745 MiB/s, export 473.350 MiB/s, range 532.576 MiB/s on the 2.4 MB deterministic corpus — the 2026-06-07 row recorded debug-build values. 155 tests pass (+4). |
 | 2026-06-10 | bounded-memory search wiring (DR-7) | `make check`; 42 MB / 400K-line corpus before/after CLI measurements (old binary built from the previous commit) | Pass | `qzt search`, `qzt info`, and `qzt sidecar-rebuild` now run on `QztFileReader`; new `QziFileSidecar` opens with manifest + term dictionary only (sections stream-verified) and fetches posting lists / candidate granule records lazily per query. Rare sidecar query: 518 MB -> 9.8 MB max RSS, 1.33 s -> 0.04 s. Dense 80K-hit sidecar query: 532 MB -> 36 MB, 1.11 s -> 0.17 s. `qzt info`: 9.6 MB -> 2.0 MB. Index builders stream chunk-by-chunk with binary-search chunk spans (removing the O(lines x chunks) scan); rebuilt sidecar bytes are identical to the previous builder. Transient (no-sidecar) search and sidecar-rebuild remain index-build-bound (~0.6-1.3 GB on this corpus) - tracked as the sidecar size/build follow-up. 160 tests pass (+5). |
+| 2026-06-12 | post-Phase23 planning | `make check`; `git diff --check` | Pass | Post-Phase23 execution plan added (`tasks/PostPhase23.md`): wave ordering, parallelism rules, milestones M1-M6, and release gates for the GitHub roadmaps #31 (refactoring, issues #2-#30) and #47 (product value, issues #33-#46). 161 tests pass (+1). |
 
 ## Review Follow-ups
 

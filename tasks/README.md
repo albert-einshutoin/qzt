@@ -209,3 +209,13 @@ Phase21 lands.
 
 These phases MUST NOT change container format bytes. Any change that would
 alter the byte layout belongs in a new format version, not in this track.
+
+## Post-Phase23 Execution (post-v0.1 roadmaps)
+
+Phase0-Phase23 are complete. Execution continues on two GitHub-issue
+roadmaps: the refactoring roadmap (issue #31, issues #2-#30) and the product
+value roadmap (issue #47, issues #33-#46). Their cross-track ordering, wave
+plan, parallelism constraints, milestones, and release gates are fixed in
+[PostPhase23.md](PostPhase23.md). Detailed steps and acceptance criteria live
+on the issues; the rules in this README (TDD loop, review gates, no format
+byte changes) continue to apply to every issue PR.

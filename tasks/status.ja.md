@@ -2,7 +2,7 @@
 
 [English](status.md)
 
-最終更新: 2026-06-08
+最終更新: 2026-06-12
 
 ## 現在のルール
 
@@ -64,6 +64,18 @@ Validation (cross-cutting):
 
 Dependency order: 14 (independent) -> 15 (foundation)。その後 sub-tracks を parallel に進めます。Engine は 15 -> 16, 17 -> 18 -> 19（18 は Phase23a corpora を再利用）。Consumer は 20 -> 21 -> 22。20 は 14 に依存し、21 は 15 と 20 に依存し、22 は 20、Phase23a、Phase9 conformance map に依存します。Validation は 15 直後に 23a で corpus generators と non-evidence HARD invariants を作り、21 後に 23b で C1 evidence invariants を追加します。Acceptance thresholds は docs/QZT_v0.1_Validation_Corpus.md で定義します。
 
+## Post-Phase23 実行トラック (post-v0.1)
+
+Phase0-Phase23 は完了済みで、実行は 2 本の GitHub issue ロードマップで継続します。
+トラック横断の順序、wave 計画、マイルストーン、リリースゲートは
+[PostPhase23.ja.md](PostPhase23.ja.md) で固定します。issue 単位の進捗は GitHub issue の
+チェックリストで管理します。
+
+| Track | スコープ | 状態 | Source |
+|---|---|---|---|
+| リファクタリング (5 フェーズ、24 issue #2-#30) | エラー型とヘルパー、重複排除、trait 統一、構造集約、性能/CI 仕上げ。実バグ 1 件修正 (#8) | In progress (PR #32 = issue #2 がレビュー中、CI green) | issue #31、[PostPhase23.ja.md](PostPhase23.ja.md) |
+| プロダクト価値 (4 フェーズ、14 issue #33-#46) | JSON 出力付き CLI エビデンスループ、attest と適合性キット、crates.io とバイナリ配布、ベンチとチュートリアル | Planned | issue #47、[PostPhase23.ja.md](PostPhase23.ja.md) |
+
 ## Current focus
 
 Phase0 から Phase13 は完了しています。QZT v0.1 Core は release candidate ready です。Dense Line Index、Document Index、memory profile、raw token search、raw n-gram planner、QZI sidecar validation も完了しています。
@@ -73,10 +85,17 @@ hygiene、competitive-validation gaps を閉じます。consumer sub-track (20-2
 embed できる stable / verifiable dependency にします。Phase23 は shared acceptance corpus と threshold
 harness を提供します。
 
+Post-Phase23 の実行計画は策定済みです。リファクタリング・ロードマップ (issue #31) と
+プロダクト価値ロードマップ (issue #47) を [PostPhase23.ja.md](PostPhase23.ja.md) で
+v0.1.0 technical-preview release に向けて順序付けています。
+
 Next action:
 
 ```text
-未完了の Product Completeness Phase はありません。次は release owner 判断として、完了済み Phase0-Phase23 surface から technical-preview release を切るか、post-v0.1 maintenance / search-embedding track を新設します。
+tasks/PostPhase23.ja.md の Wave 0-1 を実行する: PR #32 (issue #2、CI green) をマージし、
+リファクタ Phase 1 を実バグ #8 から完了させる (#8 -> #3 -> #4/#5/#6/#7 -> #9)。
+価値トラックは #33 (qzt info + JSON 基盤) から着手し、並走可。
+リリースゲート (v0.1.0 タグ、crates.io publish) は引き続きオーナー承認制。
 ```
 
 ## Completion tracks
@@ -101,6 +120,8 @@ design review follow-ups (DR-1..DR-6) 適用後: `cargo fmt --all -- --check`、
 quality review follow-ups (2026-06-10) 適用後: search の hit verification が chunk decode cache を再利用するようになり（4,124 ヒットのクエリが 16,376 ms → 49 ms、新メトリクス `physical_decoded_bytes` が chunk レベルの復号量を可視化）、n-gram 長未満・token 化不能なクエリは silent な 0 件ではなく `incomplete_reason` と CLI 警告を返し、`qzt export` は bounded memory でストリーム出力（45 MB コーパスで最大 RSS 9.6 MB）、品質ゲートに default-features の `cargo check --lib --bins` を追加、`bench-release` を修復（Phase20 の API curation 以降コンパイル不能だった）して `--release --all-features` で実行: 2.4 MB deterministic corpus で pack 137.745 MiB/s、export 473.350 MiB/s、range 532.576 MiB/s（2026-06-07 の記録は debug build の値）。155 テスト通過（+4）。
 
 bounded-memory search wiring（DR-7、2026-06-10）適用後: `qzt search`・`qzt info`・`qzt sidecar-rebuild` が `QztFileReader` 上で動作し、新しい `QziFileSidecar` は open 時に manifest と term dictionary のみ読み込み（各セクションは bounded buffer でストリーム検証）、posting list と候補 granule レコードはクエリごとに遅延 fetch します。42 MB / 40 万行コーパスでの before/after 実測（旧バイナリは直前コミットからビルド）: rare sidecar query 518 MB → 9.8 MB max RSS・1.33 s → 0.04 s、dense 8 万ヒット query 532 MB → 36 MB・1.11 s → 0.17 s、`qzt info` 9.6 MB → 2.0 MB。index builder はチャンク単位のストリーミング + 二分探索の chunk span 算出になり（O(lines × chunks) スキャンを除去）、再構築した sidecar バイト列は旧 builder と同一。sidecar なしの transient search と sidecar-rebuild は引き続き index 構築メモリが支配的（このコーパスで約 0.6〜1.3 GB）で、sidecar サイズ/構築の follow-up として追跡します。160 テスト通過（+5）。
+
+post-Phase23 planning（2026-06-12）: Post-Phase23 実行計画（`tasks/PostPhase23.ja.md`）を追加。GitHub ロードマップ #31（リファクタリング、issue #2-#30）と #47（プロダクト価値、issue #33-#46）に対する wave 順序・並走ルール・マイルストーン M1-M6・リリースゲートを固定。`make check` と `git diff --check` が通っています。161 テスト通過（+1）。
 
 Phase14-Phase23 のセルフレビューでは以下を修正済みです。
 
