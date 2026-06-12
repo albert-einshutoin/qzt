@@ -59,3 +59,31 @@ pub fn checked_physical_end(offset: u64, size: u64) -> Result<u64> {
         .checked_add(size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn usize_to_u64_zero_roundtrips() {
+        assert_eq!(usize_to_u64(0).unwrap(), 0_u64);
+    }
+
+    #[test]
+    fn u64_to_usize_zero_roundtrips() {
+        assert_eq!(u64_to_usize(0).unwrap(), 0_usize);
+    }
+
+    #[test]
+    fn roundtrip_u32_max_boundary() {
+        let value = u64::from(u32::MAX);
+        let as_usize = u64_to_usize(value).unwrap();
+        assert_eq!(usize_to_u64(as_usize).unwrap(), value);
+    }
+
+    #[cfg(target_pointer_width = "64")]
+    #[test]
+    fn usize_max_fits_in_u64_on_64_bit() {
+        assert!(usize_to_u64(usize::MAX).is_ok());
+    }
+}

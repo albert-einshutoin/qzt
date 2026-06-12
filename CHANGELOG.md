@@ -69,7 +69,6 @@ Container format for UTF-8 text.
   underlying `File::open` or `File::metadata` call fails.
 - `export_to` write failures now return `QztError::Io(kind)` instead of
   `QztError::ContainerCorrupt`.
-
 - `qzt search`, `qzt info`, and `qzt sidecar-rebuild` now run on the
   bounded-memory `QztFileReader` instead of loading the whole container (and
   sidecar) into memory. On a 42 MB / 400K-line corpus with an n-gram sidecar,
@@ -90,6 +89,10 @@ Container format for UTF-8 text.
 - The quality gate (`make check` and CI) also compiles the default-features
   surface via `cargo check --lib --bins`; internal-testing-only items are
   explicitly `allow(dead_code)` in the curated build.
+- **Public API signatures** (pedantic pass, #9): `pack_bytes_with_document_index`
+  and `pack_bytes_with_memory_profile` now take `&DocumentIndex` instead of an
+  owned value; `run_release_benchmark_with_corpus` now takes `&[u8]` instead of
+  `Vec<u8>`.
 
 ### Deferred
 

@@ -33,7 +33,7 @@ fn file_backed_deep_verify_matches_in_memory_deep_verify() {
             0,
             line_count,
             0,
-            // chunk count: ceil(len / max_chunk_size) = ceil(50/8) = 7
+            // chunk count: ceil(len / max_chunk_size) = ceil(51/8) = 7
             7,
             Checksum::blake3(input),
         )],

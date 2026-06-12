@@ -438,8 +438,7 @@ impl<R: ReadAt> QztFileReader<R> {
         let mut buffer = vec![0_u8; 64 * 1024];
         while offset < end {
             let remaining = end - offset;
-            let read_len = usize::try_from(remaining.min(buffer.len() as u64))
-                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            let read_len = u64_to_usize(remaining.min(buffer.len() as u64))?;
             self.source
                 .read_exact_at(offset, &mut buffer[..read_len])
                 .map_err(|error| match error.kind() {
@@ -556,10 +555,8 @@ fn read_range_from_entries_cached(
         let decoded = cache.decoded_entry(entry, &mut decode_entry)?;
         let copy_start = offset.max(entry.logical_offset);
         let copy_end = end.min(chunk_end);
-        let local_start = usize::try_from(copy_start - entry.logical_offset)
-            .map_err(|_| QztError::ResourceLimitExceeded)?;
-        let local_end = usize::try_from(copy_end - entry.logical_offset)
-            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let local_start = u64_to_usize(copy_start - entry.logical_offset)?;
+        let local_end = u64_to_usize(copy_end - entry.logical_offset)?;
         output.extend_from_slice(&decoded[local_start..local_end]);
         index += 1;
     }
@@ -589,8 +586,7 @@ fn read_line_from_entries(
     let local_index = usize::try_from(line_zero_based - start_entry.first_line)
         .map_err(|_| QztError::LineOutOfRange)?;
     let local_start = if let Some(dense) = &details.dense_line_index {
-        usize::try_from(dense.line_start_offset(start_index, local_index)?)
-            .map_err(|_| QztError::ResourceLimitExceeded)?
+        u64_to_usize(dense.line_start_offset(start_index, local_index)?)?
     } else {
         let starts = local_line_starts(&start_decoded, start_entry.flags);
         starts
@@ -645,8 +641,7 @@ fn verify_deep_entries(
             dense.verify_chunk(chunk_index, &decoded, entry.flags)?;
         }
 
-        let chunk_line_count = u64::try_from(local_line_starts(&decoded, entry.flags).len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let chunk_line_count = usize_to_u64(local_line_starts(&decoded, entry.flags).len())?;
         if entry.line_count != chunk_line_count {
             return Err(QztError::ChunkTableInvalid);
         }
@@ -1041,10 +1036,8 @@ impl DocumentHasher {
             let lower = chunk_offset.max(document.start);
             let upper = chunk_end.min(document.end);
             if lower < upper {
-                let local_start = usize::try_from(lower - chunk_offset)
-                    .map_err(|_| QztError::ResourceLimitExceeded)?;
-                let local_end = usize::try_from(upper - chunk_offset)
-                    .map_err(|_| QztError::ResourceLimitExceeded)?;
+                let local_start = u64_to_usize(lower - chunk_offset)?;
+                let local_end = u64_to_usize(upper - chunk_offset)?;
                 let slice = decoded
                     .get(local_start..local_end)
                     .ok_or(QztError::ContainerCorrupt)?;

@@ -48,6 +48,12 @@ impl Checksum {
     /// Constructs a BLAKE3 [`Checksum`] from pre-computed raw hash bytes.
     ///
     /// The caller is responsible for ensuring the bytes were produced by BLAKE3.
+    ///
+    /// # Precondition
+    ///
+    /// The caller must have already verified that the source algorithm field
+    /// equals [`CHECKSUM_ALGORITHM_BLAKE3`]. Passing bytes produced by a
+    /// different algorithm will silently record incorrect checksums.
     #[must_use]
     pub(crate) fn from_raw_bytes(value: [u8; 32]) -> Self {
         Self {

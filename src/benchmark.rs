@@ -288,8 +288,7 @@ pub fn run_release_benchmark_with_corpus(
         corpus_bytes,
         line_count: options.line_count,
         packed_bytes,
-        exported_bytes: u64::try_from(exported.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
+        exported_bytes: usize_to_u64(exported.len())?,
         qzi_token_bytes,
         qzi_ngram_bytes,
         compression_ratio: ratio(packed_bytes, corpus_bytes),
@@ -345,8 +344,8 @@ pub fn run_competitive_benchmark(
         .range_offset
         .min(corpus_bytes.saturating_sub(options.range_size));
     let length = options.range_size.min(corpus_bytes - offset);
-    let expected =
-        &corpus[u64_to_usize(offset)?..(u64_to_usize(offset)? + u64_to_usize(length)?)];
+    let offset_start_us = u64_to_usize(offset)?;
+    let expected = &corpus[offset_start_us..(offset_start_us + u64_to_usize(length)?)];
 
     let qzt_reader = QztFileReader::open_read_at(&qzt[..], qzt.len() as u64)?;
     let started = Instant::now();
@@ -376,12 +375,9 @@ pub fn run_competitive_benchmark(
         corpus_id: options.corpus_kind.id(),
         corpus_bytes,
         qzt_bytes: usize_to_u64(qzt.len())?,
-        raw_zstd_bytes: u64::try_from(raw_zstd.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
-        qzt_range_bytes: u64::try_from(qzt_range.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
-        raw_zstd_decoded_bytes: u64::try_from(raw_decoded.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
+        raw_zstd_bytes: usize_to_u64(raw_zstd.len())?,
+        qzt_range_bytes: usize_to_u64(qzt_range.len())?,
+        raw_zstd_decoded_bytes: usize_to_u64(raw_decoded.len())?,
         qzt_range_micros: qzt_range_elapsed.as_micros(),
         raw_zstd_range_micros: raw_elapsed.as_micros(),
         token_hit_count: token_report.metrics.verified_matches,

@@ -679,8 +679,7 @@ fn verify_section_checksum<R: ReadAt>(
     let mut offset = start;
     while offset < end {
         let remaining = end - offset;
-        let read_len = usize::try_from(remaining.min(buffer.len() as u64))
-            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let read_len = u64_to_usize(remaining.min(buffer.len() as u64))?;
         source
             .read_exact_at(offset, &mut buffer[..read_len])
             .map_err(|e| map_read_error(&e))?;

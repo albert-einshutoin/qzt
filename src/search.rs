@@ -573,8 +573,7 @@ impl RawNgramIndex {
             term.posting_offset = posting_offset;
             term.posting_size = usize_to_u64(encoded.len())?;
             term.skip_offset = skip_offset;
-            term.skip_size = u64::try_from(skips.len().saturating_mul(24))
-                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            term.skip_size = usize_to_u64(skips.len().saturating_mul(24))?;
             posting_offset = posting_offset
                 .checked_add(term.posting_size)
                 .ok_or(QztError::ResourceLimitExceeded)?;
@@ -783,8 +782,7 @@ impl RawNgramIndex {
         if self.skip_data[term_index].is_empty() {
             return Ok(term.posting_size);
         }
-        let skip_probe_bytes = u64::try_from(self.skip_data[term_index].len().saturating_mul(24))
-            .map_err(|_| QztError::ResourceLimitExceeded)?
+        let skip_probe_bytes = usize_to_u64(self.skip_data[term_index].len().saturating_mul(24))?
             .checked_add(16)
             .ok_or(QztError::ResourceLimitExceeded)?;
         Ok(skip_probe_bytes.min(term.posting_size))
@@ -1150,8 +1148,7 @@ pub(crate) fn verify_candidates(
         decoded_bytes = next_decoded;
         for span in spans_for(&decoded) {
             let span_offset = usize_to_u64(span.start)?;
-            let span_len = u64::try_from(span.end - span.start)
-                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            let span_len = usize_to_u64(span.end - span.start)?;
             hits.push(SearchHit {
                 logical_offset: granule
                     .logical_offset

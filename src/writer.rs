@@ -226,7 +226,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         let input_hash = self.input_hasher.finalize();
         let mut container_id = [0_u8; 16];
         container_id.copy_from_slice(&input_hash.as_bytes()[..16]);
-        let original_checksum = Checksum::from_hasher(&std::mem::take(&mut self.input_hasher));
+        let original_checksum = Checksum::from_raw_bytes(*input_hash.as_bytes());
 
         let metadata_offset = self.physical_offset;
         let metadata = Metadata::for_source_with_options(
@@ -240,6 +240,8 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
                 target_chunk_size: usize_to_u64(self.options.chunker.target_chunk_size)?,
                 max_chunk_size: usize_to_u64(self.options.chunker.max_chunk_size)?,
                 dictionary_mode: "none",
+                // The streaming writer is always "core"; profile is intentionally
+                // non-configurable here. Profile validation lives in pack_bytes_internal.
                 profile: "core",
                 dense_line_index: false,
                 document_index: false,
@@ -326,8 +328,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         let footer_payload_bytes = footer_payload.encode()?;
         let footer_trailer = FooterTrailer {
             footer_payload_offset,
-            footer_payload_size: u64::try_from(footer_payload_bytes.len())
-                .map_err(|_| QztError::ResourceLimitExceeded)?,
+            footer_payload_size: usize_to_u64(footer_payload_bytes.len())?,
             footer_payload_checksum_blake3: Checksum::blake3(&footer_payload_bytes).value,
         };
 
@@ -354,8 +355,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             .seek(SeekFrom::Start(0))
             .map_err(|_| QztError::ContainerCorrupt)?;
         while remaining > 0 {
-            let chunk_len = usize::try_from(remaining.min(buffer.len() as u64))
-                .map_err(|_| QztError::ResourceLimitExceeded)?;
+            let chunk_len = u64_to_usize(remaining.min(buffer.len() as u64))?;
             self.writer
                 .read_exact(&mut buffer[..chunk_len])
                 .map_err(|_| QztError::ContainerCorrupt)?;
@@ -550,7 +550,6 @@ pub fn pack_bytes_with_profile_and_container_id(
     profile: &str,
     dense_line_index: bool,
 ) -> Result<Vec<u8>> {
-    validate_profile(profile)?;
     let dense_mode = if dense_line_index {
         DenseLineIndexMode::Generate
     } else {
@@ -893,8 +892,7 @@ fn assemble_container(
     let footer_payload_bytes = footer_payload.encode()?;
     let footer_trailer = FooterTrailer {
         footer_payload_offset,
-        footer_payload_size: u64::try_from(footer_payload_bytes.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?,
+        footer_payload_size: usize_to_u64(footer_payload_bytes.len())?,
         footer_payload_checksum_blake3: Checksum::blake3(&footer_payload_bytes).value,
     };
 
@@ -926,8 +924,7 @@ fn fixed_point_footer_payload(
             footer_flags: 0,
             container_checksum: container_checksum.cloned(),
         };
-        let size = u64::try_from(candidate.encode()?.len())
-            .map_err(|_| QztError::ResourceLimitExceeded)?;
+        let size = usize_to_u64(candidate.encode()?.len())?;
         let next = footer_payload_offset
             .checked_add(size)
             .and_then(|value| value.checked_add(FOOTER_TRAILER_LEN as u64))
