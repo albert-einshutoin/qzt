@@ -46,8 +46,8 @@ proptest! {
 
         let offset = if len == 0 { 0 } else { x % (len + 1) };
         let length = y % (len - offset + 1);
-        let start = offset as usize;
-        let end = (offset + length) as usize;
+        let start = usize::try_from(offset).expect("offset fits in tests");
+        let end = usize::try_from(offset + length).expect("offset+length fits in tests");
 
         prop_assert_eq!(
             reader.read_range(offset, length).expect("range read"),

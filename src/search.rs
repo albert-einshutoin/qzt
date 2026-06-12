@@ -773,7 +773,7 @@ impl RawNgramIndex {
 
     fn is_high_df(&self, term_index: usize) -> bool {
         let granule_count = self.granules.len().max(1) as u128;
-        let frequency = self.terms[term_index].granule_frequency as u128;
+        let frequency = u128::from(self.terms[term_index].granule_frequency);
         let per_million = frequency.saturating_mul(1_000_000) / granule_count;
         per_million >= u128::from(self.planner_config.high_df_per_million)
     }
@@ -1337,6 +1337,7 @@ pub(crate) fn key_hash(key: &[u8]) -> [u8; 16] {
     output
 }
 
+#[allow(clippy::cast_possible_truncation)] // value ranges guaranteed by the loop invariants
 fn write_varuint(mut value: u64, output: &mut Vec<u8>) {
     while value >= 0x80 {
         output.push((value as u8 & 0x7f) | 0x80);

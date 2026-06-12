@@ -50,8 +50,8 @@ fn japanese_and_emoji_boundaries_are_never_split() {
 
     assert_eq!(plan.chunks.len(), 3);
     for chunk in &plan.chunks {
-        let start = chunk.logical_offset as usize;
-        let end = start + chunk.uncompressed_size as usize;
+        let start = usize::try_from(chunk.logical_offset).expect("fits in tests");
+        let end = start + usize::try_from(chunk.uncompressed_size).expect("fits in tests");
         assert!(std::str::from_utf8(&input[start..end]).is_ok());
     }
 }
@@ -62,7 +62,8 @@ fn crlf_boundary_is_not_split_between_cr_and_lf() {
     let plan = plan_chunks(input, options(2, 2)).expect("CRLF input should plan");
 
     for chunk in &plan.chunks {
-        let end = chunk.logical_offset as usize + chunk.uncompressed_size as usize;
+        let end = usize::try_from(chunk.logical_offset).expect("fits")
+            + usize::try_from(chunk.uncompressed_size).expect("fits");
         assert!(!(end > 0 && end < input.len() && input[end - 1] == b'\r' && input[end] == b'\n'));
     }
     assert_eq!(plan.newline_mode, NewlineMode::Crlf);
@@ -101,7 +102,7 @@ fn remaining_between_target_and_max_produces_multiple_chunks() {
     // 300 bytes of "x\n" with target=100, max=1000:
     //   old → 300 <= 1000 → 1 chunk of 300 bytes
     //   new → 300 > 100 → split at target boundary → at least 3 chunks
-    let input: Vec<u8> = b"x\n".iter().cycle().take(300).cloned().collect();
+    let input: Vec<u8> = b"x\n".iter().cycle().take(300).copied().collect();
     let plan = plan_chunks(&input, options(100, 1000)).expect("input should plan");
 
     assert!(
@@ -111,7 +112,7 @@ fn remaining_between_target_and_max_produces_multiple_chunks() {
     );
     for chunk in &plan.chunks {
         assert!(
-            (chunk.uncompressed_size as usize) <= 1000,
+            usize::try_from(chunk.uncompressed_size).expect("fits") <= 1000,
             "chunk {} exceeds max_chunk_size",
             chunk.chunk_id
         );

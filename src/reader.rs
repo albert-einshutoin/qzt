@@ -451,7 +451,7 @@ impl<R: ReadAt> QztFileReader<R> {
                 .checked_add(read_len as u64)
                 .ok_or(QztError::PhysicalRangeOutOfBounds)?;
         }
-        Ok(Checksum::from_hasher(hasher))
+        Ok(Checksum::from_hasher(&hasher))
     }
 }
 
@@ -664,7 +664,7 @@ fn verify_deep_entries(
     if decoded_bytes != details.summary.original_size {
         return Err(QztError::ChunkSizeMismatch);
     }
-    let original_checksum = Checksum::from_hasher(original_hasher);
+    let original_checksum = Checksum::from_hasher(&original_hasher);
     if original_checksum != details.metadata.original_checksum {
         return Err(QztError::UncompressedChunkChecksumMismatch);
     }
@@ -1073,8 +1073,8 @@ mod document_hasher_tests {
     use crate::schema::{Checksum, DocumentEntry, DocumentIndex};
 
     fn entry(doc_id: &str, data: &[u8], offset: u64, length: u64) -> DocumentEntry {
-        let start = offset as usize;
-        let end = start + length as usize;
+        let start = u64_to_usize(offset).expect("offset fits in usize in tests");
+        let end = start + u64_to_usize(length).expect("length fits in usize in tests");
         DocumentEntry::new(
             doc_id,
             offset,
@@ -1105,7 +1105,9 @@ mod document_hasher_tests {
     }
 
     fn expected(data: &[u8], offset: u64, length: u64) -> [u8; 32] {
-        *blake3::hash(&data[offset as usize..(offset + length) as usize]).as_bytes()
+        let start = u64_to_usize(offset).expect("offset fits in usize in tests");
+        let end = u64_to_usize(offset + length).expect("offset+length fits in usize in tests");
+        *blake3::hash(&data[start..end]).as_bytes()
     }
 
     #[test]

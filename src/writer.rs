@@ -129,7 +129,7 @@ impl WriterBuilder {
                     input,
                     container_id,
                     self.options,
-                    document_index,
+                    &document_index,
                 );
             }
             (_, document_index) => document_index,
@@ -145,7 +145,7 @@ impl WriterBuilder {
             container_id,
             self.options,
             dense_mode,
-            document_index,
+            document_index.as_ref(),
             &self.profile,
         )
     }
@@ -226,7 +226,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         let input_hash = self.input_hasher.finalize();
         let mut container_id = [0_u8; 16];
         container_id.copy_from_slice(&input_hash.as_bytes()[..16]);
-        let original_checksum = Checksum::from_hasher(std::mem::take(&mut self.input_hasher));
+        let original_checksum = Checksum::from_hasher(&std::mem::take(&mut self.input_hasher));
 
         let metadata_offset = self.physical_offset;
         let metadata = Metadata::for_source_with_options(
@@ -306,20 +306,22 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
 
         let container_checksum = self.hash_prefix(footer_payload_offset)?;
 
+        let index_root_ref = BlockRef {
+            offset: index_root_offset,
+            size: index_root_size,
+            checksum: Checksum::blake3(&index_root_bytes),
+        };
+        let metadata_ref = BlockRef {
+            offset: metadata_offset,
+            size: metadata_size,
+            checksum: Checksum::blake3(&metadata_bytes),
+        };
         let footer_payload = fixed_point_footer_payload(
             container_id,
-            BlockRef {
-                offset: index_root_offset,
-                size: index_root_size,
-                checksum: Checksum::blake3(&index_root_bytes),
-            },
-            BlockRef {
-                offset: metadata_offset,
-                size: metadata_size,
-                checksum: Checksum::blake3(&metadata_bytes),
-            },
+            &index_root_ref,
+            &metadata_ref,
             footer_payload_offset,
-            Some(container_checksum),
+            Some(&container_checksum),
         )?;
         let footer_payload_bytes = footer_payload.encode()?;
         let footer_trailer = FooterTrailer {
@@ -347,7 +349,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
     fn hash_prefix(&mut self, prefix_len: u64) -> Result<Checksum> {
         let mut hasher = blake3::Hasher::new();
         let mut remaining = prefix_len;
-        let mut buffer = [0_u8; 64 * 1024];
+        let mut buffer = vec![0_u8; 64 * 1024];
         self.writer
             .seek(SeekFrom::Start(0))
             .map_err(|_| QztError::ContainerCorrupt)?;
@@ -360,7 +362,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             hasher.update(&buffer[..chunk_len]);
             remaining -= chunk_len as u64;
         }
-        Ok(Checksum::from_hasher(hasher))
+        Ok(Checksum::from_hasher(&hasher))
     }
 
     fn emit_pending_chunk(&mut self, end: usize) -> Result<()> {
@@ -614,7 +616,7 @@ pub fn pack_bytes_with_document_index(
     input: &[u8],
     container_id: [u8; 16],
     options: WriterOptions,
-    document_index: DocumentIndex,
+    document_index: &DocumentIndex,
 ) -> Result<Vec<u8>> {
     pack_bytes_internal(
         input,
@@ -631,7 +633,7 @@ pub fn pack_bytes_with_memory_profile(
     input: &[u8],
     container_id: [u8; 16],
     options: WriterOptions,
-    document_index: DocumentIndex,
+    document_index: &DocumentIndex,
 ) -> Result<Vec<u8>> {
     pack_bytes_internal(
         input,
@@ -661,7 +663,7 @@ fn pack_bytes_internal(
     container_id: [u8; 16],
     options: WriterOptions,
     dense_mode: DenseLineIndexMode,
-    document_index: Option<DocumentIndex>,
+    document_index: Option<&DocumentIndex>,
     profile: &str,
 ) -> Result<Vec<u8>> {
     validate_profile(profile)?;
@@ -720,9 +722,9 @@ fn pack_bytes_internal(
         &plan,
         &compressed_chunks,
         &entries,
-        OptionalBlocks {
+        &OptionalBlocks {
             dense_line_index: dense_line_index.as_ref(),
-            document_index: document_index.as_ref(),
+            document_index,
             profile,
             writer_options: options,
         },
@@ -740,7 +742,7 @@ fn assemble_container(
     plan: &crate::chunker::ChunkPlan,
     compressed_chunks: &[Vec<u8>],
     entries: &[ChunkEntry],
-    optional: OptionalBlocks<'_>,
+    optional: &OptionalBlocks<'_>,
 ) -> Result<Vec<u8>> {
     if compressed_chunks.len() != entries.len() {
         return Err(QztError::ContainerCorrupt);
@@ -870,20 +872,23 @@ fn assemble_container(
     prefix.extend_from_slice(&chunk_table_bytes);
     prefix.extend_from_slice(&index_root_bytes);
 
+    let index_root_ref = BlockRef {
+        offset: index_root_offset,
+        size: index_root_size,
+        checksum: Checksum::blake3(&index_root_bytes),
+    };
+    let metadata_ref = BlockRef {
+        offset: metadata_offset,
+        size: metadata_size,
+        checksum: Checksum::blake3(&metadata_bytes),
+    };
+    let prefix_checksum = Checksum::blake3(&prefix);
     let footer_payload = fixed_point_footer_payload(
         container_id,
-        BlockRef {
-            offset: index_root_offset,
-            size: index_root_size,
-            checksum: Checksum::blake3(&index_root_bytes),
-        },
-        BlockRef {
-            offset: metadata_offset,
-            size: metadata_size,
-            checksum: Checksum::blake3(&metadata_bytes),
-        },
+        &index_root_ref,
+        &metadata_ref,
         footer_payload_offset,
-        Some(Checksum::blake3(&prefix)),
+        Some(&prefix_checksum),
     )?;
     let footer_payload_bytes = footer_payload.encode()?;
     let footer_trailer = FooterTrailer {
@@ -901,10 +906,10 @@ fn assemble_container(
 
 fn fixed_point_footer_payload(
     container_id: [u8; 16],
-    index_root: BlockRef,
-    metadata: BlockRef,
+    index_root: &BlockRef,
+    metadata: &BlockRef,
     footer_payload_offset: u64,
-    container_checksum: Option<Checksum>,
+    container_checksum: Option<&Checksum>,
 ) -> Result<FooterPayload> {
     let mut final_file_size = 0_u64;
 
@@ -919,7 +924,7 @@ fn fixed_point_footer_payload(
             metadata: metadata.clone(),
             final_file_size,
             footer_flags: 0,
-            container_checksum: container_checksum.clone(),
+            container_checksum: container_checksum.cloned(),
         };
         let size = u64::try_from(candidate.encode()?.len())
             .map_err(|_| QztError::ResourceLimitExceeded)?;

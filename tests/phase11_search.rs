@@ -1,3 +1,4 @@
+use std::fmt::Write as _;
 use std::fs;
 use std::process::Command;
 
@@ -307,7 +308,7 @@ fn unindexable_query_reports_incomplete_reason() {
 fn dense_query_amortizes_physical_chunk_decodes() {
     let mut input = String::new();
     for index in 0..128 {
-        input.push_str(&format!("common line {index}\n"));
+        let _ = writeln!(input, "common line {index}");
     }
     let container = pack_bytes_with_container_id(input.as_bytes(), [0xc8; 16], options(64, 64))
         .expect("container should pack");
@@ -331,7 +332,7 @@ fn dense_query_amortizes_physical_chunk_decodes() {
 fn token_build_and_search_from_file_match_in_memory_paths() {
     let mut input = String::new();
     for index in 0..32 {
-        input.push_str(&format!("alpha beta line {index}\n"));
+        let _ = writeln!(input, "alpha beta line {index}");
     }
     input.push_str("needle alpha\n");
     let container = pack_bytes_with_container_id(input.as_bytes(), [0xc9; 16], options(64, 64))

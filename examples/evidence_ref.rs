@@ -11,7 +11,7 @@ fn main() -> qzt::Result<()> {
         input,
         [0x42; 16],
         WriterOptions::default(),
-        document_index,
+        &document_index,
     )?;
     let reader = QztFileReader::open_read_at(&container[..], container.len() as u64)?;
     let expected = Checksum::blake3(b"evidence");

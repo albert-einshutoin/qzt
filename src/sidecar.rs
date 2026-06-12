@@ -289,7 +289,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
         }
         source
             .read_exact_at(0, &mut header)
-            .map_err(map_read_error)?;
+            .map_err(|e| map_read_error(&e))?;
         if &header[..8] != SIDECAR_MAGIC {
             return Err(QztError::InvalidHeader);
         }
@@ -642,7 +642,7 @@ fn count_chunks(granules: &[SearchGranule]) -> Result<u64> {
     usize_to_u64(chunks.len())
 }
 
-fn map_read_error(error: std::io::Error) -> QztError {
+fn map_read_error(error: &std::io::Error) -> QztError {
     match error.kind() {
         std::io::ErrorKind::UnexpectedEof => QztError::UnexpectedEof,
         _ => QztError::ContainerCorrupt,
@@ -654,7 +654,7 @@ fn read_vec<R: ReadAt>(source: &R, offset: u64, size: u64) -> Result<Vec<u8>> {
     let mut bytes = vec![0_u8; len];
     source
         .read_exact_at(offset, &mut bytes)
-        .map_err(map_read_error)?;
+        .map_err(|e| map_read_error(&e))?;
     Ok(bytes)
 }
 
@@ -683,13 +683,13 @@ fn verify_section_checksum<R: ReadAt>(
             .map_err(|_| QztError::ResourceLimitExceeded)?;
         source
             .read_exact_at(offset, &mut buffer[..read_len])
-            .map_err(map_read_error)?;
+            .map_err(|e| map_read_error(&e))?;
         hasher.update(&buffer[..read_len]);
         offset = offset
             .checked_add(read_len as u64)
             .ok_or(QztError::ResourceLimitExceeded)?;
     }
-    let actual = Checksum::from_hasher(hasher);
+    let actual = Checksum::from_hasher(&hasher);
     if actual != section.checksum {
         return Err(QztError::ContainerCorrupt);
     }
@@ -720,8 +720,7 @@ fn encode_manifest(manifest: &SidecarManifest) -> Result<Vec<u8>> {
             "ngram_n",
             manifest
                 .ngram_n
-                .map(|value| CborValue::Integer(value as i128))
-                .unwrap_or(CborValue::Null),
+                .map_or(CborValue::Null, |value| CborValue::Integer(value as i128)),
         ),
         text_pair("complete", CborValue::Bool(manifest.complete)),
         text_pair(

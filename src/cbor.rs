@@ -167,6 +167,7 @@ fn encode_value(value: &CborValue, out: &mut Vec<u8>) -> Result<()> {
     Ok(())
 }
 
+#[allow(clippy::cast_possible_truncation)] // value ranges are guaranteed by the match arms
 fn encode_type_and_argument(major: u8, value: u64, out: &mut Vec<u8>) {
     let prefix = major << 5;
     match value {
@@ -215,7 +216,7 @@ impl Parser<'_> {
             4 => self.parse_array(additional),
             5 => self.parse_map(additional),
             6 => Err(QztError::NonCanonicalCbor),
-            7 => self.parse_simple(additional),
+            7 => Self::parse_simple(additional),
             _ => unreachable!("CBOR major type is three bits"),
         }
     }
@@ -268,7 +269,7 @@ impl Parser<'_> {
         Ok(CborValue::Map(entries))
     }
 
-    fn parse_simple(&mut self, additional: u8) -> Result<CborValue> {
+    fn parse_simple(additional: u8) -> Result<CborValue> {
         match additional {
             20 => Ok(CborValue::Bool(false)),
             21 => Ok(CborValue::Bool(true)),
@@ -297,21 +298,21 @@ impl Parser<'_> {
             }
             25 => {
                 let value = u64::from(u16::from_be_bytes(self.read_array()?));
-                if value <= u64::from(u8::MAX) {
+                if u8::try_from(value).is_ok() {
                     return Err(QztError::NonCanonicalCbor);
                 }
                 Ok(value)
             }
             26 => {
                 let value = u64::from(u32::from_be_bytes(self.read_array()?));
-                if value <= u64::from(u16::MAX) {
+                if u16::try_from(value).is_ok() {
                     return Err(QztError::NonCanonicalCbor);
                 }
                 Ok(value)
             }
             27 => {
                 let value = u64::from_be_bytes(self.read_array()?);
-                if value <= u64::from(u32::MAX) {
+                if u32::try_from(value).is_ok() {
                     return Err(QztError::NonCanonicalCbor);
                 }
                 Ok(value)

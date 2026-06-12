@@ -150,6 +150,7 @@ pub fn line_start_offsets(decoded: &[u8], flags: u32) -> Result<Vec<u64>> {
     Ok(starts)
 }
 
+#[allow(clippy::cast_possible_truncation)] // value ranges guaranteed by the loop invariants
 fn write_varuint(mut value: u64, output: &mut Vec<u8>) {
     while value >= 0x80 {
         output.push((value as u8 & 0x7f) | 0x80);

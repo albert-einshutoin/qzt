@@ -56,9 +56,11 @@ fn hard_invariants_hold_for_c1_through_c6() {
         let length = 512_u64.min(corpus.len().saturating_sub(corpus.len() / 3) as u64);
         let file =
             QztFileReader::open_read_at(&container[..], container.len() as u64).expect("file open");
+        let start = usize::try_from(offset).expect("offset fits in usize in tests");
+        let end = usize::try_from(offset + length).expect("offset+length fits in usize in tests");
         assert_eq!(
             file.read_range(offset, length).expect("range"),
-            corpus[offset as usize..(offset + length) as usize],
+            corpus[start..end],
             "{}",
             kind.id()
         );
@@ -85,7 +87,7 @@ fn corruption_sweep_detects_chunk_metadata_and_index_mutations() {
         details.footer_payload.index_root.offset,
     ] {
         let mut corrupt = container.clone();
-        corrupt[offset as usize] ^= 0x55;
+        corrupt[usize::try_from(offset).expect("offset fits in usize in tests")] ^= 0x55;
         assert!(
             QztReader::open(&corrupt)
                 .and_then(|reader| reader.verify(VerifyLevel::Deep))

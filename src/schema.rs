@@ -37,10 +37,8 @@ impl Checksum {
     }
 
     /// Finalizes a streaming BLAKE3 hasher into a [`Checksum`].
-    ///
-    /// Takes the hasher by value to prevent reuse after finalization.
     #[must_use]
-    pub(crate) fn from_hasher(hasher: blake3::Hasher) -> Self {
+    pub(crate) fn from_hasher(hasher: &blake3::Hasher) -> Self {
         Self {
             algorithm: CHECKSUM_ALGORITHM_BLAKE3.to_owned(),
             value: *hasher.finalize().as_bytes(),

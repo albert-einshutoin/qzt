@@ -1,3 +1,4 @@
+use std::fmt::Write as _;
 use std::fs;
 use std::process::Command;
 
@@ -173,7 +174,7 @@ fn planner_uses_rarest_non_high_df_key_first() {
 fn skip_data_reduces_reported_posting_bytes_for_long_lists() {
     let mut input = String::new();
     for index in 0..1100 {
-        input.push_str(&format!("aaa line {index}\n"));
+        let _ = writeln!(input, "aaa line {index}");
     }
     let container = pack_bytes_with_container_id(input.as_bytes(), [0xd6; 16], options(512, 512))
         .expect("container should pack");
@@ -281,7 +282,7 @@ fn query_shorter_than_n_reports_incomplete_reason() {
 fn ngram_build_and_search_from_file_match_in_memory_paths() {
     let mut input = String::new();
     for index in 0..32 {
-        input.push_str(&format!("情報ログ行 {index} common text\n"));
+        let _ = writeln!(input, "情報ログ行 {index} common text");
     }
     input.push_str("zzz証拠テキスト\n");
     let container = pack_bytes_with_container_id(input.as_bytes(), [0xd8; 16], options(64, 64))

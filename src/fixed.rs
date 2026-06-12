@@ -34,7 +34,9 @@ impl Header {
         }
 
         let header_length = read_u32_le(&bytes[12..16])?;
-        if header_length != HEADER_LEN as u32 {
+        let expected_header_len =
+            u32::try_from(HEADER_LEN).map_err(|_| QztError::InvalidHeader)?;
+        if header_length != expected_header_len {
             return Err(QztError::InvalidHeader);
         }
 
@@ -64,7 +66,9 @@ impl Header {
         bytes[0..8].copy_from_slice(&MAGIC);
         bytes[8..10].copy_from_slice(&write_u16_le(MAJOR_VERSION));
         bytes[10..12].copy_from_slice(&write_u16_le(MINOR_VERSION));
-        bytes[12..16].copy_from_slice(&write_u32_le(HEADER_LEN as u32));
+        bytes[12..16].copy_from_slice(&write_u32_le(
+            u32::try_from(HEADER_LEN).expect("HEADER_LEN fits in u32"),
+        ));
         bytes[24..32].copy_from_slice(&write_u64_le(self.metadata_offset));
         bytes[32..40].copy_from_slice(&write_u64_le(self.metadata_size));
         bytes[40..48].copy_from_slice(&write_u64_le(self.index_hint_offset));
@@ -99,7 +103,9 @@ impl FooterTrailer {
         }
 
         let trailer_length = read_u32_le(&bytes[12..16])?;
-        if trailer_length != FOOTER_TRAILER_LEN as u32 {
+        let expected_trailer_len =
+            u32::try_from(FOOTER_TRAILER_LEN).map_err(|_| QztError::InvalidFooterTrailer)?;
+        if trailer_length != expected_trailer_len {
             return Err(QztError::InvalidFooterTrailer);
         }
 
@@ -119,7 +125,9 @@ impl FooterTrailer {
         bytes[0..8].copy_from_slice(&TRAILER_MAGIC);
         bytes[8..10].copy_from_slice(&write_u16_le(MAJOR_VERSION));
         bytes[10..12].copy_from_slice(&write_u16_le(MINOR_VERSION));
-        bytes[12..16].copy_from_slice(&write_u32_le(FOOTER_TRAILER_LEN as u32));
+        bytes[12..16].copy_from_slice(&write_u32_le(
+            u32::try_from(FOOTER_TRAILER_LEN).expect("FOOTER_TRAILER_LEN fits in u32"),
+        ));
         bytes[16..24].copy_from_slice(&write_u64_le(self.footer_payload_offset));
         bytes[24..32].copy_from_slice(&write_u64_le(self.footer_payload_size));
         bytes[32..64].copy_from_slice(&self.footer_payload_checksum_blake3);

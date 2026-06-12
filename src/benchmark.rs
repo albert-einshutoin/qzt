@@ -4,7 +4,7 @@ use std::time::{Duration, Instant};
 use crate::chunker::ChunkerOptions;
 use crate::corpus::{generate_validation_corpus, CorpusKind, ValidationCorpusOptions};
 use crate::error::{QztError, Result};
-use crate::primitives::usize_to_u64;
+use crate::primitives::{u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
 use crate::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
 use crate::sidecar::{build_search_sidecar, QziSidecar, SidecarIndexKind};
@@ -184,12 +184,12 @@ pub fn run_release_benchmark(options: ReleaseBenchmarkOptions) -> Result<Release
     }
 
     let corpus = release_corpus(options.line_count);
-    run_release_benchmark_with_corpus(corpus, options)
+    run_release_benchmark_with_corpus(&corpus, options)
 }
 
 /// Runs a benchmark smoke over a caller-provided corpus.
 pub fn run_release_benchmark_with_corpus(
-    corpus: Vec<u8>,
+    corpus: &[u8],
     mut options: ReleaseBenchmarkOptions,
 ) -> Result<ReleaseBenchmarkReport> {
     if corpus.is_empty()
@@ -202,7 +202,7 @@ pub fn run_release_benchmark_with_corpus(
 
     let corpus_bytes = usize_to_u64(corpus.len())?;
     if options.line_count == 0 {
-        options.line_count = line_count_from_corpus(&corpus);
+        options.line_count = line_count_from_corpus(corpus);
     }
 
     if options.line_count == 0 {
@@ -218,7 +218,7 @@ pub fn run_release_benchmark_with_corpus(
     };
 
     let started = Instant::now();
-    let packed = pack_bytes_with_container_id(&corpus, [0xf0; 16], writer_options)?;
+    let packed = pack_bytes_with_container_id(corpus, [0xf0; 16], writer_options)?;
     let pack_elapsed = started.elapsed();
     let packed_bytes = usize_to_u64(packed.len())?;
 
@@ -345,7 +345,8 @@ pub fn run_competitive_benchmark(
         .range_offset
         .min(corpus_bytes.saturating_sub(options.range_size));
     let length = options.range_size.min(corpus_bytes - offset);
-    let expected = &corpus[offset as usize..(offset + length) as usize];
+    let expected =
+        &corpus[u64_to_usize(offset)?..(u64_to_usize(offset)? + u64_to_usize(length)?)];
 
     let qzt_reader = QztFileReader::open_read_at(&qzt[..], qzt.len() as u64)?;
     let started = Instant::now();
@@ -359,7 +360,9 @@ pub fn run_competitive_benchmark(
     let raw_decoded =
         zstd::stream::decode_all(raw_zstd.as_slice()).map_err(|_| QztError::ZstdDecodeError)?;
     let raw_elapsed = started.elapsed();
-    if raw_decoded[offset as usize..(offset + length) as usize] != *expected {
+    let offset_us = u64_to_usize(offset)?;
+    let end_us = u64_to_usize(offset + length)?;
+    if raw_decoded[offset_us..end_us] != *expected {
         return Err(QztError::ContainerCorrupt);
     }
 
@@ -417,6 +420,7 @@ fn line_count_from_corpus(corpus: &[u8]) -> usize {
         return 0;
     }
 
+    #[allow(clippy::naive_bytecount)]
     let newline_count = corpus.iter().filter(|byte| **byte == b'\n').count();
     if corpus.ends_with(b"\n") {
         newline_count
@@ -489,6 +493,7 @@ fn run_query_case(
     })
 }
 
+#[allow(clippy::cast_possible_truncation)] // clamped_percentile <= 100, fits in usize
 fn percentile_micros(samples: &[u128], percentile: u64) -> u128 {
     if samples.is_empty() {
         return 0;

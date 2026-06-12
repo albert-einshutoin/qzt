@@ -247,8 +247,11 @@ fn build_container(
 
     let mut entries = Vec::new();
     for chunk in &plan.chunks {
-        let start = chunk.logical_offset as usize;
-        let end = start + chunk.uncompressed_size as usize;
+        let start =
+            usize::try_from(chunk.logical_offset).expect("logical_offset fits in usize in tests");
+        let end = start
+            + usize::try_from(chunk.uncompressed_size)
+                .expect("uncompressed_size fits in usize in tests");
         let uncompressed = &input[start..end];
         let compressed = if let Some(dictionary) = dictionary_bytes {
             encode_with_dictionary(uncompressed, dictionary)
@@ -342,19 +345,18 @@ fn build_container(
     prefix.extend_from_slice(&index_root_bytes);
 
     let footer_payload_offset = prefix.len() as u64;
-    let footer_payload = fixed_point_footer_payload(
-        BlockRef {
-            offset: index_root_offset,
-            size: index_root_bytes.len() as u64,
-            checksum: Checksum::blake3(&index_root_bytes),
-        },
-        BlockRef {
-            offset: metadata_offset,
-            size: metadata_bytes.len() as u64,
-            checksum: Checksum::blake3(&metadata_bytes),
-        },
-        footer_payload_offset,
-    );
+    let index_root_ref = BlockRef {
+        offset: index_root_offset,
+        size: index_root_bytes.len() as u64,
+        checksum: Checksum::blake3(&index_root_bytes),
+    };
+    let metadata_ref = BlockRef {
+        offset: metadata_offset,
+        size: metadata_bytes.len() as u64,
+        checksum: Checksum::blake3(&metadata_bytes),
+    };
+    let footer_payload =
+        fixed_point_footer_payload(&index_root_ref, &metadata_ref, footer_payload_offset);
     let footer_payload_bytes = footer_payload.encode().expect("footer should encode");
     let footer_trailer = FooterTrailer {
         footer_payload_offset,
@@ -382,8 +384,8 @@ fn encode_with_dictionary(input: &[u8], dictionary: &[u8]) -> Vec<u8> {
 }
 
 fn fixed_point_footer_payload(
-    index_root: BlockRef,
-    metadata: BlockRef,
+    index_root: &BlockRef,
+    metadata: &BlockRef,
     footer_payload_offset: u64,
 ) -> FooterPayload {
     let mut final_file_size = 0_u64;

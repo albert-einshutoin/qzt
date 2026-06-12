@@ -87,20 +87,18 @@ pub fn write_empty_container(container_id: [u8; 16]) -> Result<Vec<u8>> {
     let footer_payload_offset = index_root_offset
         .checked_add(index_root_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
-    let footer_payload = fixed_point_footer_payload(
-        container_id,
-        BlockRef {
-            offset: index_root_offset,
-            size: index_root_size,
-            checksum: Checksum::blake3(&index_root_bytes),
-        },
-        BlockRef {
-            offset: metadata_offset,
-            size: metadata_size,
-            checksum: Checksum::blake3(&metadata_bytes),
-        },
-        footer_payload_offset,
-    )?;
+    let index_root_ref = BlockRef {
+        offset: index_root_offset,
+        size: index_root_size,
+        checksum: Checksum::blake3(&index_root_bytes),
+    };
+    let metadata_ref = BlockRef {
+        offset: metadata_offset,
+        size: metadata_size,
+        checksum: Checksum::blake3(&metadata_bytes),
+    };
+    let footer_payload =
+        fixed_point_footer_payload(container_id, &index_root_ref, &metadata_ref, footer_payload_offset)?;
 
     let footer_payload_bytes = footer_payload.encode()?;
     let footer_trailer = FooterTrailer {
@@ -701,8 +699,8 @@ fn parse_document_index_at<R: ReadAt>(
 
 fn fixed_point_footer_payload(
     container_id: [u8; 16],
-    index_root: BlockRef,
-    metadata: BlockRef,
+    index_root: &BlockRef,
+    metadata: &BlockRef,
     footer_payload_offset: u64,
 ) -> Result<FooterPayload> {
     let mut final_file_size = 0_u64;

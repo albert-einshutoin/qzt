@@ -45,7 +45,7 @@ fn vectors_regenerate_byte_identically() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "only run manually to regenerate test vectors"]
 fn regenerate_vectors() {
     for (name, bytes) in [
         ("valid_c1", valid_c1()),
@@ -95,9 +95,10 @@ fn decode_hex(input: &str) -> Result<Vec<u8>, String> {
 }
 
 fn encode_hex(bytes: &[u8]) -> String {
+    use std::fmt::Write as _;
     let mut output = String::with_capacity(bytes.len() * 2);
     for byte in bytes {
-        output.push_str(&format!("{byte:02x}"));
+        write!(output, "{byte:02x}").expect("writing to String never fails");
     }
     output
 }

@@ -33,3 +33,18 @@ path = "src/main.rs"
 
 [dev-dependencies]
 proptest = "1"
+
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+# ---- permanent allow (rationale documented) ----
+cast_precision_loss = "allow"       # metrics u64→f64; precision loss is intentional
+module_name_repetitions = "allow"   # ChunkerOptions etc. naming is intentional
+must_use_candidate = "allow"        # must_use on public API is applied selectively
+similar_names = "allow"
+missing_errors_doc = "allow"        # to be resolved in P5-4
+missing_panics_doc = "allow"        # to be resolved in P5-4
+# ---- temporary allow (remove after referenced issue is closed) ----
+too_many_lines = "allow"            # remove after P3-2 / P4-2 / P4-3 function splits
