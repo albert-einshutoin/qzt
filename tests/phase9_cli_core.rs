@@ -150,6 +150,141 @@ fn cli_pack_profile_dense_and_writer_options_reach_metadata_and_info() {
     let _ = fs::remove_dir_all(base);
 }
 
+/// `qzt info --format json` emits `container_id`, `original_checksum`, and `blake3`.
+#[test]
+fn info_json_contains_container_id_and_checksum() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-json-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"hello\nworld\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let json_bytes = output_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("info")
+            .arg(&packed)
+            .arg("--format")
+            .arg("json"),
+    );
+    let json = String::from_utf8(json_bytes).expect("json output should be utf-8");
+
+    // Must be a JSON object (outer braces).
+    assert!(
+        json.trim_start().starts_with('{'),
+        "must start with {{: {json}"
+    );
+    assert!(json.trim_end().ends_with('}'), "must end with }}: {json}");
+
+    // Must contain the required identity and checksum fields.
+    assert!(
+        json.contains("\"container_id\""),
+        "must contain container_id: {json}"
+    );
+    assert!(
+        json.contains("\"original_checksum\""),
+        "must contain original_checksum: {json}"
+    );
+    assert!(
+        json.contains("blake3"),
+        "must contain blake3 algorithm: {json}"
+    );
+
+    // Verify that --format text output is unchanged (existing behavior).
+    let text_bytes = output_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("info")
+            .arg(&packed),
+    );
+    let text = String::from_utf8(text_bytes).expect("text output should be utf-8");
+    assert!(text.contains("Format: QZT 0.1"));
+    assert!(
+        text.contains("Container ID:"),
+        "text mode must show Container ID: {text}"
+    );
+    assert!(
+        text.contains("Original checksum:"),
+        "text mode must show Original checksum: {text}"
+    );
+    assert!(
+        text.contains("Newline mode:"),
+        "text mode must show Newline mode: {text}"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// `qzt info --format text` is accepted as explicit text mode.
+#[test]
+fn info_format_text_explicit_accepted() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-fmt-text-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"line1\nline2\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let out = output_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("info")
+            .arg(&packed)
+            .arg("--format")
+            .arg("text"),
+    );
+    let out = String::from_utf8(out).expect("output should be utf-8");
+    assert!(out.contains("Format: QZT 0.1"));
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// An unknown `--format` value must exit with code 2.
+#[test]
+fn info_unknown_format_exits_2() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-fmt-bad-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"a\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("info")
+        .arg(&packed)
+        .arg("--format")
+        .arg("yaml")
+        .output()
+        .expect("command should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "unknown --format value must exit 2"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
 fn output_success(command: &mut Command) -> Vec<u8> {
     let output = command.output().expect("command should run");
     assert!(

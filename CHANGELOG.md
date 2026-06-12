@@ -7,6 +7,14 @@ Container format for UTF-8 text.
 
 ### Added
 
+- `qzt info` now appends three identity lines after the existing output:
+  `Container ID` (lowercase hex UUID), `Original checksum` (`blake3:<hex>`),
+  and `Newline mode`. Existing lines are unchanged.
+- `qzt info --format json` outputs a single JSON object to stdout with all
+  container fields including `container_id` and `original_checksum`. Unknown
+  `--format` values exit with code 2. JSON is hand-assembled without a serde
+  dependency via the new `src/cli_json.rs` helper module (also used by
+  subsequent Value Phase 1 commands).
 - Deterministic QZT Core writer and reader.
 - Chunk Table, sparse line index, optional Dense Line Index, and optional
   Document Index support.

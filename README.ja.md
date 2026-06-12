@@ -63,6 +63,7 @@ make check
 ```sh
 qzt pack input.txt -o output.qzt
 qzt info output.qzt
+qzt info output.qzt --format json
 qzt export output.qzt -o restored.txt
 qzt range output.qzt --bytes 0:1024
 qzt range output.qzt --lines 1:10

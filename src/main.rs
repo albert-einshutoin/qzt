@@ -1,3 +1,5 @@
+mod cli_json;
+
 use std::fmt;
 use std::io::{Read, Write};
 use std::process::ExitCode;
@@ -75,7 +77,7 @@ fn print_help() {
     println!("Commands:");
     println!("  help       Show this help");
     println!("  pack       Pack a UTF-8 text file into QZT");
-    println!("  info       Print container summary");
+    println!("  info       Print container summary (--format json for machine-readable output)");
     println!("  export     Restore original bytes (streams to -o file or stdout)");
     println!("  range      Print original bytes (--bytes A:B half-open) or lines");
     println!("             (--lines A:B 1-based inclusive)");
@@ -225,43 +227,130 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 }
 
+/// Output format requested by the caller of `qzt info`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum InfoFormat {
+    Text,
+    Json,
+}
+
 fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
     let Some(path) = args.next() else {
         eprintln!("qzt info: missing file");
         return ExitCode::from(2);
     };
 
+    let mut format = InfoFormat::Text;
+    while let Some(arg) = args.next() {
+        if arg.as_str() == "--format" {
+            let Some(value) = args.next() else {
+                eprintln!("qzt info: missing --format value");
+                return ExitCode::from(2);
+            };
+            match value.as_str() {
+                "text" => format = InfoFormat::Text,
+                "json" => format = InfoFormat::Json,
+                _ => {
+                    eprintln!("qzt info: unknown --format value '{value}' (expected text or json)");
+                    return ExitCode::from(2);
+                }
+            }
+        } else {
+            eprintln!("qzt info: unknown option '{arg}'");
+            return ExitCode::from(2);
+        }
+    }
+
     let result: CliResult<_> = (|| {
         let compressed_size = std::fs::metadata(&path)?.len();
         let reader = QztFileReader::open_path(&path)?;
-        let metadata = reader.skeleton_details().metadata.clone();
-        Ok((reader.info(), metadata, compressed_size))
+        let details = reader.skeleton_details();
+        let metadata = details.metadata.clone();
+        let document_count = details
+            .document_index
+            .as_ref()
+            .map_or(0, |index| index.documents.len());
+        Ok((reader.info(), metadata, compressed_size, document_count))
     })();
 
     match result {
-        Ok((info, metadata, compressed_size)) => {
+        Ok((info, metadata, compressed_size, document_count)) => {
             let line_index = if metadata.dense_line_index {
                 "sparse+dense"
             } else {
                 "sparse"
             };
-            println!("Format: QZT 0.1");
-            println!("Profile: {}", metadata.profile);
-            println!("Original size: {}", info.original_size);
-            println!("Compressed size: {compressed_size}");
-            println!("Chunks: {}", info.chunk_count);
-            println!("Lines: {}", info.line_count);
-            println!("Compression: zstd");
-            println!("Zstd level: {}", metadata.zstd_level);
-            println!("Target chunk size: {}", metadata.target_chunk_size);
-            println!("Max chunk size: {}", metadata.max_chunk_size);
-            println!("Line index: {line_index}");
-            println!(
-                "Document index: {}",
-                if metadata.document_index { "yes" } else { "no" }
-            );
-            println!("Checksum: blake3");
-            println!("Zstd stream compatible: no");
+            // Text output: existing lines unchanged, then three new lines appended.
+            if format == InfoFormat::Text {
+                println!("Format: QZT 0.1");
+                println!("Profile: {}", metadata.profile);
+                println!("Original size: {}", info.original_size);
+                println!("Compressed size: {compressed_size}");
+                println!("Chunks: {}", info.chunk_count);
+                println!("Lines: {}", info.line_count);
+                println!("Compression: zstd");
+                println!("Zstd level: {}", metadata.zstd_level);
+                println!("Target chunk size: {}", metadata.target_chunk_size);
+                println!("Max chunk size: {}", metadata.max_chunk_size);
+                println!("Line index: {line_index}");
+                println!(
+                    "Document index: {}",
+                    if metadata.document_index { "yes" } else { "no" }
+                );
+                println!("Checksum: blake3");
+                println!("Zstd stream compatible: no");
+                // New lines for container identity and original checksum.
+                println!("Container ID: {}", cli_json::hex(&info.container_id));
+                println!(
+                    "Original checksum: {}:{}",
+                    cli_json::escape(&metadata.original_checksum.algorithm),
+                    cli_json::hex(&metadata.original_checksum.value),
+                );
+                println!("Newline mode: {}", metadata.newline_mode);
+            } else {
+                // JSON output: single object on stdout.
+                let container_id_hex = cli_json::hex(&info.container_id);
+                let checksum_alg = cli_json::escape(&metadata.original_checksum.algorithm);
+                let checksum_value = cli_json::hex(&metadata.original_checksum.value);
+                let profile = cli_json::escape(&metadata.profile);
+                let newline_mode = cli_json::escape(&metadata.newline_mode);
+                println!(
+                    concat!(
+                        "{{\n",
+                        "  \"format\": \"qzt-0.1\",\n",
+                        "  \"container_id\": \"{container_id}\",\n",
+                        "  \"profile\": \"{profile}\",\n",
+                        "  \"original_size\": {original_size},\n",
+                        "  \"compressed_size\": {compressed_size},\n",
+                        "  \"original_checksum\": {{\"algorithm\": \"{alg}\", \"value\": \"{chk}\"}},\n",
+                        "  \"newline_mode\": \"{newline_mode}\",\n",
+                        "  \"chunk_count\": {chunk_count},\n",
+                        "  \"line_count\": {line_count},\n",
+                        "  \"zstd_level\": {zstd_level},\n",
+                        "  \"target_chunk_size\": {target_chunk_size},\n",
+                        "  \"max_chunk_size\": {max_chunk_size},\n",
+                        "  \"dense_line_index\": {dense_line_index},\n",
+                        "  \"document_index\": {document_index},\n",
+                        "  \"document_count\": {document_count}\n",
+                        "}}"
+                    ),
+                    container_id = container_id_hex,
+                    profile = profile,
+                    original_size = info.original_size,
+                    compressed_size = compressed_size,
+                    alg = checksum_alg,
+                    chk = checksum_value,
+                    newline_mode = newline_mode,
+                    chunk_count = info.chunk_count,
+                    line_count = info.line_count,
+                    zstd_level = metadata.zstd_level,
+                    target_chunk_size = metadata.target_chunk_size,
+                    max_chunk_size = metadata.max_chunk_size,
+                    dense_line_index = metadata.dense_line_index,
+                    document_index = metadata.document_index,
+                    document_count = document_count,
+                );
+            }
             ExitCode::SUCCESS
         }
         Err(error) => command_failed("info", &error),
