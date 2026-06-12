@@ -481,6 +481,91 @@ fn doc_corrupt_chunk_payload_verified_fails_no_verify_returns_garbage() {
 }
 
 // ---------------------------------------------------------------------------
+// qzt doc — tampered DocumentEntry.checksum (chunk payload intact):
+//   verified → exit 1, --no-verify → exit 0 with correct bytes
+// ---------------------------------------------------------------------------
+//
+// This test exercises the semantic boundary between the two extraction modes.
+// The acceptance criterion is:
+//   * `qzt doc <container> <id>` (verified)   exits 1
+//   * `qzt doc <container> <id> --no-verify`  exits 0 and returns original bytes
+//
+// Mechanism:
+//   A container is built with an intentionally wrong `DocumentEntry.checksum`
+//   value while the compressed chunk payload remains intact.  The per-chunk
+//   blake3 checksums (verified unconditionally by `decode_compressed_entry`)
+//   therefore still pass, so the container opens and the bytes are decoded
+//   correctly in both modes.  Only the document-level checksum comparison in
+//   `read_document_verified` differs:
+//     --no-verify path  → calls `read_document()`, skips document-level check
+//                         → bytes correct, exits 0
+//     verified path     → calls `read_document_verified()`, compares decoded
+//                         bytes against the wrong stored checksum
+//                         → VerifiedChecksumMismatch, exits 1
+#[test]
+fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
+    let base = std::env::temp_dir().join(format!("qzt-35-doc-tampered-chk-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+
+    // Build a document entry whose checksum.value is deliberately wrong.
+    // The all-zero checksum is never a valid BLAKE3 output for non-empty input.
+    let wrong_checksum = Checksum {
+        algorithm: String::from("blake3"),
+        value: [0u8; 32],
+    };
+    let doc_entry = DocumentEntry::new(
+        "target",
+        0,
+        TWO_LINES.len() as u64,
+        0,
+        2,
+        0,
+        1,
+        wrong_checksum,
+    );
+    let document_index = DocumentIndex {
+        container_id: [0xab; 16],
+        documents: vec![doc_entry],
+    };
+    // `pack_bytes_with_document_index` stores the DocumentEntry as supplied.
+    // It computes block-level integrity for the index block so the container
+    // opens cleanly; only the per-document checksum inside the entry is wrong.
+    let container =
+        pack_bytes_with_document_index(TWO_LINES, [0xab; 16], writer_options(), &document_index)
+            .expect("pack with tampered document checksum");
+
+    let qzt_path = base.join("tampered.qzt");
+    fs::write(&qzt_path, &container).expect("write tampered container");
+    let path = qzt_path.to_str().unwrap();
+
+    // verified must exit 1 (VerifiedChecksumMismatch).
+    let ver_out = run(&["doc", path, "target"]);
+    assert_eq!(
+        ver_out.status.code(),
+        Some(1),
+        "verified extraction must exit 1 when DocumentEntry.checksum is wrong; \
+         stderr: {}",
+        String::from_utf8_lossy(&ver_out.stderr)
+    );
+
+    // --no-verify must exit 0 and return the original correct bytes.
+    let no_ver_out = run(&["doc", path, "target", "--no-verify"]);
+    assert_eq!(
+        no_ver_out.status.code(),
+        Some(0),
+        "--no-verify must exit 0 when chunk payload is intact; \
+         stderr: {}",
+        String::from_utf8_lossy(&no_ver_out.stderr)
+    );
+    assert_eq!(
+        no_ver_out.stdout, TWO_LINES,
+        "--no-verify must return the original bytes unchanged"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+// ---------------------------------------------------------------------------
 // qzt doc — unknown doc_id → exit 1
 // ---------------------------------------------------------------------------
 
