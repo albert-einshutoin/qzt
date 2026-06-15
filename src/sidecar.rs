@@ -8,7 +8,10 @@ use crate::format::FOOTER_TRAILER_LEN;
 use crate::io::ReadAt;
 use crate::primitives::{u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
-use crate::schema::Checksum;
+use crate::schema::{
+    as_map, checksum_value, field, required_bool, required_bstr16, required_checksum,
+    required_text, required_u64_with_overflow, text_pair, Checksum,
+};
 use crate::search::{
     decode_delta_varint_u64, elapsed_ms, encode_delta_varint_u64, intersect_postings, key_hash,
     ngram_keys_for_query, substring_spans, unique_query_keys, verified_spans, verify_candidates,
@@ -755,15 +758,18 @@ fn encode_manifest(manifest: &SidecarManifest) -> Result<Vec<u8>> {
 
 fn decode_manifest(bytes: &[u8]) -> Result<SidecarManifest> {
     let value = validate_deterministic(bytes)?;
-    let map = as_map(&value)?;
-    if required_text(map, "schema")? != "qzt.sidecar.v1" {
+    let map = as_map(&value, QztError::ContainerCorrupt)?;
+    if required_text(map, "schema", QztError::ContainerCorrupt)? != "qzt.sidecar.v1" {
         return Err(QztError::ContainerCorrupt);
     }
-    let source_container_id = required_bstr16(map, "source_container_id")?;
-    let source_original_checksum = required_checksum(map, "source_original_checksum")?;
-    let source_qzt_footer_checksum = required_checksum(map, "source_qzt_footer_checksum")?;
-    let index_type = required_text(map, "index_type")?;
-    let ngram_n = match required_value(map, "ngram_n")? {
+    let source_container_id =
+        required_bstr16(map, "source_container_id", QztError::ContainerCorrupt)?;
+    let source_original_checksum =
+        required_checksum(map, "source_original_checksum", QztError::ContainerCorrupt)?;
+    let source_qzt_footer_checksum =
+        required_checksum(map, "source_qzt_footer_checksum", QztError::ContainerCorrupt)?;
+    let index_type = required_text(map, "index_type", QztError::ContainerCorrupt)?;
+    let ngram_n = match field(map, "ngram_n", QztError::ContainerCorrupt)? {
         CborValue::Null => None,
         CborValue::Integer(value) if *value >= 0 => Some(
             (*value)
@@ -772,13 +778,34 @@ fn decode_manifest(bytes: &[u8]) -> Result<SidecarManifest> {
         ),
         _ => return Err(QztError::ContainerCorrupt),
     };
-    let complete = required_bool(map, "complete")?;
-    let high_df_per_million = u32::try_from(required_u64(map, "high_df_per_million")?)
-        .map_err(|_| QztError::ResourceLimitExceeded)?;
-    let index_manifest = as_map(required_value(map, "index_manifest")?)?;
-    let index_size_bytes = required_u64(index_manifest, "index_size_bytes")?;
-    let source_size_bytes = required_u64(index_manifest, "source_size_bytes")?;
-    let sections = as_map(required_value(map, "sections")?)?;
+    let complete = required_bool(map, "complete", QztError::ContainerCorrupt)?;
+    let high_df_per_million = u32::try_from(required_u64_with_overflow(
+        map,
+        "high_df_per_million",
+        QztError::ContainerCorrupt,
+        QztError::ResourceLimitExceeded,
+    )?)
+    .map_err(|_| QztError::ResourceLimitExceeded)?;
+    let index_manifest = as_map(
+        field(map, "index_manifest", QztError::ContainerCorrupt)?,
+        QztError::ContainerCorrupt,
+    )?;
+    let index_size_bytes = required_u64_with_overflow(
+        index_manifest,
+        "index_size_bytes",
+        QztError::ContainerCorrupt,
+        QztError::ResourceLimitExceeded,
+    )?;
+    let source_size_bytes = required_u64_with_overflow(
+        index_manifest,
+        "source_size_bytes",
+        QztError::ContainerCorrupt,
+        QztError::ResourceLimitExceeded,
+    )?;
+    let sections = as_map(
+        field(map, "sections", QztError::ContainerCorrupt)?,
+        QztError::ContainerCorrupt,
+    )?;
 
     Ok(SidecarManifest {
         source_container_id,
@@ -790,9 +817,9 @@ fn decode_manifest(bytes: &[u8]) -> Result<SidecarManifest> {
         high_df_per_million,
         index_size_bytes,
         source_size_bytes,
-        granules: required_section(sections, "granules")?,
-        terms: required_section(sections, "terms")?,
-        postings: required_section(sections, "postings")?,
+        granules: section_ref_from(sections, "granules")?,
+        terms: section_ref_from(sections, "terms")?,
+        postings: section_ref_from(sections, "postings")?,
     })
 }
 
@@ -804,95 +831,23 @@ fn section_ref_value(section: &SectionRef) -> CborValue {
     ])
 }
 
-fn checksum_value(checksum: &Checksum) -> CborValue {
-    CborValue::Map(vec![
-        text_pair("algorithm", CborValue::Text(checksum.algorithm.clone())),
-        text_pair("value", CborValue::Bytes(checksum.value.to_vec())),
-    ])
-}
-
-fn text_pair(key: &str, value: CborValue) -> (CborValue, CborValue) {
-    (CborValue::Text(key.to_owned()), value)
-}
-
-fn required_section(map: &[(CborValue, CborValue)], key: &str) -> Result<SectionRef> {
-    let section = as_map(required_value(map, key)?)?;
+fn section_ref_from(map: &[(CborValue, CborValue)], key: &str) -> Result<SectionRef> {
+    let section = as_map(field(map, key, QztError::ContainerCorrupt)?, QztError::ContainerCorrupt)?;
     Ok(SectionRef {
-        offset: required_u64(section, "offset")?,
-        size: required_u64(section, "size")?,
-        checksum: required_checksum(section, "checksum")?,
+        offset: required_u64_with_overflow(
+            section,
+            "offset",
+            QztError::ContainerCorrupt,
+            QztError::ResourceLimitExceeded,
+        )?,
+        size: required_u64_with_overflow(
+            section,
+            "size",
+            QztError::ContainerCorrupt,
+            QztError::ResourceLimitExceeded,
+        )?,
+        checksum: required_checksum(section, "checksum", QztError::ContainerCorrupt)?,
     })
-}
-
-fn required_checksum(map: &[(CborValue, CborValue)], key: &str) -> Result<Checksum> {
-    let checksum = as_map(required_value(map, key)?)?;
-    let algorithm = required_text(checksum, "algorithm")?;
-    if algorithm != crate::schema::CHECKSUM_ALGORITHM_BLAKE3 {
-        return Err(QztError::ContainerCorrupt);
-    }
-    Ok(Checksum::from_raw_bytes(required_bstr32(
-        checksum, "value",
-    )?))
-}
-
-fn required_value<'a>(map: &'a [(CborValue, CborValue)], key: &str) -> Result<&'a CborValue> {
-    map.iter()
-        .find_map(|(candidate, value)| {
-            (candidate == &CborValue::Text(key.to_owned())).then_some(value)
-        })
-        .ok_or(QztError::ContainerCorrupt)
-}
-
-fn as_map(value: &CborValue) -> Result<&[(CborValue, CborValue)]> {
-    match value {
-        CborValue::Map(entries) => Ok(entries),
-        _ => Err(QztError::ContainerCorrupt),
-    }
-}
-
-fn required_text(map: &[(CborValue, CborValue)], key: &str) -> Result<String> {
-    match required_value(map, key)? {
-        CborValue::Text(value) => Ok(value.clone()),
-        _ => Err(QztError::ContainerCorrupt),
-    }
-}
-
-fn required_bool(map: &[(CborValue, CborValue)], key: &str) -> Result<bool> {
-    match required_value(map, key)? {
-        CborValue::Bool(value) => Ok(*value),
-        _ => Err(QztError::ContainerCorrupt),
-    }
-}
-
-fn required_u64(map: &[(CborValue, CborValue)], key: &str) -> Result<u64> {
-    match required_value(map, key)? {
-        CborValue::Integer(value) if *value >= 0 => (*value)
-            .try_into()
-            .map_err(|_| QztError::ResourceLimitExceeded),
-        _ => Err(QztError::ContainerCorrupt),
-    }
-}
-
-fn required_bstr16(map: &[(CborValue, CborValue)], key: &str) -> Result<[u8; 16]> {
-    match required_value(map, key)? {
-        CborValue::Bytes(bytes) if bytes.len() == 16 => {
-            let mut output = [0_u8; 16];
-            output.copy_from_slice(bytes);
-            Ok(output)
-        }
-        _ => Err(QztError::ContainerCorrupt),
-    }
-}
-
-fn required_bstr32(map: &[(CborValue, CborValue)], key: &str) -> Result<[u8; 32]> {
-    match required_value(map, key)? {
-        CborValue::Bytes(bytes) if bytes.len() == 32 => {
-            let mut output = [0_u8; 32];
-            output.copy_from_slice(bytes);
-            Ok(output)
-        }
-        _ => Err(QztError::ContainerCorrupt),
-    }
 }
 
 fn section_slice<'a>(
@@ -1057,4 +1012,57 @@ fn read_exact<'a>(bytes: &'a [u8], cursor: &mut usize, len: usize) -> Result<&'a
 
 fn none_if_max(value: u64) -> Option<u64> {
     (value != u64::MAX).then_some(value)
+}
+
+#[cfg(test)]
+mod manifest_tests {
+    use super::*;
+
+    fn checksum_fixture(label: &[u8]) -> CborValue {
+        checksum_value(&Checksum::blake3(label))
+    }
+
+    fn section_fixture() -> CborValue {
+        CborValue::Map(vec![
+            text_pair("offset", CborValue::Integer(0)),
+            text_pair("size", CborValue::Integer(0)),
+            text_pair("checksum", checksum_fixture(b"section")),
+        ])
+    }
+
+    fn manifest_fixture(high_df_per_million: CborValue) -> CborValue {
+        CborValue::Map(vec![
+            text_pair("schema", CborValue::Text("qzt.sidecar.v1".to_owned())),
+            text_pair("source_container_id", CborValue::Bytes(vec![0; 16])),
+            text_pair("source_original_checksum", checksum_fixture(b"source")),
+            text_pair("source_qzt_footer_checksum", checksum_fixture(b"footer")),
+            text_pair("index_type", CborValue::Text("token".to_owned())),
+            text_pair("ngram_n", CborValue::Null),
+            text_pair("complete", CborValue::Bool(true)),
+            text_pair("high_df_per_million", high_df_per_million),
+            text_pair(
+                "index_manifest",
+                CborValue::Map(vec![
+                    text_pair("index_size_bytes", CborValue::Integer(0)),
+                    text_pair("source_size_bytes", CborValue::Integer(0)),
+                ]),
+            ),
+            text_pair(
+                "sections",
+                CborValue::Map(vec![
+                    text_pair("granules", section_fixture()),
+                    text_pair("terms", section_fixture()),
+                    text_pair("postings", section_fixture()),
+                ]),
+            ),
+        ])
+    }
+
+    #[test]
+    fn manifest_u32_overflow_preserves_resource_limit_error() {
+        let overflow = CborValue::Integer(i128::from(u32::MAX) + 1);
+        let bytes = encode_deterministic(&manifest_fixture(overflow)).expect("manifest encodes");
+        let err = decode_manifest(&bytes).expect_err("oversized u32 is rejected");
+        assert!(matches!(err, QztError::ResourceLimitExceeded));
+    }
 }
