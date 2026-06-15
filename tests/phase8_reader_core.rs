@@ -9,7 +9,7 @@ use qzt::limits::ResourceLimits;
 use qzt::reader::QztReader;
 use qzt::schema::{
     BlockDescriptor, BlockRef, Checksum, DictionaryBlock, DictionaryEntry, FooterPayload,
-    IndexRoot, Metadata,
+    IndexRoot, Metadata, MetadataOptions,
 };
 
 const CONTAINER_ID: [u8; 16] = [0x88; 16];
@@ -276,16 +276,19 @@ fn build_container(
     }
 
     let metadata_offset = prefix.len() as u64;
-    let metadata = Metadata::for_source_with_dictionary_mode(
+    let metadata = Metadata::for_source_with_options(
         CONTAINER_ID,
         input.len() as u64,
         Checksum::blake3(input),
         "lf",
         plan.line_count,
-        if dictionary_block.is_some() {
-            "embedded"
-        } else {
-            "none"
+        MetadataOptions {
+            dictionary_mode: if dictionary_block.is_some() {
+                "embedded"
+            } else {
+                "none"
+            },
+            ..MetadataOptions::default()
         },
     );
     let metadata_bytes = metadata.encode().expect("metadata should encode");
