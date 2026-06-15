@@ -1066,7 +1066,7 @@ fn block_ref_value(block: &BlockRef) -> CborValue {
     ])
 }
 
-fn checksum_value(checksum: &Checksum) -> CborValue {
+pub(crate) fn checksum_value(checksum: &Checksum) -> CborValue {
     CborValue::Map(vec![
         text_pair("algorithm", CborValue::Text(checksum.algorithm.clone())),
         text_pair("value", CborValue::Bytes(checksum.value.to_vec())),
@@ -1077,7 +1077,7 @@ fn version_value() -> CborValue {
     CborValue::Array(vec![CborValue::Integer(0), CborValue::Integer(1)])
 }
 
-fn text_pair(key: &str, value: CborValue) -> (CborValue, CborValue) {
+pub(crate) fn text_pair(key: &str, value: CborValue) -> (CborValue, CborValue) {
     (CborValue::Text(key.to_owned()), value)
 }
 
@@ -1085,26 +1085,30 @@ fn u64_value(value: u64) -> CborValue {
     CborValue::Integer(i128::from(value))
 }
 
-fn as_map(value: &CborValue, error: QztError) -> Result<&[(CborValue, CborValue)]> {
+pub(crate) fn as_map(
+    value: &CborValue,
+    error: QztError,
+) -> Result<&[(CborValue, CborValue)]> {
     match value {
         CborValue::Map(entries) => Ok(entries.as_slice()),
         _ => Err(error),
     }
 }
 
-fn field<'a>(
+pub(crate) fn field<'a>(
     map: &'a [(CborValue, CborValue)],
     key: &str,
     error: QztError,
 ) -> Result<&'a CborValue> {
     map.iter()
-        .find_map(|(entry_key, value)| {
-            (entry_key == &CborValue::Text(key.to_owned())).then_some(value)
+        .find_map(|(entry_key, value)| match entry_key {
+            CborValue::Text(text) if text == key => Some(value),
+            _ => None,
         })
         .ok_or(error)
 }
 
-fn required_map<'a>(
+pub(crate) fn required_map<'a>(
     map: &'a [(CborValue, CborValue)],
     key: &str,
     error: QztError,
@@ -1112,7 +1116,7 @@ fn required_map<'a>(
     as_map(field(map, key, error)?, error)
 }
 
-fn required_array<'a>(
+pub(crate) fn required_array<'a>(
     map: &'a [(CborValue, CborValue)],
     key: &str,
     error: QztError,
@@ -1123,50 +1127,92 @@ fn required_array<'a>(
     }
 }
 
-fn required_text(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<String> {
+pub(crate) fn required_text(
+    map: &[(CborValue, CborValue)],
+    key: &str,
+    error: QztError,
+) -> Result<String> {
     match field(map, key, error)? {
         CborValue::Text(value) => Ok(value.clone()),
         _ => Err(error),
     }
 }
 
-fn required_bool(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<bool> {
+pub(crate) fn required_bool(
+    map: &[(CborValue, CborValue)],
+    key: &str,
+    error: QztError,
+) -> Result<bool> {
     match field(map, key, error)? {
         CborValue::Bool(value) => Ok(*value),
         _ => Err(error),
     }
 }
 
-fn required_u64(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<u64> {
+pub(crate) fn required_u64(
+    map: &[(CborValue, CborValue)],
+    key: &str,
+    error: QztError,
+) -> Result<u64> {
+    required_u64_with_overflow(map, key, error, error)
+}
+
+pub(crate) fn required_u64_with_overflow(
+    map: &[(CborValue, CborValue)],
+    key: &str,
+    error: QztError,
+    overflow_error: QztError,
+) -> Result<u64> {
     match field(map, key, error)? {
-        CborValue::Integer(value) => u64::try_from(*value).map_err(|_| error),
+        CborValue::Integer(value) => {
+            if *value < 0 {
+                return Err(error);
+            }
+            u64::try_from(*value).map_err(|_| overflow_error)
+        }
         _ => Err(error),
     }
 }
 
-fn required_i32(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<i32> {
+pub(crate) fn required_i32(
+    map: &[(CborValue, CborValue)],
+    key: &str,
+    error: QztError,
+) -> Result<i32> {
     match field(map, key, error)? {
         CborValue::Integer(value) => i32::try_from(*value).map_err(|_| error),
         _ => Err(error),
     }
 }
 
-fn required_bstr16(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<[u8; 16]> {
+pub(crate) fn required_bstr16(
+    map: &[(CborValue, CborValue)],
+    key: &str,
+    error: QztError,
+) -> Result<[u8; 16]> {
     required_bstr::<16>(map, key, error)
 }
 
-fn required_bstr32(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<[u8; 32]> {
+pub(crate) fn required_bstr32(
+    map: &[(CborValue, CborValue)],
+    key: &str,
+    error: QztError,
+) -> Result<[u8; 32]> {
     required_bstr::<32>(map, key, error)
 }
 
-fn required_bytes(map: &[(CborValue, CborValue)], key: &str, error: QztError) -> Result<Vec<u8>> {
+pub(crate) fn required_bytes(
+    map: &[(CborValue, CborValue)],
+    key: &str,
+    error: QztError,
+) -> Result<Vec<u8>> {
     match field(map, key, error)? {
         CborValue::Bytes(bytes) => Ok(bytes.clone()),
         _ => Err(error),
     }
 }
 
-fn required_bstr<const N: usize>(
+pub(crate) fn required_bstr<const N: usize>(
     map: &[(CborValue, CborValue)],
     key: &str,
     error: QztError,
@@ -1177,7 +1223,7 @@ fn required_bstr<const N: usize>(
     }
 }
 
-fn required_checksum(
+pub(crate) fn required_checksum(
     map: &[(CborValue, CborValue)],
     key: &str,
     error: QztError,
@@ -1194,15 +1240,15 @@ fn required_checksum(
     )?))
 }
 
-fn optional_checksum(
+pub(crate) fn optional_checksum(
     map: &[(CborValue, CborValue)],
     key: &str,
     error: QztError,
 ) -> Result<Option<Checksum>> {
-    if !map
-        .iter()
-        .any(|(entry_key, _)| entry_key == &CborValue::Text(key.to_owned()))
-    {
+    if !map.iter().any(|(entry_key, _)| match entry_key {
+        CborValue::Text(text) => text == key,
+        _ => false,
+    }) {
         return Ok(None);
     }
 
@@ -1223,7 +1269,7 @@ fn required_block_ref(
     })
 }
 
-fn reject_unknown_keys(
+pub(crate) fn reject_unknown_keys(
     map: &[(CborValue, CborValue)],
     allowed: &[&str],
     error: QztError,
@@ -1240,7 +1286,7 @@ fn reject_unknown_keys(
     Ok(())
 }
 
-fn expect_text_field(
+pub(crate) fn expect_text_field(
     map: &[(CborValue, CborValue)],
     key: &str,
     expected: &str,
@@ -1252,7 +1298,7 @@ fn expect_text_field(
     Ok(())
 }
 
-fn expect_bool_field(
+pub(crate) fn expect_bool_field(
     map: &[(CborValue, CborValue)],
     key: &str,
     expected: bool,
@@ -1272,5 +1318,45 @@ fn expect_version_field(map: &[(CborValue, CborValue)], error: QztError) -> Resu
             Ok(())
         }
         _ => Err(error),
+    }
+}
+
+#[cfg(test)]
+mod accessors {
+    use super::*;
+
+    #[test]
+    fn field_skips_non_text_keys_without_allocating() {
+        let map: Vec<(CborValue, CborValue)> = vec![
+            (CborValue::Integer(7), CborValue::Null),
+            (
+                CborValue::Text("keep".to_owned()),
+                CborValue::Bool(true),
+            ),
+        ];
+        let value = field(&map, "keep", QztError::ContainerCorrupt).expect("text key matches");
+        assert_eq!(value, &CborValue::Bool(true));
+
+        let err = field(&map, "missing", QztError::ContainerCorrupt)
+            .expect_err("missing key returns the supplied error");
+        assert!(matches!(err, QztError::ContainerCorrupt));
+    }
+
+    #[test]
+    fn optional_checksum_returns_none_when_key_absent() {
+        let map: Vec<(CborValue, CborValue)> = Vec::new();
+        let result = optional_checksum(&map, "container_checksum", QztError::InvalidFooterPayload)
+            .expect("absent optional checksum is Ok(None)");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn reject_unknown_keys_keeps_allowing_listed_keys() {
+        let map: Vec<(CborValue, CborValue)> = vec![
+            (CborValue::Text("offset".to_owned()), CborValue::Null),
+            (CborValue::Text("size".to_owned()), CborValue::Null),
+        ];
+        reject_unknown_keys(&map, &["offset", "size"], QztError::ContainerCorrupt)
+            .expect("listed keys pass");
     }
 }
