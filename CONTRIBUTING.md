@@ -37,7 +37,8 @@ scheduled scans, and manual dispatches.
 Semgrep uses `semgrep scan --config p/rust --error` so findings fail the job.
 Tune the scan by changing the ruleset, adding a `.semgrepignore`, or filtering
 with Semgrep severity levels (`INFO`, `WARNING`, `ERROR`) after the first
-baseline is reviewed.
+baseline is reviewed. The Semgrep container image is pinned; update it
+deliberately when refreshing the security toolchain.
 
 OSV Scanner checks `Cargo.lock` for known dependency vulnerabilities and fails
 on reported vulnerabilities. This covers Rust dependency SCA; OWASP CVE Lite
