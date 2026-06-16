@@ -29,6 +29,31 @@ RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
 cargo package --allow-dirty
 ```
 
+## Security Scans
+
+CI runs Semgrep CE, OSV Scanner, and Gitleaks on pull requests, pushes,
+scheduled scans, and manual dispatches.
+
+For cross-repository selection criteria, policy levels, and a reusable GitHub
+Actions template, see `docs/Security_CI_Playbook.md` and
+`docs/Security_CI_Playbook.ja.md`.
+
+Semgrep uses `semgrep scan --config p/rust --error` so findings fail the job.
+Tune the scan by changing the ruleset, adding a `.semgrepignore`, or filtering
+with Semgrep severity levels (`INFO`, `WARNING`, `ERROR`) after the first
+baseline is reviewed. The Semgrep container image is pinned; update it
+deliberately when refreshing the security toolchain.
+
+OSV Scanner checks `Cargo.lock` for known dependency vulnerabilities and fails
+on reported vulnerabilities. This covers Rust dependency SCA; OWASP CVE Lite
+CLI is intentionally not part of this workflow because it is focused on
+JavaScript and TypeScript lockfiles (`package-lock.json`, `pnpm-lock.yaml`,
+`yarn.lock`, and `bun.lock`).
+
+Gitleaks scans the full Git history with the default rule set. This repository
+is under a personal GitHub account, so `GITLEAKS_LICENSE` is not required; add
+that secret if the repository is moved to an organization.
+
 `cargo publish` and crates.io publish dry-runs are deferred until after Phase20
 stabilizes the public API.
 
