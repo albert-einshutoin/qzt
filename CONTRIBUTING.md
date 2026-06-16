@@ -31,13 +31,19 @@ cargo package --allow-dirty
 
 ## Security Scans
 
-CI runs Semgrep CE and Gitleaks on pull requests, pushes, scheduled scans, and
-manual dispatches.
+CI runs Semgrep CE, OSV Scanner, and Gitleaks on pull requests, pushes,
+scheduled scans, and manual dispatches.
 
 Semgrep uses `semgrep scan --config p/rust --error` so findings fail the job.
 Tune the scan by changing the ruleset, adding a `.semgrepignore`, or filtering
 with Semgrep severity levels (`INFO`, `WARNING`, `ERROR`) after the first
 baseline is reviewed.
+
+OSV Scanner checks `Cargo.lock` for known dependency vulnerabilities and fails
+on reported vulnerabilities. This covers Rust dependency SCA; OWASP CVE Lite
+CLI is intentionally not part of this workflow because it is focused on
+JavaScript and TypeScript lockfiles (`package-lock.json`, `pnpm-lock.yaml`,
+`yarn.lock`, and `bun.lock`).
 
 Gitleaks scans the full Git history with the default rule set. This repository
 is under a personal GitHub account, so `GITLEAKS_LICENSE` is not required; add
