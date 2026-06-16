@@ -100,10 +100,8 @@ impl FooterPayload {
     }
 
     pub fn decode(bytes: &[u8]) -> Result<Self> {
-        let value = validate_deterministic(bytes)?;
-        let map = as_map(&value, QztError::InvalidFooterPayload)?;
-        reject_unknown_keys(
-            map,
+        let value = decode_prologue(
+            bytes,
             &[
                 "schema",
                 "format_version",
@@ -116,10 +114,10 @@ impl FooterPayload {
                 "writer",
                 "container_checksum",
             ],
+            SCHEMA_FOOTER,
             QztError::InvalidFooterPayload,
         )?;
-        expect_text_field(map, "schema", SCHEMA_FOOTER, QztError::InvalidFooterPayload)?;
-        expect_version_field(map, QztError::InvalidFooterPayload)?;
+        let map = as_map(&value, QztError::InvalidFooterPayload)?;
 
         let footer_flags = required_u64(map, "footer_flags", QztError::InvalidFooterPayload)?;
         if footer_flags != 0 {
@@ -187,7 +185,15 @@ impl Default for MetadataOptions<'_> {
 impl Metadata {
     #[must_use]
     pub fn empty(container_id: [u8; 16]) -> Self {
-        Self::for_source(container_id, 0, Checksum::blake3(&[]), "none", 0)
+        let zero_checksum = Checksum::blake3(&[]);
+        Self::for_source_with_options(
+            container_id,
+            0,
+            zero_checksum,
+            "none",
+            0,
+            MetadataOptions::default(),
+        )
     }
 
     #[must_use]
@@ -198,36 +204,13 @@ impl Metadata {
         newline_mode: &str,
         line_count: u64,
     ) -> Self {
-        Self::for_source_with_dictionary_mode(
-            container_id,
-            original_size,
-            original_checksum,
-            newline_mode,
-            line_count,
-            "none",
-        )
-    }
-
-    #[must_use]
-    pub fn for_source_with_dictionary_mode(
-        container_id: [u8; 16],
-        original_size: u64,
-        original_checksum: Checksum,
-        newline_mode: &str,
-        line_count: u64,
-        dictionary_mode: &str,
-    ) -> Self {
-        let options = MetadataOptions {
-            dictionary_mode,
-            ..MetadataOptions::default()
-        };
         Self::for_source_with_options(
             container_id,
             original_size,
             original_checksum,
             newline_mode,
             line_count,
-            options,
+            MetadataOptions::default(),
         )
     }
 
@@ -347,10 +330,8 @@ impl Metadata {
     }
 
     pub fn decode(bytes: &[u8]) -> Result<Self> {
-        let value = validate_deterministic(bytes)?;
-        let map = as_map(&value, QztError::MetadataInvalid)?;
-        reject_unknown_keys(
-            map,
+        let value = decode_prologue(
+            bytes,
             &[
                 "schema",
                 "format",
@@ -364,11 +345,11 @@ impl Metadata {
                 "integrity",
                 "compatibility",
             ],
+            SCHEMA_METADATA,
             QztError::MetadataInvalid,
         )?;
-        expect_text_field(map, "schema", SCHEMA_METADATA, QztError::MetadataInvalid)?;
+        let map = as_map(&value, QztError::MetadataInvalid)?;
         expect_text_field(map, "format", "qzt", QztError::MetadataInvalid)?;
-        expect_version_field(map, QztError::MetadataInvalid)?;
 
         let identity = required_map(map, "identity", QztError::MetadataInvalid)?;
         reject_unknown_keys(
@@ -582,56 +563,57 @@ pub struct BlockDescriptor {
 }
 
 impl BlockDescriptor {
-    #[must_use]
-    pub fn chunk_table(offset: u64, size: u64, checksum: Checksum) -> Self {
+    fn new(
+        block_type: &str,
+        required: bool,
+        codec: &str,
+        offset: u64,
+        size: u64,
+        checksum: Checksum,
+    ) -> Self {
         Self {
-            block_type: CHUNK_TABLE_TYPE.to_owned(),
-            required: true,
+            block_type: block_type.to_owned(),
+            required,
             offset,
             size,
-            codec: CHUNK_TABLE_CODEC.to_owned(),
+            codec: codec.to_owned(),
             checksum,
             flags: 0,
         }
+    }
+
+    #[must_use]
+    pub fn chunk_table(offset: u64, size: u64, checksum: Checksum) -> Self {
+        Self::new(CHUNK_TABLE_TYPE, true, CHUNK_TABLE_CODEC, offset, size, checksum)
     }
 
     #[must_use]
     pub fn dictionary(offset: u64, size: u64, checksum: Checksum) -> Self {
-        Self {
-            block_type: DICTIONARY_TYPE.to_owned(),
-            required: false,
-            offset,
-            size,
-            codec: DICTIONARY_CODEC.to_owned(),
-            checksum,
-            flags: 0,
-        }
+        Self::new(DICTIONARY_TYPE, false, DICTIONARY_CODEC, offset, size, checksum)
     }
 
     #[must_use]
     pub fn dense_line_index(offset: u64, size: u64, checksum: Checksum) -> Self {
-        Self {
-            block_type: DENSE_LINE_INDEX_TYPE.to_owned(),
-            required: false,
+        Self::new(
+            DENSE_LINE_INDEX_TYPE,
+            false,
+            DENSE_LINE_INDEX_CODEC,
             offset,
             size,
-            codec: DENSE_LINE_INDEX_CODEC.to_owned(),
             checksum,
-            flags: 0,
-        }
+        )
     }
 
     #[must_use]
     pub fn document_index(offset: u64, size: u64, checksum: Checksum) -> Self {
-        Self {
-            block_type: DOCUMENT_INDEX_TYPE.to_owned(),
-            required: false,
+        Self::new(
+            DOCUMENT_INDEX_TYPE,
+            false,
+            DOCUMENT_INDEX_CODEC,
             offset,
             size,
-            codec: DOCUMENT_INDEX_CODEC.to_owned(),
             checksum,
-            flags: 0,
-        }
+        )
     }
 }
 
@@ -661,15 +643,13 @@ impl DictionaryBlock {
     }
 
     pub fn decode_with_limits(bytes: &[u8], max_dictionary_size: u64) -> Result<Self> {
-        let value = validate_deterministic(bytes)?;
-        let map = as_map(&value, QztError::ContainerCorrupt)?;
-        reject_unknown_keys(
-            map,
+        let value = decode_prologue(
+            bytes,
             &["schema", "format_version", "container_id", "dictionaries"],
+            SCHEMA_DICTIONARY,
             QztError::ContainerCorrupt,
         )?;
-        expect_text_field(map, "schema", SCHEMA_DICTIONARY, QztError::ContainerCorrupt)?;
-        expect_version_field(map, QztError::ContainerCorrupt)?;
+        let map = as_map(&value, QztError::ContainerCorrupt)?;
 
         let dictionaries = required_array(map, "dictionaries", QztError::ContainerCorrupt)?;
         let mut seen = BTreeSet::new();
@@ -719,20 +699,13 @@ impl DocumentIndex {
     }
 
     pub fn decode(bytes: &[u8]) -> Result<Self> {
-        let value = validate_deterministic(bytes)?;
-        let map = as_map(&value, QztError::ContainerCorrupt)?;
-        reject_unknown_keys(
-            map,
+        let value = decode_prologue(
+            bytes,
             &["schema", "format_version", "container_id", "documents"],
-            QztError::ContainerCorrupt,
-        )?;
-        expect_text_field(
-            map,
-            "schema",
             SCHEMA_DOCUMENT_INDEX,
             QztError::ContainerCorrupt,
         )?;
-        expect_version_field(map, QztError::ContainerCorrupt)?;
+        let map = as_map(&value, QztError::ContainerCorrupt)?;
 
         let documents = required_array(map, "documents", QztError::ContainerCorrupt)?
             .iter()
@@ -828,10 +801,8 @@ impl IndexRoot {
     }
 
     pub fn decode(bytes: &[u8]) -> Result<Self> {
-        let value = validate_deterministic(bytes)?;
-        let map = as_map(&value, QztError::ContainerCorrupt)?;
-        reject_unknown_keys(
-            map,
+        let value = decode_prologue(
+            bytes,
             &[
                 "schema",
                 "format_version",
@@ -839,10 +810,10 @@ impl IndexRoot {
                 "blocks",
                 "content",
             ],
+            SCHEMA_INDEX_ROOT,
             QztError::ContainerCorrupt,
         )?;
-        expect_text_field(map, "schema", SCHEMA_INDEX_ROOT, QztError::ContainerCorrupt)?;
-        expect_version_field(map, QztError::ContainerCorrupt)?;
+        let map = as_map(&value, QztError::ContainerCorrupt)?;
 
         let blocks = required_array(map, "blocks", QztError::ContainerCorrupt)?
             .iter()
@@ -1321,6 +1292,20 @@ fn expect_version_field(map: &[(CborValue, CborValue)], error: QztError) -> Resu
     }
 }
 
+fn decode_prologue(
+    bytes: &[u8],
+    allowed_keys: &[&str],
+    expected_schema: &str,
+    error: QztError,
+) -> Result<CborValue> {
+    let value = validate_deterministic(bytes)?;
+    let map = as_map(&value, error)?;
+    reject_unknown_keys(map, allowed_keys, error)?;
+    expect_text_field(map, "schema", expected_schema, error)?;
+    expect_version_field(map, error)?;
+    Ok(value)
+}
+
 #[cfg(test)]
 mod accessors {
     use super::*;
@@ -1358,5 +1343,154 @@ mod accessors {
         ];
         reject_unknown_keys(&map, &["offset", "size"], QztError::ContainerCorrupt)
             .expect("listed keys pass");
+    }
+}
+
+#[cfg(test)]
+mod refactor {
+    use super::*;
+    use std::collections::BTreeMap;
+
+    fn fake_checksum() -> Checksum {
+        Checksum::blake3(b"refactor-test")
+    }
+
+    #[test]
+    fn block_descriptor_constructors_set_distinct_types_and_required_flag() {
+        let checksum = fake_checksum();
+
+        let chunk_table = BlockDescriptor::chunk_table(0, 1, checksum.clone());
+        assert_eq!(chunk_table.block_type, "chunk_table");
+        assert!(chunk_table.required);
+        assert_eq!(chunk_table.codec, "qzt-ctbl-fixed-v1");
+        assert_eq!(chunk_table.flags, 0);
+
+        let dictionary = BlockDescriptor::dictionary(2, 3, checksum.clone());
+        assert_eq!(dictionary.block_type, "dictionary");
+        assert!(!dictionary.required);
+        assert_eq!(dictionary.codec, "qzt-dict-cbor-v1");
+        assert_eq!(dictionary.flags, 0);
+
+        let dense = BlockDescriptor::dense_line_index(4, 5, checksum.clone());
+        assert_eq!(dense.block_type, "dense_line_index");
+        assert!(!dense.required);
+        assert_eq!(dense.codec, "qzt-line-delta-varint-v1");
+        assert_eq!(dense.flags, 0);
+
+        let document = BlockDescriptor::document_index(6, 7, checksum);
+        assert_eq!(document.block_type, "document_index");
+        assert!(!document.required);
+        assert_eq!(document.codec, "qzt-doc-index-cbor-v1");
+        assert_eq!(document.flags, 0);
+    }
+
+    #[test]
+    fn metadata_for_source_defaults_dictionary_mode_to_none() {
+        let container_id = [0x11_u8; 16];
+        let checksum = Checksum::blake3(b"input");
+        let metadata = Metadata::for_source(container_id, 42, checksum, "lf", 7);
+        assert_eq!(metadata.dictionary_mode, "none");
+        assert_eq!(metadata.zstd_level, MetadataOptions::default().zstd_level);
+        assert_eq!(
+            metadata.target_chunk_size,
+            MetadataOptions::default().target_chunk_size
+        );
+        assert_eq!(
+            metadata.max_chunk_size,
+            MetadataOptions::default().max_chunk_size
+        );
+        assert_eq!(metadata.profile, MetadataOptions::default().profile);
+        assert!(!metadata.dense_line_index);
+        assert!(!metadata.document_index);
+    }
+
+    #[test]
+    fn metadata_empty_matches_for_source_with_zero_size_and_lf_count() {
+        let container_id = [0x22_u8; 16];
+        let empty = Metadata::empty(container_id);
+        let for_source = Metadata::for_source(
+            container_id,
+            0,
+            Checksum::blake3(&[]),
+            "none",
+            0,
+        );
+        assert_eq!(empty, for_source);
+    }
+
+    #[test]
+    fn decode_prologue_rejects_unknown_keys_before_schema_check() {
+        let mut unknown = BTreeMap::new();
+        unknown.insert("schema".to_owned(), CborValue::Text(SCHEMA_FOOTER.to_owned()));
+        unknown.insert(
+            "format_version".to_owned(),
+            CborValue::Array(vec![CborValue::Integer(0), CborValue::Integer(1)]),
+        );
+        unknown.insert(
+            "unknown_field".to_owned(),
+            CborValue::Text("surprise".to_owned()),
+        );
+        let entries: Vec<(CborValue, CborValue)> = unknown
+            .into_iter()
+            .map(|(k, v)| (CborValue::Text(k), v))
+            .collect();
+        let bytes = encode_deterministic(&CborValue::Map(entries)).expect("encoding succeeds");
+
+        let err = decode_prologue(
+            &bytes,
+            &["schema", "format_version"],
+            SCHEMA_FOOTER,
+            QztError::InvalidFooterPayload,
+        )
+        .expect_err("unknown key is rejected");
+        assert!(matches!(err, QztError::InvalidFooterPayload));
+    }
+
+    #[test]
+    fn decode_prologue_rejects_wrong_schema_name() {
+        let entries = vec![
+            (
+                CborValue::Text("schema".to_owned()),
+                CborValue::Text("qzt.not-a-schema.v1".to_owned()),
+            ),
+            (
+                CborValue::Text("format_version".to_owned()),
+                CborValue::Array(vec![CborValue::Integer(0), CborValue::Integer(1)]),
+            ),
+        ];
+        let bytes = encode_deterministic(&CborValue::Map(entries)).expect("encoding succeeds");
+
+        let err = decode_prologue(
+            &bytes,
+            &["schema", "format_version"],
+            SCHEMA_FOOTER,
+            QztError::InvalidFooterPayload,
+        )
+        .expect_err("schema mismatch is rejected");
+        assert!(matches!(err, QztError::InvalidFooterPayload));
+    }
+
+    #[test]
+    fn decode_prologue_rejects_wrong_format_version() {
+        let entries = vec![
+            (
+                CborValue::Text("schema".to_owned()),
+                CborValue::Text(SCHEMA_FOOTER.to_owned()),
+            ),
+            (
+                CborValue::Text("format_version".to_owned()),
+                CborValue::Array(vec![CborValue::Integer(1), CborValue::Integer(0)]),
+            ),
+        ];
+        let bytes = encode_deterministic(&CborValue::Map(entries)).expect("encoding succeeds");
+
+        let err = decode_prologue(
+            &bytes,
+            &["schema", "format_version"],
+            SCHEMA_FOOTER,
+            QztError::InvalidFooterPayload,
+        )
+        .expect_err("format_version mismatch is rejected");
+        assert!(matches!(err, QztError::InvalidFooterPayload));
     }
 }
