@@ -6,10 +6,10 @@ use crate::dense_line_index::line_start_offsets;
 use crate::dense_line_index::DenseLineIndex;
 use crate::error::{QztError, Result};
 use crate::fixed::{FooterTrailer, Header};
-use crate::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
+use crate::format::HEADER_LEN;
 use crate::primitives::{u64_to_usize, usize_to_u64};
 use crate::schema::{
-    BlockDescriptor, BlockRef, Checksum, DocumentIndex, FooterPayload, IndexRoot, Metadata,
+    BlockDescriptor, BlockRef, Checksum, DocumentIndex, IndexRoot, Metadata,
     MetadataOptions,
 };
 
@@ -233,7 +233,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             container_id,
             self.logical_offset,
             original_checksum,
-            streaming_newline_mode_as_str(self.lf_count, self.crlf_count),
+            NewlineMode::from_counts(self.lf_count, self.crlf_count).as_str(),
             self.line_starts_seen,
             MetadataOptions {
                 zstd_level: self.options.zstd_level,
@@ -318,7 +318,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             size: metadata_size,
             checksum: Checksum::blake3(&metadata_bytes),
         };
-        let footer_payload = fixed_point_footer_payload(
+        let footer_payload = crate::skeleton::fixed_point_footer_payload(
             container_id,
             &index_root_ref,
             &metadata_ref,
@@ -467,52 +467,14 @@ fn choose_known_chunk_end(input: &[u8], options: ChunkerOptions) -> Result<usize
 }
 
 fn choose_non_final_chunk_end(input: &[u8], target_end: usize, max_end: usize) -> Result<usize> {
-    if let Some(line_end) = last_line_boundary(input, target_end) {
+    if let Some(line_end) = crate::chunker::last_line_boundary(input, 0, target_end) {
         return Ok(line_end);
     }
-    if let Some(line_end) = last_line_boundary(input, max_end) {
+    if let Some(line_end) = crate::chunker::last_line_boundary(input, 0, max_end) {
         return Ok(line_end);
     }
-    previous_valid_split(input, max_end).ok_or(QztError::ResourceLimitExceeded)
-}
-
-fn last_line_boundary(input: &[u8], end: usize) -> Option<usize> {
-    let mut cursor = 0_usize;
-    let mut boundary = None;
-    while cursor < end {
-        if input[cursor] == b'\n' {
-            boundary = Some(cursor + 1);
-        }
-        cursor += 1;
-    }
-    boundary.filter(|candidate| *candidate > 0 && !splits_crlf(input, *candidate))
-}
-
-fn previous_valid_split(input: &[u8], max_end: usize) -> Option<usize> {
-    (1..=max_end)
-        .rev()
-        .find(|candidate| is_utf8_boundary(input, *candidate) && !splits_crlf(input, *candidate))
-}
-
-fn is_utf8_boundary(input: &[u8], index: usize) -> bool {
-    index == 0
-        || index == input.len()
-        || input
-            .get(index)
-            .is_some_and(|byte| byte & 0b1100_0000 != 0b1000_0000)
-}
-
-fn splits_crlf(input: &[u8], end: usize) -> bool {
-    end > 0 && end < input.len() && input[end - 1] == b'\r' && input[end] == b'\n'
-}
-
-fn streaming_newline_mode_as_str(lf_count: u64, crlf_count: u64) -> &'static str {
-    match (lf_count > 0, crlf_count > 0) {
-        (false, false) => "none",
-        (true, false) => "lf",
-        (false, true) => "crlf",
-        (true, true) => "mixed",
-    }
+    crate::chunker::previous_valid_split(input, 0, max_end)
+        .ok_or(QztError::ResourceLimitExceeded)
 }
 
 /// Packs UTF-8 input into a no-dictionary QZT container.
@@ -761,7 +723,7 @@ fn assemble_container(
         container_id,
         usize_to_u64(input.len())?,
         Checksum::blake3(input),
-        newline_mode_as_str(plan.newline_mode),
+        plan.newline_mode.as_str(),
         plan.line_count,
         MetadataOptions {
             zstd_level: optional.writer_options.zstd_level,
@@ -882,7 +844,7 @@ fn assemble_container(
         checksum: Checksum::blake3(&metadata_bytes),
     };
     let prefix_checksum = Checksum::blake3(&prefix);
-    let footer_payload = fixed_point_footer_payload(
+    let footer_payload = crate::skeleton::fixed_point_footer_payload(
         container_id,
         &index_root_ref,
         &metadata_ref,
@@ -902,44 +864,6 @@ fn assemble_container(
     Ok(bytes)
 }
 
-fn fixed_point_footer_payload(
-    container_id: [u8; 16],
-    index_root: &BlockRef,
-    metadata: &BlockRef,
-    footer_payload_offset: u64,
-    container_checksum: Option<&Checksum>,
-) -> Result<FooterPayload> {
-    let mut final_file_size = 0_u64;
-
-    // The footer includes `final_file_size`, so its encoded CBOR size may grow
-    // when the file size crosses an integer-width boundary. Re-encoding to a
-    // fixed point keeps the trailer offsets deterministic without reserving
-    // padding in the format.
-    for _ in 0..8 {
-        let candidate = FooterPayload {
-            container_id,
-            index_root: index_root.clone(),
-            metadata: metadata.clone(),
-            final_file_size,
-            footer_flags: 0,
-            container_checksum: container_checksum.cloned(),
-        };
-        let size = usize_to_u64(candidate.encode()?.len())?;
-        let next = footer_payload_offset
-            .checked_add(size)
-            .and_then(|value| value.checked_add(FOOTER_TRAILER_LEN as u64))
-            .ok_or(QztError::PhysicalRangeOutOfBounds)?;
-
-        if next == final_file_size {
-            return Ok(candidate);
-        }
-
-        final_file_size = next;
-    }
-
-    Err(QztError::ContainerCorrupt)
-}
-
 /// Validates that `profile` is one of the values defined by the QZT v0.1 spec.
 ///
 /// Accepted values: `"minimal"`, `"core"`, `"log"`, `"archive"`, `"memory"`.
@@ -950,14 +874,5 @@ fn validate_profile(profile: &str) -> Result<()> {
         Ok(())
     } else {
         Err(QztError::MetadataInvalid)
-    }
-}
-
-fn newline_mode_as_str(mode: NewlineMode) -> &'static str {
-    match mode {
-        NewlineMode::None => "none",
-        NewlineMode::Lf => "lf",
-        NewlineMode::Crlf => "crlf",
-        NewlineMode::Mixed => "mixed",
     }
 }

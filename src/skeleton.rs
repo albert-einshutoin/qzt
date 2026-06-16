@@ -97,8 +97,13 @@ pub fn write_empty_container(container_id: [u8; 16]) -> Result<Vec<u8>> {
         size: metadata_size,
         checksum: Checksum::blake3(&metadata_bytes),
     };
-    let footer_payload =
-        fixed_point_footer_payload(container_id, &index_root_ref, &metadata_ref, footer_payload_offset)?;
+    let footer_payload = fixed_point_footer_payload(
+        container_id,
+        &index_root_ref,
+        &metadata_ref,
+        footer_payload_offset,
+        None,
+    )?;
 
     let footer_payload_bytes = footer_payload.encode()?;
     let footer_trailer = FooterTrailer {
@@ -697,11 +702,12 @@ fn parse_document_index_at<R: ReadAt>(
     Ok(document_index)
 }
 
-fn fixed_point_footer_payload(
+pub(crate) fn fixed_point_footer_payload(
     container_id: [u8; 16],
     index_root: &BlockRef,
     metadata: &BlockRef,
     footer_payload_offset: u64,
+    container_checksum: Option<&Checksum>,
 ) -> Result<FooterPayload> {
     let mut final_file_size = 0_u64;
 
@@ -712,7 +718,7 @@ fn fixed_point_footer_payload(
             metadata: metadata.clone(),
             final_file_size,
             footer_flags: 0,
-            container_checksum: None,
+            container_checksum: container_checksum.cloned(),
         };
         let size = usize_to_u64(candidate.encode()?.len())?;
         let next = footer_payload_offset
