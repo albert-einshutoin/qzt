@@ -49,10 +49,30 @@ pub enum NewlineMode {
     Mixed,
 }
 
+impl NewlineMode {
+    pub(crate) fn from_counts(lf_count: u64, crlf_count: u64) -> Self {
+        match (lf_count > 0, crlf_count > 0) {
+            (false, false) => Self::None,
+            (true, false) => Self::Lf,
+            (false, true) => Self::Crlf,
+            (true, true) => Self::Mixed,
+        }
+    }
+
+    pub(crate) const fn as_str(self) -> &'static str {
+        match self {
+            Self::None => "none",
+            Self::Lf => "lf",
+            Self::Crlf => "crlf",
+            Self::Mixed => "mixed",
+        }
+    }
+}
+
 /// Plans UTF-8-safe, CRLF-safe chunks without performing compression.
 pub fn plan_chunks(input: &[u8], options: ChunkerOptions) -> Result<ChunkPlan> {
     options.validate()?;
-    let text = std::str::from_utf8(input).map_err(|_| QztError::InvalidUtf8)?;
+    std::str::from_utf8(input).map_err(|_| QztError::InvalidUtf8)?;
 
     let line_info = LineInfo::from_bytes(input);
     if input.is_empty() {
@@ -67,7 +87,7 @@ pub fn plan_chunks(input: &[u8], options: ChunkerOptions) -> Result<ChunkPlan> {
     let mut start = 0_usize;
 
     while start < input.len() {
-        let end = choose_chunk_end(input, text, start, options)?;
+        let end = choose_chunk_end(input, start, options)?;
         if end <= start {
             return Err(QztError::ResourceLimitExceeded);
         }
@@ -101,7 +121,6 @@ pub fn plan_chunks(input: &[u8], options: ChunkerOptions) -> Result<ChunkPlan> {
 
 fn choose_chunk_end(
     input: &[u8],
-    text: &str,
     start: usize,
     options: ChunkerOptions,
 ) -> Result<usize> {
@@ -129,10 +148,10 @@ fn choose_chunk_end(
         return Ok(line_end);
     }
 
-    previous_valid_split(input, text, start, max_end).ok_or(QztError::ResourceLimitExceeded)
+    previous_valid_split(input, start, max_end).ok_or(QztError::ResourceLimitExceeded)
 }
 
-fn last_line_boundary(input: &[u8], start: usize, end: usize) -> Option<usize> {
+pub(crate) fn last_line_boundary(input: &[u8], start: usize, end: usize) -> Option<usize> {
     let mut cursor = start;
     let mut boundary = None;
     while cursor < end {
@@ -144,14 +163,22 @@ fn last_line_boundary(input: &[u8], start: usize, end: usize) -> Option<usize> {
     boundary.filter(|candidate| *candidate > start && !splits_crlf(input, *candidate))
 }
 
-fn previous_valid_split(input: &[u8], text: &str, start: usize, max_end: usize) -> Option<usize> {
+pub(crate) fn previous_valid_split(input: &[u8], start: usize, max_end: usize) -> Option<usize> {
     (start + 1..=max_end)
         .rev()
-        .find(|candidate| text.is_char_boundary(*candidate) && !splits_crlf(input, *candidate))
+        .find(|candidate| is_utf8_boundary(input, *candidate) && !splits_crlf(input, *candidate))
 }
 
-fn splits_crlf(input: &[u8], end: usize) -> bool {
+pub(crate) fn splits_crlf(input: &[u8], end: usize) -> bool {
     end > 0 && end < input.len() && input[end - 1] == b'\r' && input[end] == b'\n'
+}
+
+pub(crate) fn is_utf8_boundary(input: &[u8], index: usize) -> bool {
+    index == 0
+        || index == input.len()
+        || input
+            .get(index)
+            .is_some_and(|byte| byte & 0b1100_0000 != 0b1000_0000)
 }
 
 fn lower_bound(values: &[usize], target: usize) -> usize {
@@ -192,16 +219,9 @@ impl LineInfo {
             }
         }
 
-        let newline_mode = match (lf_count > 0, crlf_count > 0) {
-            (false, false) => NewlineMode::None,
-            (true, false) => NewlineMode::Lf,
-            (false, true) => NewlineMode::Crlf,
-            (true, true) => NewlineMode::Mixed,
-        };
-
         Self {
             line_starts,
-            newline_mode,
+            newline_mode: NewlineMode::from_counts(lf_count, crlf_count),
         }
     }
 }

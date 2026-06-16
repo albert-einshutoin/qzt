@@ -6,6 +6,7 @@ use std::path::Path;
 use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
 use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
+use crate::chunker::NewlineMode;
 use crate::format::FOOTER_TRAILER_LEN;
 use crate::io::ReadAt;
 use crate::limits::ResourceLimits;
@@ -789,14 +790,8 @@ impl StreamingTextAnalysis {
         Ok(())
     }
 
-    fn newline_mode(&self) -> String {
-        match (self.lf_count > 0, self.crlf_count > 0) {
-            (false, false) => "none",
-            (true, false) => "lf",
-            (false, true) => "crlf",
-            (true, true) => "mixed",
-        }
-        .to_owned()
+    fn newline_mode(&self) -> &'static str {
+        NewlineMode::from_counts(self.lf_count, self.crlf_count).as_str()
     }
 }
 
