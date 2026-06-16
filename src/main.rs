@@ -41,6 +41,7 @@ impl From<QztError> for CliError {
 }
 
 fn main() -> ExitCode {
+    // nosemgrep: rust.lang.security.args.args -- CLI dispatch is not a security boundary.
     let mut args = std::env::args();
     let _program = args.next();
 

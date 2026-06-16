@@ -29,6 +29,20 @@ RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
 cargo package --allow-dirty
 ```
 
+## Security Scans
+
+CI runs Semgrep CE and Gitleaks on pull requests, pushes, scheduled scans, and
+manual dispatches.
+
+Semgrep uses `semgrep scan --config p/rust --error` so findings fail the job.
+Tune the scan by changing the ruleset, adding a `.semgrepignore`, or filtering
+with Semgrep severity levels (`INFO`, `WARNING`, `ERROR`) after the first
+baseline is reviewed.
+
+Gitleaks scans the full Git history with the default rule set. This repository
+is under a personal GitHub account, so `GITLEAKS_LICENSE` is not required; add
+that secret if the repository is moved to an organization.
+
 `cargo publish` and crates.io publish dry-runs are deferred until after Phase20
 stabilizes the public API.
 

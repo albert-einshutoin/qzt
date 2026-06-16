@@ -551,6 +551,7 @@ fn run_external_search_tools(_corpus: &[u8], _expected_hits: u64) -> Result<Exte
 
 #[cfg(feature = "bench-compete")]
 fn run_external_search_tools(corpus: &[u8], expected_hits: u64) -> Result<ExternalToolReport> {
+    // nosemgrep: rust.lang.security.temp-dir.temp-dir -- benchmark scratch data is non-sensitive.
     let root = std::env::temp_dir().join(format!(
         "qzt-bench-compete-{}-{}",
         std::process::id(),
