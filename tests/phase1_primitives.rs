@@ -2,8 +2,7 @@ use proptest::prelude::*;
 
 use qzt::error::QztError;
 use qzt::primitives::{
-    checked_logical_end, checked_physical_end, read_u16_le, read_u32_le, read_u64_le, write_u16_le,
-    write_u32_le, write_u64_le,
+    checked_logical_end, checked_physical_end, read_u16_le, read_u32_le, read_u64_le,
 };
 
 #[test]
@@ -41,17 +40,17 @@ fn checked_range_overflow_uses_specific_errors() {
 proptest! {
     #[test]
     fn u16_round_trip(value in any::<u16>()) {
-        prop_assert_eq!(read_u16_le(&write_u16_le(value)), Ok(value));
+        prop_assert_eq!(read_u16_le(&value.to_le_bytes()), Ok(value));
     }
 
     #[test]
     fn u32_round_trip(value in any::<u32>()) {
-        prop_assert_eq!(read_u32_le(&write_u32_le(value)), Ok(value));
+        prop_assert_eq!(read_u32_le(&value.to_le_bytes()), Ok(value));
     }
 
     #[test]
     fn u64_round_trip(value in any::<u64>()) {
-        prop_assert_eq!(read_u64_le(&write_u64_le(value)), Ok(value));
+        prop_assert_eq!(read_u64_le(&value.to_le_bytes()), Ok(value));
     }
 
     #[test]

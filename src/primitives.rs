@@ -28,24 +28,6 @@ pub fn read_u64_le(bytes: &[u8]) -> Result<u64> {
     Ok(u64::from_le_bytes(bytes))
 }
 
-/// Writes a little-endian u16.
-#[must_use]
-pub fn write_u16_le(value: u16) -> [u8; 2] {
-    value.to_le_bytes()
-}
-
-/// Writes a little-endian u32.
-#[must_use]
-pub fn write_u32_le(value: u32) -> [u8; 4] {
-    value.to_le_bytes()
-}
-
-/// Writes a little-endian u64.
-#[must_use]
-pub fn write_u64_le(value: u64) -> [u8; 8] {
-    value.to_le_bytes()
-}
-
 /// Returns the exclusive end offset for a logical half-open range.
 pub fn checked_logical_end(offset: u64, size: u64) -> Result<u64> {
     offset

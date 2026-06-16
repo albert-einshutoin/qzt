@@ -1,5 +1,5 @@
 use crate::error::{QztError, Result};
-use crate::primitives::{read_u32_le, read_u64_le, usize_to_u64, write_u32_le, write_u64_le};
+use crate::primitives::{read_u32_le, read_u64_le, usize_to_u64};
 
 pub const CHUNK_ENTRY_LEN: usize = 128;
 pub const STARTS_WITH_LINE_CONTINUATION: u32 = 1;
@@ -24,15 +24,15 @@ impl ChunkEntry {
     #[must_use]
     pub fn encode(&self) -> [u8; CHUNK_ENTRY_LEN] {
         let mut bytes = [0_u8; CHUNK_ENTRY_LEN];
-        bytes[0..8].copy_from_slice(&write_u64_le(self.chunk_id));
-        bytes[8..16].copy_from_slice(&write_u64_le(self.physical_offset));
-        bytes[16..24].copy_from_slice(&write_u64_le(self.compressed_size));
-        bytes[24..32].copy_from_slice(&write_u64_le(self.logical_offset));
-        bytes[32..40].copy_from_slice(&write_u64_le(self.uncompressed_size));
-        bytes[40..48].copy_from_slice(&write_u64_le(self.first_line));
-        bytes[48..56].copy_from_slice(&write_u64_le(self.line_count));
-        bytes[56..60].copy_from_slice(&write_u32_le(self.dictionary_id));
-        bytes[60..64].copy_from_slice(&write_u32_le(self.flags));
+        bytes[0..8].copy_from_slice(&self.chunk_id.to_le_bytes());
+        bytes[8..16].copy_from_slice(&self.physical_offset.to_le_bytes());
+        bytes[16..24].copy_from_slice(&self.compressed_size.to_le_bytes());
+        bytes[24..32].copy_from_slice(&self.logical_offset.to_le_bytes());
+        bytes[32..40].copy_from_slice(&self.uncompressed_size.to_le_bytes());
+        bytes[40..48].copy_from_slice(&self.first_line.to_le_bytes());
+        bytes[48..56].copy_from_slice(&self.line_count.to_le_bytes());
+        bytes[56..60].copy_from_slice(&self.dictionary_id.to_le_bytes());
+        bytes[60..64].copy_from_slice(&self.flags.to_le_bytes());
         bytes[64..96].copy_from_slice(&self.compressed_checksum_blake3);
         bytes[96..128].copy_from_slice(&self.uncompressed_checksum_blake3);
         bytes
