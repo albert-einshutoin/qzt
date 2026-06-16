@@ -34,6 +34,10 @@ cargo package --allow-dirty
 CI runs Semgrep CE, OSV Scanner, and Gitleaks on pull requests, pushes,
 scheduled scans, and manual dispatches.
 
+For cross-repository selection criteria, policy levels, and a reusable GitHub
+Actions template, see `docs/Security_CI_Playbook.md` and
+`docs/Security_CI_Playbook.ja.md`.
+
 Semgrep uses `semgrep scan --config p/rust --error` so findings fail the job.
 Tune the scan by changing the ruleset, adding a `.semgrepignore`, or filtering
 with Semgrep severity levels (`INFO`, `WARNING`, `ERROR`) after the first
