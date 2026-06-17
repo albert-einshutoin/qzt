@@ -8,7 +8,7 @@ use std::process::Command;
 
 use qzt::chunker::ChunkerOptions;
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
-use qzt::writer::{pack_bytes_with_document_index, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes_with_document_index};
 
 // ---------------------------------------------------------------------------
 // Helpers

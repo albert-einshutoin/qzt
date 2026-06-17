@@ -1,7 +1,7 @@
-use qzt::cbor::{encode_deterministic, CborValue};
-use qzt::chunk_table::{validate_chunk_table_block, CHUNK_ENTRY_LEN};
+use qzt::cbor::{CborValue, encode_deterministic};
+use qzt::chunk_table::{CHUNK_ENTRY_LEN, validate_chunk_table_block};
 use qzt::error::QztError;
-use qzt::schema::{validate_source_consistency, Checksum, FooterPayload, IndexRoot, Metadata};
+use qzt::schema::{Checksum, FooterPayload, IndexRoot, Metadata, validate_source_consistency};
 use qzt::skeleton::{open_skeleton, write_empty_container};
 
 fn container_id() -> [u8; 16] {

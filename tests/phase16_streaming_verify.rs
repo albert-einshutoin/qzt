@@ -2,8 +2,8 @@ use qzt::chunker::ChunkerOptions;
 use qzt::reader::{QztFileReader, QztReader, VerifyLevel};
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
 use qzt::writer::{
-    pack_bytes_with_document_index, pack_bytes_with_memory_profile, pack_bytes_with_profile,
-    WriterOptions,
+    WriterOptions, pack_bytes_with_document_index, pack_bytes_with_memory_profile,
+    pack_bytes_with_profile,
 };
 
 fn options() -> WriterOptions {

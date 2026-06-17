@@ -1,6 +1,6 @@
 use qzt::benchmark::{
-    run_release_benchmark, run_release_benchmark_with_corpus, ReleaseBenchmarkOptions,
-    ReleaseBenchmarkReport,
+    ReleaseBenchmarkOptions, ReleaseBenchmarkReport, run_release_benchmark,
+    run_release_benchmark_with_corpus,
 };
 
 #[test]

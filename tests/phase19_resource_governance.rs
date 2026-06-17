@@ -1,10 +1,10 @@
-use qzt::cbor::{encode_deterministic, validate_deterministic_with_limits, CborLimits, CborValue};
+use qzt::cbor::{CborLimits, CborValue, encode_deterministic, validate_deterministic_with_limits};
 use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::limits::ResourceLimits;
 use qzt::reader::QztReader;
 use qzt::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
-use qzt::writer::{pack_bytes, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes};
 
 fn options() -> WriterOptions {
     WriterOptions {
@@ -31,14 +31,16 @@ fn cbor_decoder_uses_caller_supplied_allocation_budget() {
         ),
         Err(QztError::ResourceLimitExceeded)
     );
-    assert!(validate_deterministic_with_limits(
-        &encoded,
-        CborLimits {
-            max_allocation: 16,
-            max_items: 1024,
-        },
-    )
-    .is_ok());
+    assert!(
+        validate_deterministic_with_limits(
+            &encoded,
+            CborLimits {
+                max_allocation: 16,
+                max_items: 1024,
+            },
+        )
+        .is_ok()
+    );
 }
 
 #[test]

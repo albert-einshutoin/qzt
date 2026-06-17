@@ -1,5 +1,5 @@
 use qzt::chunk_table::STARTS_WITH_LINE_CONTINUATION;
-use qzt::chunker::{plan_chunks, ChunkerOptions, NewlineMode};
+use qzt::chunker::{ChunkerOptions, NewlineMode, plan_chunks};
 use qzt::error::QztError;
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> ChunkerOptions {

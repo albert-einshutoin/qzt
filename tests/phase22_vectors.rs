@@ -1,5 +1,5 @@
 use qzt::reader::{QztReader, VerifyLevel};
-use qzt::writer::{pack_bytes, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes};
 
 #[test]
 fn portable_vector_runner_matches_manifest() {

@@ -5,7 +5,7 @@ use qzt::chunker::ChunkerOptions;
 use qzt::io::ReadAt;
 use qzt::reader::{QztFileReader, QztReader};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
 
 fn options() -> WriterOptions {
     WriterOptions {

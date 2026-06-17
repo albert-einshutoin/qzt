@@ -6,7 +6,7 @@ use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::skeleton::open_skeleton_details;
 use qzt::writer::{
-    pack_bytes_with_dense_line_index, pack_bytes_with_dense_line_index_override, WriterOptions,
+    WriterOptions, pack_bytes_with_dense_line_index, pack_bytes_with_dense_line_index_override,
 };
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {

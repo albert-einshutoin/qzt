@@ -1,6 +1,6 @@
 use qzt::cbor::{
-    encode_deterministic, validate_deterministic, validate_text_key_schema, CborValue,
-    TextKeySchema,
+    CborValue, TextKeySchema, encode_deterministic, validate_deterministic,
+    validate_text_key_schema,
 };
 use qzt::error::QztError;
 
@@ -95,7 +95,9 @@ fn rejects_missing_required_closed_schema_field() {
 
     assert_eq!(
         validate_text_key_schema(
-            &[0xa1, 0x68, b'o', b'p', b't', b'i', b'o', b'n', b'a', b'l', 0x01],
+            &[
+                0xa1, 0x68, b'o', b'p', b't', b'i', b'o', b'n', b'a', b'l', 0x01
+            ],
             schema
         ),
         Err(QztError::MetadataInvalid)

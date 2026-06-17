@@ -1,5 +1,5 @@
 use qzt::error::QztError;
-use qzt::fixed::{validate_physical_ranges, FooterTrailer, Header, PhysicalRange};
+use qzt::fixed::{FooterTrailer, Header, PhysicalRange, validate_physical_ranges};
 use qzt::format::{FOOTER_TRAILER_LEN, HEADER_LEN, MAGIC, TRAILER_MAGIC};
 
 fn sample_header() -> Header {
