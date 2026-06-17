@@ -6,7 +6,7 @@ use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
 use crate::format::FOOTER_TRAILER_LEN;
 use crate::io::ReadAt;
-use crate::primitives::{u64_to_usize, usize_to_u64};
+use crate::primitives::{read_u64_le, u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
 use crate::schema::{
     as_map, checksum_value, field, required_bool, required_bstr16, required_checksum,
@@ -989,11 +989,6 @@ fn decode_posting_section(bytes: &[u8], terms: &[TermDictionaryEntry]) -> Result
 
 fn write_u64(value: u64, bytes: &mut Vec<u8>) {
     bytes.extend_from_slice(&value.to_le_bytes());
-}
-
-fn read_u64_le(bytes: &[u8]) -> Result<u64> {
-    let array: [u8; 8] = bytes.try_into().map_err(|_| QztError::UnexpectedEof)?;
-    Ok(u64::from_le_bytes(array))
 }
 
 fn read_u64_cursor(bytes: &[u8], cursor: &mut usize) -> Result<u64> {

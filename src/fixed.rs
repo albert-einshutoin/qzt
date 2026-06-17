@@ -3,8 +3,7 @@ use crate::format::{
     FOOTER_TRAILER_LEN, HEADER_LEN, MAGIC, MAJOR_VERSION, MINOR_VERSION, TRAILER_MAGIC,
 };
 use crate::primitives::{
-    checked_physical_end, read_u16_le, read_u32_le, read_u64_le, write_u16_le, write_u32_le,
-    write_u64_le,
+    checked_physical_end, read_u16_le, read_u32_le, read_u64_le,
 };
 
 /// Fixed QZT header.
@@ -22,23 +21,13 @@ impl Header {
         if bytes.len() != HEADER_LEN {
             return Err(QztError::InvalidHeader);
         }
-
-        if bytes[0..8] != MAGIC {
-            return Err(QztError::InvalidMagic);
-        }
-
-        let major = read_u16_le(&bytes[8..10])?;
-        let minor = read_u16_le(&bytes[10..12])?;
-        if major != MAJOR_VERSION || minor != MINOR_VERSION {
-            return Err(QztError::UnsupportedVersion);
-        }
-
-        let header_length = read_u32_le(&bytes[12..16])?;
-        let expected_header_len =
-            u32::try_from(HEADER_LEN).map_err(|_| QztError::InvalidHeader)?;
-        if header_length != expected_header_len {
-            return Err(QztError::InvalidHeader);
-        }
+        decode_fixed_prologue(
+            bytes,
+            MAGIC,
+            HEADER_LEN,
+            QztError::InvalidHeader,
+            QztError::InvalidMagic,
+        )?;
 
         let header_flags = read_u64_le(&bytes[16..24])?;
         if header_flags != 0 {
@@ -63,15 +52,14 @@ impl Header {
     #[must_use]
     pub fn encode(&self) -> [u8; HEADER_LEN] {
         let mut bytes = [0_u8; HEADER_LEN];
-        bytes[0..8].copy_from_slice(&MAGIC);
-        bytes[8..10].copy_from_slice(&write_u16_le(MAJOR_VERSION));
-        bytes[10..12].copy_from_slice(&write_u16_le(MINOR_VERSION));
-        bytes[12..16].copy_from_slice(&write_u32_le(
-            u32::try_from(HEADER_LEN).expect("HEADER_LEN fits in u32"),
-        ));
-        bytes[24..32].copy_from_slice(&write_u64_le(self.metadata_offset));
-        bytes[32..40].copy_from_slice(&write_u64_le(self.metadata_size));
-        bytes[40..48].copy_from_slice(&write_u64_le(self.index_hint_offset));
+        encode_fixed_prologue(
+            &mut bytes,
+            MAGIC,
+            u32::try_from(HEADER_LEN).expect("header len fit u32"),
+        );
+        bytes[24..32].copy_from_slice(&self.metadata_offset.to_le_bytes());
+        bytes[32..40].copy_from_slice(&self.metadata_size.to_le_bytes());
+        bytes[40..48].copy_from_slice(&self.index_hint_offset.to_le_bytes());
         bytes[48..64].copy_from_slice(&self.container_id);
         bytes
     }
@@ -91,23 +79,13 @@ impl FooterTrailer {
         if bytes.len() != FOOTER_TRAILER_LEN {
             return Err(QztError::InvalidFooterTrailer);
         }
-
-        if bytes[0..8] != TRAILER_MAGIC {
-            return Err(QztError::InvalidFooterTrailer);
-        }
-
-        let major = read_u16_le(&bytes[8..10])?;
-        let minor = read_u16_le(&bytes[10..12])?;
-        if major != MAJOR_VERSION || minor != MINOR_VERSION {
-            return Err(QztError::UnsupportedVersion);
-        }
-
-        let trailer_length = read_u32_le(&bytes[12..16])?;
-        let expected_trailer_len =
-            u32::try_from(FOOTER_TRAILER_LEN).map_err(|_| QztError::InvalidFooterTrailer)?;
-        if trailer_length != expected_trailer_len {
-            return Err(QztError::InvalidFooterTrailer);
-        }
+        decode_fixed_prologue(
+            bytes,
+            TRAILER_MAGIC,
+            FOOTER_TRAILER_LEN,
+            QztError::InvalidFooterTrailer,
+            QztError::InvalidFooterTrailer,
+        )?;
 
         Ok(Self {
             footer_payload_offset: read_u64_le(&bytes[16..24])?,
@@ -122,17 +100,48 @@ impl FooterTrailer {
     #[must_use]
     pub fn encode(&self) -> [u8; FOOTER_TRAILER_LEN] {
         let mut bytes = [0_u8; FOOTER_TRAILER_LEN];
-        bytes[0..8].copy_from_slice(&TRAILER_MAGIC);
-        bytes[8..10].copy_from_slice(&write_u16_le(MAJOR_VERSION));
-        bytes[10..12].copy_from_slice(&write_u16_le(MINOR_VERSION));
-        bytes[12..16].copy_from_slice(&write_u32_le(
+        encode_fixed_prologue(
+            &mut bytes,
+            TRAILER_MAGIC,
             u32::try_from(FOOTER_TRAILER_LEN).expect("FOOTER_TRAILER_LEN fits in u32"),
-        ));
-        bytes[16..24].copy_from_slice(&write_u64_le(self.footer_payload_offset));
-        bytes[24..32].copy_from_slice(&write_u64_le(self.footer_payload_size));
+        );
+        bytes[16..24].copy_from_slice(&self.footer_payload_offset.to_le_bytes());
+        bytes[24..32].copy_from_slice(&self.footer_payload_size.to_le_bytes());
         bytes[32..64].copy_from_slice(&self.footer_payload_checksum_blake3);
         bytes
     }
+}
+
+fn decode_fixed_prologue(
+    bytes: &[u8],
+    expected_magic: [u8; 8],
+    expected_length: usize,
+    length_error: QztError,
+    magic_error: QztError,
+) -> Result<()> {
+    if bytes[0..8] != expected_magic {
+        return Err(magic_error);
+    }
+
+    let major = read_u16_le(&bytes[8..10])?;
+    let minor = read_u16_le(&bytes[10..12])?;
+    if major != MAJOR_VERSION || minor != MINOR_VERSION {
+        return Err(QztError::UnsupportedVersion);
+    }
+
+    let header_length = read_u32_le(&bytes[12..16])?;
+    let expected_len = u32::try_from(expected_length).map_err(|_| length_error)?;
+    if header_length != expected_len {
+        return Err(length_error);
+    }
+    Ok(())
+}
+
+fn encode_fixed_prologue(bytes: &mut [u8], magic: [u8; 8], len: u32) {
+    bytes[0..8].copy_from_slice(&magic);
+    bytes[8..10].copy_from_slice(&MAJOR_VERSION.to_le_bytes());
+    bytes[10..12].copy_from_slice(&MINOR_VERSION.to_le_bytes());
+    bytes[12..16].copy_from_slice(&len.to_le_bytes());
 }
 
 /// Half-open physical byte range `[offset, offset + size)`.
