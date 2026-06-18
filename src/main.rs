@@ -5,10 +5,10 @@ use std::io::{Read, Write};
 use std::process::ExitCode;
 
 use qzt::{
-    build_search_sidecar_from_file, pack_bytes_with_profile, Checksum, NgramIndexBuildOptions,
-    QziFileSidecar, QztError, QztFileReader, QztFileWriter, RawNgramIndex, RawTokenIndex,
-    SearchIndexSource, SearchOptions, SearchReport, SidecarIndexKind, TokenIndexBuildOptions,
-    VerifyLevel, VerifyReport, WriterOptions,
+    Checksum, NgramIndexBuildOptions, QziFileSidecar, QztError, QztFileReader, QztFileWriter,
+    RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions, SearchReport, SidecarIndexKind,
+    TokenIndexBuildOptions, VerifyLevel, VerifyReport, WriterOptions,
+    build_search_sidecar_from_file, pack_bytes_with_profile,
 };
 
 type CliResult<T> = std::result::Result<T, CliError>;

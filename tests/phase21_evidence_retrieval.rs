@@ -4,7 +4,7 @@ use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::{QztFileReader, QztReader};
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
-use qzt::writer::{pack_bytes_with_document_index, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes_with_document_index};
 
 fn options() -> WriterOptions {
     WriterOptions {

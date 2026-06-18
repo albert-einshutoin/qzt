@@ -115,6 +115,8 @@ Container format for UTF-8 text.
 
 ### Changed
 
+- Migrated the crate and fuzz manifests to Rust 2024 edition.
+
 - `QztError::Display` now emits human-readable messages for all variants instead
   of delegating to `{error:?}` (Debug output). Variant identifiers such as
   `InvalidMagic` no longer appear raw in error text.

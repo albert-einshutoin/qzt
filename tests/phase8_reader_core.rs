@@ -1,7 +1,7 @@
 use std::io::Write;
 
 use qzt::chunk_table::ChunkEntry;
-use qzt::chunker::{plan_chunks, ChunkerOptions};
+use qzt::chunker::{ChunkerOptions, plan_chunks};
 use qzt::error::QztError;
 use qzt::fixed::{FooterTrailer, Header};
 use qzt::format::{FOOTER_TRAILER_LEN, HEADER_LEN};

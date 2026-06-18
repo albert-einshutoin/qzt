@@ -8,11 +8,11 @@ use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::QztReader;
 use qzt::search::{
-    decode_delta_varint_u64, encode_delta_varint_u64, PostingGranularity, RawTokenIndex,
-    SearchGranule, SearchIndexSource, SearchOptions, TermDictionaryEntry, TokenIndexBuildOptions,
+    PostingGranularity, RawTokenIndex, SearchGranule, SearchIndexSource, SearchOptions,
+    TermDictionaryEntry, TokenIndexBuildOptions, decode_delta_varint_u64, encode_delta_varint_u64,
 };
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
 mod support;
 use support::assert_semantic_report_eq;
 

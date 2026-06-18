@@ -1,4 +1,4 @@
-use qzt::{pack_bytes_with_document_index, Checksum, DocumentEntry, DocumentIndex, WriterOptions};
+use qzt::{Checksum, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes_with_document_index};
 use qzt::{QztFileReader, WriterBuilder};
 
 fn main() -> qzt::Result<()> {

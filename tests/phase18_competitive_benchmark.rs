@@ -1,4 +1,4 @@
-use qzt::benchmark::{run_competitive_benchmark, CompetitiveBenchmarkOptions};
+use qzt::benchmark::{CompetitiveBenchmarkOptions, run_competitive_benchmark};
 use qzt::corpus::CorpusKind;
 
 #[test]

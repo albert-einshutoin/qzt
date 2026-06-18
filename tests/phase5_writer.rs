@@ -4,7 +4,7 @@ use qzt::error::QztError;
 use qzt::fixed::Header;
 use qzt::format::HEADER_LEN;
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{export_all, pack_bytes_with_container_id, WriterOptions};
+use qzt::writer::{WriterOptions, export_all, pack_bytes_with_container_id};
 use std::time::Instant;
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {

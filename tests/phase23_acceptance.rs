@@ -1,9 +1,9 @@
 use qzt::chunker::ChunkerOptions;
-use qzt::corpus::{generate_validation_corpus, CorpusKind, ValidationCorpusOptions};
+use qzt::corpus::{CorpusKind, ValidationCorpusOptions, generate_validation_corpus};
 use qzt::reader::{QztFileReader, QztReader, VerifyLevel};
 use qzt::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{pack_bytes, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes};
 
 fn options() -> WriterOptions {
     WriterOptions {

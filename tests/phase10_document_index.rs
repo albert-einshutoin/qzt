@@ -3,7 +3,7 @@ use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{pack_bytes_with_document_index, pack_bytes_with_memory_profile, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes_with_document_index, pack_bytes_with_memory_profile};
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
     WriterOptions {

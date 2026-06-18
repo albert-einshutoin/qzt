@@ -5,7 +5,7 @@ use std::time::Instant;
 use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::QztReader;
-use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
     WriterOptions {

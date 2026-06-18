@@ -1,9 +1,8 @@
 use qzt::error::QztError;
 use qzt::writer::pack_bytes_with_profile;
 use qzt::{
-    pack_bytes_with_container_id, pack_bytes_with_dense_line_index, Checksum, ChunkerOptions,
-    DocumentEntry, DocumentIndex, QztFileReader, QztReader, VerifyLevel, WriterBuilder,
-    WriterOptions,
+    Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, QztFileReader, QztReader, VerifyLevel,
+    WriterBuilder, WriterOptions, pack_bytes_with_container_id, pack_bytes_with_dense_line_index,
 };
 
 fn options() -> WriterOptions {

@@ -8,8 +8,8 @@ use qzt::reader::QztFileReader;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::schema::Checksum;
 use qzt::search::{NgramIndexBuildOptions, RawNgramIndex, SearchOptions};
-use qzt::sidecar::{build_search_sidecar, QziFileSidecar, QziSidecar, SidecarIndexKind};
-use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
+use qzt::sidecar::{QziFileSidecar, QziSidecar, SidecarIndexKind, build_search_sidecar};
+use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
 mod support;
 use support::assert_semantic_report_eq;
 

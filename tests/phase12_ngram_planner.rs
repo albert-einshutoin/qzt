@@ -9,7 +9,7 @@ use qzt::reader::QztReader;
 use qzt::search::{
     NgramIndexBuildOptions, NgramUnit, RawNgramIndex, SearchIndexSource, SearchOptions,
 };
-use qzt::writer::{pack_bytes_with_container_id, WriterOptions};
+use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
 mod support;
 use support::assert_semantic_report_eq;
 

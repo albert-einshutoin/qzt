@@ -55,11 +55,11 @@ internal_module!(
 );
 
 pub use benchmark::{
-    run_competitive_benchmark, run_release_benchmark, CompetitiveBenchmarkOptions,
-    CompetitiveBenchmarkReport, ReleaseBenchmarkOptions, ReleaseBenchmarkReport,
+    CompetitiveBenchmarkOptions, CompetitiveBenchmarkReport, ReleaseBenchmarkOptions,
+    ReleaseBenchmarkReport, run_competitive_benchmark, run_release_benchmark,
 };
 pub use chunker::ChunkerOptions;
-pub use corpus::{generate_validation_corpus, CorpusKind, ValidationCorpusOptions};
+pub use corpus::{CorpusKind, ValidationCorpusOptions, generate_validation_corpus};
 pub use error::{QztError, Result};
 pub use io::ReadAt;
 pub use limits::ResourceLimits;
@@ -70,15 +70,15 @@ pub use search::{
     SearchIndexSource, SearchMetrics, SearchOptions, SearchReport, TokenIndexBuildOptions,
 };
 pub use sidecar::{
-    build_search_sidecar, build_search_sidecar_from_file, QziFileSidecar, QziSidecar,
-    SidecarIndexKind,
+    QziFileSidecar, QziSidecar, SidecarIndexKind, build_search_sidecar,
+    build_search_sidecar_from_file,
 };
 #[doc(hidden)]
 pub use skeleton::open_skeleton_details;
 pub use writer::{
-    export_all, pack_bytes, pack_bytes_with_container_id, pack_bytes_with_dense_line_index,
-    pack_bytes_with_document_index, pack_bytes_with_memory_profile, pack_bytes_with_profile,
-    QztFileWriter, WriterBuilder, WriterOptions,
+    QztFileWriter, WriterBuilder, WriterOptions, export_all, pack_bytes,
+    pack_bytes_with_container_id, pack_bytes_with_dense_line_index, pack_bytes_with_document_index,
+    pack_bytes_with_memory_profile, pack_bytes_with_profile,
 };
 
 /// Returns the implementation version advertised by this crate.

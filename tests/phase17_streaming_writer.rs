@@ -3,7 +3,7 @@ use std::io::Cursor;
 use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::QztReader;
-use qzt::writer::{pack_bytes, QztFileWriter, WriterOptions};
+use qzt::writer::{QztFileWriter, WriterOptions, pack_bytes};
 
 fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
     WriterOptions {
