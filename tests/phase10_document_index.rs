@@ -1,19 +1,10 @@
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{WriterOptions, pack_bytes_with_document_index, pack_bytes_with_memory_profile};
-
-fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size,
-            max_chunk_size,
-        },
-        zstd_level: 0,
-    }
-}
+use qzt::writer::{pack_bytes_with_document_index, pack_bytes_with_memory_profile};
+mod support;
+use support::{DocumentFixture, document, writer_options};
 
 #[test]
 fn document_index_ranges_are_verified_by_deep_verify() {
@@ -32,7 +23,7 @@ fn document_index_ranges_are_verified_by_deep_verify() {
         })],
     };
     let container =
-        pack_bytes_with_document_index(input, [0xb0; 16], options(64, 64), &document_index)
+        pack_bytes_with_document_index(input, [0xb0; 16], writer_options(64, 64), &document_index)
             .expect("document-index container should pack structurally");
     let reader = QztReader::open(container).expect("container should open structurally");
 
@@ -59,7 +50,7 @@ fn document_index_chunk_range_inconsistency_is_rejected_by_deep_verify() {
         })],
     };
     let container =
-        pack_bytes_with_document_index(input, [0xb1; 16], options(8, 8), &document_index)
+        pack_bytes_with_document_index(input, [0xb1; 16], writer_options(8, 8), &document_index)
             .expect("document-index container should pack structurally");
     let reader = QztReader::open(container).expect("container should open structurally");
 
@@ -98,7 +89,7 @@ fn memory_profile_writes_dense_and_document_index_flags_and_deep_verifies() {
         ],
     };
     let container =
-        pack_bytes_with_memory_profile(input, [0xb2; 16], options(8, 8), &document_index)
+        pack_bytes_with_memory_profile(input, [0xb2; 16], writer_options(8, 8), &document_index)
             .expect("memory profile should pack");
     let details = open_skeleton_details(&container).expect("memory profile should open");
 
@@ -112,36 +103,6 @@ fn memory_profile_writes_dense_and_document_index_flags_and_deep_verifies() {
     assert!(reader.verify(VerifyLevel::Deep).is_ok());
 }
 
-struct DocumentFixture<'a> {
-    doc_id: &'a str,
-    input: &'a [u8],
-    logical_offset: u64,
-    byte_length: u64,
-    first_line: u64,
-    line_count: u64,
-    chunk_start: u64,
-    chunk_end: u64,
-}
-
-fn document(fixture: &DocumentFixture<'_>) -> DocumentEntry {
-    let start = usize::try_from(fixture.logical_offset).unwrap_or(fixture.input.len());
-    let end = start
-        .checked_add(usize::try_from(fixture.byte_length).unwrap_or(0))
-        .unwrap_or(start)
-        .min(fixture.input.len());
-    let range = fixture.input.get(start..end).unwrap_or(&[]);
-    DocumentEntry::new(
-        fixture.doc_id,
-        fixture.logical_offset,
-        fixture.byte_length,
-        fixture.first_line,
-        fixture.line_count,
-        fixture.chunk_start,
-        fixture.chunk_end,
-        Checksum::blake3(range),
-    )
-}
-
 // --- Review follow-up coverage: single-pass document verification + lookup ---
 
 const TWO_LINES: &[u8] = b"aaaaaaaa\nbbbbbbbb\n"; // 18 bytes, two 9-byte lines
@@ -152,7 +113,7 @@ fn two_chunk_container(documents: Vec<DocumentEntry>) -> Vec<u8> {
         documents,
     };
     // target/max 9 -> two chunks [0,9) and [9,18)
-    pack_bytes_with_document_index(TWO_LINES, [0xc0; 16], options(9, 9), &document_index)
+    pack_bytes_with_document_index(TWO_LINES, [0xc0; 16], writer_options(9, 9), &document_index)
         .expect("document-index container should pack structurally")
 }
 

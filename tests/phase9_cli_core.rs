@@ -2,6 +2,8 @@ use std::fs;
 use std::process::Command;
 
 use qzt::skeleton::open_skeleton_details;
+mod support;
+use support::{assert_success, output_success};
 
 #[test]
 fn cli_pack_info_verify_range_lines_and_export_round_trip() {
@@ -528,23 +530,4 @@ fn verify_format_missing_value_exits_2() {
     );
 
     let _ = fs::remove_dir_all(base);
-}
-
-fn output_success(command: &mut Command) -> Vec<u8> {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    output.stdout
-}
-
-fn assert_success(command: &mut Command) {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
 }

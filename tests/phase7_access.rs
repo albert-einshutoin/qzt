@@ -2,23 +2,15 @@ use std::fs;
 use std::process::Command;
 use std::time::Instant;
 
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::QztReader;
-use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
-
-fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size,
-            max_chunk_size,
-        },
-        zstd_level: 0,
-    }
-}
+use qzt::writer::pack_bytes_with_container_id;
+mod support;
+use support::writer_options;
 
 fn pack(input: &[u8], target: usize, max: usize) -> Vec<u8> {
-    pack_bytes_with_container_id(input, [0x77; 16], options(target, max)).expect("pack should work")
+    pack_bytes_with_container_id(input, [0x77; 16], writer_options(target, max))
+        .expect("pack should work")
 }
 
 #[test]

@@ -1,27 +1,14 @@
-use std::io;
-use std::sync::{Arc, Mutex};
-
-use qzt::chunker::ChunkerOptions;
-use qzt::io::ReadAt;
 use qzt::reader::{QztFileReader, QztReader};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
-
-fn options() -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size: 8,
-            max_chunk_size: 8,
-        },
-        zstd_level: 0,
-    }
-}
+use qzt::writer::pack_bytes_with_container_id;
+mod support;
+use support::{CountingReadAt, writer_options};
 
 #[test]
 fn file_reader_open_does_not_touch_chunk_data_region() {
     let input = b"alpha\nbeta\ngamma\ndelta\n";
-    let container =
-        pack_bytes_with_container_id(input, [0x15; 16], options()).expect("pack should work");
+    let container = pack_bytes_with_container_id(input, [0x15; 16], writer_options(8, 8))
+        .expect("pack should work");
     let details = open_skeleton_details(&container).expect("container should open");
     let counting = CountingReadAt::new(container.clone());
     let reads = counting.reads.clone();
@@ -45,8 +32,8 @@ fn file_reader_open_does_not_touch_chunk_data_region() {
 #[test]
 fn file_reader_matches_in_memory_reader_for_range_line_and_export() {
     let input = "alpha\nβeta line\ngamma\nlast line".as_bytes();
-    let container =
-        pack_bytes_with_container_id(input, [0x16; 16], options()).expect("pack should work");
+    let container = pack_bytes_with_container_id(input, [0x16; 16], writer_options(8, 8))
+        .expect("pack should work");
     let memory = QztReader::open(&container).expect("memory reader should open");
     let file = QztFileReader::open_read_at(&container[..], container.len() as u64)
         .expect("file reader should open");
@@ -63,8 +50,8 @@ fn file_reader_matches_in_memory_reader_for_range_line_and_export() {
 #[test]
 fn file_reader_range_reads_only_overlapping_chunks() {
     let input = b"aaaaaaa\nbbbbbbb\nccccccc\nddddddd\n";
-    let container =
-        pack_bytes_with_container_id(input, [0x17; 16], options()).expect("pack should work");
+    let container = pack_bytes_with_container_id(input, [0x17; 16], writer_options(8, 8))
+        .expect("pack should work");
     let details = open_skeleton_details(&container).expect("container should open");
     let counting = CountingReadAt::new(container.clone());
     let reads = counting.reads.clone();
@@ -96,41 +83,6 @@ fn open_path_reports_io_error_for_missing_file() {
         QztFileReader::open_path("/nonexistent/qzt-test-missing.qzt").map(|_| ()),
         Err(qzt::error::QztError::Io(std::io::ErrorKind::NotFound))
     );
-}
-
-#[derive(Clone)]
-struct CountingReadAt {
-    bytes: Arc<Vec<u8>>,
-    reads: Arc<Mutex<Vec<(u64, u64)>>>,
-}
-
-impl CountingReadAt {
-    fn new(bytes: Vec<u8>) -> Self {
-        Self {
-            bytes: Arc::new(bytes),
-            reads: Arc::new(Mutex::new(Vec::new())),
-        }
-    }
-}
-
-impl ReadAt for CountingReadAt {
-    fn read_exact_at(&self, offset: u64, buf: &mut [u8]) -> io::Result<()> {
-        self.reads
-            .lock()
-            .map_err(|_| io::Error::other("poisoned reads lock"))?
-            .push((offset, buf.len() as u64));
-        let start = usize::try_from(offset)
-            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "offset too large"))?;
-        let end = start
-            .checked_add(buf.len())
-            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "range overflow"))?;
-        let source = self
-            .bytes
-            .get(start..end)
-            .ok_or_else(|| io::Error::new(io::ErrorKind::UnexpectedEof, "short read"))?;
-        buf.copy_from_slice(source);
-        Ok(())
-    }
 }
 
 fn overlaps(left_offset: u64, left_size: u64, right_offset: u64, right_size: u64) -> bool {

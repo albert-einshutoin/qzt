@@ -1,25 +1,19 @@
 use qzt::chunk_table::STARTS_WITH_LINE_CONTINUATION;
-use qzt::chunker::{ChunkerOptions, NewlineMode, plan_chunks};
+use qzt::chunker::{NewlineMode, plan_chunks};
 use qzt::error::QztError;
-
-fn options(target_chunk_size: usize, max_chunk_size: usize) -> ChunkerOptions {
-    ChunkerOptions {
-        target_chunk_size,
-        max_chunk_size,
-    }
-}
+mod support;
 
 #[test]
 fn invalid_utf8_is_rejected_before_chunk_planning() {
     assert_eq!(
-        plan_chunks(&[0xff], options(4, 8)).map(|plan| plan.chunks),
+        plan_chunks(&[0xff], support::chunker_options(4, 8)).map(|plan| plan.chunks),
         Err(QztError::InvalidUtf8)
     );
 }
 
 #[test]
 fn empty_input_produces_no_chunks_and_zero_lines() {
-    let plan = plan_chunks(b"", options(4, 8)).expect("empty input should plan");
+    let plan = plan_chunks(b"", support::chunker_options(4, 8)).expect("empty input should plan");
 
     assert!(plan.chunks.is_empty());
     assert_eq!(plan.line_count, 0);
@@ -28,7 +22,7 @@ fn empty_input_produces_no_chunks_and_zero_lines() {
 
 #[test]
 fn ascii_input_plans_contiguous_logical_offsets_and_lines() {
-    let plan = plan_chunks(b"abc\ndef", options(3, 4)).expect("ASCII should plan");
+    let plan = plan_chunks(b"abc\ndef", support::chunker_options(3, 4)).expect("ASCII should plan");
 
     assert_eq!(plan.line_count, 2);
     assert_eq!(plan.newline_mode, NewlineMode::Lf);
@@ -46,7 +40,7 @@ fn ascii_input_plans_contiguous_logical_offsets_and_lines() {
 #[test]
 fn japanese_and_emoji_boundaries_are_never_split() {
     let input = "あ😀い".as_bytes();
-    let plan = plan_chunks(input, options(4, 5)).expect("UTF-8 should plan");
+    let plan = plan_chunks(input, support::chunker_options(4, 5)).expect("UTF-8 should plan");
 
     assert_eq!(plan.chunks.len(), 3);
     for chunk in &plan.chunks {
@@ -59,7 +53,7 @@ fn japanese_and_emoji_boundaries_are_never_split() {
 #[test]
 fn crlf_boundary_is_not_split_between_cr_and_lf() {
     let input = b"a\r\nb";
-    let plan = plan_chunks(input, options(2, 2)).expect("CRLF input should plan");
+    let plan = plan_chunks(input, support::chunker_options(2, 2)).expect("CRLF input should plan");
 
     for chunk in &plan.chunks {
         let end = usize::try_from(chunk.logical_offset).expect("fits")
@@ -72,7 +66,8 @@ fn crlf_boundary_is_not_split_between_cr_and_lf() {
 
 #[test]
 fn long_line_exceeding_max_chunk_size_is_split_safely() {
-    let plan = plan_chunks(b"abcdef", options(2, 3)).expect("long line should split");
+    let plan =
+        plan_chunks(b"abcdef", support::chunker_options(2, 3)).expect("long line should split");
 
     assert_eq!(plan.line_count, 1);
     assert_eq!(plan.chunks.len(), 2);
@@ -89,7 +84,7 @@ fn no_valid_utf8_boundary_within_max_returns_resource_limit() {
     let input = "😀".as_bytes();
 
     assert_eq!(
-        plan_chunks(input, options(1, 3)).map(|plan| plan.chunks),
+        plan_chunks(input, support::chunker_options(1, 3)).map(|plan| plan.chunks),
         Err(QztError::ResourceLimitExceeded)
     );
 }
@@ -103,7 +98,7 @@ fn remaining_between_target_and_max_produces_multiple_chunks() {
     //   old → 300 <= 1000 → 1 chunk of 300 bytes
     //   new → 300 > 100 → split at target boundary → at least 3 chunks
     let input: Vec<u8> = b"x\n".iter().cycle().take(300).copied().collect();
-    let plan = plan_chunks(&input, options(100, 1000)).expect("input should plan");
+    let plan = plan_chunks(&input, support::chunker_options(100, 1000)).expect("input should plan");
 
     assert!(
         plan.chunks.len() > 1,
@@ -121,7 +116,8 @@ fn remaining_between_target_and_max_produces_multiple_chunks() {
 
 #[test]
 fn chunk_line_counts_sum_to_container_line_count_and_first_lines_are_contiguous() {
-    let plan = plan_chunks(b"a\nbc\ndef", options(2, 4)).expect("input should plan");
+    let plan =
+        plan_chunks(b"a\nbc\ndef", support::chunker_options(2, 4)).expect("input should plan");
 
     let sum: u64 = plan.chunks.iter().map(|chunk| chunk.line_count).sum();
     assert_eq!(sum, plan.line_count);

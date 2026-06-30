@@ -1,19 +1,10 @@
-use qzt::chunker::ChunkerOptions;
 use qzt::corpus::{CorpusKind, ValidationCorpusOptions, generate_validation_corpus};
 use qzt::reader::{QztFileReader, QztReader, VerifyLevel};
 use qzt::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{WriterOptions, pack_bytes};
-
-fn options() -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size: 1024,
-            max_chunk_size: 1024,
-        },
-        zstd_level: 0,
-    }
-}
+use qzt::writer::pack_bytes;
+mod support;
+use support::writer_options;
 
 #[test]
 fn validation_corpora_are_deterministic() {
@@ -42,7 +33,7 @@ fn hard_invariants_hold_for_c1_through_c6() {
             },
         )
         .expect("corpus should generate");
-        let container = pack_bytes(&corpus, options()).expect("pack should work");
+        let container = pack_bytes(&corpus, writer_options(1024, 1024)).expect("pack should work");
         let reader = QztReader::open(&container).expect("reader should open");
         assert_eq!(
             reader.export_all().expect("export"),
@@ -77,7 +68,7 @@ fn corruption_sweep_detects_chunk_metadata_and_index_mutations() {
         },
     )
     .expect("corpus should generate");
-    let container = pack_bytes(&corpus, options()).expect("pack should work");
+    let container = pack_bytes(&corpus, writer_options(1024, 1024)).expect("pack should work");
     let details = open_skeleton_details(&container).expect("details");
     let first_chunk = details.chunk_entries.first().expect("chunk");
 
@@ -107,7 +98,7 @@ fn soft_targets_are_recorded_without_hard_failing_on_band_drift() {
         },
     )
     .expect("corpus should generate");
-    let container = pack_bytes(&corpus, options()).expect("pack should work");
+    let container = pack_bytes(&corpus, writer_options(1024, 1024)).expect("pack should work");
     let reader = QztReader::open(&container).expect("reader");
     let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
         .expect("token index");

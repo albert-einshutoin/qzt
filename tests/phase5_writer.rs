@@ -1,24 +1,16 @@
 use qzt::chunk_table::STARTS_WITH_LINE_CONTINUATION;
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::fixed::Header;
 use qzt::format::HEADER_LEN;
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{WriterOptions, export_all, pack_bytes_with_container_id};
+use qzt::writer::{export_all, pack_bytes_with_container_id};
+mod support;
 use std::time::Instant;
-
-fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size,
-            max_chunk_size,
-        },
-        zstd_level: 0,
-    }
-}
+use support::writer_options;
 
 fn pack(input: &[u8]) -> Vec<u8> {
-    pack_bytes_with_container_id(input, [0x55; 16], options(8, 16)).expect("pack should work")
+    pack_bytes_with_container_id(input, [0x55; 16], writer_options(8, 16))
+        .expect("pack should work")
 }
 
 #[test]
@@ -62,8 +54,8 @@ fn crlf_and_mixed_newline_pack_export_equality() {
 #[test]
 fn long_line_pack_export_equality_and_continuation_flags() {
     let input = b"abcdefghijklmnopqrstuvwxyz";
-    let container =
-        pack_bytes_with_container_id(input, [0x56; 16], options(8, 8)).expect("pack should work");
+    let container = pack_bytes_with_container_id(input, [0x56; 16], writer_options(8, 8))
+        .expect("pack should work");
     let details = open_skeleton_details(&container).expect("container should open");
 
     assert_eq!(export_all(&container), Ok(input.to_vec()));
@@ -111,7 +103,7 @@ fn header_is_patched_with_metadata_and_index_hint_offsets() {
 #[test]
 fn writer_rejects_invalid_utf8() {
     assert_eq!(
-        pack_bytes_with_container_id(&[0xff], [0x57; 16], options(8, 16)).map(|_| ()),
+        pack_bytes_with_container_id(&[0xff], [0x57; 16], writer_options(8, 16)).map(|_| ()),
         Err(QztError::InvalidUtf8)
     );
 }
@@ -119,15 +111,10 @@ fn writer_rejects_invalid_utf8() {
 #[test]
 fn metadata_records_writer_options_used_for_pack() {
     let input = b"alpha\nbeta\n";
-    let writer_options = WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size: 8,
-            max_chunk_size: 8,
-        },
-        zstd_level: 3,
-    };
-    let container =
-        pack_bytes_with_container_id(input, [0x59; 16], writer_options).expect("pack should work");
+    let mut metadata_writer_options = writer_options(8, 8);
+    metadata_writer_options.zstd_level = 3;
+    let container = pack_bytes_with_container_id(input, [0x59; 16], metadata_writer_options)
+        .expect("pack should work");
     let details = open_skeleton_details(&container).expect("container should open");
 
     assert_eq!(details.metadata.zstd_level, 3);
@@ -139,8 +126,9 @@ fn metadata_records_writer_options_used_for_pack() {
 fn pack_smoke_benchmark_records_nonzero_throughput() {
     let input = vec![b'a'; 64 * 1024];
     let started = Instant::now();
-    let container = pack_bytes_with_container_id(&input, [0x58; 16], options(16 * 1024, 16 * 1024))
-        .expect("pack should work");
+    let container =
+        pack_bytes_with_container_id(&input, [0x58; 16], writer_options(16 * 1024, 16 * 1024))
+            .expect("pack should work");
     let elapsed = started.elapsed();
 
     assert!(!container.is_empty());

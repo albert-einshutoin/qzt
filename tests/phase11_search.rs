@@ -4,7 +4,6 @@ use std::fs;
 use std::process::Command;
 
 use qzt::chunk_table::ChunkEntry;
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::QztReader;
 use qzt::search::{
@@ -12,24 +11,14 @@ use qzt::search::{
     TermDictionaryEntry, TokenIndexBuildOptions, decode_delta_varint_u64, encode_delta_varint_u64,
 };
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
+use qzt::writer::pack_bytes_with_container_id;
 mod support;
-use support::assert_semantic_report_eq;
-
-fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size,
-            max_chunk_size,
-        },
-        zstd_level: 0,
-    }
-}
+use support::{assert_semantic_report_eq, assert_success, output_success, writer_options};
 
 #[test]
 fn line_granules_are_inside_original_and_cover_overlapping_chunks() {
     let input = b"alpha one\nbeta two\nerror three";
-    let container = pack_bytes_with_container_id(input, [0xc0; 16], options(8, 8))
+    let container = pack_bytes_with_container_id(input, [0xc0; 16], writer_options(8, 8))
         .expect("container should pack");
     let details = open_skeleton_details(&container).expect("skeleton should open");
     let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
@@ -56,7 +45,7 @@ fn line_granules_are_inside_original_and_cover_overlapping_chunks() {
 #[test]
 fn term_dictionary_and_postings_are_sorted() {
     let input = b"zeta alpha\nbeta alpha\n";
-    let container = pack_bytes_with_container_id(input, [0xc1; 16], options(64, 64))
+    let container = pack_bytes_with_container_id(input, [0xc1; 16], writer_options(64, 64))
         .expect("container should pack");
     let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
         .expect("raw line token index should build");
@@ -116,7 +105,7 @@ fn exact_key_comparison_wins_over_key_hash_collision() {
 #[test]
 fn token_search_candidates_are_verified_against_original_bytes() {
     let input = b"alpha\nbeta\n";
-    let container = pack_bytes_with_container_id(input, [0xc3; 16], options(64, 64))
+    let container = pack_bytes_with_container_id(input, [0xc3; 16], writer_options(64, 64))
         .expect("container should pack");
     let base_index =
         RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
@@ -146,7 +135,7 @@ fn token_search_candidates_are_verified_against_original_bytes() {
 #[test]
 fn multi_token_search_returns_verified_hits_for_every_query_token() {
     let input = b"alpha beta\nbeta gamma\n";
-    let container = pack_bytes_with_container_id(input, [0xc6; 16], options(64, 64))
+    let container = pack_bytes_with_container_id(input, [0xc6; 16], writer_options(64, 64))
         .expect("container should pack");
     let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
         .expect("raw line token index should build");
@@ -168,7 +157,7 @@ fn multi_token_search_returns_verified_hits_for_every_query_token() {
 #[test]
 fn normalized_token_index_is_rejected_in_phase11() {
     let input = b"alpha\n";
-    let container = pack_bytes_with_container_id(input, [0xc4; 16], options(64, 64))
+    let container = pack_bytes_with_container_id(input, [0xc4; 16], writer_options(64, 64))
         .expect("container should pack");
     let error = RawTokenIndex::build_from_container(
         &container,
@@ -266,29 +255,10 @@ fn term_with_real_hash(key: &[u8]) -> TermDictionaryEntry {
     term(key, key_hash)
 }
 
-fn output_success(command: &mut Command) -> Vec<u8> {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    output.stdout
-}
-
-fn assert_success(command: &mut Command) {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
 #[test]
 fn unindexable_query_reports_incomplete_reason() {
     let input = b"alpha one\nbeta two\n";
-    let container = pack_bytes_with_container_id(input, [0xc7; 16], options(64, 64))
+    let container = pack_bytes_with_container_id(input, [0xc7; 16], writer_options(64, 64))
         .expect("container should pack");
     let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
         .expect("raw line token index should build");
@@ -311,8 +281,9 @@ fn dense_query_amortizes_physical_chunk_decodes() {
     for index in 0..128 {
         let _ = writeln!(input, "common line {index}");
     }
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xc8; 16], options(64, 64))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xc8; 16], writer_options(64, 64))
+            .expect("container should pack");
     let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
         .expect("raw line token index should build");
     let reader = QztReader::open(&container).expect("reader should open");
@@ -336,8 +307,9 @@ fn token_build_and_search_from_file_match_in_memory_paths() {
         let _ = writeln!(input, "alpha beta line {index}");
     }
     input.push_str("needle alpha\n");
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xc9; 16], options(64, 64))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xc9; 16], writer_options(64, 64))
+            .expect("container should pack");
 
     let memory_index =
         RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())

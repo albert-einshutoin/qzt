@@ -1,19 +1,9 @@
 use std::io::Cursor;
 
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::QztReader;
 use qzt::writer::{QztFileWriter, WriterOptions, pack_bytes};
-
-fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size,
-            max_chunk_size,
-        },
-        zstd_level: 0,
-    }
-}
+mod support;
 
 #[test]
 fn streaming_writer_is_byte_identical_to_pack_bytes() {
@@ -27,7 +17,7 @@ fn streaming_writer_is_byte_identical_to_pack_bytes() {
     ];
 
     for input in fixtures {
-        let options = options(8, 16);
+        let options = support::writer_options(8, 16);
         assert_eq!(
             stream_pack(input, options, input.len()),
             pack_bytes(input, options)
@@ -38,7 +28,7 @@ fn streaming_writer_is_byte_identical_to_pack_bytes() {
 #[test]
 fn push_fragmentation_does_not_change_output() {
     let input = b"alpha\nbeta\ngamma\ndelta\nepsilon\n";
-    let options = options(8, 16);
+    let options = support::writer_options(8, 16);
 
     assert_eq!(
         stream_pack(input, options, 1),
@@ -50,7 +40,7 @@ fn push_fragmentation_does_not_change_output() {
 #[test]
 fn streamed_container_round_trips_and_finish_is_single_shot() {
     let input = b"alpha\nbeta\ngamma\n";
-    let options = options(8, 16);
+    let options = support::writer_options(8, 16);
     let mut writer = QztFileWriter::new(Cursor::new(Vec::new()), options).expect("writer");
     writer.push(input).expect("push");
     writer.finish().expect("finish");
@@ -63,7 +53,7 @@ fn streamed_container_round_trips_and_finish_is_single_shot() {
 
 #[test]
 fn streaming_writer_rejects_invalid_utf8() {
-    let options = options(8, 16);
+    let options = support::writer_options(8, 16);
     let mut writer = QztFileWriter::new(Cursor::new(Vec::new()), options).expect("writer");
     writer.push(&[0xff]).expect("push buffers final chunk");
 

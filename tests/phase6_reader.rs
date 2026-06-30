@@ -1,21 +1,13 @@
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
-
-fn options() -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size: 8,
-            max_chunk_size: 16,
-        },
-        zstd_level: 0,
-    }
-}
+use qzt::writer::pack_bytes_with_container_id;
+mod support;
+use support::writer_options;
 
 fn pack(input: &[u8]) -> Vec<u8> {
-    pack_bytes_with_container_id(input, [0x66; 16], options()).expect("pack should work")
+    pack_bytes_with_container_id(input, [0x66; 16], writer_options(8, 16))
+        .expect("pack should work")
 }
 
 #[test]
