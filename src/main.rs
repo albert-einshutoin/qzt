@@ -208,7 +208,9 @@ fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
     // stdin is only supported on the streaming path (core profile, no dense line index).
     // Silently buffering all of stdin would defeat the memory-safety promise for large logs.
     if stdin_input && (profile != "core" || dense_line_index) {
-        eprintln!("qzt pack: stdin input requires --profile core without --dense-line-index");
+        eprintln!(
+            "qzt pack: stdin is only supported on the streaming pack path (--profile core without --dense-line-index)"
+        );
         eprintln!("(other profiles need the whole input in memory; write to a file first)");
         return ExitCode::from(2);
     }
