@@ -2,7 +2,7 @@ use qzt::error::QztError;
 use qzt::writer::pack_bytes_with_profile;
 use qzt::{
     Checksum, DocumentEntry, DocumentIndex, QztFileReader, QztReader, VerifyLevel, WriterBuilder,
-    pack_bytes_with_container_id, pack_bytes_with_dense_line_index,
+    export_all, pack_bytes_with_container_id, pack_bytes_with_dense_line_index,
 };
 mod support;
 use support::writer_options;
@@ -29,18 +29,26 @@ fn writer_builder_reproduces_legacy_pack_entry_points() {
     );
 }
 
-// --- Issue #8: profile validation regression tests ---
+// --- Issue #60: pack profile validation regression tests ---
 
 #[test]
-fn writer_builder_rejects_unknown_profile() {
+fn profile_validation_writer_builder_rejects_unknown_profile() {
     let result = WriterBuilder::new().profile("bogus").pack(b"hello\n");
     assert_eq!(result.unwrap_err(), QztError::MetadataInvalid);
 }
 
 #[test]
-fn pack_bytes_with_profile_rejects_memory_without_document_index() {
+fn profile_validation_memory_profile_rejects_missing_document_index() {
     let result = pack_bytes_with_profile(b"hello\n", writer_options(8, 8), "memory", false);
     assert_eq!(result.unwrap_err(), QztError::MetadataInvalid);
+}
+
+#[test]
+fn profile_validation_core_profile_pack_export_round_trips() {
+    let input = b"alpha\nbeta\ngamma\n";
+    let container = pack_bytes_with_profile(input, writer_options(8, 8), "core", false)
+        .expect("core profile should pack");
+    assert_eq!(export_all(&container), Ok(input.to_vec()));
 }
 
 #[test]
@@ -59,7 +67,7 @@ fn crate_root_public_api_snapshot_compiles() {
 }
 
 #[test]
-fn writer_builder_accepts_memory_profile_with_document_index() {
+fn memory_profile_accepts_document_index() {
     let input = b"hello\nworld\n";
     let container_id = [0x20; 16];
     #[allow(clippy::naive_bytecount)]
