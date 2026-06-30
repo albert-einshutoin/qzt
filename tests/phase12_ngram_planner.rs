@@ -3,30 +3,19 @@ use std::fmt::Write as _;
 use std::fs;
 use std::process::Command;
 
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::QztReader;
 use qzt::search::{
     NgramIndexBuildOptions, NgramUnit, RawNgramIndex, SearchIndexSource, SearchOptions,
 };
-use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
+use qzt::writer::pack_bytes_with_container_id;
 mod support;
-use support::assert_semantic_report_eq;
-
-fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size,
-            max_chunk_size,
-        },
-        zstd_level: 0,
-    }
-}
+use support::{assert_semantic_report_eq, assert_success, output_success, writer_options};
 
 #[test]
 fn ngram_declaration_uses_raw_unicode_scalar_without_normalization() {
     let container =
-        pack_bytes_with_container_id("東京大学\n".as_bytes(), [0xd0; 16], options(64, 64))
+        pack_bytes_with_container_id("東京大学\n".as_bytes(), [0xd0; 16], writer_options(64, 64))
             .expect("container should pack");
     let index = RawNgramIndex::build_from_container(
         &container,
@@ -46,7 +35,7 @@ fn ngram_declaration_uses_raw_unicode_scalar_without_normalization() {
 
 #[test]
 fn normalized_ngram_index_is_rejected_without_mapping_metadata() {
-    let container = pack_bytes_with_container_id(b"alpha\n", [0xd1; 16], options(64, 64))
+    let container = pack_bytes_with_container_id(b"alpha\n", [0xd1; 16], writer_options(64, 64))
         .expect("container should pack");
     let error = RawNgramIndex::build_from_container(
         &container,
@@ -66,8 +55,9 @@ fn normalized_ngram_index_is_rejected_without_mapping_metadata() {
 #[test]
 fn ngram_search_verifies_substring_across_chunk_boundaries() {
     let input = "abc東京xyz\n京都abc\n";
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xd2; 16], options(5, 5))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xd2; 16], writer_options(5, 5))
+            .expect("container should pack");
     let index = RawNgramIndex::build_from_container(
         &container,
         NgramIndexBuildOptions {
@@ -92,8 +82,9 @@ fn ngram_search_verifies_substring_across_chunk_boundaries() {
 
 #[test]
 fn missing_key_in_complete_index_returns_no_match_without_decode() {
-    let container = pack_bytes_with_container_id(b"alpha\nbeta\n", [0xd3; 16], options(64, 64))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(b"alpha\nbeta\n", [0xd3; 16], writer_options(64, 64))
+            .expect("container should pack");
     let index = RawNgramIndex::build_from_container(
         &container,
         NgramIndexBuildOptions {
@@ -117,8 +108,9 @@ fn missing_key_in_complete_index_returns_no_match_without_decode() {
 
 #[test]
 fn missing_key_in_incomplete_index_reports_incomplete_without_fallback_decode() {
-    let container = pack_bytes_with_container_id(b"alpha\nbeta\n", [0xd4; 16], options(64, 64))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(b"alpha\nbeta\n", [0xd4; 16], writer_options(64, 64))
+            .expect("container should pack");
     let index = RawNgramIndex::build_from_container(
         &container,
         NgramIndexBuildOptions {
@@ -149,8 +141,9 @@ fn planner_uses_rarest_non_high_df_key_first() {
         input.push_str("aaaxxx\n");
     }
     input.push_str("aaazzz\n");
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xd5; 16], options(128, 128))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xd5; 16], writer_options(128, 128))
+            .expect("container should pack");
     let index = RawNgramIndex::build_from_container(
         &container,
         NgramIndexBuildOptions {
@@ -177,8 +170,9 @@ fn skip_data_reduces_reported_posting_bytes_for_long_lists() {
     for index in 0..1100 {
         let _ = writeln!(input, "aaa line {index}");
     }
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xd6; 16], options(512, 512))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xd6; 16], writer_options(512, 512))
+            .expect("container should pack");
     let index = RawNgramIndex::build_from_container(
         &container,
         NgramIndexBuildOptions {
@@ -236,30 +230,14 @@ fn cli_ngram_search_reports_benchmark_metrics() {
     let _ = fs::remove_dir_all(base);
 }
 
-fn output_success(command: &mut Command) -> Vec<u8> {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    output.stdout
-}
-
-fn assert_success(command: &mut Command) {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
 #[test]
 fn query_shorter_than_n_reports_incomplete_reason() {
-    let container =
-        pack_bytes_with_container_id("中文証拠の行\n".as_bytes(), [0xd7; 16], options(64, 64))
-            .expect("container should pack");
+    let container = pack_bytes_with_container_id(
+        "中文証拠の行\n".as_bytes(),
+        [0xd7; 16],
+        writer_options(64, 64),
+    )
+    .expect("container should pack");
     let index = RawNgramIndex::build_from_container(
         &container,
         NgramIndexBuildOptions {
@@ -286,8 +264,9 @@ fn ngram_build_and_search_from_file_match_in_memory_paths() {
         let _ = writeln!(input, "情報ログ行 {index} common text");
     }
     input.push_str("zzz証拠テキスト\n");
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xd8; 16], options(64, 64))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xd8; 16], writer_options(64, 64))
+            .expect("container should pack");
 
     let memory_index =
         RawNgramIndex::build_from_container(&container, NgramIndexBuildOptions::default())

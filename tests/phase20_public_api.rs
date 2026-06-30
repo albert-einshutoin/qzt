@@ -1,19 +1,11 @@
 use qzt::error::QztError;
 use qzt::writer::pack_bytes_with_profile;
 use qzt::{
-    Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, QztFileReader, QztReader, VerifyLevel,
-    WriterBuilder, WriterOptions, pack_bytes_with_container_id, pack_bytes_with_dense_line_index,
+    Checksum, DocumentEntry, DocumentIndex, QztFileReader, QztReader, VerifyLevel, WriterBuilder,
+    pack_bytes_with_container_id, pack_bytes_with_dense_line_index,
 };
-
-fn options() -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size: 8,
-            max_chunk_size: 8,
-        },
-        zstd_level: 0,
-    }
-}
+mod support;
+use support::writer_options;
 
 #[test]
 fn writer_builder_reproduces_legacy_pack_entry_points() {
@@ -22,18 +14,18 @@ fn writer_builder_reproduces_legacy_pack_entry_points() {
 
     assert_eq!(
         WriterBuilder::new()
-            .options(options())
+            .options(writer_options(8, 8))
             .container_id(container_id)
             .pack(input),
-        pack_bytes_with_container_id(input, container_id, options())
+        pack_bytes_with_container_id(input, container_id, writer_options(8, 8))
     );
     assert_eq!(
         WriterBuilder::new()
-            .options(options())
+            .options(writer_options(8, 8))
             .container_id(container_id)
             .dense_line_index(true)
             .pack(input),
-        pack_bytes_with_dense_line_index(input, container_id, options())
+        pack_bytes_with_dense_line_index(input, container_id, writer_options(8, 8))
     );
 }
 
@@ -47,7 +39,7 @@ fn writer_builder_rejects_unknown_profile() {
 
 #[test]
 fn pack_bytes_with_profile_rejects_memory_without_document_index() {
-    let result = pack_bytes_with_profile(b"hello\n", options(), "memory", false);
+    let result = pack_bytes_with_profile(b"hello\n", writer_options(8, 8), "memory", false);
     assert_eq!(result.unwrap_err(), QztError::MetadataInvalid);
 }
 
@@ -55,7 +47,7 @@ fn pack_bytes_with_profile_rejects_memory_without_document_index() {
 fn crate_root_public_api_snapshot_compiles() {
     let input = b"alpha\nbeta\n";
     let container = WriterBuilder::new()
-        .options(options())
+        .options(writer_options(8, 8))
         .pack(input)
         .expect("pack");
     let memory = QztReader::open(&container).expect("memory reader");
@@ -86,7 +78,7 @@ fn writer_builder_accepts_memory_profile_with_document_index() {
         )],
     };
     let result = WriterBuilder::new()
-        .options(options())
+        .options(writer_options(8, 8))
         .container_id(container_id)
         .profile("memory")
         .document_index(document_index)

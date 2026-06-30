@@ -1,0 +1,34 @@
+# Ignore generated TAKT state by default.
+*
+
+# Keep the portable template files.
+!.gitignore
+!README.md
+!config.yaml
+!devloopd.yaml
+!workflows/
+!workflows/**
+!quality-gates/
+!quality-gates/**
+!automation/
+!automation/**
+!facets/
+!facets/**
+
+# Local generated state.
+runs/
+runs/**
+session-state.json
+persona_sessions.json
+staged-devloop-state.env
+quality-gates/logs/
+quality-gates/logs/**
+.gocache/
+.gocache/**
+.gomodcache/
+.gomodcache/**
+.npm-cache/
+.npm-cache/**
+.pytest_cache/
+.pytest_cache/**
+

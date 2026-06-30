@@ -1,20 +1,11 @@
 use qzt::cbor::{CborLimits, CborValue, encode_deterministic, validate_deterministic_with_limits};
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::limits::ResourceLimits;
 use qzt::reader::QztReader;
 use qzt::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
-use qzt::writer::{WriterOptions, pack_bytes};
-
-fn options() -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size: 64,
-            max_chunk_size: 64,
-        },
-        zstd_level: 0,
-    }
-}
+use qzt::writer::pack_bytes;
+mod support;
+use support::writer_options;
 
 #[test]
 fn cbor_decoder_uses_caller_supplied_allocation_budget() {
@@ -46,7 +37,7 @@ fn cbor_decoder_uses_caller_supplied_allocation_budget() {
 #[test]
 fn open_with_limits_threads_cbor_budget_into_metadata_decode() {
     let input = b"alpha\nbeta\n";
-    let container = pack_bytes(input, options()).expect("pack");
+    let container = pack_bytes(input, writer_options(64, 64)).expect("pack");
     let limits = ResourceLimits {
         max_cbor_allocation: 4,
         ..ResourceLimits::default()
@@ -61,7 +52,7 @@ fn open_with_limits_threads_cbor_budget_into_metadata_decode() {
 #[test]
 fn search_result_cap_limits_hits_and_marks_report_capped() {
     let input = b"needle one\nneedle two\nneedle three\n";
-    let container = pack_bytes(input, options()).expect("pack");
+    let container = pack_bytes(input, writer_options(64, 64)).expect("pack");
     let reader = QztReader::open(&container).expect("reader");
     let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
         .expect("token index");

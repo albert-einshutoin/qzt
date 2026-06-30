@@ -1,4 +1,14 @@
+#![allow(dead_code)]
+
+use std::io;
+use std::process::Command;
+use std::sync::{Arc, Mutex};
+
+use qzt::chunker::ChunkerOptions;
+use qzt::io::ReadAt;
+use qzt::schema::{Checksum, DocumentEntry};
 use qzt::search::SearchReport;
+use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
 
 /// Compare semantically-equivalent search behavior between two execution paths.
 ///
@@ -60,4 +70,175 @@ pub fn assert_semantic_report_eq(left: &SearchReport, right: &SearchReport, labe
         left.planner.high_df_keys, right.planner.high_df_keys,
         "planner.high_df_keys mismatch: {label}"
     );
+}
+
+pub fn chunker_options(target_chunk_size: usize, max_chunk_size: usize) -> ChunkerOptions {
+    ChunkerOptions {
+        target_chunk_size,
+        max_chunk_size,
+    }
+}
+
+pub fn writer_options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
+    WriterOptions {
+        chunker: chunker_options(target_chunk_size, max_chunk_size),
+        zstd_level: 0,
+    }
+}
+
+pub fn small_chunk_options() -> WriterOptions {
+    writer_options(8, 32)
+}
+
+pub fn pack_with_container_id(
+    input: &[u8],
+    container_id: [u8; 16],
+    target_chunk_size: usize,
+    max_chunk_size: usize,
+) -> Vec<u8> {
+    pack_bytes_with_container_id(
+        input,
+        container_id,
+        writer_options(target_chunk_size, max_chunk_size),
+    )
+    .expect("pack should work")
+}
+
+pub fn output_success(command: &mut Command) -> Vec<u8> {
+    let output = command.output().expect("command should run");
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    output.stdout
+}
+
+pub fn assert_success(command: &mut Command) {
+    let output = command.output().expect("command should run");
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
+pub fn run_success(command: &mut Command) -> Vec<u8> {
+    let output = command.output().expect("command should run");
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    output.stdout
+}
+
+#[derive(Clone)]
+pub struct CountingReadAt {
+    pub bytes: Arc<Vec<u8>>,
+    pub reads: Arc<Mutex<Vec<(u64, u64)>>>,
+}
+
+impl CountingReadAt {
+    pub fn new(bytes: Vec<u8>) -> Self {
+        Self {
+            bytes: Arc::new(bytes),
+            reads: Arc::new(Mutex::new(Vec::new())),
+        }
+    }
+}
+
+impl ReadAt for CountingReadAt {
+    fn read_exact_at(&self, offset: u64, buf: &mut [u8]) -> io::Result<()> {
+        self.reads
+            .lock()
+            .map_err(|_| io::Error::other("poisoned reads lock"))?
+            .push((offset, buf.len() as u64));
+        let start = usize::try_from(offset)
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "offset too large"))?;
+        let end = start
+            .checked_add(buf.len())
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "range overflow"))?;
+        let source = self
+            .bytes
+            .get(start..end)
+            .ok_or_else(|| io::Error::new(io::ErrorKind::UnexpectedEof, "short read"))?;
+        buf.copy_from_slice(source);
+        Ok(())
+    }
+}
+
+#[derive(Clone)]
+pub struct DocumentFixture<'a> {
+    pub doc_id: &'a str,
+    pub input: &'a [u8],
+    pub logical_offset: u64,
+    pub byte_length: u64,
+    pub first_line: u64,
+    pub line_count: u64,
+    pub chunk_start: u64,
+    pub chunk_end: u64,
+}
+
+pub fn document(fixture: &DocumentFixture<'_>) -> DocumentEntry {
+    let start = usize::try_from(fixture.logical_offset).unwrap_or(fixture.input.len());
+    let end = start
+        .checked_add(usize::try_from(fixture.byte_length).unwrap_or(0))
+        .unwrap_or(start)
+        .min(fixture.input.len());
+    let range = fixture.input.get(start..end).unwrap_or(&[]);
+    DocumentEntry::new(
+        fixture.doc_id,
+        fixture.logical_offset,
+        fixture.byte_length,
+        fixture.first_line,
+        fixture.line_count,
+        fixture.chunk_start,
+        fixture.chunk_end,
+        Checksum::blake3(range),
+    )
+}
+
+#[derive(Clone)]
+pub struct DocumentFixtureWithChecksum<'a> {
+    pub doc_id: &'a str,
+    pub input: &'a [u8],
+    pub logical_offset: u64,
+    pub byte_length: u64,
+    pub first_line: u64,
+    pub line_count: u64,
+    pub chunk_start: u64,
+    pub chunk_end: u64,
+    pub checksum_bytes: &'a [u8],
+}
+
+pub fn document_with_checksum(fixture: &DocumentFixtureWithChecksum<'_>) -> DocumentEntry {
+    let fallback_end = usize::try_from(fixture.logical_offset)
+        .ok()
+        .and_then(|start| start.checked_add(usize::try_from(fixture.byte_length).ok()?))
+        .unwrap_or(fixture.input.len());
+    let range = fixture
+        .input
+        .get(
+            usize::try_from(fixture.logical_offset).unwrap_or(0)
+                ..fallback_end.min(fixture.input.len()),
+        )
+        .unwrap_or(&[]);
+
+    let checksum = if fixture.checksum_bytes == b"actual" {
+        Checksum::blake3(range)
+    } else {
+        Checksum::blake3(fixture.checksum_bytes)
+    };
+
+    DocumentEntry::new(
+        fixture.doc_id,
+        fixture.logical_offset,
+        fixture.byte_length,
+        fixture.first_line,
+        fixture.line_count,
+        fixture.chunk_start,
+        fixture.chunk_end,
+        checksum,
+    )
 }

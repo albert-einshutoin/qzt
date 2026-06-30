@@ -2,31 +2,22 @@ use std::fmt::Write as _;
 use std::fs;
 use std::process::Command;
 
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::reader::QztFileReader;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::schema::Checksum;
 use qzt::search::{NgramIndexBuildOptions, RawNgramIndex, SearchOptions};
 use qzt::sidecar::{QziFileSidecar, QziSidecar, SidecarIndexKind, build_search_sidecar};
-use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
+use qzt::writer::pack_bytes_with_container_id;
 mod support;
-use support::assert_semantic_report_eq;
-
-fn options(target_chunk_size: usize, max_chunk_size: usize) -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size,
-            max_chunk_size,
-        },
-        zstd_level: 0,
-    }
-}
+use support::{
+    CountingReadAt, assert_semantic_report_eq, assert_success, output_success, writer_options,
+};
 
 #[test]
 fn wrong_source_container_id_sidecar_is_rejected() {
     let input = b"alpha\n";
-    let container = pack_bytes_with_container_id(input, [0xe0; 16], options(64, 64))
+    let container = pack_bytes_with_container_id(input, [0xe0; 16], writer_options(64, 64))
         .expect("container should pack");
     let mut sidecar =
         build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
@@ -41,7 +32,7 @@ fn wrong_source_container_id_sidecar_is_rejected() {
 #[test]
 fn wrong_source_original_checksum_sidecar_is_rejected() {
     let input = b"alpha\n";
-    let container = pack_bytes_with_container_id(input, [0xe1; 16], options(64, 64))
+    let container = pack_bytes_with_container_id(input, [0xe1; 16], writer_options(64, 64))
         .expect("container should pack");
     let mut sidecar =
         build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
@@ -59,7 +50,7 @@ fn wrong_source_original_checksum_sidecar_is_rejected() {
 #[test]
 fn missing_or_rejected_sidecar_does_not_break_core_operations() {
     let input = b"alpha\nbeta\n";
-    let container = pack_bytes_with_container_id(input, [0xe2; 16], options(8, 8))
+    let container = pack_bytes_with_container_id(input, [0xe2; 16], writer_options(8, 8))
         .expect("container should pack");
     let reader = QztReader::open(&container).expect("reader should open without sidecar");
 
@@ -70,8 +61,9 @@ fn missing_or_rejected_sidecar_does_not_break_core_operations() {
 #[test]
 fn sidecar_lookup_matches_transient_ngram_index_behavior() {
     let input = "東京大学\n京都大学\n";
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xe3; 16], options(8, 8))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xe3; 16], writer_options(8, 8))
+            .expect("container should pack");
     let sidecar = build_search_sidecar(&container, SidecarIndexKind::Ngram { n: 2 })
         .expect("sidecar should build");
     let sidecar = QziSidecar::open(&container, &sidecar).expect("sidecar should open");
@@ -101,8 +93,9 @@ fn common_term_sidecar_query_is_capped_without_decoding_candidates() {
     for index in 0..128 {
         let _ = writeln!(input, "aaa common {index}");
     }
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xe4; 16], options(256, 256))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xe4; 16], writer_options(256, 256))
+            .expect("container should pack");
     let sidecar = build_search_sidecar(&container, SidecarIndexKind::Ngram { n: 3 })
         .expect("sidecar should build");
     let sidecar = QziSidecar::open(&container, &sidecar).expect("sidecar should open");
@@ -130,8 +123,9 @@ fn rare_term_sidecar_query_decodes_only_candidate_overlapping_chunks() {
         let _ = writeln!(input, "info line {index}");
     }
     input.push_str("zzztarget\n");
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xe5; 16], options(64, 64))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xe5; 16], writer_options(64, 64))
+            .expect("container should pack");
     let sidecar = build_search_sidecar(&container, SidecarIndexKind::Ngram { n: 3 })
         .expect("sidecar should build");
     let sidecar = QziSidecar::open(&container, &sidecar).expect("sidecar should open");
@@ -198,33 +192,15 @@ fn replace_first(bytes: &mut [u8], needle: &[u8], replacement: &[u8]) {
     bytes[start..start + needle.len()].copy_from_slice(replacement);
 }
 
-fn output_success(command: &mut Command) -> Vec<u8> {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    output.stdout
-}
-
-fn assert_success(command: &mut Command) {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
 #[test]
 fn dense_sidecar_query_amortizes_physical_chunk_decodes() {
     let mut input = String::new();
     for index in 0..128 {
         let _ = writeln!(input, "aaa common {index}");
     }
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xe6; 16], options(64, 64))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xe6; 16], writer_options(64, 64))
+            .expect("container should pack");
     let sidecar = build_search_sidecar(&container, SidecarIndexKind::Ngram { n: 3 })
         .expect("sidecar should build");
     let sidecar = QziSidecar::open(&container, &sidecar).expect("sidecar should open");
@@ -247,8 +223,9 @@ fn file_sidecar_search_matches_in_memory_sidecar_search() {
     }
     input.push_str("alpha needle line\n");
     input.push_str("beta needle line\n");
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xe7; 16], options(128, 128))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xe7; 16], writer_options(128, 128))
+            .expect("container should pack");
 
     for kind in [SidecarIndexKind::Token, SidecarIndexKind::Ngram { n: 3 }] {
         let sidecar_bytes = build_search_sidecar(&container, kind).expect("sidecar should build");
@@ -284,9 +261,12 @@ fn file_sidecar_index_size_bytes_follows_serialized_manifest_model() {
     }
     non_skip_input.push_str("alpha needle line\n");
     non_skip_input.push_str("beta needle line\n");
-    let non_skip_container =
-        pack_bytes_with_container_id(non_skip_input.as_bytes(), [0xea; 16], options(128, 128))
-            .expect("container should pack");
+    let non_skip_container = pack_bytes_with_container_id(
+        non_skip_input.as_bytes(),
+        [0xea; 16],
+        writer_options(128, 128),
+    )
+    .expect("container should pack");
     let non_skip_sidecar =
         build_search_sidecar(&non_skip_container, SidecarIndexKind::Ngram { n: 3 })
             .expect("sidecar should build");
@@ -323,7 +303,7 @@ fn file_sidecar_index_size_bytes_follows_serialized_manifest_model() {
         let _ = writeln!(skip_input, "aaa line {index}");
     }
     let skip_container =
-        pack_bytes_with_container_id(skip_input.as_bytes(), [0xeb; 16], options(512, 512))
+        pack_bytes_with_container_id(skip_input.as_bytes(), [0xeb; 16], writer_options(512, 512))
             .expect("container should pack");
     let skip_sidecar = build_search_sidecar(&skip_container, SidecarIndexKind::Ngram { n: 3 })
         .expect("sidecar should build");
@@ -360,8 +340,9 @@ fn file_sidecar_search_reads_lazily_from_sidecar() {
         let _ = writeln!(input, "info line number {index}");
     }
     input.push_str("zzztarget unique\n");
-    let container = pack_bytes_with_container_id(input.as_bytes(), [0xe8; 16], options(512, 512))
-        .expect("container should pack");
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xe8; 16], writer_options(512, 512))
+            .expect("container should pack");
     let sidecar_bytes = build_search_sidecar(&container, SidecarIndexKind::Ngram { n: 3 })
         .expect("sidecar should build");
     let file_reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
@@ -392,9 +373,9 @@ fn file_sidecar_search_reads_lazily_from_sidecar() {
 
 #[test]
 fn file_sidecar_open_rejects_wrong_source_container() {
-    let container_a = pack_bytes_with_container_id(b"alpha\n", [0xe9; 16], options(64, 64))
+    let container_a = pack_bytes_with_container_id(b"alpha\n", [0xe9; 16], writer_options(64, 64))
         .expect("container a should pack");
-    let container_b = pack_bytes_with_container_id(b"alpha\n", [0xea; 16], options(64, 64))
+    let container_b = pack_bytes_with_container_id(b"alpha\n", [0xea; 16], writer_options(64, 64))
         .expect("container b should pack");
     let sidecar_bytes =
         build_search_sidecar(&container_a, SidecarIndexKind::Token).expect("sidecar should build");
@@ -408,39 +389,4 @@ fn file_sidecar_open_rejects_wrong_source_container() {
     )
     .err();
     assert_eq!(error, Some(QztError::ContainerIdMismatch));
-}
-
-struct CountingReadAt {
-    bytes: std::sync::Arc<Vec<u8>>,
-    reads: std::sync::Arc<std::sync::Mutex<Vec<(u64, u64)>>>,
-}
-
-impl CountingReadAt {
-    fn new(bytes: Vec<u8>) -> Self {
-        Self {
-            bytes: std::sync::Arc::new(bytes),
-            reads: std::sync::Arc::new(std::sync::Mutex::new(Vec::new())),
-        }
-    }
-}
-
-impl qzt::io::ReadAt for CountingReadAt {
-    fn read_exact_at(&self, offset: u64, buf: &mut [u8]) -> std::io::Result<()> {
-        self.reads
-            .lock()
-            .map_err(|_| std::io::Error::other("poisoned reads lock"))?
-            .push((offset, buf.len() as u64));
-        let start = usize::try_from(offset).map_err(|_| {
-            std::io::Error::new(std::io::ErrorKind::InvalidInput, "offset too large")
-        })?;
-        let end = start.checked_add(buf.len()).ok_or_else(|| {
-            std::io::Error::new(std::io::ErrorKind::InvalidInput, "range overflow")
-        })?;
-        let source = self
-            .bytes
-            .get(start..end)
-            .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::UnexpectedEof, "short read"))?;
-        buf.copy_from_slice(source);
-        Ok(())
-    }
 }
