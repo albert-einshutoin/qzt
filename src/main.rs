@@ -109,7 +109,46 @@ fn print_help() {
     println!("  2  usage error (unknown option / missing argument)");
 }
 
-fn run_pack(mut args: impl Iterator<Item = String>) -> ExitCode {
+/// Exact profile list line; kept in sync with `tests/cli_help.rs` (issue #71).
+const PACK_PROFILES_LINE: &str = "Profiles: minimal, core, log, archive, memory";
+
+fn print_pack_help() {
+    println!("qzt {}", qzt::version());
+    println!();
+    println!(
+        "Pack a UTF-8 text file into a QZT container (v0.1 technical preview; not production-ready)."
+    );
+    println!();
+    println!("Usage: qzt pack [OPTIONS] <INPUT>");
+    println!();
+    println!("{PACK_PROFILES_LINE}");
+    println!();
+    println!("Options:");
+    println!("  -o, --output <PATH>          Output .qzt path (required)");
+    println!("  --profile <PROFILE>          Pack profile (default: core)");
+    println!("  --chunk-size <BYTES>         Target chunk size");
+    println!("  --max-chunk-size <BYTES>     Maximum chunk size");
+    println!("  --zstd-level <LEVEL>         Zstd compression level");
+    println!("  --checksum blake3            Checksum algorithm (only blake3 is supported)");
+    println!("  --dict none                  Dictionary mode (CLI writing not implemented)");
+    println!("  --dense-line-index on|off    Dense line index (default: on for memory profile)");
+    println!("  -h, --help                   Show this help");
+    println!();
+    println!("stdin:");
+    println!("  Use '-' as INPUT to read from stdin:");
+    println!("  journalctl --since today | qzt pack - -o today.qzt");
+    println!("  (stdin requires --profile core without --dense-line-index;");
+    println!("   stdout output is not supported; -o <path> is always required)");
+}
+
+fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
+    let args: Vec<String> = args.collect();
+    if args.iter().any(|arg| arg == "--help" || arg == "-h") {
+        print_pack_help();
+        return ExitCode::SUCCESS;
+    }
+
+    let mut args = args.into_iter();
     let Some(input_path) = args.next() else {
         eprintln!("qzt pack: missing input file");
         return ExitCode::from(2);
