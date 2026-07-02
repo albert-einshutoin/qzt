@@ -283,6 +283,92 @@ fn cli_search_reports_user_readable_unsupported_sidecar_version() {
     let _ = fs::remove_dir_all(base);
 }
 
+#[test]
+fn corrupted_sidecar_cli_exits_without_panic() {
+    let base = std::env::temp_dir().join(format!("qzt-phase13-corrupt-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    let sidecar_path = base.join("input.qzt.qzi");
+    fs::write(&input, "東京大学\n京都大学\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("sidecar-rebuild")
+            .arg(&packed)
+            .arg("-o")
+            .arg(&sidecar_path)
+            .arg("--index")
+            .arg("ngram")
+            .arg("--ngram")
+            .arg("2"),
+    );
+
+    let mut sidecar = fs::read(&sidecar_path).expect("sidecar should be readable");
+    flip_first_sidecar_payload_byte(&mut sidecar);
+    fs::write(&sidecar_path, &sidecar).expect("corrupted sidecar should be written");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("search")
+        .arg(&packed)
+        .arg("東京")
+        .arg("--sidecar")
+        .arg(&sidecar_path)
+        .output()
+        .expect("search command should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(1),
+        "search must fail on corrupted sidecar"
+    );
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        !stderr.is_empty(),
+        "stderr must contain a user-facing error"
+    );
+    assert!(
+        !stderr.contains("panicked"),
+        "corrupted sidecar must not panic: {stderr}"
+    );
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("verify")
+            .arg(&packed)
+            .arg("--deep"),
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+fn flip_first_sidecar_payload_byte(sidecar: &mut [u8]) {
+    const SIDECAR_HEADER_LEN: usize = 16;
+    let manifest_size = usize::try_from(u64::from_le_bytes(
+        sidecar[8..SIDECAR_HEADER_LEN]
+            .try_into()
+            .expect("manifest size bytes"),
+    ))
+    .expect("manifest size should fit usize");
+    // Flip the first payload byte (after header + manifest) so checksum validation fails
+    // rather than tripping missing-file or usage errors.
+    let payload_offset = SIDECAR_HEADER_LEN
+        .checked_add(manifest_size)
+        .expect("payload offset should fit");
+    assert!(
+        payload_offset < sidecar.len(),
+        "sidecar must have at least one payload byte"
+    );
+    sidecar[payload_offset] ^= 0xff;
+}
+
 fn patch_sidecar_source_format_version(sidecar: &mut [u8], major: u8, minor: u8) {
     const SIDECAR_HEADER_LEN: usize = 16;
     let manifest_size = usize::try_from(u64::from_le_bytes(
