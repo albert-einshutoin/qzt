@@ -4,7 +4,7 @@ use std::time::Instant;
 
 use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
-use crate::format::FOOTER_TRAILER_LEN;
+use crate::format::{FOOTER_TRAILER_LEN, MAJOR_VERSION, MINOR_VERSION};
 use crate::io::ReadAt;
 use crate::primitives::{read_u64_le, u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
@@ -762,6 +762,9 @@ fn decode_manifest(bytes: &[u8]) -> Result<SidecarManifest> {
     if required_text(map, "schema", QztError::ContainerCorrupt)? != "qzt.sidecar.v1" {
         return Err(QztError::ContainerCorrupt);
     }
+    // Sidecar format negotiation mirrors the core container rule: only the
+    // supported major/minor pair is accepted; newer pairs are a version bump.
+    expect_source_format_version(map)?;
     let source_container_id =
         required_bstr16(map, "source_container_id", QztError::ContainerCorrupt)?;
     let source_original_checksum =
@@ -821,6 +824,27 @@ fn decode_manifest(bytes: &[u8]) -> Result<SidecarManifest> {
         terms: section_ref_from(sections, "terms")?,
         postings: section_ref_from(sections, "postings")?,
     })
+}
+
+fn expect_source_format_version(map: &[(CborValue, CborValue)]) -> Result<()> {
+    match field(map, "source_format_version", QztError::ContainerCorrupt)? {
+        CborValue::Array(values) if values.len() == 2 => {
+            let major = parse_format_version_component(&values[0])?;
+            let minor = parse_format_version_component(&values[1])?;
+            if major != MAJOR_VERSION || minor != MINOR_VERSION {
+                return Err(QztError::UnsupportedVersion);
+            }
+            Ok(())
+        }
+        _ => Err(QztError::ContainerCorrupt),
+    }
+}
+
+fn parse_format_version_component(value: &CborValue) -> Result<u16> {
+    match value {
+        CborValue::Integer(value) => u16::try_from(*value).map_err(|_| QztError::ContainerCorrupt),
+        _ => Err(QztError::ContainerCorrupt),
+    }
 }
 
 fn section_ref_value(section: &SectionRef) -> CborValue {
@@ -1029,6 +1053,10 @@ mod manifest_tests {
         CborValue::Map(vec![
             text_pair("schema", CborValue::Text("qzt.sidecar.v1".to_owned())),
             text_pair("source_container_id", CborValue::Bytes(vec![0; 16])),
+            text_pair(
+                "source_format_version",
+                CborValue::Array(vec![CborValue::Integer(0), CborValue::Integer(1)]),
+            ),
             text_pair("source_original_checksum", checksum_fixture(b"source")),
             text_pair("source_qzt_footer_checksum", checksum_fixture(b"footer")),
             text_pair("index_type", CborValue::Text("token".to_owned())),
@@ -1059,5 +1087,21 @@ mod manifest_tests {
         let bytes = encode_deterministic(&manifest_fixture(overflow)).expect("manifest encodes");
         let err = decode_manifest(&bytes).expect_err("oversized u32 is rejected");
         assert!(matches!(err, QztError::ResourceLimitExceeded));
+    }
+
+    #[test]
+    fn manifest_rejects_unsupported_source_format_version() {
+        let mut fixture = manifest_fixture(CborValue::Integer(0));
+        let CborValue::Map(entries) = &mut fixture else {
+            panic!("fixture must be a map");
+        };
+        for (key, value) in entries.iter_mut() {
+            if key == &CborValue::Text("source_format_version".to_owned()) {
+                *value = CborValue::Array(vec![CborValue::Integer(0), CborValue::Integer(2)]);
+            }
+        }
+        let bytes = encode_deterministic(&fixture).expect("manifest encodes");
+        let err = decode_manifest(&bytes).expect_err("newer minor is rejected");
+        assert_eq!(err, QztError::UnsupportedVersion);
     }
 }
