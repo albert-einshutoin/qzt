@@ -894,7 +894,7 @@ fn run_docs(mut args: impl Iterator<Item = String>) -> ExitCode {
                         chk = checksum_hex,
                     );
                 }
-                println!("}}]}}");
+                println!("]}}");
             }
             ExitCode::SUCCESS
         }
