@@ -1,5 +1,5 @@
 use std::fs;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use qzt::open_skeleton_details;
 use qzt::{
@@ -98,6 +98,69 @@ fn cli_pack_rejects_invalid_utf8() {
         String::from_utf8_lossy(&output.stderr).contains("not valid UTF-8"),
         "stderr: {}",
         String::from_utf8_lossy(&output.stderr)
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// CHANGELOG contract: `qzt pack -` with `--dense-line-index on` exits 2 and explains
+/// the streaming-only stdin path so large streams are never buffered silently.
+#[test]
+fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase9-stdin-dense-conflict-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+    let stdin_input = base.join("stdin.txt");
+    let packed = base.join("never.qzt");
+    fs::write(&stdin_input, b"alpha\nbeta\n").expect("stdin fixture should be written");
+
+    let stdin_file = fs::File::open(&stdin_input).expect("stdin fixture should open");
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("pack")
+        .arg("-")
+        .arg("-o")
+        .arg(&packed)
+        .arg("--dense-line-index")
+        .arg("on")
+        .stdin(Stdio::from(stdin_file))
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output()
+        .expect("qzt pack should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "stdin + --dense-line-index on must exit 2"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "stdout must be empty on usage error, got: {:?}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("stdin"),
+        "stderr must mention stdin, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--dense-line-index"),
+        "stderr must mention --dense-line-index, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--profile core"),
+        "stderr must point to --profile core, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("streaming pack path"),
+        "stderr must mention streaming pack path, got: {stderr}"
+    );
+    assert!(
+        !packed.exists(),
+        "no container should be written on usage error"
     );
 
     let _ = fs::remove_dir_all(base);
