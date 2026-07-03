@@ -1,7 +1,11 @@
 use std::fs;
 use std::process::Command;
 
-use qzt::skeleton::open_skeleton_details;
+use qzt::open_skeleton_details;
+use qzt::{
+    Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes,
+    pack_bytes_with_document_index,
+};
 mod support;
 use support::{assert_success, output_success};
 
@@ -574,6 +578,224 @@ fn verify_format_missing_value_exits_2() {
         Some(2),
         "--format with missing value must exit 2"
     );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+// ---------------------------------------------------------------------------
+// Issue #95: focused docs/doc failure contracts (default-features CLI tests)
+// ---------------------------------------------------------------------------
+
+fn docs_doc_writer_options() -> WriterOptions {
+    WriterOptions {
+        chunker: ChunkerOptions {
+            target_chunk_size: 9,
+            max_chunk_size: 9,
+        },
+        zstd_level: 0,
+    }
+}
+
+const DOCS_DOC_TWO_LINES: &[u8] = b"aaaaaaaa\nbbbbbbbb\n";
+
+fn docs_doc_indexed_container() -> Vec<u8> {
+    let doc_one = DocumentEntry::new(
+        "doc-one",
+        0,
+        9,
+        0,
+        1,
+        0,
+        1,
+        Checksum::blake3(&DOCS_DOC_TWO_LINES[0..9]),
+    );
+    let doc_two = DocumentEntry::new(
+        "doc-two",
+        9,
+        9,
+        1,
+        1,
+        1,
+        2,
+        Checksum::blake3(&DOCS_DOC_TWO_LINES[9..18]),
+    );
+    let document_index = DocumentIndex {
+        container_id: [0x95; 16],
+        documents: vec![doc_one, doc_two],
+    };
+    pack_bytes_with_document_index(
+        DOCS_DOC_TWO_LINES,
+        [0x95; 16],
+        docs_doc_writer_options(),
+        &document_index,
+    )
+    .expect("indexed container should pack")
+}
+
+fn docs_doc_no_index_container() -> Vec<u8> {
+    pack_bytes(b"hello\nworld\n", WriterOptions::default()).expect("no-index container should pack")
+}
+
+fn run_qzt(args: &[&str]) -> std::process::Output {
+    Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .args(args)
+        .output()
+        .expect("qzt command should run")
+}
+
+/// CHANGELOG contract: `qzt docs` exits 1 when the container has no Document Index.
+#[test]
+fn docs_no_document_index_exits_1() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-docs-noindex-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let qzt_path = base.join("noidx.qzt");
+    fs::write(&qzt_path, docs_doc_no_index_container()).expect("write fixture");
+
+    let out = run_qzt(&["docs", qzt_path.to_str().unwrap()]);
+    assert_eq!(
+        out.status.code(),
+        Some(1),
+        "qzt docs must exit 1 without Document Index; stderr: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(
+        !out.stderr.is_empty(),
+        "stderr must describe the missing Document Index"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// CHANGELOG contract: `qzt doc` exits 1 for an unknown `doc_id`.
+#[test]
+fn doc_unknown_id_exits_1() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-doc-unknown-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let qzt_path = base.join("indexed.qzt");
+    fs::write(&qzt_path, docs_doc_indexed_container()).expect("write fixture");
+
+    let out = run_qzt(&["doc", qzt_path.to_str().unwrap(), "unknown-doc-id"]);
+    assert_eq!(
+        out.status.code(),
+        Some(1),
+        "qzt doc must exit 1 for unknown doc_id; stderr: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(
+        !out.stderr.is_empty(),
+        "stderr must describe the unknown doc_id"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// CHANGELOG contract: wrong `DocumentEntry.checksum` fails verified extraction (exit 1)
+/// while `--no-verify` still returns intact payload bytes.
+#[test]
+fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase9-doc-tampered-chk-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+
+    let wrong_checksum = Checksum {
+        algorithm: String::from("blake3"),
+        value: [0u8; 32],
+    };
+    let doc_entry = DocumentEntry::new(
+        "target",
+        0,
+        DOCS_DOC_TWO_LINES.len() as u64,
+        0,
+        2,
+        0,
+        1,
+        wrong_checksum,
+    );
+    let document_index = DocumentIndex {
+        container_id: [0x96; 16],
+        documents: vec![doc_entry],
+    };
+    let container = pack_bytes_with_document_index(
+        DOCS_DOC_TWO_LINES,
+        [0x96; 16],
+        docs_doc_writer_options(),
+        &document_index,
+    )
+    .expect("tampered checksum container should pack");
+
+    let qzt_path = base.join("tampered.qzt");
+    fs::write(&qzt_path, &container).expect("write fixture");
+    let path = qzt_path.to_str().unwrap();
+
+    let verified = run_qzt(&["doc", path, "target"]);
+    assert_eq!(
+        verified.status.code(),
+        Some(1),
+        "verified extraction must exit 1 on checksum mismatch; stderr: {}",
+        String::from_utf8_lossy(&verified.stderr)
+    );
+
+    let no_verify = run_qzt(&["doc", path, "target", "--no-verify"]);
+    assert_eq!(
+        no_verify.status.code(),
+        Some(0),
+        "--no-verify must exit 0 when chunk payload is intact; stderr: {}",
+        String::from_utf8_lossy(&no_verify.stderr)
+    );
+    assert_eq!(
+        no_verify.stdout, DOCS_DOC_TWO_LINES,
+        "--no-verify must return the original bytes unchanged"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// Regression guard: success path for `qzt docs --format json` remains stable.
+#[test]
+fn docs_json_success_path_smoke() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-docs-json-ok-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let qzt_path = base.join("indexed.qzt");
+    fs::write(&qzt_path, docs_doc_indexed_container()).expect("write fixture");
+
+    let out = run_qzt(&["docs", qzt_path.to_str().unwrap(), "--format", "json"]);
+    assert!(
+        out.status.success(),
+        "qzt docs --format json must succeed; stderr: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let json = String::from_utf8(out.stdout).expect("stdout should be utf-8");
+    assert!(
+        json.trim_start().starts_with('{'),
+        "must emit JSON object: {json}"
+    );
+    assert!(
+        json.contains("\"documents\""),
+        "must contain documents key: {json}"
+    );
+    assert!(json.contains("\"doc-one\""), "must list doc-one: {json}");
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// Regression guard: success path for `qzt doc` verified extraction remains stable.
+#[test]
+fn doc_success_path_smoke() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-doc-ok-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let qzt_path = base.join("indexed.qzt");
+    fs::write(&qzt_path, docs_doc_indexed_container()).expect("write fixture");
+
+    let out = run_qzt(&["doc", qzt_path.to_str().unwrap(), "doc-one"]);
+    assert!(
+        out.status.success(),
+        "qzt doc must succeed for known doc_id; stderr: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert_eq!(out.stdout, b"aaaaaaaa\n");
 
     let _ = fs::remove_dir_all(base);
 }
