@@ -6,10 +6,9 @@
 use std::fs;
 use std::process::Command;
 
-use qzt::{
-    Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes,
-    pack_bytes_with_document_index,
-};
+use qzt::chunker::ChunkerOptions;
+use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
+use qzt::writer::{WriterOptions, pack_bytes_with_document_index};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -63,7 +62,8 @@ fn two_doc_container() -> Vec<u8> {
 
 /// Builds a container without a Document Index.
 fn no_index_container() -> Vec<u8> {
-    pack_bytes(b"hello\nworld\n", WriterOptions::default()).expect("no_index_container should pack")
+    qzt::writer::pack_bytes(b"hello\nworld\n", WriterOptions::default())
+        .expect("no_index_container should pack")
 }
 
 fn run(args: &[&str]) -> std::process::Output {

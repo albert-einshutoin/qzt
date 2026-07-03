@@ -6,19 +6,6 @@ The Phase18 harness is reproducible measurement, not an SLA. It uses the
 Phase23 validation corpus generators and compares QZT range restore against
 whole-file raw zstd restore on the same bytes.
 
-## When To Use QZT
-
-QZT v0.1 is a technical preview. Use it when verified original-byte evidence
-matters more than database-style indexing or whole-file decompression.
-
-| Workload | Use QZT when | Caveat |
-| --- | --- | --- |
-| Evidence containers | You need a cold, immutable container that preserves source bytes and integrity checks | Technical preview; no production SLA or performance guarantee |
-| Large immutable logs | Append-once text must stay seekable without recompressing or decoding the whole archive | Benchmark timing is reproducible evidence, not a performance promise |
-| Byte-exact range restore | Callers need a verified slice from compressed storage, not a full-file decode | Restore decodes only the chunks overlapping the requested range |
-| Verified document retrieval | Stable IDs should resolve to original-byte ranges and round-trip through partial decode | Document Index is an optional extension, not a replacement for original text |
-| Rebuildable sidecar search | Search can live in a derived QZI index while hits are verified against container bytes | QZI sidecars are rebuildable, optional, and may be larger than source text |
-
 Run the default smoke:
 
 ```sh
