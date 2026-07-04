@@ -23,6 +23,11 @@ coverage-*/
 /fuzz/coverage/
 /fuzz/target/
 
+# Local automation state
+/.devloop/
+/.takt/
+/.tmp_run_test.sh
+
 # Local environment and secrets
 .env
 .env.*
