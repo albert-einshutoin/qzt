@@ -1,8 +1,11 @@
 use std::panic;
 
 use qzt::chunker::ChunkerOptions;
-use qzt::reader::{QztReader, VerifyLevel};
+use qzt::reader::{QztFileReader, QztReader, VerifyLevel};
+use qzt::skeleton::open_skeleton_details;
 use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
+mod support;
+use support::writer_options;
 
 const CORE_CONFORMANCE_MAP: &[(u8, &str, &str)] = &[
     (
@@ -399,6 +402,37 @@ fn core_conformance_map_covers_all_items() {
         assert_eq!(expected, *actual);
         assert!(!evidence.is_empty());
     }
+}
+
+#[test]
+fn crlf_chunk_boundary_conformance_pack_verify_export_range_and_line() {
+    // Spec §8 (JP) / Core Spec §12.1 (EN): chunk boundaries MUST NOT split between CR
+    // and LF in a CRLF sequence. Tiny chunk sizes force `\r` to be a boundary candidate.
+    let input = b"a\r\nb\r\nc";
+    let container = pack_bytes_with_container_id(input, [0x65; 16], writer_options(2, 2))
+        .expect("CRLF fixture should pack");
+
+    let details = open_skeleton_details(&container).expect("container should open");
+    for entry in &details.chunk_entries {
+        let end = usize::try_from(entry.logical_offset).expect("fits")
+            + usize::try_from(entry.uncompressed_size).expect("fits");
+        assert!(
+            !(end > 0 && end < input.len() && input[end - 1] == b'\r' && input[end] == b'\n'),
+            "chunk logical end must not fall between CR and LF"
+        );
+    }
+
+    let reader = QztReader::open(&container).expect("reader should open");
+    reader
+        .verify(VerifyLevel::Deep)
+        .expect("deep verify should pass");
+    assert_eq!(reader.export_all(), Ok(input.to_vec()));
+    assert_eq!(reader.read_range(1, 2), Ok(b"\r\n".to_vec()));
+    assert_eq!(reader.read_line_raw(0), Ok(b"a\r\n".to_vec()));
+
+    let file = QztFileReader::open_read_at(&container[..], container.len() as u64)
+        .expect("file reader should open");
+    assert_eq!(file.read_line_raw(0), Ok(b"a\r\n".to_vec()));
 }
 
 #[test]

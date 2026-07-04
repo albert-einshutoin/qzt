@@ -183,6 +183,219 @@ fn cli_rebuilds_sidecar_and_searches_with_it() {
     let _ = fs::remove_dir_all(base);
 }
 
+#[test]
+fn unsupported_source_format_version_sidecar_is_rejected() {
+    let input = b"alpha\n";
+    let container = pack_bytes_with_container_id(input, [0xec; 16], writer_options(64, 64))
+        .expect("container should pack");
+    let sidecar =
+        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
+    let file_reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
+        .expect("file reader should open");
+
+    for (major, minor) in [(0, 2), (1, 0)] {
+        let mut patched = sidecar.clone();
+        patch_sidecar_source_format_version(&mut patched, major, minor);
+
+        assert_eq!(
+            QziSidecar::open(&container, &patched).map(|_| ()),
+            Err(QztError::UnsupportedVersion),
+            "in-memory open should reject [{major}, {minor}]"
+        );
+        assert_eq!(
+            QziFileSidecar::open_read_at(patched.as_slice(), patched.len() as u64, &file_reader,)
+                .map(|_| ()),
+            Err(QztError::UnsupportedVersion),
+            "file sidecar open should reject [{major}, {minor}]"
+        );
+    }
+}
+
+#[test]
+fn rejected_sidecar_does_not_break_core_operations() {
+    let input = b"alpha\nbeta\n";
+    let container = pack_bytes_with_container_id(input, [0xed; 16], writer_options(8, 8))
+        .expect("container should pack");
+    let mut sidecar =
+        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
+    patch_sidecar_source_format_version(&mut sidecar, 1, 0);
+
+    assert_eq!(
+        QziSidecar::open(&container, &sidecar).map(|_| ()),
+        Err(QztError::UnsupportedVersion)
+    );
+
+    let reader = QztReader::open(&container).expect("reader should open without sidecar");
+    assert_eq!(reader.export_all().expect("export should work"), input);
+    assert!(reader.verify(VerifyLevel::Deep).is_ok());
+}
+
+#[test]
+fn cli_search_reports_user_readable_unsupported_sidecar_version() {
+    let base = std::env::temp_dir().join(format!("qzt-phase13-version-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    let sidecar_path = base.join("input.qzt.qzi");
+    fs::write(&input, "東京大学\n京都大学\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("sidecar-rebuild")
+            .arg(&packed)
+            .arg("-o")
+            .arg(&sidecar_path)
+            .arg("--index")
+            .arg("token"),
+    );
+
+    let mut sidecar = fs::read(&sidecar_path).expect("sidecar should be readable");
+    patch_sidecar_source_format_version(&mut sidecar, 0, 2);
+    fs::write(&sidecar_path, &sidecar).expect("patched sidecar should be written");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("search")
+        .arg(&packed)
+        .arg("東京")
+        .arg("--sidecar")
+        .arg(&sidecar_path)
+        .output()
+        .expect("search command should run");
+
+    assert_eq!(output.status.code(), Some(1), "search must fail");
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("unsupported QZT format version"),
+        "stderr must use user-facing version message: {stderr}"
+    );
+    assert!(
+        !stderr.contains("UnsupportedVersion"),
+        "stderr must not expose internal error names: {stderr}"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn corrupted_sidecar_cli_exits_without_panic() {
+    let base = std::env::temp_dir().join(format!("qzt-phase13-corrupt-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    let sidecar_path = base.join("input.qzt.qzi");
+    fs::write(&input, "東京大学\n京都大学\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("sidecar-rebuild")
+            .arg(&packed)
+            .arg("-o")
+            .arg(&sidecar_path)
+            .arg("--index")
+            .arg("ngram")
+            .arg("--ngram")
+            .arg("2"),
+    );
+
+    let mut sidecar = fs::read(&sidecar_path).expect("sidecar should be readable");
+    flip_first_sidecar_payload_byte(&mut sidecar);
+    fs::write(&sidecar_path, &sidecar).expect("corrupted sidecar should be written");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("search")
+        .arg(&packed)
+        .arg("東京")
+        .arg("--sidecar")
+        .arg(&sidecar_path)
+        .output()
+        .expect("search command should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(1),
+        "search must fail on corrupted sidecar"
+    );
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        !stderr.is_empty(),
+        "stderr must contain a user-facing error"
+    );
+    assert!(
+        !stderr.contains("panicked"),
+        "corrupted sidecar must not panic: {stderr}"
+    );
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("verify")
+            .arg(&packed)
+            .arg("--deep"),
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+fn flip_first_sidecar_payload_byte(sidecar: &mut [u8]) {
+    const SIDECAR_HEADER_LEN: usize = 16;
+    let manifest_size = usize::try_from(u64::from_le_bytes(
+        sidecar[8..SIDECAR_HEADER_LEN]
+            .try_into()
+            .expect("manifest size bytes"),
+    ))
+    .expect("manifest size should fit usize");
+    // Flip the first payload byte (after header + manifest) so checksum validation fails
+    // rather than tripping missing-file or usage errors.
+    let payload_offset = SIDECAR_HEADER_LEN
+        .checked_add(manifest_size)
+        .expect("payload offset should fit");
+    assert!(
+        payload_offset < sidecar.len(),
+        "sidecar must have at least one payload byte"
+    );
+    sidecar[payload_offset] ^= 0xff;
+}
+
+fn patch_sidecar_source_format_version(sidecar: &mut [u8], major: u8, minor: u8) {
+    const SIDECAR_HEADER_LEN: usize = 16;
+    let manifest_size = usize::try_from(u64::from_le_bytes(
+        sidecar[8..SIDECAR_HEADER_LEN]
+            .try_into()
+            .expect("manifest size bytes"),
+    ))
+    .expect("manifest size should fit usize");
+    let manifest_start = SIDECAR_HEADER_LEN;
+    let manifest_end = manifest_start
+        .checked_add(manifest_size)
+        .expect("manifest end should fit");
+    let manifest = &mut sidecar[manifest_start..manifest_end];
+    let key = b"source_format_version";
+    let key_offset = manifest
+        .windows(key.len())
+        .position(|window| window == key)
+        .expect("source_format_version key should exist in manifest");
+    let value_offset = key_offset + key.len();
+    assert_eq!(
+        manifest[value_offset], 0x82,
+        "source_format_version must be encoded as a two-item CBOR array"
+    );
+    manifest[value_offset + 1] = major;
+    manifest[value_offset + 2] = minor;
+}
+
 fn replace_first(bytes: &mut [u8], needle: &[u8], replacement: &[u8]) {
     assert_eq!(needle.len(), replacement.len());
     let start = bytes
