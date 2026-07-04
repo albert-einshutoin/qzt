@@ -100,6 +100,33 @@ Exit codes:
   2  usage error (unknown option / missing argument)
 ```
 
+## Troubleshooting
+
+Common CLI failure modes. QZT remains a `v0.1 technical preview`; treat these
+as expected constraints of the reference implementation, not production bugs.
+
+### `qzt pack -` (stdin) rejects the request
+
+Stdin packing only works on the streaming core path: `--profile core` without
+Dense Line Index (`--dense-line-index on` is not supported). `-o <path>` is
+always required; stdout output is not supported. Other profiles, dense line
+index mode, or a missing `-o` exit with code **2** and print a usage-style
+error.
+
+### n-gram query shorter than index `n`
+
+If a query is shorter than the sidecar's n-gram `n` (default 3), the index
+cannot answer it. The CLI does **not** return a confident empty result; search
+reports `incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
+
+### memory profile requires a Document Index
+
+The memory profile (`"memory"`) requires a Document Index at pack time. The `qzt pack`
+CLI does not accept a Document Index, so `qzt pack --profile memory` is
+rejected (`MetadataInvalid`, exit **1**). Use the writer API
+(`pack_bytes_with_memory_profile`) with a `DocumentIndex`, or pack with another
+profile (for example `core`).
+
 ## Documentation
 
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](docs/QZT_v0.1_Core_Spec.md)

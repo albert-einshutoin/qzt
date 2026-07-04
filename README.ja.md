@@ -94,6 +94,31 @@ Exit codes:
   2  usage error (unknown option / missing argument)
 ```
 
+## トラブルシューティング
+
+CLI でよくある失敗パターンです。QZT は `v0.1 technical preview` のままであり、
+production-ready ではありません。以下は参照実装の想定制約として扱ってください。
+
+### `qzt pack -`（stdin）が拒否される
+
+stdin pack は streaming core path のみ対応です: `--profile core` かつ Dense Line
+Index なし（`--dense-line-index on` は不可）。`-o <path>` は常に必須で、stdout
+出力はサポートしません。別 profile、dense line index、`-o` 欠落は exit **2** で
+usage 系エラーになります。
+
+### index の `n` より短い n-gram query
+
+query が sidecar の n-gram `n`（デフォルト 3）より短い場合、index では回答できません。
+CLI は確信を持った 0 件を返さず、`incomplete_reason=query_shorter_than_ngram_n` と
+警告を出力します。
+
+### memory profile には Document Index が必要
+
+memory profile（`"memory"`）は pack 時に Document Index が必須です。`qzt pack` CLI は
+Document Index を受け取れないため、`qzt pack --profile memory` は拒否されます
+（`MetadataInvalid`、exit **1**）。writer API（`pack_bytes_with_memory_profile`）で
+`DocumentIndex` を渡すか、別 profile（例: `core`）で pack してください。
+
 ## ドキュメント
 
 - 仕様要約: [docs/QZT_v0.1_Core_Spec.ja.md](docs/QZT_v0.1_Core_Spec.ja.md)
