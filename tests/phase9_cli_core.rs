@@ -503,6 +503,52 @@ fn verify_unknown_format_exits_2() {
     let _ = fs::remove_dir_all(base);
 }
 
+/// `qzt line <file> 0` is a usage error (CLI line numbers are 1-based); `1` reads the first line.
+#[test]
+fn cli_line_rejects_zero_and_reads_first_with_one() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-line-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"alpha\nbeta\ngamma\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let zero = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("line")
+        .arg(&packed)
+        .arg("0")
+        .output()
+        .expect("qzt line 0 should run");
+
+    assert_eq!(
+        zero.status.code(),
+        Some(2),
+        "qzt line 0 must exit 2 (1-based CLI line numbers)"
+    );
+    let stderr = String::from_utf8_lossy(&zero.stderr);
+    assert!(
+        stderr.contains("1-based"),
+        "stderr must explain 1-based line numbers: {stderr}"
+    );
+
+    let first = output_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("line")
+            .arg(&packed)
+            .arg("1"),
+    );
+    assert_eq!(first, b"alpha\n");
+
+    let _ = fs::remove_dir_all(base);
+}
+
 /// `qzt verify --format` with the flag as the last argument (missing value) exits 2.
 #[test]
 fn verify_format_missing_value_exits_2() {

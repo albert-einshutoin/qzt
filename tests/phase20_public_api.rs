@@ -29,16 +29,16 @@ fn writer_builder_reproduces_legacy_pack_entry_points() {
     );
 }
 
-// --- Issue #8: profile validation regression tests ---
+// --- Issue #60: pack profile validation regression tests ---
 
 #[test]
-fn writer_builder_rejects_unknown_profile() {
+fn profile_validation_writer_builder_rejects_unknown_profile() {
     let result = WriterBuilder::new().profile("bogus").pack(b"hello\n");
     assert_eq!(result.unwrap_err(), QztError::MetadataInvalid);
 }
 
 #[test]
-fn pack_bytes_with_profile_rejects_memory_without_document_index() {
+fn profile_validation_memory_profile_rejects_missing_document_index() {
     let result = pack_bytes_with_profile(b"hello\n", writer_options(8, 8), "memory", false);
     assert_eq!(result.unwrap_err(), QztError::MetadataInvalid);
 }
@@ -67,7 +67,7 @@ fn crate_root_public_api_snapshot_compiles() {
 }
 
 #[test]
-fn writer_builder_accepts_memory_profile_with_document_index() {
+fn memory_profile_accepts_document_index() {
     let input = b"hello\nworld\n";
     let container_id = [0x20; 16];
     #[allow(clippy::naive_bytecount)]
