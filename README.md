@@ -119,6 +119,17 @@ If a query is shorter than the sidecar's n-gram `n` (default 3), the index
 cannot answer it. The CLI does **not** return a confident empty result; search
 reports `incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
 
+### Search capped at result limit (`capped=true`)
+
+When a search hits more matches than the result cap allows, the report shows
+`capped=true` in the metrics line (text mode) or JSON `"capped": true`. This is
+**not** a failure: the command still exits **0** with the hits found up to the
+limit. `incomplete_reason` stays `none`; unlike a too-short n-gram query, the
+index answered—the search simply reached its configured ceiling.
+
+Raise the cap with `--max-results <N>` when you need more hits (for example
+`qzt search file.qzt needle --max-results 100`).
+
 ### memory profile requires a Document Index
 
 The memory profile (`"memory"`) requires a Document Index at pack time. The `qzt pack`
