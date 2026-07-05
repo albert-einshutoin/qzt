@@ -977,7 +977,15 @@ fn run_doc(mut args: impl Iterator<Item = String>) -> ExitCode {
             }
         }
         Err(ref error) => {
-            eprintln!("qzt doc: {error}");
+            match error {
+                CliError::Qzt(QztError::MissingRequiredBlock) => {
+                    eprintln!("qzt doc: no Document Index in this container");
+                }
+                CliError::Qzt(QztError::DocumentNotFound) => {
+                    eprintln!("qzt doc: doc_id not found: {doc_id}");
+                }
+                _ => eprintln!("qzt doc: {error}"),
+            }
             ExitCode::from(1)
         }
     }
