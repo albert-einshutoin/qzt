@@ -306,6 +306,41 @@ fn search_text_mode_unchanged() {
 }
 
 // ---------------------------------------------------------------------------
+// search_text_mode_capped_metrics_contract
+// ---------------------------------------------------------------------------
+
+/// Text-mode search with `--max-results` caps hits but still exits 0.
+/// `capped=true` means a limit was reached, not a command failure; it is
+/// distinct from `incomplete_reason=query_shorter_than_ngram_n`.
+#[test]
+fn search_text_mode_capped_metrics_contract() {
+    let base = std::env::temp_dir().join(format!("qzt-36-capped-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+
+    let packed = pack_to(b"needle one\nneedle two\nneedle three\n", &base);
+    let qzt = packed.to_str().unwrap();
+
+    let out = run(&["search", qzt, "needle", "--max-results", "2"]);
+    assert!(
+        out.status.success(),
+        "capped search must exit 0: stderr={}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let text = String::from_utf8(out.stdout).expect("stdout is utf-8");
+    assert!(
+        text.contains("capped=true"),
+        "metrics must report capped=true: {text}"
+    );
+    assert!(
+        text.contains("incomplete_reason=none"),
+        "capped search must not set incomplete_reason: {text}"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+// ---------------------------------------------------------------------------
 // search_unknown_format_exits_2
 // ---------------------------------------------------------------------------
 
