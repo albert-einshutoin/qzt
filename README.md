@@ -141,6 +141,7 @@ profile (for example `core`).
 ## Documentation
 
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](docs/QZT_v0.1_Core_Spec.md)
+- QZI sidecar spec: [docs/QZI_v0.1_Sidecar_Spec.md](docs/QZI_v0.1_Sidecar_Spec.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.md](docs/QZT_v0.1_Core_Readiness.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md)
 - Implementation phases: [tasks/README.md](tasks/README.md)
