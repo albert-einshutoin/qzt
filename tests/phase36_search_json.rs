@@ -341,6 +341,85 @@ fn search_text_mode_capped_metrics_contract() {
 }
 
 // ---------------------------------------------------------------------------
+// search_json_max_results_zero_caps_empty_hits
+// ---------------------------------------------------------------------------
+
+/// `--max-results 0` on a query that would normally hit still exits 0 with
+/// empty hits and `capped=true` (issue #136).
+#[test]
+fn search_json_max_results_zero_caps_empty_hits() {
+    let base = std::env::temp_dir().join(format!("qzt-36-max0-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+
+    let packed = pack_to(b"needle one\nneedle two\nneedle three\n", &base);
+    let qzt = packed.to_str().unwrap();
+
+    let out = run(&[
+        "search",
+        qzt,
+        "needle",
+        "--max-results",
+        "0",
+        "--format",
+        "json",
+    ]);
+    assert!(
+        out.status.success(),
+        "max-results 0 capped search must exit 0: stderr={}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let json = String::from_utf8(out.stdout).expect("stdout is utf-8");
+    let value: serde_json::Value = serde_json::from_str(&json)
+        .unwrap_or_else(|error| panic!("stdout must be valid JSON: {error}\n{json}"));
+
+    let hits = value
+        .get("hits")
+        .and_then(serde_json::Value::as_array)
+        .expect("hits must be an array");
+    assert!(
+        hits.is_empty(),
+        "hits must be empty when max-results is 0: {json}"
+    );
+
+    assert_eq!(
+        value.get("capped").and_then(serde_json::Value::as_bool),
+        Some(true),
+        "capped must be true: {json}"
+    );
+
+    assert_eq!(
+        value.get("incomplete_reason"),
+        Some(&serde_json::Value::Null),
+        "incomplete_reason must be null: {json}"
+    );
+
+    let metrics = value
+        .get("metrics")
+        .and_then(serde_json::Value::as_object)
+        .expect("metrics must be an object");
+
+    let candidate_granules = metrics
+        .get("candidate_granules")
+        .and_then(serde_json::Value::as_u64)
+        .expect("candidate_granules must be a non-negative integer");
+    assert!(
+        candidate_granules > 0,
+        "query must have candidate granules (would have hits without cap): {json}"
+    );
+
+    assert_eq!(
+        metrics
+            .get("verified_matches")
+            .and_then(serde_json::Value::as_u64),
+        Some(0),
+        "verified_matches must be 0 when capped at 0: {json}"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+// ---------------------------------------------------------------------------
 // search_unknown_format_exits_2
 // ---------------------------------------------------------------------------
 
