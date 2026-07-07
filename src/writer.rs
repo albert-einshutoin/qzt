@@ -589,6 +589,11 @@ pub fn pack_bytes_with_document_index(
     )
 }
 
+/// Memory-profile corpora below this line count use sparse line lookup only.
+///
+/// Phase10 benchmark evidence showed Dense Line Index pays off at or above 2048 lines.
+const MEMORY_PROFILE_DENSE_LINE_INDEX_MIN_LINES: u64 = 2048;
+
 /// Packs UTF-8 input using the memory profile defaults implemented in Phase10.
 pub fn pack_bytes_with_memory_profile(
     input: &[u8],
@@ -600,7 +605,7 @@ pub fn pack_bytes_with_memory_profile(
         input,
         container_id,
         options,
-        DenseLineIndexMode::Generate,
+        DenseLineIndexMode::GenerateIfAtLeast(MEMORY_PROFILE_DENSE_LINE_INDEX_MIN_LINES),
         Some(document_index),
         "memory",
     )
@@ -609,6 +614,8 @@ pub fn pack_bytes_with_memory_profile(
 enum DenseLineIndexMode {
     Omit,
     Generate,
+    /// Dense Line Index is written only when `plan.line_count` meets the threshold.
+    GenerateIfAtLeast(u64),
     Override(DenseLineIndex),
 }
 
@@ -674,6 +681,13 @@ fn pack_bytes_internal(
     let dense_line_index = match dense_mode {
         DenseLineIndexMode::Omit => None,
         DenseLineIndexMode::Generate => Some(DenseLineIndex::from_original_bytes(input, &entries)?),
+        DenseLineIndexMode::GenerateIfAtLeast(min_lines) => {
+            if plan.line_count >= min_lines {
+                Some(DenseLineIndex::from_original_bytes(input, &entries)?)
+            } else {
+                None
+            }
+        }
         DenseLineIndexMode::Override(dense) => Some(dense),
     };
 
