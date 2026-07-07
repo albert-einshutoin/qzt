@@ -2,11 +2,13 @@ use std::fmt::Write as _;
 use std::fs;
 use std::process::Command;
 
-use qzt::{
-    Checksum, NgramIndexBuildOptions, QziFileSidecar, QziSidecar, QztError, QztFileReader,
-    QztReader, RawNgramIndex, SearchOptions, SidecarIndexKind, VerifyLevel, build_search_sidecar,
-    pack_bytes_with_container_id,
-};
+use qzt::error::QztError;
+use qzt::reader::QztFileReader;
+use qzt::reader::{QztReader, VerifyLevel};
+use qzt::schema::Checksum;
+use qzt::search::{NgramIndexBuildOptions, RawNgramIndex, SearchOptions};
+use qzt::sidecar::{QziFileSidecar, QziSidecar, SidecarIndexKind, build_search_sidecar};
+use qzt::writer::pack_bytes_with_container_id;
 mod support;
 use support::{
     CountingReadAt, assert_semantic_report_eq, assert_success, output_success, writer_options,
