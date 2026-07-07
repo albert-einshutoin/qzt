@@ -1,4 +1,5 @@
 use std::fs;
+use std::io::Write as _;
 use std::process::{Command, Stdio};
 
 use qzt::open_skeleton_details;
@@ -164,6 +165,61 @@ fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
     );
 
     let _ = fs::remove_dir_all(base);
+}
+
+/// Issue #137: `qzt pack -` on `--profile core` stdin path round-trips empty and
+/// 1-byte inputs through deep verify and export.
+#[test]
+fn stdin_pack_empty_and_one_byte_deep_verify_and_export_roundtrip() {
+    let cases: &[(&str, &[u8])] = &[("empty", b""), ("one-byte", b"x")];
+
+    for (label, input) in cases {
+        let base =
+            std::env::temp_dir().join(format!("qzt-phase9-stdin-{label}-{}", std::process::id()));
+        let _ = fs::create_dir_all(&base);
+        let packed = base.join("stdin.qzt");
+
+        let mut child = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .args(["pack", "-", "-o", packed.to_str().unwrap()])
+            .stdin(Stdio::piped())
+            .spawn()
+            .expect("qzt pack should spawn");
+        if !input.is_empty() {
+            child
+                .stdin
+                .as_mut()
+                .expect("stdin pipe should exist")
+                .write_all(input)
+                .expect("stdin bytes should be written");
+        }
+        // Close stdin so `qzt pack` receives EOF and can finish.
+        drop(child.stdin.take());
+        let status = child.wait().expect("qzt pack should finish");
+        assert!(
+            status.success(),
+            "{label}: qzt pack - must succeed, got: {status:?}"
+        );
+        assert!(packed.exists(), "{label}: packed container must exist");
+
+        assert_success(
+            Command::new(env!("CARGO_BIN_EXE_qzt"))
+                .arg("verify")
+                .arg(&packed)
+                .arg("--deep"),
+        );
+
+        let exported = output_success(
+            Command::new(env!("CARGO_BIN_EXE_qzt"))
+                .arg("export")
+                .arg(&packed),
+        );
+        assert_eq!(
+            exported, *input,
+            "{label}: export must restore original stdin bytes"
+        );
+
+        let _ = fs::remove_dir_all(&base);
+    }
 }
 
 #[test]
