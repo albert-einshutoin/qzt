@@ -21,6 +21,24 @@ only the required range and return to the original evidence position.
 When publishing QZT externally, it should be positioned as a
 `v0.1 technical preview`, not as production-ready software.
 
+## Quick Start
+
+QZT packs large text into a **seekable, verifiable evidence container**
+(`v0.1 technical preview` / experimental reference implementation—not
+production-ready):
+
+```sh
+qzt pack input.txt -o output.qzt
+qzt info output.qzt
+qzt range output.qzt --lines 1:10
+qzt sidecar-rebuild output.qzt -o output.qzt.qzi
+qzt search output.qzt "error" --sidecar output.qzt.qzi
+```
+
+`pack` creates the container; `info` and `range` inspect and read slices
+without full decode; `sidecar-rebuild` builds a search index;
+`search --sidecar` queries it.
+
 ## v0.1 Technical Preview — Limitations
 
 QZT v0.1 is a reference implementation focused on spec coverage and correctness.
