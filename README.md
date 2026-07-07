@@ -61,6 +61,26 @@ Known limitations before production use:
 - **No production benchmark**: No comparison against SQLite FTS, Tantivy,
   Lucene, or seekable-zstd has been conducted for v0.1.
 
+### Reproducing the performance numbers
+
+The RSS figures above (for example 518 MB → 9.8 MB max RSS on the 42 MB /
+400K-line corpus) are **local smoke evidence**, not an SLA or production
+guarantee. Reproduce them on your machine with:
+
+```sh
+cargo test --test release_hardening -- --nocapture
+make bench-profile
+```
+
+For a quicker profile iteration:
+
+```sh
+QZT_RELEASE_BENCH_QUERY_REPETITIONS=5 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=2 make bench-profile
+```
+
+See [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md) for
+corpus details, metric definitions, and additional profiling targets.
+
 ## Local Quality Gate
 
 ```sh

@@ -56,6 +56,27 @@ production use の前に残っている既知の制限は以下です。
 - **Production benchmark は未実施**: v0.1 では SQLite FTS、Tantivy、Lucene、
   seekable-zstd との比較はまだ実施していません。
 
+### 性能数値の再現
+
+上記の RSS 数値（例: 42 MB / 40 万行コーパスで rare query の最大 RSS
+518 MB → 9.8 MB）は **ローカル smoke evidence** であり、SLA や production
+保証ではありません。手元で再現するには次を実行します。
+
+```sh
+cargo test --test release_hardening -- --nocapture
+make bench-profile
+```
+
+軽量な反復用:
+
+```sh
+QZT_RELEASE_BENCH_QUERY_REPETITIONS=5 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=2 make bench-profile
+```
+
+コーパス詳細、指標の定義、追加の profiling 対象は
+[docs/QZT_v0.1_Release_Hardening.ja.md](docs/QZT_v0.1_Release_Hardening.ja.md)
+を参照してください。
+
 ## ローカル品質ゲート
 
 ```sh
