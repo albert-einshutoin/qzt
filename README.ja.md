@@ -58,6 +58,22 @@ make check
 - cargo test --all-targets --all-features
 ```
 
+## クイックスタート
+
+1 つのテキストファイルで pack → inspect → export → diff まで試す最短パスです。
+QZT は `v0.1 technical preview` であり、production-ready ではない実験的な参照実装として扱ってください。
+
+プレーンテキスト（例: `input.txt`）を用意し、次を実行します。
+
+```sh
+qzt pack input.txt -o output.qzt
+qzt info output.qzt
+qzt export output.qzt -o restored.txt
+diff input.txt restored.txt
+```
+
+`diff` で出力がなければ、復元されたバイト列が元ファイルと一致しています。
+
 ## 主な CLI
 
 ```sh
