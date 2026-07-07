@@ -548,6 +548,84 @@ fn verify_json_reports_ok_with_counts() {
     let _ = fs::remove_dir_all(base);
 }
 
+/// `qzt verify --format json` must always emit `decoded_bytes` fixed by level and
+/// `checked_chunks` consistent across levels for the same container.
+#[test]
+fn verify_json_decoded_bytes_are_fixed_by_level() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-vjson-levels-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    let content = b"alpha\nbeta\ngamma\n";
+    fs::write(&input, content).expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let original_size = content.len() as u64;
+    let mut checked_chunks: Option<u64> = None;
+
+    for (level_flag, level_name, expected_decoded_bytes) in [
+        ("--quick", "quick", 0_u64),
+        ("--normal", "normal", 0_u64),
+        ("--deep", "deep", original_size),
+    ] {
+        let json_bytes = output_success(
+            Command::new(env!("CARGO_BIN_EXE_qzt"))
+                .arg("verify")
+                .arg(&packed)
+                .arg(level_flag)
+                .arg("--format")
+                .arg("json"),
+        );
+        let json = String::from_utf8(json_bytes).expect("json output should be utf-8");
+        let value: serde_json::Value =
+            serde_json::from_str(&json).expect("success output must be valid JSON");
+
+        assert_eq!(
+            value.get("ok").and_then(serde_json::Value::as_bool),
+            Some(true),
+            "ok must be true for {level_name}: {json}"
+        );
+        assert_eq!(
+            value.get("level").and_then(serde_json::Value::as_str),
+            Some(level_name),
+            "level must be {level_name}: {json}"
+        );
+        assert_eq!(
+            value
+                .get("decoded_bytes")
+                .and_then(serde_json::Value::as_u64),
+            Some(expected_decoded_bytes),
+            "decoded_bytes must be {expected_decoded_bytes} for {level_name}: {json}"
+        );
+
+        let chunks = value
+            .get("checked_chunks")
+            .and_then(serde_json::Value::as_u64)
+            .expect("checked_chunks must be present");
+        assert!(
+            chunks >= 1,
+            "checked_chunks must be >= 1 for {level_name}: {json}"
+        );
+
+        match checked_chunks {
+            None => checked_chunks = Some(chunks),
+            Some(expected) => assert_eq!(
+                chunks, expected,
+                "checked_chunks must match across levels: {json}"
+            ),
+        }
+    }
+
+    let _ = fs::remove_dir_all(base);
+}
+
 /// Regression guard for the frozen `qzt verify --deep --format json` failure contract:
 /// valid JSON on stdout, `ok:false`, `level:"deep"`, non-empty `error` string, silent stderr.
 #[test]
