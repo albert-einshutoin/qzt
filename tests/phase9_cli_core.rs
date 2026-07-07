@@ -2,7 +2,7 @@ use std::fs;
 use std::io::Write as _;
 use std::process::{Command, Stdio};
 
-use qzt::open_skeleton_details;
+use qzt::skeleton::open_skeleton_details;
 use qzt::{
     Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes,
     pack_bytes_with_document_index,
@@ -128,16 +128,16 @@ fn pack_help_mentions_stdin_packing_constraints() {
         "pack --help must mention --profile core, got:\n{stdout}"
     );
     assert!(
-        stdout.contains("Dense Line Index"),
-        "pack --help must mention Dense Line Index, got:\n{stdout}"
+        stdout.contains("dense-line-index"),
+        "pack --help must mention dense-line-index constraint, got:\n{stdout}"
     );
     assert!(
         stdout.contains("-o <path>"),
         "pack --help must mention -o <path>, got:\n{stdout}"
     );
     assert!(
-        stdout.contains("stdout container output is unsupported"),
-        "pack --help must state stdout container output is unsupported, got:\n{stdout}"
+        stdout.contains("stdout output is not supported"),
+        "pack --help must state stdout output is not supported, got:\n{stdout}"
     );
 }
 

@@ -80,8 +80,10 @@ fn print_help() {
     println!("Commands:");
     println!("  help       Show this help");
     println!("  pack       Pack a UTF-8 text file into QZT");
-    println!("             {PACK_STDIN_CONSTRAINT_LINE}");
-    println!("             Example: journalctl --since today | qzt pack - -o today.qzt");
+    println!("             Use '-' as the input path to read from stdin:");
+    println!("             journalctl --since today | qzt pack - -o today.qzt");
+    println!("             (stdin requires --profile core without --dense-line-index;");
+    println!("              stdout output is not supported; -o <path> is always required)");
     println!("  info       Print container summary (--format json for machine-readable output)");
     println!("  export     Restore original bytes (streams to -o file or stdout)");
     println!("  range      Print original bytes (--bytes A:B half-open) or lines");
@@ -110,9 +112,6 @@ fn print_help() {
 /// Exact profile list line; kept in sync with `tests/cli_help.rs` (issue #71).
 const PACK_PROFILES_LINE: &str = "Profiles: minimal, core, log, archive, memory";
 
-/// Stdin packing constraints; kept in sync with README Troubleshooting (issues #107, #152).
-const PACK_STDIN_CONSTRAINT_LINE: &str = "stdin ('-'): requires --profile core, no Dense Line Index; -o <path> required (stdout container output is unsupported)";
-
 fn print_pack_help() {
     println!("qzt {}", qzt::version());
     println!();
@@ -121,8 +120,6 @@ fn print_pack_help() {
     );
     println!();
     println!("Usage: qzt pack [OPTIONS] <INPUT>");
-    println!("  {PACK_STDIN_CONSTRAINT_LINE}");
-    println!("  Example: journalctl --since today | qzt pack - -o today.qzt");
     println!();
     println!("{PACK_PROFILES_LINE}");
     println!();
@@ -136,6 +133,12 @@ fn print_pack_help() {
     println!("  --dict none                  Dictionary mode (CLI writing not implemented)");
     println!("  --dense-line-index on|off    Dense line index (default: on for memory profile)");
     println!("  -h, --help                   Show this help");
+    println!();
+    println!("stdin:");
+    println!("  Use '-' as INPUT to read from stdin:");
+    println!("  journalctl --since today | qzt pack - -o today.qzt");
+    println!("  (stdin requires --profile core without --dense-line-index;");
+    println!("   stdout output is not supported; -o <path> is always required)");
 }
 
 fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
