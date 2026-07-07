@@ -100,6 +100,24 @@ Exit codes:
   2  usage error (unknown option / missing argument)
 ```
 
+## Troubleshooting
+
+Common CLI failure modes. QZT remains a `v0.1 technical preview`; treat these
+as expected constraints of the reference implementation, not production bugs.
+
+### High RSS or OOM during `qzt sidecar-rebuild`
+
+`qzt sidecar-rebuild` builds the full posting map in memory. Build RSS scales
+with vocabulary and posting-map size (roughly the sidecar size expanded), even
+though decode is chunk-at-a-time. This is a known v0.1 technical-preview
+constraint, not a production outage.
+
+Run `sidecar-rebuild` on a machine sized for the corpus. For repeated searches,
+build the sidecar once with `qzt sidecar-rebuild`, then use
+`qzt search --sidecar <file.qzi>` — sidecar search runs on the bounded-memory
+`QztFileReader` and fetches only the queried posting lists and candidate
+granule records.
+
 ## Documentation
 
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](docs/QZT_v0.1_Core_Spec.md)

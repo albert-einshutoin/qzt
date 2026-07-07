@@ -94,6 +94,24 @@ Exit codes:
   2  usage error (unknown option / missing argument)
 ```
 
+## トラブルシューティング
+
+CLI でよくある失敗パターンです。QZT は `v0.1 technical preview` のままであり、
+production-ready ではありません。以下は参照実装の想定制約として扱ってください。
+
+### `qzt sidecar-rebuild` で高 RSS または OOM
+
+`qzt sidecar-rebuild` は posting map 全体をメモリに構築します。decode は
+チャンク単位ですが、構築時の RSS は語彙量と posting-map サイズに応じて増えます
+（おおよそ sidecar サイズの展開分）。これは v0.1 technical preview の既知制約であり、
+production の障害ではありません。
+
+sidecar の構築はコーパスに見合ったマシンで実行してください。繰り返し検索する場合は、
+一度 `qzt sidecar-rebuild` で sidecar を作成し、その後
+`qzt search --sidecar <file.qzi>` を使います。sidecar 検索は bounded-memory な
+`QztFileReader` 上で動作し、query された posting list と候補 granule レコードだけを
+fetch します。
+
 ## ドキュメント
 
 - 仕様要約: [docs/QZT_v0.1_Core_Spec.ja.md](docs/QZT_v0.1_Core_Spec.ja.md)
