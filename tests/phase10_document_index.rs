@@ -232,3 +232,100 @@ fn read_document_resolves_by_id_and_reports_missing() {
         Err(QztError::DocumentNotFound)
     );
 }
+
+#[test]
+fn info_json_identity_fields_survive_document_index_container() {
+    use std::fs;
+    use std::process::Command;
+
+    let input = b"doc-one\n";
+    let container_id = [0x93; 16];
+    let document_index = DocumentIndex {
+        container_id,
+        documents: vec![document(&DocumentFixture {
+            doc_id: "doc-one",
+            input,
+            logical_offset: 0,
+            byte_length: 8,
+            first_line: 0,
+            line_count: 1,
+            chunk_start: 0,
+            chunk_end: 1,
+        })],
+    };
+    let container =
+        pack_bytes_with_document_index(input, container_id, writer_options(8, 8), &document_index)
+            .expect("document-index container should pack structurally");
+
+    let base = std::env::temp_dir().join(format!("qzt-93-info-json-docidx-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let path = base.join("indexed.qzt");
+    fs::write(&path, container).expect("write indexed container");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .args(["info", path.to_str().unwrap(), "--format", "json"])
+        .output()
+        .expect("qzt info should run");
+
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        output.stderr.is_empty(),
+        "success JSON mode must not write to stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let text = String::from_utf8(output.stdout).expect("stdout is utf-8");
+    let value: serde_json::Value = serde_json::from_str(&text)
+        .unwrap_or_else(|error| panic!("stdout must be valid JSON: {error}\n{text}"));
+
+    let object = value
+        .as_object()
+        .expect("stdout must be a single JSON object");
+
+    let container_id_hex = object
+        .get("container_id")
+        .and_then(serde_json::Value::as_str)
+        .expect("container_id must be a string");
+    assert!(
+        !container_id_hex.is_empty(),
+        "container_id must be non-empty"
+    );
+
+    let checksum = object
+        .get("original_checksum")
+        .and_then(serde_json::Value::as_object)
+        .expect("original_checksum must be an object");
+    assert_eq!(
+        checksum
+            .get("algorithm")
+            .and_then(serde_json::Value::as_str),
+        Some("blake3")
+    );
+    let checksum_value = checksum
+        .get("value")
+        .and_then(serde_json::Value::as_str)
+        .expect("original_checksum.value must be a string");
+    assert!(
+        !checksum_value.is_empty(),
+        "original_checksum.value must be non-empty"
+    );
+
+    assert_eq!(
+        object
+            .get("document_index")
+            .and_then(serde_json::Value::as_bool),
+        Some(true)
+    );
+    assert_eq!(
+        object
+            .get("document_count")
+            .and_then(serde_json::Value::as_u64),
+        Some(1)
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
