@@ -456,10 +456,10 @@ fn verify_json_reports_ok_with_counts() {
     let _ = fs::remove_dir_all(base);
 }
 
-/// `qzt verify --deep --format json` on a corrupt container exits with code 1 and emits
-/// `"ok":false` plus an `"error"` key to stdout (no stderr output in JSON mode).
+/// Regression guard for the frozen `qzt verify --deep --format json` failure contract:
+/// valid JSON on stdout, `ok:false`, `level:"deep"`, non-empty `error` string, silent stderr.
 #[test]
-fn verify_json_reports_failure_with_exit_1() {
+fn verify_json_error_contract_is_stable() {
     let base = std::env::temp_dir().join(format!("qzt-phase9-vjson-fail-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
@@ -504,14 +504,24 @@ fn verify_json_reports_failure_with_exit_1() {
     );
 
     let json = String::from_utf8(output.stdout).expect("json output should be utf-8");
-    assert!(
-        json.contains("\"ok\":false"),
-        "must contain ok:false: {json}"
+    let value: serde_json::Value =
+        serde_json::from_str(&json).expect("failure output must be valid JSON");
+
+    assert_eq!(
+        value.get("ok").and_then(serde_json::Value::as_bool),
+        Some(false),
+        "ok must be false: {json}"
     );
-    assert!(
-        json.contains("\"error\""),
-        "must contain error field: {json}"
+    assert_eq!(
+        value.get("level").and_then(serde_json::Value::as_str),
+        Some("deep"),
+        "level must be deep: {json}"
     );
+    let error = value
+        .get("error")
+        .and_then(serde_json::Value::as_str)
+        .expect("error must be a string");
+    assert!(!error.is_empty(), "error must be non-empty: {json}");
 
     let _ = fs::remove_dir_all(base);
 }
