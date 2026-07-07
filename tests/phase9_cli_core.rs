@@ -2,7 +2,7 @@ use std::fs;
 use std::io::Write as _;
 use std::process::{Command, Stdio};
 
-use qzt::open_skeleton_details;
+use qzt::skeleton::open_skeleton_details;
 use qzt::{
     Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes,
     pack_bytes_with_document_index,
