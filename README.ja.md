@@ -107,7 +107,9 @@ qzt search output.qzt "error" --sidecar output.qzt.qzi --format json
 ```
 
 range の範囲指定: `--bytes A:B` は half-open なバイト範囲 `[A, B)`、
-`--lines A:B` は 1-based で両端を含みます。index の `n`（デフォルト 3）より
+`--lines A:B` は 1-based で両端を含みます。`qzt line FILE N` は
+`qzt range FILE --lines N:N` と同じ raw line bytes を返します（1行だけの
+range の便利なショートカット）。index の `n`（デフォルト 3）より
 短い n-gram query は index では回答できないため、確信を持った 0 件ではなく
 `incomplete_reason=query_shorter_than_ngram_n` と警告を出力します。
 

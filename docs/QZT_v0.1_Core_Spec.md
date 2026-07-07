@@ -1489,7 +1489,9 @@ qzt line data.qzt 1000
 qzt line data.qzt 999 --zero-based
 ```
 
-Default is 1-based.
+Default is 1-based. `qzt line` is a thin wrapper over the line range path:
+`qzt line data.qzt N` is equivalent to `qzt range data.qzt --lines N:N`, returning
+the same raw line bytes for that 1-based inclusive line.
 
 ### 24.6 verify
 
