@@ -104,6 +104,43 @@ fn cli_pack_rejects_invalid_utf8() {
     let _ = fs::remove_dir_all(base);
 }
 
+/// Issue #152: `qzt pack --help` documents stdin packing constraints near I/O usage.
+#[test]
+fn pack_help_mentions_stdin_packing_constraints() {
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .args(["pack", "--help"])
+        .output()
+        .expect("qzt pack --help should run");
+
+    assert!(
+        output.status.success(),
+        "pack --help must exit 0, got {:?}",
+        output.status.code()
+    );
+
+    let stdout = String::from_utf8(output.stdout).expect("help output should be UTF-8");
+    assert!(
+        stdout.contains("stdin"),
+        "pack --help must mention stdin, got:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("--profile core"),
+        "pack --help must mention --profile core, got:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("Dense Line Index"),
+        "pack --help must mention Dense Line Index, got:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("-o <path>"),
+        "pack --help must mention -o <path>, got:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("stdout container output is unsupported"),
+        "pack --help must state stdout container output is unsupported, got:\n{stdout}"
+    );
+}
+
 /// CHANGELOG contract: `qzt pack -` with `--dense-line-index on` exits 2 and explains
 /// the streaming-only stdin path so large streams are never buffered silently.
 #[test]
