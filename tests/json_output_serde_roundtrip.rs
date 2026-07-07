@@ -138,6 +138,53 @@ fn verify_json_serde_roundtrip_has_required_fields() {
 }
 
 #[test]
+fn verify_json_error_contract_is_stable() {
+    let base = std::env::temp_dir().join(format!("qzt-123-verify-error-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let packed = pack_simple(&base);
+    let corrupt = base.join("corrupt.qzt");
+
+    let mut bytes = fs::read(&packed).expect("packed container should be readable");
+    let mid = bytes.len() / 2;
+    bytes[mid] ^= 0xff;
+    fs::write(&corrupt, bytes).expect("corrupt container write");
+
+    let output = run(&[
+        "verify",
+        corrupt.to_str().unwrap(),
+        "--deep",
+        "--format",
+        "json",
+    ]);
+
+    assert_eq!(output.status.code(), Some(1));
+    assert!(
+        output.stderr.is_empty(),
+        "failure JSON mode must keep stderr empty: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let json = String::from_utf8(output.stdout).expect("stdout is utf-8");
+    let value: serde_json::Value = serde_json::from_str(&json)
+        .unwrap_or_else(|error| panic!("failure stdout must be valid JSON: {error}\n{json}"));
+    assert_eq!(
+        value.get("ok").and_then(serde_json::Value::as_bool),
+        Some(false)
+    );
+    assert_eq!(
+        value.get("level").and_then(serde_json::Value::as_str),
+        Some("deep")
+    );
+    let error = value
+        .get("error")
+        .and_then(serde_json::Value::as_str)
+        .expect("error must be a string");
+    assert!(!error.is_empty(), "error must not be empty");
+
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
 fn docs_json_serde_roundtrip_has_required_fields() {
     let base = std::env::temp_dir().join(format!("qzt-89-docs-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
