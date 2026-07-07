@@ -25,7 +25,7 @@ make check
 For documentation or release-hygiene changes, also run:
 
 ```sh
-RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
+make doc
 cargo package --allow-dirty
 ```
 
