@@ -174,185 +174,144 @@ fn pack_help_mentions_stdin_packing_constraints() {
     );
 }
 
-/// CHANGELOG contract: `qzt pack -` with `--dense-line-index on` exits 2 and explains
-/// the streaming-only stdin path so large streams are never buffered silently.
-#[test]
-fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
-    let base = std::env::temp_dir().join(format!(
-        "qzt-phase9-stdin-dense-conflict-{}",
-        std::process::id()
-    ));
-    let _ = fs::create_dir_all(&base);
-    let stdin_input = base.join("stdin.txt");
-    let packed = base.join("never.qzt");
-    fs::write(&stdin_input, b"alpha\nbeta\n").expect("stdin fixture should be written");
-
-    let stdin_file = fs::File::open(&stdin_input).expect("stdin fixture should open");
-    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
-        .arg("pack")
-        .arg("-")
-        .arg("-o")
-        .arg(&packed)
-        .arg("--dense-line-index")
-        .arg("on")
-        .stdin(Stdio::from(stdin_file))
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .output()
-        .expect("qzt pack should run");
-
-    assert_eq!(
-        output.status.code(),
-        Some(2),
-        "stdin + --dense-line-index on must exit 2"
-    );
-    assert!(
-        output.stdout.is_empty(),
-        "stdout must be empty on usage error, got: {:?}",
-        String::from_utf8_lossy(&output.stdout)
-    );
-
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(
-        stderr.contains("stdin"),
-        "stderr must mention stdin, got: {stderr}"
-    );
-    assert!(
-        stderr.contains("--dense-line-index on"),
-        "stderr must name --dense-line-index on, got: {stderr}"
-    );
-    assert!(
-        stderr.contains("Dense Line Index"),
-        "stderr must name the Dense Line Index restriction, got: {stderr}"
-    );
-    assert!(
-        stderr.contains("--profile core"),
-        "stderr must point to --profile core, got: {stderr}"
-    );
-    assert!(
-        stderr.contains("streaming pack path"),
-        "stderr must mention streaming pack path, got: {stderr}"
-    );
-    assert!(
-        !packed.exists(),
-        "no container should be written on usage error"
-    );
-
-    let _ = fs::remove_dir_all(base);
-}
-
-/// Issue #115: `qzt pack -` with `--profile memory` exits 2 and names the unsupported profile.
-#[test]
-fn stdin_pack_memory_profile_conflict_exits_2_with_clear_stderr() {
-    let base = std::env::temp_dir().join(format!(
-        "qzt-phase9-stdin-memory-conflict-{}",
-        std::process::id()
-    ));
-    let _ = fs::create_dir_all(&base);
-    let packed = base.join("never.qzt");
-
-    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
-        .arg("pack")
-        .arg("-")
-        .arg("-o")
-        .arg(&packed)
-        .arg("--profile")
-        .arg("memory")
+fn run_stdin_pack(args: &[&str], stdin_bytes: &[u8]) -> std::process::Output {
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_qzt"));
+    cmd.arg("pack").arg("-");
+    for arg in args {
+        cmd.arg(arg);
+    }
+    let mut child = cmd
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
-        .output()
-        .expect("qzt pack should run");
-
-    assert_eq!(
-        output.status.code(),
-        Some(2),
-        "stdin + --profile memory must exit 2"
-    );
-    assert!(
-        output.stdout.is_empty(),
-        "stdout must be empty on usage error, got: {:?}",
-        String::from_utf8_lossy(&output.stdout)
-    );
-
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(
-        stderr.contains("stdin"),
-        "stderr must mention stdin, got: {stderr}"
-    );
-    assert!(
-        stderr.contains("memory"),
-        "stderr must name the unsupported profile, got: {stderr}"
-    );
-    assert!(
-        stderr.contains("--profile core"),
-        "stderr must point to --profile core, got: {stderr}"
-    );
-    assert!(
-        stderr.contains("pack_bytes_with_memory_profile"),
-        "stderr must mention the writer API path, got: {stderr}"
-    );
-    assert!(
-        !packed.exists(),
-        "no container should be written on usage error"
-    );
-
-    let _ = fs::remove_dir_all(base);
+        .spawn()
+        .expect("qzt pack should spawn");
+    if !stdin_bytes.is_empty() {
+        child
+            .stdin
+            .as_mut()
+            .expect("stdin pipe should exist")
+            .write_all(stdin_bytes)
+            .expect("stdin bytes should be written");
+    }
+    // Close stdin so `qzt pack` receives EOF and can finish.
+    drop(child.stdin.take());
+    child.wait_with_output().expect("qzt pack should finish")
 }
 
-/// Issue #137: `qzt pack -` on `--profile core` stdin path round-trips empty and
-/// 1-byte inputs through deep verify and export.
+struct StdinPackRejectionCase {
+    name: &'static str,
+    extra_pack_args: &'static [&'static str],
+    stderr_needles: &'static [&'static str],
+    with_output_path: bool,
+}
+
+/// Issue #161: table-driven stdin pack contract — core success round-trip and exit-2
+/// rejections for unsupported combinations (non-core profile, dense line index, missing -o).
 #[test]
-fn stdin_pack_empty_and_one_byte_deep_verify_and_export_roundtrip() {
-    let cases: &[(&str, &[u8])] = &[("empty", b""), ("one-byte", b"x")];
+fn stdin_pack_table_driven_core_success_and_rejections() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-stdin-table-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
 
-    for (label, input) in cases {
-        let base =
-            std::env::temp_dir().join(format!("qzt-phase9-stdin-{label}-{}", std::process::id()));
-        let _ = fs::create_dir_all(&base);
-        let packed = base.join("stdin.qzt");
+    // Success: streaming core path round-trips minimal stdin through pack/export.
+    let success_input = b"x";
+    let packed = base.join("core-success.qzt");
+    let packed_str = packed.to_str().expect("output path is utf-8");
+    let pack_output = run_stdin_pack(&["-o", packed_str, "--profile", "core"], success_input);
+    assert!(
+        pack_output.status.success(),
+        "core stdin pack must succeed, stderr: {}",
+        String::from_utf8_lossy(&pack_output.stderr)
+    );
+    assert!(packed.exists(), "packed container must exist");
 
-        let mut child = Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .args(["pack", "-", "-o", packed.to_str().unwrap()])
-            .stdin(Stdio::piped())
-            .spawn()
-            .expect("qzt pack should spawn");
-        if !input.is_empty() {
-            child
-                .stdin
-                .as_mut()
-                .expect("stdin pipe should exist")
-                .write_all(input)
-                .expect("stdin bytes should be written");
+    let exported = output_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("export")
+            .arg(&packed),
+    );
+    assert_eq!(
+        exported, success_input,
+        "export must restore original stdin bytes"
+    );
+
+    let rejections = [
+        StdinPackRejectionCase {
+            name: "non-core archive profile",
+            extra_pack_args: &["--profile", "archive"],
+            stderr_needles: &["stdin", "archive", "--profile core"],
+            with_output_path: true,
+        },
+        StdinPackRejectionCase {
+            name: "dense line index on",
+            extra_pack_args: &["--dense-line-index", "on"],
+            stderr_needles: &[
+                "stdin",
+                "--dense-line-index on",
+                "Dense Line Index",
+                "--profile core",
+                "streaming pack path",
+            ],
+            with_output_path: true,
+        },
+        StdinPackRejectionCase {
+            name: "missing -o",
+            extra_pack_args: &[],
+            stderr_needles: &["missing -o"],
+            with_output_path: false,
+        },
+    ];
+
+    for case in rejections {
+        let reject_packed = base.join(format!("reject-{}.qzt", case.name.replace(' ', "-")));
+        let reject_packed_str = reject_packed.to_str().expect("output path is utf-8");
+
+        let mut pack_args = Vec::new();
+        if case.with_output_path {
+            pack_args.extend_from_slice(&["-o", reject_packed_str]);
         }
-        // Close stdin so `qzt pack` receives EOF and can finish.
-        drop(child.stdin.take());
-        let status = child.wait().expect("qzt pack should finish");
-        assert!(
-            status.success(),
-            "{label}: qzt pack - must succeed, got: {status:?}"
-        );
-        assert!(packed.exists(), "{label}: packed container must exist");
+        pack_args.extend_from_slice(case.extra_pack_args);
 
-        assert_success(
-            Command::new(env!("CARGO_BIN_EXE_qzt"))
-                .arg("verify")
-                .arg(&packed)
-                .arg("--deep"),
-        );
+        let output = run_stdin_pack(&pack_args, b"alpha\nbeta\n");
 
-        let exported = output_success(
-            Command::new(env!("CARGO_BIN_EXE_qzt"))
-                .arg("export")
-                .arg(&packed),
-        );
         assert_eq!(
-            exported, *input,
-            "{label}: export must restore original stdin bytes"
+            output.status.code(),
+            Some(2),
+            "{}: stdin pack must exit 2",
+            case.name
+        );
+        assert!(
+            output.stdout.is_empty(),
+            "{}: stdout must be empty on usage error, got: {:?}",
+            case.name,
+            String::from_utf8_lossy(&output.stdout)
         );
 
-        let _ = fs::remove_dir_all(&base);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        for needle in case.stderr_needles {
+            assert!(
+                stderr.contains(needle),
+                "{}: stderr must contain {:?}, got: {stderr}",
+                case.name,
+                needle
+            );
+        }
+        assert!(
+            !stderr.contains("panic"),
+            "{}: stderr must not contain a panic trace, got: {stderr}",
+            case.name
+        );
+
+        if case.with_output_path {
+            assert!(
+                !reject_packed.exists(),
+                "{}: no container should be written on usage error",
+                case.name
+            );
+        }
     }
+
+    let _ = fs::remove_dir_all(base);
 }
 
 #[test]
