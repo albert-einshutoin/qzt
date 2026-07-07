@@ -145,6 +145,18 @@ fn pack_stdin_rejects_non_streaming_profile() {
         stderr.contains("stdin"),
         "stderr must mention 'stdin', got: {stderr}"
     );
+    assert!(
+        stderr.contains("memory"),
+        "stderr must name the unsupported profile, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--profile core"),
+        "stderr must point to --profile core, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("pack_bytes_with_memory_profile"),
+        "stderr must mention the writer API path, got: {stderr}"
+    );
     // The container must NOT have been created.
     assert!(
         !out.exists(),
@@ -188,6 +200,18 @@ fn pack_stdin_rejects_dense_line_index() {
     assert!(
         stderr.contains("stdin"),
         "stderr must mention 'stdin', got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--dense-line-index on"),
+        "stderr must name --dense-line-index on, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("Dense Line Index"),
+        "stderr must name the Dense Line Index restriction, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--profile core"),
+        "stderr must point to --profile core, got: {stderr}"
     );
     assert!(
         !out.exists(),

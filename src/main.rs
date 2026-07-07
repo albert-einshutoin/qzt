@@ -246,11 +246,25 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
 
     // stdin is only supported on the streaming path (core profile, no dense line index).
     // Silently buffering all of stdin would defeat the memory-safety promise for large logs.
-    if stdin_input && (profile != "core" || dense_line_index) {
+    // Profile is checked before Dense Line Index so memory's default DLI does not mask the cause.
+    if stdin_input && profile != "core" {
         eprintln!(
-            "qzt pack: stdin is only supported on the streaming pack path (--profile core without --dense-line-index)"
+            "qzt pack: stdin does not support --profile {profile}; use --profile core on the streaming pack path"
         );
-        eprintln!("(other profiles need the whole input in memory; write to a file first)");
+        if profile == "memory" {
+            eprintln!(
+                "(for memory profile, use the writer API pack_bytes_with_memory_profile with file-backed input)"
+            );
+        } else {
+            eprintln!("(other profiles need the whole input in memory; write to a file first)");
+        }
+        return ExitCode::from(2);
+    }
+    if stdin_input && dense_line_index {
+        eprintln!(
+            "qzt pack: stdin does not support --dense-line-index on; Dense Line Index requires the in-memory pack path"
+        );
+        eprintln!("use --profile core without --dense-line-index on the streaming pack path");
         return ExitCode::from(2);
     }
 

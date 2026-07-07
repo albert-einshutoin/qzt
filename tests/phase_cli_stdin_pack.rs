@@ -6,11 +6,10 @@
 use std::fs;
 use std::process::{Command, Output, Stdio};
 
-const STDIN_STREAMING_MSG: &str = "stdin is only supported on the streaming pack path";
-
 struct StdinPackRejectionCase {
     name: &'static str,
     extra_args: &'static [&'static str],
+    stderr_must_contain: &'static [&'static str],
 }
 
 fn run_pack_stdin(extra_args: &[&str], out: &str) -> Output {
@@ -34,10 +33,22 @@ fn stdin_pack_rejects_non_streaming_paths() {
         StdinPackRejectionCase {
             name: "memory profile",
             extra_args: &["--profile", "memory"],
+            stderr_must_contain: &[
+                "stdin",
+                "memory",
+                "--profile core",
+                "pack_bytes_with_memory_profile",
+            ],
         },
         StdinPackRejectionCase {
             name: "dense line index on",
             extra_args: &["--dense-line-index", "on"],
+            stderr_must_contain: &[
+                "stdin",
+                "--dense-line-index on",
+                "Dense Line Index",
+                "--profile core",
+            ],
         },
     ];
 
@@ -56,12 +67,14 @@ fn stdin_pack_rejects_non_streaming_paths() {
         );
 
         let stderr = String::from_utf8_lossy(&output.stderr);
-        assert!(
-            stderr.contains(STDIN_STREAMING_MSG),
-            "{}: stderr must contain {:?}, got: {stderr}",
-            case.name,
-            STDIN_STREAMING_MSG
-        );
+        for needle in case.stderr_must_contain {
+            assert!(
+                stderr.contains(needle),
+                "{}: stderr must contain {:?}, got: {stderr}",
+                case.name,
+                needle
+            );
+        }
 
         assert!(
             !out.exists(),

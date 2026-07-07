@@ -148,8 +148,12 @@ fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
         "stderr must mention stdin, got: {stderr}"
     );
     assert!(
-        stderr.contains("--dense-line-index"),
-        "stderr must mention --dense-line-index, got: {stderr}"
+        stderr.contains("--dense-line-index on"),
+        "stderr must name --dense-line-index on, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("Dense Line Index"),
+        "stderr must name the Dense Line Index restriction, got: {stderr}"
     );
     assert!(
         stderr.contains("--profile core"),
@@ -158,6 +162,65 @@ fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
     assert!(
         stderr.contains("streaming pack path"),
         "stderr must mention streaming pack path, got: {stderr}"
+    );
+    assert!(
+        !packed.exists(),
+        "no container should be written on usage error"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// Issue #115: `qzt pack -` with `--profile memory` exits 2 and names the unsupported profile.
+#[test]
+fn stdin_pack_memory_profile_conflict_exits_2_with_clear_stderr() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase9-stdin-memory-conflict-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+    let packed = base.join("never.qzt");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("pack")
+        .arg("-")
+        .arg("-o")
+        .arg(&packed)
+        .arg("--profile")
+        .arg("memory")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output()
+        .expect("qzt pack should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "stdin + --profile memory must exit 2"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "stdout must be empty on usage error, got: {:?}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("stdin"),
+        "stderr must mention stdin, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("memory"),
+        "stderr must name the unsupported profile, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--profile core"),
+        "stderr must point to --profile core, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("pack_bytes_with_memory_profile"),
+        "stderr must mention the writer API path, got: {stderr}"
     );
     assert!(
         !packed.exists(),
