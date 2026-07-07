@@ -21,6 +21,34 @@ only the required range and return to the original evidence position.
 When publishing QZT externally, it should be positioned as a
 `v0.1 technical preview`, not as production-ready software.
 
+## Build / Quick Start
+
+Build the release binary from the repository root:
+
+```sh
+cargo build --release
+./target/release/qzt --help
+```
+
+The binary lives at `./target/release/qzt` unless you install it on your `PATH`.
+The examples below use that path.
+
+QZT packs large text into a **seekable, verifiable evidence container**
+(`v0.1 technical preview` / experimental reference implementation—not
+production-ready):
+
+```sh
+./target/release/qzt pack input.txt -o output.qzt
+./target/release/qzt info output.qzt
+./target/release/qzt range output.qzt --lines 1:10
+./target/release/qzt sidecar-rebuild output.qzt -o output.qzt.qzi
+./target/release/qzt search output.qzt "error" --sidecar output.qzt.qzi
+```
+
+`pack` creates the container; `info` and `range` inspect and read slices
+without full decode; `sidecar-rebuild` builds a search index;
+`search --sidecar` queries it.
+
 ## v0.1 Technical Preview — Limitations
 
 QZT v0.1 is a reference implementation focused on spec coverage and correctness.
