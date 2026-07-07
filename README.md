@@ -81,6 +81,29 @@ QZT_RELEASE_BENCH_QUERY_REPETITIONS=5 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS
 See [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md) for
 corpus details, metric definitions, and additional profiling targets.
 
+### Optional competitive benchmarks
+
+Phase 18 includes an optional competitive benchmark harness. The numbers are
+**reproducible local evidence**, not an SLA or production performance guarantee.
+
+Default smoke (no external tools):
+
+```sh
+cargo test --test phase18_competitive_benchmark -- --nocapture
+```
+
+Comparisons against ripgrep and SQLite FTS5 run behind the `bench-compete`
+feature so the default quality gate stays portable. If `rg` or `sqlite3` with
+FTS5 is not available on your PATH, that comparator is **skipped**; tools that
+are present must match the reference byte-scan hit count.
+
+```sh
+cargo test --features bench-compete --test phase18_competitive_benchmark -- --nocapture
+```
+
+See [docs/QZT_v0.1_Competitive_Benchmarks.md](docs/QZT_v0.1_Competitive_Benchmarks.md)
+for methodology and when to use QZT.
+
 ## Local Quality Gate
 
 ```sh

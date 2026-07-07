@@ -77,6 +77,30 @@ QZT_RELEASE_BENCH_QUERY_REPETITIONS=5 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS
 [docs/QZT_v0.1_Release_Hardening.ja.md](docs/QZT_v0.1_Release_Hardening.ja.md)
 を参照してください。
 
+### 任意の competitive benchmarks
+
+Phase 18 には optional な competitive benchmark harness があります。計測値は
+**再現可能なローカル evidence** であり、SLA や production の性能保証ではありません。
+
+外部ツールなしのデフォルト smoke:
+
+```sh
+cargo test --test phase18_competitive_benchmark -- --nocapture
+```
+
+ripgrep と SQLite FTS5 との比較は、デフォルト品質ゲートを portable に保つため
+`bench-compete` feature の背後で実行されます。`rg` または FTS5 対応の `sqlite3` が
+PATH に無い場合、その comparator は **skip** されます。存在するツールは参照
+byte-scan の hit count と一致する必要があります。
+
+```sh
+cargo test --features bench-compete --test phase18_competitive_benchmark -- --nocapture
+```
+
+方法論と QZT を使うべき場面は
+[docs/QZT_v0.1_Competitive_Benchmarks.md](docs/QZT_v0.1_Competitive_Benchmarks.md)
+を参照してください。
+
 ## ローカル品質ゲート
 
 ```sh
