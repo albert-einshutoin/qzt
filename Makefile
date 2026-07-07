@@ -1,4 +1,4 @@
-.PHONY: fmt clippy check-default test check doc bench-release bench-profile bench-profile-matrix
+.PHONY: fmt clippy check-default test check bench-release bench-profile bench-profile-matrix
 
 RELEASE_BENCH_QUERY_REPETITIONS ?= 500
 RELEASE_BENCH_QUERY_WARMUP_REPETITIONS ?= 20
@@ -21,9 +21,6 @@ test:
 	cargo test --all-targets --all-features
 
 check: fmt clippy check-default test
-
-doc:
-	RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
 
 bench-release:
 	cargo test --release --all-features --test release_hardening -- --nocapture

@@ -21,34 +21,6 @@ only the required range and return to the original evidence position.
 When publishing QZT externally, it should be positioned as a
 `v0.1 technical preview`, not as production-ready software.
 
-## Build / Quick Start
-
-Build the release binary from the repository root:
-
-```sh
-cargo build --release
-./target/release/qzt --help
-```
-
-The binary lives at `./target/release/qzt` unless you install it on your `PATH`.
-The examples below use that path.
-
-QZT packs large text into a **seekable, verifiable evidence container**
-(`v0.1 technical preview` / experimental reference implementation—not
-production-ready):
-
-```sh
-./target/release/qzt pack input.txt -o output.qzt
-./target/release/qzt info output.qzt
-./target/release/qzt range output.qzt --lines 1:10
-./target/release/qzt sidecar-rebuild output.qzt -o output.qzt.qzi
-./target/release/qzt search output.qzt "error" --sidecar output.qzt.qzi
-```
-
-`pack` creates the container; `info` and `range` inspect and read slices
-without full decode; `sidecar-rebuild` builds a search index;
-`search --sidecar` queries it.
-
 ## v0.1 Technical Preview — Limitations
 
 QZT v0.1 is a reference implementation focused on spec coverage and correctness.
@@ -128,61 +100,9 @@ Exit codes:
   2  usage error (unknown option / missing argument)
 ```
 
-## Troubleshooting
-
-Common CLI failure modes. QZT remains a `v0.1 technical preview`; treat these
-as expected constraints of the reference implementation, not production bugs.
-
-### `qzt pack -` (stdin) rejects the request
-
-Stdin packing only works on the streaming core path: `--profile core` without
-Dense Line Index (`--dense-line-index on` is not supported). `-o <path>` is
-always required; stdout output is not supported. Other profiles, dense line
-index mode, or a missing `-o` exit with code **2** and print a usage-style
-error.
-
-### High RSS or OOM during `qzt sidecar-rebuild`
-
-`qzt sidecar-rebuild` builds the full posting map in memory. Build RSS scales
-with vocabulary and posting-map size (roughly the sidecar size expanded), even
-though decode is chunk-at-a-time. This is a known v0.1 technical-preview
-constraint, not a production outage.
-
-Run `sidecar-rebuild` on a machine sized for the corpus. For repeated searches,
-build the sidecar once with `qzt sidecar-rebuild`, then use
-`qzt search --sidecar <file.qzi>` — sidecar search runs on the bounded-memory
-`QztFileReader` and fetches only the queried posting lists and candidate
-granule records.
-
-### n-gram query shorter than index `n`
-
-If a query is shorter than the sidecar's n-gram `n` (default 3), the index
-cannot answer it. The CLI does **not** return a confident empty result; search
-reports `incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
-
-### Search capped at result limit (`capped=true`)
-
-When a search hits more matches than the result cap allows, the report shows
-`capped=true` in the metrics line (text mode) or JSON `"capped": true`. This is
-**not** a failure: the command still exits **0** with the hits found up to the
-limit. `incomplete_reason` stays `none`; unlike a too-short n-gram query, the
-index answered—the search simply reached its configured ceiling.
-
-Raise the cap with `--max-results <N>` when you need more hits (for example
-`qzt search file.qzt needle --max-results 100`).
-
-### memory profile requires a Document Index
-
-The memory profile (`"memory"`) requires a Document Index at pack time. The `qzt pack`
-CLI does not accept a Document Index, so `qzt pack --profile memory` is
-rejected (`MetadataInvalid`, exit **1**). Use the writer API
-(`pack_bytes_with_memory_profile`) with a `DocumentIndex`, or pack with another
-profile (for example `core`).
-
 ## Documentation
 
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](docs/QZT_v0.1_Core_Spec.md)
-- QZI sidecar spec: [docs/QZI_v0.1_Sidecar_Spec.md](docs/QZI_v0.1_Sidecar_Spec.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.md](docs/QZT_v0.1_Core_Readiness.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md)
 - Implementation phases: [tasks/README.md](tasks/README.md)

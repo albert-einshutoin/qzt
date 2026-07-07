@@ -552,11 +552,9 @@ fn print_search_report_text(report: &SearchReport) {
             hit.logical_offset, hit.byte_length, hit.chunk_start, hit.chunk_end, hit.source
         );
     }
-    // Escape query so LF/CR/quotes cannot break the single-line metrics contract.
-    let query_escaped = cli_json::escape(&report.metrics.query);
     println!(
         "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
-        query_escaped,
+        report.metrics.query,
         report.metrics.index_kind,
         report.metrics.posting_granularity,
         report.metrics.index_size_bytes,
