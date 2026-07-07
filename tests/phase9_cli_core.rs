@@ -104,6 +104,39 @@ fn cli_pack_rejects_invalid_utf8() {
     let _ = fs::remove_dir_all(base);
 }
 
+/// Issue #91: `qzt --help` documents exit codes 0, 1, 2 for automation contracts.
+#[test]
+fn help_mentions_exit_codes() {
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("--help")
+        .output()
+        .expect("qzt --help should run");
+
+    assert!(
+        output.status.success(),
+        "qzt --help must exit 0, got {:?}",
+        output.status.code()
+    );
+
+    let stdout = String::from_utf8(output.stdout).expect("help output should be UTF-8");
+    assert!(
+        stdout.contains("Exit codes:"),
+        "help must document exit codes section, got:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("0  success (verify: container is valid)"),
+        "help must document exit code 0, got:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("1  command failed (verify: container is corrupt or unreadable)"),
+        "help must document exit code 1, got:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("2  usage error (unknown option / missing argument)"),
+        "help must document exit code 2, got:\n{stdout}"
+    );
+}
+
 /// Issue #152: `qzt pack --help` documents stdin packing constraints near I/O usage.
 #[test]
 fn pack_help_mentions_stdin_packing_constraints() {
