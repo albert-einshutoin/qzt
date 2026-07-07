@@ -21,7 +21,7 @@ only the required range and return to the original evidence position.
 When publishing QZT externally, it should be positioned as a
 `v0.1 technical preview`, not as production-ready software.
 
-## Build / Quick Start
+## Build
 
 Build the release binary from the repository root:
 
@@ -31,23 +31,8 @@ cargo build --release
 ```
 
 The binary lives at `./target/release/qzt` unless you install it on your `PATH`.
-The examples below use that path.
-
-QZT packs large text into a **seekable, verifiable evidence container**
-(`v0.1 technical preview` / experimental reference implementation—not
-production-ready):
-
-```sh
-./target/release/qzt pack input.txt -o output.qzt
-./target/release/qzt info output.qzt
-./target/release/qzt range output.qzt --lines 1:10
-./target/release/qzt sidecar-rebuild output.qzt -o output.qzt.qzi
-./target/release/qzt search output.qzt "error" --sidecar output.qzt.qzi
-```
-
-`pack` creates the container; `info` and `range` inspect and read slices
-without full decode; `sidecar-rebuild` builds a search index;
-`search --sidecar` queries it.
+The examples below use `qzt` as if it were on your `PATH`; substitute
+`./target/release/qzt` when running from a local build.
 
 ## v0.1 Technical Preview — Limitations
 
@@ -90,6 +75,23 @@ The gate runs:
 - cargo check --lib --bins
 - cargo test --all-targets --all-features
 ```
+
+## Quickstart
+
+The smallest successful path with one text file: pack, inspect, export, and
+confirm round-trip equality. QZT is a `v0.1 technical preview`—an experimental
+reference implementation, not production-ready software.
+
+Prepare a plain text file (for example `input.txt`), then:
+
+```sh
+qzt pack input.txt -o output.qzt
+qzt info output.qzt
+qzt export output.qzt -o restored.txt
+diff input.txt restored.txt
+```
+
+No output from `diff` means the restored bytes match the source.
 
 ## Main CLI
 
