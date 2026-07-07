@@ -21,18 +21,28 @@ only the required range and return to the original evidence position.
 When publishing QZT externally, it should be positioned as a
 `v0.1 technical preview`, not as production-ready software.
 
-## Quick Start
+## Build / Quick Start
+
+Build the release binary from the repository root:
+
+```sh
+cargo build --release
+./target/release/qzt --help
+```
+
+The binary lives at `./target/release/qzt` unless you install it on your `PATH`.
+The examples below use that path.
 
 QZT packs large text into a **seekable, verifiable evidence container**
 (`v0.1 technical preview` / experimental reference implementation—not
 production-ready):
 
 ```sh
-qzt pack input.txt -o output.qzt
-qzt info output.qzt
-qzt range output.qzt --lines 1:10
-qzt sidecar-rebuild output.qzt -o output.qzt.qzi
-qzt search output.qzt "error" --sidecar output.qzt.qzi
+./target/release/qzt pack input.txt -o output.qzt
+./target/release/qzt info output.qzt
+./target/release/qzt range output.qzt --lines 1:10
+./target/release/qzt sidecar-rebuild output.qzt -o output.qzt.qzi
+./target/release/qzt search output.qzt "error" --sidecar output.qzt.qzi
 ```
 
 `pack` creates the container; `info` and `range` inspect and read slices
