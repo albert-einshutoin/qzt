@@ -208,6 +208,78 @@ fn cli_search_reports_verified_hits_and_metrics() {
     let _ = fs::remove_dir_all(base);
 }
 
+/// Zero-hit `qzt search --format json` must emit a single parseable JSON object
+/// with an empty `hits` array and explicit `incomplete_reason: null`, without
+/// stderr warnings that would break JSON consumers.
+#[test]
+fn cli_search_json_zero_hits_emits_parseable_empty_contract() {
+    let base = std::env::temp_dir().join(format!("qzt-phase11-json-zero-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"alpha\nbeta\ngamma\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("search")
+        .arg(&packed)
+        .arg("absent_token")
+        .arg("--format")
+        .arg("json")
+        .output()
+        .expect("search command should run");
+
+    assert!(
+        output.status.success(),
+        "search must succeed: stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        output.stderr.is_empty(),
+        "zero-hit success must not write warnings to stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let value: serde_json::Value = serde_json::from_slice(&output.stdout)
+        .unwrap_or_else(|error| panic!("stdout must be a single JSON object: {error}"));
+
+    let hits = value
+        .get("hits")
+        .and_then(serde_json::Value::as_array)
+        .expect("hits must be an array");
+    assert!(hits.is_empty(), "hits must be empty: {value}");
+
+    assert_eq!(
+        value.get("incomplete_reason"),
+        Some(&serde_json::Value::Null),
+        "incomplete_reason must be JSON null, not omitted: {value}"
+    );
+
+    assert!(
+        value
+            .get("metrics")
+            .and_then(serde_json::Value::as_object)
+            .is_some(),
+        "metrics must be an object: {value}"
+    );
+    assert!(
+        value
+            .get("capped")
+            .and_then(serde_json::Value::as_bool)
+            .is_some(),
+        "capped must be a bool: {value}"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
 fn overlapping_chunk_range(entries: &[ChunkEntry], offset: u64, length: u64) -> (u64, u64) {
     let end = offset + length;
     let mut first = None;
