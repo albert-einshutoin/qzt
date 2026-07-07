@@ -306,6 +306,83 @@ fn search_text_mode_unchanged() {
 }
 
 // ---------------------------------------------------------------------------
+// search_text_metrics_escapes_query_control_chars
+// ---------------------------------------------------------------------------
+
+/// Text-mode `metrics query=` must stay on a single line even when the query
+/// contains LF, CR, or double quotes. JSON output must still round-trip the
+/// original query string unchanged.
+#[test]
+fn search_text_metrics_escapes_query_control_chars() {
+    let base =
+        std::env::temp_dir().join(format!("qzt-36-text-metrics-escape-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+
+    let packed = pack_to(b"some content\n", &base);
+    let qzt = packed.to_str().unwrap();
+
+    let query = "a\nb\r\"quote\"";
+    let out = run(&["search", qzt, query]);
+    assert!(
+        out.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let text = String::from_utf8(out.stdout).expect("stdout is utf-8");
+    let metrics_line = text
+        .lines()
+        .find(|line| line.starts_with("metrics "))
+        .expect("must have metrics line");
+
+    // The metrics line must remain one physical line; later fields stay on it.
+    assert!(
+        metrics_line.contains(" index_kind="),
+        "index_kind must be on the same metrics line: {metrics_line}"
+    );
+    assert!(
+        metrics_line.contains(" posting_granularity="),
+        "posting_granularity must be on the same metrics line: {metrics_line}"
+    );
+
+    // Raw control characters must not appear unescaped in the query value.
+    assert!(
+        !metrics_line.contains("query=a\n"),
+        "LF must be escaped in metrics query: {metrics_line}"
+    );
+    assert!(
+        !metrics_line.contains('\r'),
+        "CR must be escaped in metrics query: {metrics_line}"
+    );
+
+    let expected_query_escaped = r#"a\nb\r\"quote\""#;
+    assert!(
+        metrics_line.contains(&format!("query={expected_query_escaped} ")),
+        "query must be escaped in metrics line: {metrics_line}"
+    );
+
+    let json_out = run(&["search", qzt, query, "--format", "json"]);
+    assert!(
+        json_out.status.success(),
+        "json stderr: {}",
+        String::from_utf8_lossy(&json_out.stderr)
+    );
+    let json = String::from_utf8(json_out.stdout).expect("json stdout is utf-8");
+    let value: serde_json::Value = serde_json::from_str(&json)
+        .unwrap_or_else(|error| panic!("stdout must be valid JSON: {error}\n{json}"));
+    assert_eq!(
+        value
+            .get("metrics")
+            .and_then(|metrics| metrics.get("query"))
+            .and_then(serde_json::Value::as_str),
+        Some(query),
+        "JSON metrics.query must round-trip the original query"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+// ---------------------------------------------------------------------------
 // search_text_mode_capped_metrics_contract
 // ---------------------------------------------------------------------------
 
