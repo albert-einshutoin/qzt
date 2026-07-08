@@ -539,10 +539,10 @@ fn info_unknown_format_exits_2() {
     let _ = fs::remove_dir_all(base);
 }
 
-/// `qzt verify --format json` on a valid container reports `"ok":true` and a non-zero
-/// `checked_chunks` count.
+/// Regression guard for `qzt verify --format json` success contract: exit 0, single JSON
+/// object on stdout (`ok`, `level`, `checked_chunks`, `decoded_bytes`), silent stderr.
 #[test]
-fn verify_json_reports_ok_with_counts() {
+fn verify_json_success_stdout_only() {
     let base = std::env::temp_dir().join(format!("qzt-phase9-vjson-ok-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
@@ -557,29 +557,53 @@ fn verify_json_reports_ok_with_counts() {
             .arg(&packed),
     );
 
-    let json_bytes = output_success(
-        Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .arg("verify")
-            .arg(&packed)
-            .arg("--format")
-            .arg("json"),
-    );
-    let json = String::from_utf8(json_bytes).expect("json output should be utf-8");
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("verify")
+        .arg(&packed)
+        .arg("--format")
+        .arg("json")
+        .output()
+        .expect("command should run");
 
-    assert!(json.contains("\"ok\":true"), "must contain ok:true: {json}");
+    assert_eq!(output.status.code(), Some(0), "valid container must exit 0");
+
     assert!(
-        json.contains("\"level\""),
-        "must contain level field: {json}"
+        output.stderr.is_empty(),
+        "stderr must be empty on success, got: {}",
+        String::from_utf8_lossy(&output.stderr)
     );
-    // checked_chunks must be at least 1.
+
+    let json = String::from_utf8(output.stdout).expect("json output should be utf-8");
     assert!(
-        json.contains("\"checked_chunks\":") && !json.contains("\"checked_chunks\":0"),
-        "checked_chunks must be >= 1: {json}"
+        !json.trim().contains('\n'),
+        "stdout must be a single JSON object line, got: {json}"
     );
-    // decoded_bytes is part of the frozen CLI contract.
+
+    let value: serde_json::Value =
+        serde_json::from_str(json.trim()).expect("success output must be valid JSON");
+    assert!(value.is_object(), "stdout must be a JSON object: {json}");
+
+    assert_eq!(
+        value.get("ok").and_then(serde_json::Value::as_bool),
+        Some(true),
+        "ok must be true: {json}"
+    );
+    assert_eq!(
+        value.get("level").and_then(serde_json::Value::as_str),
+        Some("normal"),
+        "level must be normal: {json}"
+    );
+    let checked_chunks = value
+        .get("checked_chunks")
+        .and_then(serde_json::Value::as_u64)
+        .expect("checked_chunks must be present");
+    assert!(checked_chunks >= 1, "checked_chunks must be >= 1: {json}");
     assert!(
-        json.contains("\"decoded_bytes\":"),
-        "must contain decoded_bytes field: {json}"
+        value
+            .get("decoded_bytes")
+            .and_then(serde_json::Value::as_u64)
+            .is_some(),
+        "decoded_bytes must be a numeric value: {json}"
     );
 
     let _ = fs::remove_dir_all(base);
