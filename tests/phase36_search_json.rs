@@ -383,6 +383,63 @@ fn search_text_metrics_escapes_query_control_chars() {
 }
 
 // ---------------------------------------------------------------------------
+// search_text_mode_incomplete_reason_metrics_contract
+// ---------------------------------------------------------------------------
+
+/// Text-mode incomplete search exits 0 and includes `incomplete_reason=…` on the
+/// stdout metrics line. The stderr warning is preserved and must not leak into
+/// stdout.
+#[test]
+fn search_text_mode_incomplete_reason_metrics_contract() {
+    let base = std::env::temp_dir().join(format!("qzt-36-text-incomplete-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+
+    let packed = pack_to(b"error occurred\nerror again\n", &base);
+    let qzt = packed.to_str().unwrap();
+
+    // n-gram index with n=3 and a 1-character query → incomplete.
+    let out = run(&["search", qzt, "e", "--index", "ngram", "--ngram", "3"]);
+    assert!(
+        out.status.success(),
+        "incomplete text search must exit 0: stderr={}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let text = String::from_utf8(out.stdout).expect("stdout is utf-8");
+    let stderr = String::from_utf8_lossy(&out.stderr);
+
+    let metrics_line = text
+        .lines()
+        .find(|line| line.starts_with("metrics "))
+        .expect("must have metrics line");
+
+    assert!(
+        metrics_line.contains("incomplete_reason=query_shorter_than_ngram_n"),
+        "metrics must include incomplete_reason: {metrics_line}"
+    );
+    assert!(
+        metrics_line.contains("capped=false"),
+        "incomplete search must not be capped: {metrics_line}"
+    );
+
+    assert!(
+        stderr.contains("warning: result may be incomplete"),
+        "stderr warning must be present: {stderr}"
+    );
+    assert!(
+        stderr.contains("query_shorter_than_ngram_n"),
+        "stderr warning must name the reason: {stderr}"
+    );
+
+    assert!(
+        !text.contains("warning"),
+        "warning must not appear in stdout: {text}"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+// ---------------------------------------------------------------------------
 // search_text_mode_capped_metrics_contract
 // ---------------------------------------------------------------------------
 
