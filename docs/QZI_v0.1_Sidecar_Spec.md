@@ -107,6 +107,26 @@ Any mismatch MUST reject the sidecar (`ContainerIdMismatch` or `ContainerCorrupt
 
 Any other `index_type` or invalid `ngram_n` MUST reject the sidecar.
 
+### `high_df_per_million`
+
+`high_df_per_million` is a manifest threshold for classifying high document-frequency terms during ngram search planning. It uses the same unit as [QZT v0.1 Core Spec](QZT_v0.1_Core_Spec.md) Section 29.10: granules per million granules.
+
+For a term with `granule_frequency` over `granule_count` granules, the reference planner computes:
+
+```text
+per_million = granule_frequency * 1_000_000 / granule_count   # integer division
+```
+
+If `per_million >= high_df_per_million`, the term is treated as high-DF. High-DF terms SHOULD be sorted after other query keys so they are not used as the first posting-list intersection driver.
+
+Rules:
+
+- v0.1 reference default: `200000`.
+- When `index_type = "ngram"`, search planners MUST read this value from the sidecar manifest and apply the rule above.
+- When `index_type = "token"`, writers MUST still write the field (reference encoder uses `200000`), but the token planner orders intersection keys by posting-list length instead of high-DF classification.
+- `sidecar-rebuild` records the value in the manifest: `200000` for token indexes; for ngram indexes, the build default (`200000` in v0.1).
+- v0.1 CLI does not expose a flag to override this value.
+
 ## Section payloads
 
 Readers MUST validate each section's `offset`, `size`, and `checksum` against the sidecar file bounds before decoding. Checksum mismatch or out-of-bounds access MUST reject the sidecar.
@@ -154,6 +174,12 @@ repeat term_count times:
 
 Term keys are sorted. `key_hash` is a lookup accelerator; exact `key` comparison is still required.
 
+#### Term `flags` (v0.1)
+
+No term `flags` bits are defined in v0.1. Writers MUST write `flags = 0`. Readers MUST reject non-zero `flags` with `InvalidFlags`. Unknown flag bits MUST NOT be ignored.
+
+This rejection is fail-closed on the sidecar path only. Core read, export, and verify on the bound `.qzt` MUST continue.
+
 ### `postings` section
 
 Concatenated posting lists. Each term's slice `[posting_offset, posting_offset + posting_size)` encodes one sorted granule ID list using `delta-varint-u64-v1`:
@@ -193,6 +219,7 @@ The sidecar path MUST reject (non-exhaustive) when:
 | Section out of bounds | `UnexpectedEof` |
 | Section checksum mismatch | `ContainerCorrupt` |
 | Granule / term / posting parse failure | `ContainerCorrupt` |
+| Non-zero term `flags` | `InvalidFlags` |
 | Integer overflow on bounds arithmetic | `ResourceLimitExceeded` |
 
 None of these failures may prevent Core container operations on the bound `.qzt` file.
