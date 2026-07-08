@@ -218,6 +218,11 @@ index answered—the search simply reached its configured ceiling.
 Raise the cap with `--max-results <N>` when you need more hits (for example
 `qzt search file.qzt needle --max-results 100`).
 
+You can also bound search work before decoding with `--max-candidate-granules <N>`
+(candidate granules) and `--max-decoded-bytes <N>` (decoded bytes; suffixes
+`KiB`, `MiB`, `GiB` are accepted). When a bound is reached, the report is
+`capped=true` with exit **0**, same as a result-limit cap.
+
 ### memory profile requires a Document Index
 
 The memory profile (`"memory"`) requires a Document Index at pack time. The `qzt pack`

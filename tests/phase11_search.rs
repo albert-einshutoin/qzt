@@ -208,6 +208,140 @@ fn cli_search_reports_verified_hits_and_metrics() {
     let _ = fs::remove_dir_all(base);
 }
 
+#[test]
+fn cli_search_max_candidate_granules_caps_without_decoding() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase11-max-candidate-granules-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    let mut lines = String::new();
+    for index in 0..128 {
+        writeln!(lines, "aaa common {index}").expect("line should format");
+    }
+    fs::write(&input, lines).expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let output = output_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("search")
+            .arg(&packed)
+            .arg("aaa")
+            .arg("--max-candidate-granules")
+            .arg("10"),
+    );
+    let output = String::from_utf8(output).expect("search output should be utf-8");
+
+    assert!(output.contains("capped=true"));
+    assert!(output.contains("decoded_bytes=0"));
+    assert!(output.contains("incomplete_reason=none"));
+
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn cli_search_max_decoded_bytes_caps_before_decode() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase11-max-decoded-bytes-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"info\nerror code\nerror again\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let output = output_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("search")
+            .arg(&packed)
+            .arg("error")
+            .arg("--max-decoded-bytes")
+            .arg("0"),
+    );
+    let output = String::from_utf8(output).expect("search output should be utf-8");
+
+    assert!(output.contains("capped=true"));
+    assert!(output.contains("decoded_bytes=0"));
+    assert!(output.contains("incomplete_reason=none"));
+
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn cli_search_resource_limit_flags_reject_invalid_values() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase11-resource-limit-invalid-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"alpha\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    for (flag, value) in [
+        ("--max-candidate-granules", "not-a-number"),
+        ("--max-decoded-bytes", "not-a-number"),
+    ] {
+        let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("search")
+            .arg(&packed)
+            .arg("alpha")
+            .arg(flag)
+            .arg(value)
+            .output()
+            .expect("search command should run");
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "{} {} must exit 2: stderr={}",
+            flag,
+            value,
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("search")
+        .arg(&packed)
+        .arg("alpha")
+        .arg("--max-candidate-granules")
+        .output()
+        .expect("search command should run");
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "missing --max-candidate-granules value must exit 2: stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
 /// Zero-hit `qzt search --format json` must emit a single parseable JSON object
 /// with an empty `hits` array and explicit `incomplete_reason: null`, without
 /// stderr warnings that would break JSON consumers.

@@ -1042,9 +1042,9 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                 };
                 sidecar_path = Some(path);
             }
-            "--max-candidates" => {
+            "--max-candidate-granules" | "--max-candidates" => {
                 let Some(value) = args.next().and_then(|value| value.parse::<u64>().ok()) else {
-                    eprintln!("qzt search: invalid --max-candidates");
+                    eprintln!("qzt search: invalid --max-candidate-granules");
                     return ExitCode::from(2);
                 };
                 options.max_candidate_granules = value;
