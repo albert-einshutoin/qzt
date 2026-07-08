@@ -175,6 +175,8 @@ fn pack_help_mentions_stdin_packing_constraints() {
 }
 
 fn run_stdin_pack(args: &[&str], stdin_bytes: &[u8]) -> std::process::Output {
+    use std::io::Read;
+
     let mut cmd = Command::new(env!("CARGO_BIN_EXE_qzt"));
     cmd.arg("pack").arg("-");
     for arg in args {
@@ -186,17 +188,57 @@ fn run_stdin_pack(args: &[&str], stdin_bytes: &[u8]) -> std::process::Output {
         .stderr(Stdio::piped())
         .spawn()
         .expect("qzt pack should spawn");
-    if !stdin_bytes.is_empty() {
-        child
-            .stdin
-            .as_mut()
-            .expect("stdin pipe should exist")
-            .write_all(stdin_bytes)
-            .expect("stdin bytes should be written");
+
+    let mut stdin = child.stdin.take().expect("stdin pipe should exist");
+    let mut stdout = child.stdout.take().expect("stdout pipe should exist");
+    let mut stderr = child.stderr.take().expect("stderr pipe should exist");
+
+    let payload = stdin_bytes.to_vec();
+    // Drain all three pipes concurrently: usage-error paths can exit before stdin is
+    // consumed, and buffering stdout/stderr avoids child-side pipe deadlocks on CI.
+    let stdin_thread = std::thread::spawn(move || {
+        if !payload.is_empty() {
+            if let Err(error) = stdin.write_all(&payload) {
+                assert_eq!(
+                    error.kind(),
+                    std::io::ErrorKind::BrokenPipe,
+                    "unexpected stdin write error: {error:?}"
+                );
+            }
+        }
+        drop(stdin);
+    });
+    let stdout_thread = std::thread::spawn(move || {
+        let mut buf = Vec::new();
+        stdout
+            .read_to_end(&mut buf)
+            .expect("stdout should be readable");
+        buf
+    });
+    let stderr_thread = std::thread::spawn(move || {
+        let mut buf = Vec::new();
+        stderr
+            .read_to_end(&mut buf)
+            .expect("stderr should be readable");
+        buf
+    });
+
+    stdin_thread
+        .join()
+        .expect("stdin writer thread should finish");
+    let status = child.wait().expect("qzt pack should finish");
+    let stdout = stdout_thread
+        .join()
+        .expect("stdout reader thread should finish");
+    let stderr = stderr_thread
+        .join()
+        .expect("stderr reader thread should finish");
+
+    std::process::Output {
+        status,
+        stdout,
+        stderr,
     }
-    // Close stdin so `qzt pack` receives EOF and can finish.
-    drop(child.stdin.take());
-    child.wait_with_output().expect("qzt pack should finish")
 }
 
 struct StdinPackRejectionCase {
@@ -211,7 +253,7 @@ struct StdinPackRejectionCase {
 #[test]
 fn stdin_pack_table_driven_core_success_and_rejections() {
     let base = std::env::temp_dir().join(format!("qzt-phase9-stdin-table-{}", std::process::id()));
-    let _ = fs::create_dir_all(&base);
+    fs::create_dir_all(&base).expect("stdin pack temp dir should be created");
 
     // Success: streaming core path round-trips minimal stdin through pack/export.
     let success_input = b"x";
