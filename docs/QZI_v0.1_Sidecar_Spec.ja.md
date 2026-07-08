@@ -165,6 +165,8 @@ first granule_id as unsigned varint
 then (granule_id - previous_granule_id) as unsigned varints
 ```
 
+例: granule ID 列 `[1, 2, 100]` は、先頭の絶対 ID `1`、続く delta `1` と `98` として符号化され、バイト列 `0x01 0x01 0x62` になります。
+
 posting list は `granule_id` の昇順でなければなりません。参照される `granule_id` はすべて `granule_count` 未満でなければなりません。
 
 ## 検索と検証の責務境界

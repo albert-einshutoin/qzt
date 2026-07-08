@@ -163,6 +163,8 @@ first granule_id as unsigned varint
 then (granule_id - previous_granule_id) as unsigned varints
 ```
 
+Example: granule IDs `[1, 2, 100]` encode as first absolute ID `1`, then deltas `1` and `98`, yielding bytes `0x01 0x01 0x62`.
+
 Posting lists MUST be strictly increasing by `granule_id`. Every referenced `granule_id` MUST be less than `granule_count`.
 
 ## Search and verification boundary
