@@ -80,10 +80,19 @@ qzt doc output.qzt report-2026-06
 qzt doc output.qzt report-2026-06 -o out.txt
 qzt doc output.qzt report-2026-06 --no-verify
 qzt verify output.qzt --deep
+qzt verify output.qzt --format json
 qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi --format json
 ```
+
+JSON output (`--format json`): `qzt info`, `qzt verify`, `qzt docs`, and
+`qzt search` emit a single JSON object on stdout. `qzt verify --format json`
+keeps stderr silent on both success and failure (errors are encoded in JSON with
+`"ok":false`). `qzt search --format json` keeps stdout parseable; incomplete-result
+warnings still go to stderr. `qzt doc` exports document bytes (not JSON); use
+`qzt docs --format json` to discover `doc_id` values. Unknown `--format` values
+exit with code **2**.
 
 Range semantics: `--bytes A:B` is a half-open byte range `[A, B)`, while
 `--lines A:B` is 1-based and inclusive on both ends. An n-gram query shorter
@@ -97,7 +106,7 @@ confident empty result the CLI reports
 Exit codes:
   0  success (verify: container is valid)
   1  command failed (verify: container is corrupt or unreadable)
-  2  usage error (unknown option / missing argument)
+  2  usage error (unknown option / missing argument / unknown --format value)
 ```
 
 ## Documentation
