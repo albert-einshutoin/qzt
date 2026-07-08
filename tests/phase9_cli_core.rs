@@ -1,4 +1,5 @@
 use std::fs;
+use std::io::Write;
 use std::process::{Command, Stdio};
 
 use qzt::skeleton::open_skeleton_details;
@@ -161,6 +162,71 @@ fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
     assert!(
         stderr.contains("streaming pack path"),
         "stderr must mention streaming pack path, got: {stderr}"
+    );
+    assert!(
+        !packed.exists(),
+        "no container should be written on usage error"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// Issue #81: piped stdin must reject `--dense-line-index on` before writing a container.
+#[test]
+fn stdin_dense_line_index_rejected() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-stdin-dli-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let packed = base.join("stdin-dli.qzt");
+
+    let mut child = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("pack")
+        .arg("-")
+        .arg("-o")
+        .arg(&packed)
+        .arg("--dense-line-index")
+        .arg("on")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("qzt pack should spawn");
+    child
+        .stdin
+        .as_mut()
+        .expect("stdin pipe should exist")
+        .write_all(b"alpha\nbeta\n")
+        .expect("stdin bytes should be written");
+    // Close stdin so `qzt pack` receives EOF and can finish.
+    drop(child.stdin.take());
+    let output = child.wait_with_output().expect("qzt pack should finish");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "stdin pack with --dense-line-index on must exit 2"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "stdout must be empty on usage error, got: {:?}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    for needle in [
+        "stdin",
+        "--dense-line-index on",
+        "Dense Line Index",
+        "--profile core",
+        "streaming pack path",
+    ] {
+        assert!(
+            stderr.contains(needle),
+            "stderr must contain {needle:?}, got: {stderr}"
+        );
+    }
+    assert!(
+        !stderr.contains("panic"),
+        "stderr must not contain a panic trace, got: {stderr}"
     );
     assert!(
         !packed.exists(),
