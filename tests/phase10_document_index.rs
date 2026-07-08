@@ -1,7 +1,8 @@
-use qzt::{
-    Checksum, DocumentEntry, DocumentIndex, QztError, QztReader, VerifyLevel,
-    open_skeleton_details, pack_bytes_with_document_index, pack_bytes_with_memory_profile,
-};
+use qzt::error::QztError;
+use qzt::reader::{QztReader, VerifyLevel};
+use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
+use qzt::skeleton::open_skeleton_details;
+use qzt::writer::{pack_bytes_with_document_index, pack_bytes_with_memory_profile};
 mod support;
 use support::{DocumentFixture, document, writer_options};
 
