@@ -206,8 +206,57 @@ struct StdinPackRejectionCase {
     with_output_path: bool,
 }
 
+/// Issue #81: `qzt pack -` with `--dense-line-index on` is rejected on the streaming path.
+#[test]
+fn stdin_dense_line_index_rejected() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-stdin-dli-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let packed = base.join("stdin-dli.qzt");
+    let packed_str = packed.to_str().expect("output path is utf-8");
+
+    let output = run_stdin_pack(
+        &["-o", packed_str, "--dense-line-index", "on"],
+        b"alpha\nbeta\n",
+    );
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "stdin pack with --dense-line-index on must exit 2"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "stdout must be empty on usage error, got: {:?}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    for needle in [
+        "stdin",
+        "--dense-line-index on",
+        "Dense Line Index",
+        "--profile core",
+        "streaming pack path",
+    ] {
+        assert!(
+            stderr.contains(needle),
+            "stderr must contain {needle:?}, got: {stderr}"
+        );
+    }
+    assert!(
+        !stderr.contains("panic"),
+        "stderr must not contain a panic trace, got: {stderr}"
+    );
+    assert!(
+        !packed.exists(),
+        "no container should be written on usage error"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
 /// Issue #161: table-driven stdin pack contract — core success round-trip and exit-2
-/// rejections for unsupported combinations (non-core profile, dense line index, missing -o).
+/// rejections for unsupported combinations (non-core profile, missing -o).
 #[test]
 fn stdin_pack_table_driven_core_success_and_rejections() {
     let base = std::env::temp_dir().join(format!("qzt-phase9-stdin-table-{}", std::process::id()));
@@ -240,18 +289,6 @@ fn stdin_pack_table_driven_core_success_and_rejections() {
             name: "non-core archive profile",
             extra_pack_args: &["--profile", "archive"],
             stderr_needles: &["stdin", "archive", "--profile core"],
-            with_output_path: true,
-        },
-        StdinPackRejectionCase {
-            name: "dense line index on",
-            extra_pack_args: &["--dense-line-index", "on"],
-            stderr_needles: &[
-                "stdin",
-                "--dense-line-index on",
-                "Dense Line Index",
-                "--profile core",
-                "streaming pack path",
-            ],
             with_output_path: true,
         },
         StdinPackRejectionCase {
