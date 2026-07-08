@@ -2,7 +2,7 @@ use std::fs;
 use std::io::Write as _;
 use std::process::{Command, Stdio};
 
-use qzt::open_skeleton_details;
+use qzt::skeleton::open_skeleton_details;
 use qzt::{
     Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes,
     pack_bytes_with_document_index,
@@ -347,6 +347,65 @@ fn stdin_pack_table_driven_core_success_and_rejections() {
             );
         }
     }
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// Issue #115: `qzt pack -` with `--profile memory` exits 2 and names the unsupported profile.
+#[test]
+fn stdin_pack_memory_profile_conflict_exits_2_with_clear_stderr() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase9-stdin-memory-conflict-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+    let packed = base.join("never.qzt");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("pack")
+        .arg("-")
+        .arg("-o")
+        .arg(&packed)
+        .arg("--profile")
+        .arg("memory")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output()
+        .expect("qzt pack should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "stdin + --profile memory must exit 2"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "stdout must be empty on usage error, got: {:?}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("stdin"),
+        "stderr must mention stdin, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("memory"),
+        "stderr must name the unsupported profile, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--profile core"),
+        "stderr must point to --profile core, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("pack_bytes_with_memory_profile"),
+        "stderr must mention the writer API path, got: {stderr}"
+    );
+    assert!(
+        !packed.exists(),
+        "no container should be written on usage error"
+    );
 
     let _ = fs::remove_dir_all(base);
 }
