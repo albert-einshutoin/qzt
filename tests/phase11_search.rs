@@ -208,6 +208,41 @@ fn cli_search_reports_verified_hits_and_metrics() {
     let _ = fs::remove_dir_all(base);
 }
 
+/// Missing or empty `qzt search` query is a usage error (exit 2).
+#[test]
+fn cli_search_missing_or_empty_query_exits_2() {
+    let base = std::env::temp_dir().join(format!("qzt-phase11-query-usage-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, b"info\nerror code\nerror again\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    for (label, query_args) in [("missing query", vec![]), ("empty query", vec![""])] {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_qzt"));
+        command.arg("search").arg(&packed);
+        for query in &query_args {
+            command.arg(query);
+        }
+        let output = command.output().expect("search command should run");
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "qzt search with {label} must exit 2: stderr={}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    let _ = fs::remove_dir_all(base);
+}
+
 #[test]
 fn cli_search_max_candidate_granules_caps_without_decoding() {
     let base = std::env::temp_dir().join(format!(

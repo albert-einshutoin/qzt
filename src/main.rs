@@ -1005,6 +1005,10 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
         eprintln!("qzt search: missing query");
         return ExitCode::from(2);
     };
+    if query.is_empty() {
+        eprintln!("qzt search: empty query");
+        return ExitCode::from(2);
+    }
 
     let mut options = SearchOptions::default();
     let mut index_kind = "token";
