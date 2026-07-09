@@ -174,7 +174,9 @@ term_count 回繰り返し:
 
 `posting_offset + posting_size` は postings section 境界内でなければなりません。
 
-term key はソート済みです。`key_hash` は lookup 補助であり、exact `key` 比較は必須です。
+`key_hash` は、raw term `key` バイト列に対する BLAKE3-256 の先頭 16 バイトです。
+
+term key はソート済みです。`key_hash` は lookup 補助にのみ使います。exact `key` 比較は必須であり、hash 一致だけでは不十分です。
 
 #### Term `flags` (v0.1)
 

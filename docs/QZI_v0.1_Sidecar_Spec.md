@@ -172,7 +172,9 @@ repeat term_count times:
 
 `posting_offset + posting_size` MUST lie within the postings section bounds.
 
-Term keys are sorted. `key_hash` is a lookup accelerator; exact `key` comparison is still required.
+`key_hash` is the first 16 bytes of BLAKE3-256 over the raw term `key` bytes.
+
+Term keys are sorted. `key_hash` is a lookup accelerator only; exact `key` comparison is still required. Hash equality alone is insufficient.
 
 #### Term `flags` (v0.1)
 
