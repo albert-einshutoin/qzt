@@ -4,10 +4,11 @@ use std::io;
 use std::process::Command;
 use std::sync::{Arc, Mutex};
 
-use qzt::{
-    Checksum, ChunkerOptions, DocumentEntry, ReadAt, SearchReport, WriterOptions,
-    pack_bytes_with_container_id,
-};
+use qzt::chunker::ChunkerOptions;
+use qzt::io::ReadAt;
+use qzt::schema::{Checksum, DocumentEntry};
+use qzt::search::SearchReport;
+use qzt::writer::{WriterOptions, pack_bytes_with_container_id};
 
 /// Compare semantically-equivalent search behavior between two execution paths.
 ///
