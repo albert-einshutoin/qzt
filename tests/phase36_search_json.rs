@@ -475,6 +475,77 @@ fn search_text_mode_capped_metrics_contract() {
 }
 
 // ---------------------------------------------------------------------------
+// search_json_capped_result_limit_outputs_hits_and_null_incomplete_reason
+// ---------------------------------------------------------------------------
+
+/// JSON-mode search with a positive `--max-results` cap returns hits, exits 0,
+/// sets `"capped": true`, and keeps `incomplete_reason` null (issue #193).
+/// Capped search is distinct from incomplete search.
+#[test]
+fn search_json_capped_result_limit_outputs_hits_and_null_incomplete_reason() {
+    let base = std::env::temp_dir().join(format!("qzt-36-json-capped-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+
+    let packed = pack_to(b"needle one\nneedle two\nneedle three\n", &base);
+    let qzt = packed.to_str().unwrap();
+
+    let out = run(&[
+        "search",
+        qzt,
+        "needle",
+        "--max-results",
+        "2",
+        "--format",
+        "json",
+    ]);
+    assert_eq!(
+        out.status.code(),
+        Some(0),
+        "capped JSON search must exit 0: stderr={}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        !stderr.contains("warning: result may be incomplete"),
+        "capped search must not emit incomplete warning: {stderr}"
+    );
+
+    let json = String::from_utf8(out.stdout).expect("stdout is utf-8");
+    let value: serde_json::Value = serde_json::from_str(&json)
+        .unwrap_or_else(|error| panic!("stdout must be valid JSON: {error}\n{json}"));
+
+    let hits = value
+        .get("hits")
+        .and_then(serde_json::Value::as_array)
+        .expect("hits must be an array");
+    assert_eq!(hits.len(), 2, "hits must be capped at max-results: {json}");
+
+    assert_eq!(
+        value.get("capped").and_then(serde_json::Value::as_bool),
+        Some(true),
+        "capped must be true: {json}"
+    );
+
+    assert_eq!(
+        value.get("incomplete_reason"),
+        Some(&serde_json::Value::Null),
+        "incomplete_reason must be null for capped search: {json}"
+    );
+
+    assert_eq!(
+        value
+            .get("metrics")
+            .and_then(|metrics| metrics.get("verified_matches"))
+            .and_then(serde_json::Value::as_u64),
+        Some(2),
+        "verified_matches must reflect returned hits: {json}"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+// ---------------------------------------------------------------------------
 // search_json_max_results_zero_caps_empty_hits
 // ---------------------------------------------------------------------------
 
