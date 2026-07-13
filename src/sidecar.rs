@@ -972,16 +972,27 @@ fn decode_terms(bytes: &[u8]) -> Result<Vec<TermDictionaryEntry>> {
         let key = read_exact(bytes, &mut cursor, key_len)?.to_vec();
         let mut key_hash = [0_u8; 16];
         key_hash.copy_from_slice(read_exact(bytes, &mut cursor, 16)?);
+        let document_frequency = read_u64_cursor(bytes, &mut cursor)?;
+        let granule_frequency = read_u64_cursor(bytes, &mut cursor)?;
+        let posting_offset = read_u64_cursor(bytes, &mut cursor)?;
+        let posting_size = read_u64_cursor(bytes, &mut cursor)?;
+        let skip_offset = read_u64_cursor(bytes, &mut cursor)?;
+        let skip_size = read_u64_cursor(bytes, &mut cursor)?;
+        let flags = read_u64_cursor(bytes, &mut cursor)?;
+        // v0.1 defines no term flag bits; reject here so every decode path fails closed.
+        if flags != 0 {
+            return Err(QztError::InvalidFlags);
+        }
         terms.push(TermDictionaryEntry {
             key,
             key_hash,
-            document_frequency: read_u64_cursor(bytes, &mut cursor)?,
-            granule_frequency: read_u64_cursor(bytes, &mut cursor)?,
-            posting_offset: read_u64_cursor(bytes, &mut cursor)?,
-            posting_size: read_u64_cursor(bytes, &mut cursor)?,
-            skip_offset: read_u64_cursor(bytes, &mut cursor)?,
-            skip_size: read_u64_cursor(bytes, &mut cursor)?,
-            flags: read_u64_cursor(bytes, &mut cursor)?,
+            document_frequency,
+            granule_frequency,
+            posting_offset,
+            posting_size,
+            skip_offset,
+            skip_size,
+            flags,
         });
     }
     if cursor != bytes.len() {

@@ -308,6 +308,28 @@ fn section_checksum_bit_flip_sidecar_is_rejected() {
 }
 
 #[test]
+fn non_zero_term_flags_sidecar_is_rejected() {
+    let input = b"alpha\n";
+    let (container, mut sidecar) = token_sidecar_fixture(input, [0xf1; 16]);
+    patch_sidecar_first_term_flags(&mut sidecar, 1);
+    assert_sidecar_open_errors(
+        &container,
+        &sidecar,
+        QztError::InvalidFlags,
+        "non-zero term flags",
+    );
+
+    let reader = QztReader::open(&container).expect("reader should open");
+    assert_eq!(
+        reader.export_all().expect("export should work"),
+        input.as_slice()
+    );
+    reader
+        .verify(VerifyLevel::Deep)
+        .expect("core deep verify should succeed after sidecar rejection");
+}
+
+#[test]
 fn zero_length_granules_section_sidecar_is_rejected() {
     let (container, mut sidecar) = token_sidecar_fixture(b"", [0xf0; 16]);
     patch_sidecar_granules_size_to_zero(&mut sidecar);
@@ -511,6 +533,112 @@ fn run_corrupted_sidecar_cli_test(label: &str, corrupt: impl FnOnce(&mut Vec<u8>
     );
 
     let _ = fs::remove_dir_all(base);
+}
+
+fn patch_sidecar_first_term_flags(sidecar: &mut [u8], flags: u64) {
+    let manifest_end = sidecar_manifest_end(sidecar);
+    let (manifest_slice, rest) = sidecar.split_at_mut(manifest_end);
+    let manifest = &mut manifest_slice[16..];
+    let terms_region = manifest_section_region(manifest, b"terms", b"postings");
+    let terms_offset =
+        read_cbor_u64_after_key(terms_region, b"offset").expect("terms.offset should be readable");
+    let terms_size =
+        read_cbor_u64_after_key(terms_region, b"size").expect("terms.size should be readable");
+    let terms_start = usize::try_from(terms_offset).expect("terms offset should fit usize");
+    let terms_end = terms_start
+        .checked_add(usize::try_from(terms_size).expect("terms size should fit usize"))
+        .expect("terms end should fit");
+    let terms = &mut rest[terms_start..terms_end];
+    let flags_range = first_term_flags_byte_range(terms);
+    terms[flags_range].copy_from_slice(&flags.to_le_bytes());
+    let checksum = Checksum::blake3(terms).value;
+    patch_manifest_section_checksum(terms_region, &checksum);
+}
+
+fn first_term_flags_byte_range(terms: &[u8]) -> std::ops::Range<usize> {
+    let mut cursor = 8_usize;
+    let key_len = usize::try_from(u64::from_le_bytes(
+        terms[cursor..cursor + 8]
+            .try_into()
+            .expect("term key length bytes"),
+    ))
+    .expect("term key length should fit usize");
+    cursor = cursor
+        .checked_add(8)
+        .and_then(|value| value.checked_add(key_len))
+        .and_then(|value| value.checked_add(16))
+        .and_then(|value| value.checked_add(8 * 6))
+        .expect("first term flags offset should fit");
+    cursor..cursor + 8
+}
+
+fn sidecar_manifest_end(sidecar: &[u8]) -> usize {
+    const SIDECAR_HEADER_LEN: usize = 16;
+    let manifest_size = usize::try_from(u64::from_le_bytes(
+        sidecar[8..SIDECAR_HEADER_LEN]
+            .try_into()
+            .expect("manifest size bytes"),
+    ))
+    .expect("manifest size should fit usize");
+    SIDECAR_HEADER_LEN
+        .checked_add(manifest_size)
+        .expect("manifest end should fit")
+}
+
+fn manifest_section_region<'a>(
+    manifest: &'a mut [u8],
+    section_key: &[u8],
+    next_section_key: &[u8],
+) -> &'a mut [u8] {
+    let section_offset = manifest
+        .windows(section_key.len())
+        .position(|window| window == section_key)
+        .expect("section key should exist in manifest");
+    let next_offset = manifest[section_offset..]
+        .windows(next_section_key.len())
+        .position(|window| window == next_section_key)
+        .expect("next section key should exist in manifest")
+        + section_offset;
+    &mut manifest[section_offset..next_offset]
+}
+
+fn read_cbor_u64_after_key(region: &[u8], key: &[u8]) -> Option<u64> {
+    let key_offset = region.windows(key.len()).position(|window| window == key)?;
+    let mut cursor = key_offset + key.len();
+    let initial = *region.get(cursor)?;
+    cursor += 1;
+    match initial {
+        0x00..=0x17 => Some(u64::from(initial)),
+        0x18 => region.get(cursor).map(|value| u64::from(*value)),
+        0x19 => {
+            let bytes = region.get(cursor..cursor + 2)?;
+            Some(u64::from(u16::from_be_bytes(bytes.try_into().ok()?)))
+        }
+        0x1a => {
+            let bytes = region.get(cursor..cursor + 4)?;
+            Some(u64::from(u32::from_be_bytes(bytes.try_into().ok()?)))
+        }
+        0x1b => {
+            let bytes = region.get(cursor..cursor + 8)?;
+            Some(u64::from_be_bytes(bytes.try_into().ok()?))
+        }
+        _ => None,
+    }
+}
+
+fn patch_manifest_section_checksum(section_region: &mut [u8], checksum: &[u8; 32]) {
+    let value_key = b"value";
+    let value_key_offset = section_region
+        .windows(value_key.len())
+        .position(|window| window == value_key)
+        .expect("section checksum value key should exist");
+    let hash_start = value_key_offset + value_key.len();
+    assert_eq!(
+        section_region[hash_start], 0x58,
+        "section checksum value must be a 32-byte CBOR byte string"
+    );
+    assert_eq!(section_region[hash_start + 1], 0x20);
+    section_region[hash_start + 2..hash_start + 34].copy_from_slice(checksum);
 }
 
 fn patch_sidecar_granules_size_to_zero(sidecar: &mut [u8]) {
