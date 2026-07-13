@@ -2,7 +2,7 @@ use std::fs;
 use std::io::Write as _;
 use std::process::{Command, Stdio};
 
-use qzt::open_skeleton_details;
+use qzt::skeleton::open_skeleton_details;
 use qzt::{
     Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes,
     pack_bytes_with_document_index,
@@ -206,23 +206,37 @@ struct StdinPackRejectionCase {
     with_output_path: bool,
 }
 
-/// Issue #81: `qzt pack -` with `--dense-line-index on` is rejected on the streaming path.
+/// CHANGELOG contract: `qzt pack -` with `--dense-line-index on` exits 2 and explains
+/// the streaming-only stdin path so large streams are never buffered silently.
 #[test]
-fn stdin_dense_line_index_rejected() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-stdin-dli-{}", std::process::id()));
+fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase9-stdin-dense-conflict-{}",
+        std::process::id()
+    ));
     let _ = fs::create_dir_all(&base);
-    let packed = base.join("stdin-dli.qzt");
-    let packed_str = packed.to_str().expect("output path is utf-8");
+    let stdin_input = base.join("stdin.txt");
+    let packed = base.join("never.qzt");
+    fs::write(&stdin_input, b"alpha\nbeta\n").expect("stdin fixture should be written");
 
-    let output = run_stdin_pack(
-        &["-o", packed_str, "--dense-line-index", "on"],
-        b"alpha\nbeta\n",
-    );
+    let stdin_file = fs::File::open(&stdin_input).expect("stdin fixture should open");
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("pack")
+        .arg("-")
+        .arg("-o")
+        .arg(&packed)
+        .arg("--dense-line-index")
+        .arg("on")
+        .stdin(Stdio::from(stdin_file))
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output()
+        .expect("qzt pack should run");
 
     assert_eq!(
         output.status.code(),
         Some(2),
-        "stdin pack with --dense-line-index on must exit 2"
+        "stdin + --dense-line-index on must exit 2"
     );
     assert!(
         output.stdout.is_empty(),
@@ -231,18 +245,26 @@ fn stdin_dense_line_index_rejected() {
     );
 
     let stderr = String::from_utf8_lossy(&output.stderr);
-    for needle in [
-        "stdin",
-        "--dense-line-index on",
-        "Dense Line Index",
-        "--profile core",
-        "streaming pack path",
-    ] {
-        assert!(
-            stderr.contains(needle),
-            "stderr must contain {needle:?}, got: {stderr}"
-        );
-    }
+    assert!(
+        stderr.contains("stdin"),
+        "stderr must mention stdin, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--dense-line-index on"),
+        "stderr must name --dense-line-index on, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("Dense Line Index"),
+        "stderr must name the Dense Line Index restriction, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--profile core"),
+        "stderr must point to --profile core, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("streaming pack path"),
+        "stderr must mention streaming pack path, got: {stderr}"
+    );
     assert!(
         !stderr.contains("panic"),
         "stderr must not contain a panic trace, got: {stderr}"
@@ -347,6 +369,65 @@ fn stdin_pack_table_driven_core_success_and_rejections() {
             );
         }
     }
+
+    let _ = fs::remove_dir_all(base);
+}
+
+/// Issue #115: `qzt pack -` with `--profile memory` exits 2 and names the unsupported profile.
+#[test]
+fn stdin_pack_memory_profile_conflict_exits_2_with_clear_stderr() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase9-stdin-memory-conflict-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+    let packed = base.join("never.qzt");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("pack")
+        .arg("-")
+        .arg("-o")
+        .arg(&packed)
+        .arg("--profile")
+        .arg("memory")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output()
+        .expect("qzt pack should run");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "stdin + --profile memory must exit 2"
+    );
+    assert!(
+        output.stdout.is_empty(),
+        "stdout must be empty on usage error, got: {:?}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("stdin"),
+        "stderr must mention stdin, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("memory"),
+        "stderr must name the unsupported profile, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("--profile core"),
+        "stderr must point to --profile core, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("pack_bytes_with_memory_profile"),
+        "stderr must mention the writer API path, got: {stderr}"
+    );
+    assert!(
+        !packed.exists(),
+        "no container should be written on usage error"
+    );
 
     let _ = fs::remove_dir_all(base);
 }
