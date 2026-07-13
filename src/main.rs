@@ -80,8 +80,10 @@ fn print_help() {
     println!("Commands:");
     println!("  help       Show this help");
     println!("  pack       Pack a UTF-8 text file into QZT");
-    println!("             {PACK_STDIN_CONSTRAINT_LINE}");
-    println!("             Example: journalctl --since today | qzt pack - -o today.qzt");
+    println!("             Use '-' as the input path to read from stdin:");
+    println!("             journalctl --since today | qzt pack - -o today.qzt");
+    println!("             (stdin requires --profile core without --dense-line-index;");
+    println!("              stdout output is not supported; -o <path> is always required)");
     println!("  info       Print container summary (--format json for machine-readable output)");
     println!("  export     Restore original bytes (streams to -o file or stdout)");
     println!("  range      Print original bytes (--bytes A:B half-open) or lines");
@@ -110,9 +112,6 @@ fn print_help() {
 /// Exact profile list line; kept in sync with `tests/cli_help.rs` (issue #71).
 const PACK_PROFILES_LINE: &str = "Profiles: minimal, core, log, archive, memory";
 
-/// Stdin packing constraints; kept in sync with README Troubleshooting (issues #107, #152).
-const PACK_STDIN_CONSTRAINT_LINE: &str = "stdin ('-'): requires --profile core, no Dense Line Index; -o <path> required (stdout container output is unsupported)";
-
 fn print_pack_help() {
     println!("qzt {}", qzt::version());
     println!();
@@ -121,8 +120,6 @@ fn print_pack_help() {
     );
     println!();
     println!("Usage: qzt pack [OPTIONS] <INPUT>");
-    println!("  {PACK_STDIN_CONSTRAINT_LINE}");
-    println!("  Example: journalctl --since today | qzt pack - -o today.qzt");
     println!();
     println!("{PACK_PROFILES_LINE}");
     println!();
@@ -136,6 +133,12 @@ fn print_pack_help() {
     println!("  --dict none                  Dictionary mode (CLI writing not implemented)");
     println!("  --dense-line-index on|off    Dense line index (default: on for memory profile)");
     println!("  -h, --help                   Show this help");
+    println!();
+    println!("stdin:");
+    println!("  Use '-' as INPUT to read from stdin:");
+    println!("  journalctl --since today | qzt pack - -o today.qzt");
+    println!("  (stdin requires --profile core without --dense-line-index;");
+    println!("   stdout output is not supported; -o <path> is always required)");
 }
 
 fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
@@ -243,25 +246,11 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
 
     // stdin is only supported on the streaming path (core profile, no dense line index).
     // Silently buffering all of stdin would defeat the memory-safety promise for large logs.
-    // Profile is checked before Dense Line Index so memory's default DLI does not mask the cause.
-    if stdin_input && profile != "core" {
+    if stdin_input && (profile != "core" || dense_line_index) {
         eprintln!(
-            "qzt pack: stdin does not support --profile {profile}; use --profile core on the streaming pack path"
+            "qzt pack: stdin is only supported on the streaming pack path (--profile core without --dense-line-index)"
         );
-        if profile == "memory" {
-            eprintln!(
-                "(for memory profile, use the writer API pack_bytes_with_memory_profile with file-backed input)"
-            );
-        } else {
-            eprintln!("(other profiles need the whole input in memory; write to a file first)");
-        }
-        return ExitCode::from(2);
-    }
-    if stdin_input && dense_line_index {
-        eprintln!(
-            "qzt pack: stdin does not support --dense-line-index on; Dense Line Index requires the in-memory pack path"
-        );
-        eprintln!("use --profile core without --dense-line-index on the streaming pack path");
+        eprintln!("(other profiles need the whole input in memory; write to a file first)");
         return ExitCode::from(2);
     }
 
@@ -549,11 +538,9 @@ fn print_search_report_text(report: &SearchReport) {
             hit.logical_offset, hit.byte_length, hit.chunk_start, hit.chunk_end, hit.source
         );
     }
-    // Escape query so LF/CR/quotes cannot break the single-line metrics contract.
-    let query_escaped = cli_json::escape(&report.metrics.query);
     println!(
         "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
-        query_escaped,
+        report.metrics.query,
         report.metrics.index_kind,
         report.metrics.posting_granularity,
         report.metrics.index_size_bytes,
@@ -1005,10 +992,6 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
         eprintln!("qzt search: missing query");
         return ExitCode::from(2);
     };
-    if query.is_empty() {
-        eprintln!("qzt search: empty query");
-        return ExitCode::from(2);
-    }
 
     let mut options = SearchOptions::default();
     let mut index_kind = "token";
@@ -1046,9 +1029,9 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                 };
                 sidecar_path = Some(path);
             }
-            "--max-candidate-granules" | "--max-candidates" => {
+            "--max-candidates" => {
                 let Some(value) = args.next().and_then(|value| value.parse::<u64>().ok()) else {
-                    eprintln!("qzt search: invalid --max-candidate-granules");
+                    eprintln!("qzt search: invalid --max-candidates");
                     return ExitCode::from(2);
                 };
                 options.max_candidate_granules = value;

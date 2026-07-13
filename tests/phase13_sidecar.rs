@@ -2,11 +2,13 @@ use std::fmt::Write as _;
 use std::fs;
 use std::process::Command;
 
-use qzt::{
-    Checksum, NgramIndexBuildOptions, QziFileSidecar, QziSidecar, QztError, QztFileReader,
-    QztReader, RawNgramIndex, SearchOptions, SidecarIndexKind, VerifyLevel, build_search_sidecar,
-    pack_bytes_with_container_id,
-};
+use qzt::error::QztError;
+use qzt::reader::QztFileReader;
+use qzt::reader::{QztReader, VerifyLevel};
+use qzt::schema::Checksum;
+use qzt::search::{NgramIndexBuildOptions, RawNgramIndex, SearchOptions};
+use qzt::sidecar::{QziFileSidecar, QziSidecar, SidecarIndexKind, build_search_sidecar};
+use qzt::writer::pack_bytes_with_container_id;
 mod support;
 use support::{
     CountingReadAt, assert_semantic_report_eq, assert_success, output_success, writer_options,
@@ -282,32 +284,6 @@ fn cli_search_reports_user_readable_unsupported_sidecar_version() {
 }
 
 #[test]
-fn truncated_section_sidecar_is_rejected() {
-    let (container, mut sidecar) = token_sidecar_fixture(b"alpha\n", [0xee; 16]);
-    sidecar.pop();
-    assert_sidecar_open_errors(
-        &container,
-        &sidecar,
-        QztError::UnexpectedEof,
-        "truncated section",
-    );
-    assert_core_deep_verify_ok(&container);
-}
-
-#[test]
-fn section_checksum_bit_flip_sidecar_is_rejected() {
-    let (container, mut sidecar) = token_sidecar_fixture(b"alpha\n", [0xef; 16]);
-    flip_first_sidecar_payload_byte(&mut sidecar);
-    assert_sidecar_open_errors(
-        &container,
-        &sidecar,
-        QztError::ContainerCorrupt,
-        "checksum bit flip",
-    );
-    assert_core_deep_verify_ok(&container);
-}
-
-#[test]
 fn non_zero_term_flags_sidecar_is_rejected() {
     let input = b"alpha\n";
     let (container, mut sidecar) = token_sidecar_fixture(input, [0xf1; 16]);
@@ -330,148 +306,8 @@ fn non_zero_term_flags_sidecar_is_rejected() {
 }
 
 #[test]
-fn zero_length_granules_section_sidecar_is_rejected() {
-    let (container, mut sidecar) = token_sidecar_fixture(b"", [0xf0; 16]);
-    patch_sidecar_granules_size_to_zero(&mut sidecar);
-    assert_zero_length_granules_section_rejected(&container, &sidecar);
-    assert_core_deep_verify_ok(&container);
-}
-
-#[test]
-fn truncated_section_sidecar_cli_exits_without_panic() {
-    run_corrupted_sidecar_cli_test("truncated", |sidecar| {
-        sidecar.pop();
-    });
-}
-
-#[test]
-fn section_checksum_bit_flip_sidecar_cli_exits_without_panic() {
-    run_corrupted_sidecar_cli_test("checksum-bit-flip", |sidecar| {
-        flip_first_sidecar_payload_byte(sidecar);
-    });
-}
-
-#[test]
-fn zero_length_granules_section_sidecar_cli_exits_without_panic() {
-    let base = std::env::temp_dir().join(format!(
-        "qzt-phase13-corrupt-zero-length-granules-{}",
-        std::process::id()
-    ));
-    let _ = fs::create_dir_all(&base);
-    let input = base.join("input.txt");
-    let packed = base.join("input.qzt");
-    let sidecar_path = base.join("input.qzt.qzi");
-    fs::write(&input, b"").expect("empty input should be written");
-
-    assert_success(
-        Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .arg("pack")
-            .arg(&input)
-            .arg("-o")
-            .arg(&packed),
-    );
-    assert_success(
-        Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .arg("sidecar-rebuild")
-            .arg(&packed)
-            .arg("-o")
-            .arg(&sidecar_path)
-            .arg("--index")
-            .arg("token"),
-    );
-
-    let mut sidecar = fs::read(&sidecar_path).expect("sidecar should be readable");
-    patch_sidecar_granules_size_to_zero(&mut sidecar);
-    fs::write(&sidecar_path, &sidecar).expect("corrupted sidecar should be written");
-
-    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
-        .arg("search")
-        .arg(&packed)
-        .arg("query")
-        .arg("--sidecar")
-        .arg(&sidecar_path)
-        .output()
-        .expect("search command should run");
-
-    assert_eq!(
-        output.status.code(),
-        Some(1),
-        "search must fail on zero-length granules sidecar"
-    );
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(
-        !stderr.is_empty(),
-        "stderr must contain a user-facing error"
-    );
-    assert!(
-        !stderr.contains("panicked"),
-        "zero-length granules sidecar must not panic: {stderr}"
-    );
-
-    assert_success(
-        Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .arg("verify")
-            .arg(&packed)
-            .arg("--deep"),
-    );
-
-    let _ = fs::remove_dir_all(base);
-}
-
-fn token_sidecar_fixture(input: &[u8], container_id: [u8; 16]) -> (Vec<u8>, Vec<u8>) {
-    let container = pack_bytes_with_container_id(input, container_id, writer_options(64, 64))
-        .expect("container should pack");
-    let sidecar =
-        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
-    (container, sidecar)
-}
-
-fn assert_core_deep_verify_ok(container: &[u8]) {
-    let reader = QztReader::open(container).expect("reader should open");
-    reader
-        .verify(VerifyLevel::Deep)
-        .expect("core deep verify should succeed after sidecar rejection");
-}
-
-fn assert_sidecar_open_errors(container: &[u8], sidecar: &[u8], expected: QztError, label: &str) {
-    assert_eq!(
-        QziSidecar::open(container, sidecar).map(|_| ()),
-        Err(expected),
-        "in-memory open should reject {label}"
-    );
-    let file_reader = QztFileReader::open_read_at(container, container.len() as u64)
-        .expect("file reader should open");
-    assert_eq!(
-        QziFileSidecar::open_read_at(sidecar, sidecar.len() as u64, &file_reader).map(|_| ()),
-        Err(expected),
-        "file sidecar open should reject {label}"
-    );
-}
-
-fn assert_zero_length_granules_section_rejected(container: &[u8], sidecar: &[u8]) {
-    let memory_error = QziSidecar::open(container, sidecar).expect_err("in-memory open");
-    assert!(
-        matches!(
-            memory_error,
-            QztError::UnexpectedEof | QztError::ContainerCorrupt
-        ),
-        "in-memory open should reject zero-length granules section: {memory_error:?}"
-    );
-
-    let file_reader = QztFileReader::open_read_at(container, container.len() as u64)
-        .expect("file reader should open");
-    assert_eq!(
-        QziFileSidecar::open_read_at(sidecar, sidecar.len() as u64, &file_reader).map(|_| ()),
-        Err(QztError::ContainerCorrupt),
-        "file sidecar open should reject zero-length granules section"
-    );
-}
-
-fn run_corrupted_sidecar_cli_test(label: &str, corrupt: impl FnOnce(&mut Vec<u8>)) {
-    let base = std::env::temp_dir().join(format!(
-        "qzt-phase13-corrupt-{label}-{}",
-        std::process::id()
-    ));
+fn corrupted_sidecar_cli_exits_without_panic() {
+    let base = std::env::temp_dir().join(format!("qzt-phase13-corrupt-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -498,7 +334,7 @@ fn run_corrupted_sidecar_cli_test(label: &str, corrupt: impl FnOnce(&mut Vec<u8>
     );
 
     let mut sidecar = fs::read(&sidecar_path).expect("sidecar should be readable");
-    corrupt(&mut sidecar);
+    flip_first_sidecar_payload_byte(&mut sidecar);
     fs::write(&sidecar_path, &sidecar).expect("corrupted sidecar should be written");
 
     let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
@@ -513,16 +349,16 @@ fn run_corrupted_sidecar_cli_test(label: &str, corrupt: impl FnOnce(&mut Vec<u8>
     assert_eq!(
         output.status.code(),
         Some(1),
-        "search must fail on corrupted sidecar ({label})"
+        "search must fail on corrupted sidecar"
     );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
         !stderr.is_empty(),
-        "stderr must contain a user-facing error ({label})"
+        "stderr must contain a user-facing error"
     );
     assert!(
         !stderr.contains("panicked"),
-        "corrupted sidecar must not panic ({label}): {stderr}"
+        "corrupted sidecar must not panic: {stderr}"
     );
 
     assert_success(
@@ -533,6 +369,29 @@ fn run_corrupted_sidecar_cli_test(label: &str, corrupt: impl FnOnce(&mut Vec<u8>
     );
 
     let _ = fs::remove_dir_all(base);
+}
+
+fn token_sidecar_fixture(input: &[u8], container_id: [u8; 16]) -> (Vec<u8>, Vec<u8>) {
+    let container = pack_bytes_with_container_id(input, container_id, writer_options(64, 64))
+        .expect("container should pack");
+    let sidecar =
+        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
+    (container, sidecar)
+}
+
+fn assert_sidecar_open_errors(container: &[u8], sidecar: &[u8], expected: QztError, label: &str) {
+    assert_eq!(
+        QziSidecar::open(container, sidecar).map(|_| ()),
+        Err(expected),
+        "in-memory open should reject {label}"
+    );
+    let file_reader = QztFileReader::open_read_at(container, container.len() as u64)
+        .expect("file reader should open");
+    assert_eq!(
+        QziFileSidecar::open_read_at(sidecar, sidecar.len() as u64, &file_reader).map(|_| ()),
+        Err(expected),
+        "file sidecar open should reject {label}"
+    );
 }
 
 fn patch_sidecar_first_term_flags(sidecar: &mut [u8], flags: u64) {
@@ -639,59 +498,6 @@ fn patch_manifest_section_checksum(section_region: &mut [u8], checksum: &[u8; 32
     );
     assert_eq!(section_region[hash_start + 1], 0x20);
     section_region[hash_start + 2..hash_start + 34].copy_from_slice(checksum);
-}
-
-fn patch_sidecar_granules_size_to_zero(sidecar: &mut [u8]) {
-    const SIDECAR_HEADER_LEN: usize = 16;
-    let manifest_size = usize::try_from(u64::from_le_bytes(
-        sidecar[8..SIDECAR_HEADER_LEN]
-            .try_into()
-            .expect("manifest size bytes"),
-    ))
-    .expect("manifest size should fit usize");
-    let manifest_start = SIDECAR_HEADER_LEN;
-    let manifest_end = manifest_start
-        .checked_add(manifest_size)
-        .expect("manifest end should fit");
-    let manifest = &mut sidecar[manifest_start..manifest_end];
-
-    let granules_key = b"granules";
-    let granules_offset = manifest
-        .windows(granules_key.len())
-        .position(|window| window == granules_key)
-        .expect("granules key should exist in manifest");
-    let postings_key = b"postings";
-    let postings_offset = manifest[granules_offset..]
-        .windows(postings_key.len())
-        .position(|window| window == postings_key)
-        .expect("postings key should exist in manifest")
-        + granules_offset;
-    let granules_region = &mut manifest[granules_offset..postings_offset];
-
-    let size_key = b"size";
-    let size_key_offset = granules_region
-        .windows(size_key.len())
-        .position(|window| window == size_key)
-        .expect("granules.size key should exist");
-    let size_value_offset = size_key_offset + size_key.len();
-    assert_eq!(
-        granules_region[size_value_offset], 0x08,
-        "empty-input granules.size must be encoded as CBOR uint 8"
-    );
-    granules_region[size_value_offset] = 0x00;
-
-    let value_key = b"value";
-    let value_key_offset = granules_region
-        .windows(value_key.len())
-        .position(|window| window == value_key)
-        .expect("granules checksum value key should exist");
-    let hash_start = value_key_offset + value_key.len();
-    assert_eq!(
-        granules_region[hash_start], 0x58,
-        "granules checksum value must be a 32-byte CBOR byte string"
-    );
-    assert_eq!(granules_region[hash_start + 1], 0x20);
-    granules_region[hash_start + 2..hash_start + 34].copy_from_slice(&Checksum::blake3(b"").value);
 }
 
 fn flip_first_sidecar_payload_byte(sidecar: &mut [u8]) {

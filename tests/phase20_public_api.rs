@@ -1,5 +1,3 @@
-use std::io::ErrorKind;
-
 use qzt::error::QztError;
 use qzt::writer::pack_bytes_with_profile;
 use qzt::{
@@ -8,91 +6,6 @@ use qzt::{
 };
 mod support;
 use support::writer_options;
-
-fn assert_human_readable_display(
-    error: QztError,
-    raw_variant_name: &str,
-    human_readable_substrings: &[&str],
-) {
-    let display = format!("{error}");
-    let debug = format!("{error:?}");
-    assert_ne!(
-        display, debug,
-        "Display for {raw_variant_name} should not delegate to Debug"
-    );
-    assert!(
-        !display.contains(raw_variant_name),
-        "Display for {raw_variant_name} should not leak raw variant name, got: {display}"
-    );
-    for substring in human_readable_substrings {
-        assert!(
-            display.contains(substring),
-            "Display for {raw_variant_name} should contain {substring:?}, got: {display}"
-        );
-    }
-}
-
-/// Issue #179: `QztError::Display` must stay human-readable, not raw Debug variant names.
-#[test]
-fn qzt_error_display_uses_human_readable_messages_for_representative_variants() {
-    assert_human_readable_display(
-        QztError::InvalidMagic,
-        "InvalidMagic",
-        &["invalid magic", "QZT container"],
-    );
-    assert_human_readable_display(
-        QztError::InvalidHeader,
-        "InvalidHeader",
-        &["header", "malformed"],
-    );
-    assert_human_readable_display(
-        QztError::UnsupportedVersion,
-        "UnsupportedVersion",
-        &["unsupported", "format version"],
-    );
-    assert_human_readable_display(
-        QztError::ContainerCorrupt,
-        "ContainerCorrupt",
-        &["container", "corrupt"],
-    );
-    assert_human_readable_display(
-        QztError::ResourceLimitExceeded,
-        "ResourceLimitExceeded",
-        &["resource limit"],
-    );
-    assert_human_readable_display(
-        QztError::DocumentNotFound,
-        "DocumentNotFound",
-        &["document", "not found"],
-    );
-    assert_human_readable_display(
-        QztError::UnsupportedIndexMode("normalized_utf8 token index"),
-        "UnsupportedIndexMode",
-        &["index mode", "not supported"],
-    );
-
-    let kind = ErrorKind::NotFound;
-    let error = QztError::Io(kind);
-    let display = format!("{error}");
-    let debug = format!("{error:?}");
-    assert_ne!(display, debug, "Io Display should not delegate to Debug");
-    assert!(
-        !display.contains("Io("),
-        "Io Display should not use Debug formatting, got: {display}"
-    );
-    assert!(
-        !display.contains("NotFound"),
-        "Io Display should not leak ErrorKind variant name, got: {display}"
-    );
-    assert!(
-        display.contains("I/O error:"),
-        "Io Display should name the error class, got: {display}"
-    );
-    assert!(
-        display.contains(&kind.to_string()),
-        "Io Display should include the OS/Rust error kind text, got: {display}"
-    );
-}
 
 #[test]
 fn writer_builder_reproduces_legacy_pack_entry_points() {

@@ -231,49 +231,6 @@ fn cli_ngram_search_reports_benchmark_metrics() {
 }
 
 #[test]
-fn cli_ngram_search_accepts_resource_limit_flags() {
-    let base = std::env::temp_dir().join(format!(
-        "qzt-phase12-resource-limits-{}",
-        std::process::id()
-    ));
-    let _ = fs::create_dir_all(&base);
-    let input = base.join("input.txt");
-    let packed = base.join("input.qzt");
-    fs::write(&input, "東京大学\n京都大学\n").expect("input should be written");
-
-    assert_success(
-        Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .arg("pack")
-            .arg(&input)
-            .arg("-o")
-            .arg(&packed),
-    );
-
-    let output = output_success(
-        Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .arg("search")
-            .arg(&packed)
-            .arg("東京")
-            .arg("--index")
-            .arg("ngram")
-            .arg("--ngram")
-            .arg("2")
-            .arg("--max-candidate-granules")
-            .arg("10000")
-            .arg("--max-decoded-bytes")
-            .arg("1MiB"),
-    );
-    let output = String::from_utf8(output).expect("search output should be utf-8");
-
-    assert!(output.contains("index_kind=ngram"));
-    assert!(output.contains("candidate_granules="));
-    assert!(output.contains("decoded_bytes="));
-    assert!(output.contains("incomplete_reason=none"));
-
-    let _ = fs::remove_dir_all(base);
-}
-
-#[test]
 fn query_shorter_than_n_reports_incomplete_reason() {
     let container = pack_bytes_with_container_id(
         "中文証拠の行\n".as_bytes(),

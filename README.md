@@ -21,19 +21,6 @@ only the required range and return to the original evidence position.
 When publishing QZT externally, it should be positioned as a
 `v0.1 technical preview`, not as production-ready software.
 
-## Build
-
-Build the release binary from the repository root:
-
-```sh
-cargo build --release
-./target/release/qzt --help
-```
-
-The binary lives at `./target/release/qzt` unless you install it on your `PATH`.
-The examples below use `qzt` as if it were on your `PATH`; substitute
-`./target/release/qzt` when running from a local build.
-
 ## v0.1 Technical Preview — Limitations
 
 QZT v0.1 is a reference implementation focused on spec coverage and correctness.
@@ -61,49 +48,6 @@ Known limitations before production use:
 - **No production benchmark**: No comparison against SQLite FTS, Tantivy,
   Lucene, or seekable-zstd has been conducted for v0.1.
 
-### Reproducing the performance numbers
-
-The RSS figures above (for example 518 MB → 9.8 MB max RSS on the 42 MB /
-400K-line corpus) are **local smoke evidence**, not an SLA or production
-guarantee. Reproduce them on your machine with:
-
-```sh
-cargo test --test release_hardening -- --nocapture
-make bench-profile
-```
-
-For a quicker profile iteration:
-
-```sh
-QZT_RELEASE_BENCH_QUERY_REPETITIONS=5 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=2 make bench-profile
-```
-
-See [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md) for
-corpus details, metric definitions, and additional profiling targets.
-
-### Optional competitive benchmarks
-
-Phase 18 includes an optional competitive benchmark harness. The numbers are
-**reproducible local evidence**, not an SLA or production performance guarantee.
-
-Default smoke (no external tools):
-
-```sh
-cargo test --test phase18_competitive_benchmark -- --nocapture
-```
-
-Comparisons against ripgrep and SQLite FTS5 run behind the `bench-compete`
-feature so the default quality gate stays portable. If `rg` or `sqlite3` with
-FTS5 is not available on your PATH, that comparator is **skipped**; tools that
-are present must match the reference byte-scan hit count.
-
-```sh
-cargo test --features bench-compete --test phase18_competitive_benchmark -- --nocapture
-```
-
-See [docs/QZT_v0.1_Competitive_Benchmarks.md](docs/QZT_v0.1_Competitive_Benchmarks.md)
-for methodology and when to use QZT.
-
 ## Local Quality Gate
 
 ```sh
@@ -118,23 +62,6 @@ The gate runs:
 - cargo check --lib --bins
 - cargo test --all-targets --all-features
 ```
-
-## Quickstart
-
-The smallest successful path with one text file: pack, inspect, export, and
-confirm round-trip equality. QZT is a `v0.1 technical preview`—an experimental
-reference implementation, not production-ready software.
-
-Prepare a plain text file (for example `input.txt`), then:
-
-```sh
-qzt pack input.txt -o output.qzt
-qzt info output.qzt
-qzt export output.qzt -o restored.txt
-diff input.txt restored.txt
-```
-
-No output from `diff` means the restored bytes match the source.
 
 ## Main CLI
 
@@ -153,24 +80,13 @@ qzt doc output.qzt report-2026-06
 qzt doc output.qzt report-2026-06 -o out.txt
 qzt doc output.qzt report-2026-06 --no-verify
 qzt verify output.qzt --deep
-qzt verify output.qzt --format json
 qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi --format json
 ```
 
-JSON output (`--format json`): `qzt info`, `qzt verify`, `qzt docs`, and
-`qzt search` emit a single JSON object on stdout. `qzt verify --format json`
-keeps stderr silent on both success and failure (errors are encoded in JSON with
-`"ok":false`). `qzt search --format json` keeps stdout parseable; incomplete-result
-warnings still go to stderr. `qzt doc` exports document bytes (not JSON); use
-`qzt docs --format json` to discover `doc_id` values. Unknown `--format` values
-exit with code **2**.
-
 Range semantics: `--bytes A:B` is a half-open byte range `[A, B)`, while
-`--lines A:B` is 1-based and inclusive on both ends. `qzt line FILE N` returns
-the same raw line bytes as `qzt range FILE --lines N:N` — a convenience wrapper
-for a single-line range. An n-gram query shorter
+`--lines A:B` is 1-based and inclusive on both ends. An n-gram query shorter
 than the index `n` (default 3) cannot be answered by the index; instead of a
 confident empty result the CLI reports
 `incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
@@ -181,70 +97,12 @@ confident empty result the CLI reports
 Exit codes:
   0  success (verify: container is valid)
   1  command failed (verify: container is corrupt or unreadable)
-  2  usage error (unknown option / missing argument / unknown --format value)
+  2  usage error (unknown option / missing argument)
 ```
-
-## Troubleshooting
-
-Common CLI failure modes. QZT remains a `v0.1 technical preview`; treat these
-as expected constraints of the reference implementation, not production bugs.
-
-### `qzt pack -` (stdin) rejects the request
-
-Stdin packing only works on the streaming core path: `--profile core` without
-Dense Line Index (`--dense-line-index on` is not supported). `-o <path>` is
-always required; stdout output is not supported. Other profiles, dense line
-index mode, or a missing `-o` exit with code **2** and print a usage-style
-error.
-
-### High RSS or OOM during `qzt sidecar-rebuild`
-
-`qzt sidecar-rebuild` builds the full posting map in memory. Build RSS scales
-with vocabulary and posting-map size (roughly the sidecar size expanded), even
-though decode is chunk-at-a-time. This is a known v0.1 technical-preview
-constraint, not a production outage.
-
-Run `sidecar-rebuild` on a machine sized for the corpus. For repeated searches,
-build the sidecar once with `qzt sidecar-rebuild`, then use
-`qzt search --sidecar <file.qzi>` — sidecar search runs on the bounded-memory
-`QztFileReader` and fetches only the queried posting lists and candidate
-granule records.
-
-### n-gram query shorter than index `n`
-
-If a query is shorter than the sidecar's n-gram `n` (default 3), the index
-cannot answer it. The CLI does **not** return a confident empty result; search
-reports `incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
-
-### Search capped at result limit (`capped=true`)
-
-When a search hits more matches than the result cap allows, the report shows
-`capped=true` in the metrics line (text mode) or JSON `"capped": true`. This is
-**not** a failure: the command still exits **0** with the hits found up to the
-limit. `incomplete_reason` stays `none`; unlike a too-short n-gram query, the
-index answered—the search simply reached its configured ceiling.
-
-Raise the cap with `--max-results <N>` when you need more hits (for example
-`qzt search file.qzt needle --max-results 100`).
-
-You can also bound search work before decoding with `--max-candidate-granules <N>`
-(candidate granules) and `--max-decoded-bytes <N>` (decoded bytes; suffixes
-`KiB`, `MiB`, `GiB` are accepted). When a bound is reached, the report is
-`capped=true` with exit **0**, same as a result-limit cap.
-
-### memory profile requires a Document Index
-
-The memory profile (`"memory"`) requires a Document Index at pack time. The `qzt pack`
-CLI does not accept a Document Index, so `qzt pack --profile memory` is
-rejected (`MetadataInvalid`, exit **1**). Use the writer API
-(`pack_bytes_with_memory_profile`) with a `DocumentIndex`, or pack with another
-profile (for example `core`).
 
 ## Documentation
 
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](docs/QZT_v0.1_Core_Spec.md)
-- Format stability: [docs/QZT_v0.1_Format_Stability.md](docs/QZT_v0.1_Format_Stability.md)
-- QZI sidecar spec: [docs/QZI_v0.1_Sidecar_Spec.md](docs/QZI_v0.1_Sidecar_Spec.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.md](docs/QZT_v0.1_Core_Readiness.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md)
 - Implementation phases: [tasks/README.md](tasks/README.md)
