@@ -1,5 +1,5 @@
 use std::fs;
-use std::io::Write as _;
+use std::io::{ErrorKind, Write as _};
 use std::process::{Command, Stdio};
 
 use qzt::skeleton::open_skeleton_details;
@@ -187,12 +187,19 @@ fn run_stdin_pack(args: &[&str], stdin_bytes: &[u8]) -> std::process::Output {
         .spawn()
         .expect("qzt pack should spawn");
     if !stdin_bytes.is_empty() {
-        child
+        if let Err(err) = child
             .stdin
             .as_mut()
             .expect("stdin pipe should exist")
             .write_all(stdin_bytes)
-            .expect("stdin bytes should be written");
+        {
+            // Usage-error paths validate argv and exit before reading stdin; on Linux CI
+            // the child can close the pipe before this write finishes (issue #161 flake).
+            assert!(
+                err.kind() == ErrorKind::BrokenPipe,
+                "unexpected stdin write failure: {err}"
+            );
+        }
     }
     // Close stdin so `qzt pack` receives EOF and can finish.
     drop(child.stdin.take());
