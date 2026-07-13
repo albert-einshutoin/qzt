@@ -13,36 +13,59 @@ use support::{
 };
 
 #[test]
-fn wrong_source_container_id_sidecar_is_rejected() {
-    let input = b"alpha\n";
-    let container = pack_bytes_with_container_id(input, [0xe0; 16], writer_options(64, 64))
-        .expect("container should pack");
-    let mut sidecar =
-        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
-    replace_first(&mut sidecar, &[0xe0; 16], &[0xee; 16]);
-
-    assert_eq!(
-        QziSidecar::open(&container, &sidecar).map(|_| ()),
-        Err(QztError::ContainerIdMismatch)
+fn wrong_sidecar_schema_is_rejected() {
+    let (container, mut sidecar) = token_sidecar_fixture(b"alpha\n", [0xf2; 16]);
+    patch_sidecar_schema(&mut sidecar);
+    assert_sidecar_open_errors(
+        &container,
+        &sidecar,
+        QztError::ContainerCorrupt,
+        "schema mismatch",
     );
+    assert_core_deep_verify_ok(&container);
+}
+
+#[test]
+fn wrong_source_container_id_sidecar_is_rejected() {
+    let (container, mut sidecar) = token_sidecar_fixture(b"alpha\n", [0xe0; 16]);
+    replace_first(&mut sidecar, &[0xe0; 16], &[0xee; 16]);
+    assert_sidecar_open_errors(
+        &container,
+        &sidecar,
+        QztError::ContainerIdMismatch,
+        "container id mismatch",
+    );
+    assert_core_deep_verify_ok(&container);
 }
 
 #[test]
 fn wrong_source_original_checksum_sidecar_is_rejected() {
     let input = b"alpha\n";
-    let container = pack_bytes_with_container_id(input, [0xe1; 16], writer_options(64, 64))
-        .expect("container should pack");
-    let mut sidecar =
-        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
+    let (container, mut sidecar) = token_sidecar_fixture(input, [0xe1; 16]);
     let checksum = Checksum::blake3(input).value;
     let mut wrong = checksum;
     wrong[0] ^= 0xff;
     replace_first(&mut sidecar, &checksum, &wrong);
-
-    assert_eq!(
-        QziSidecar::open(&container, &sidecar).map(|_| ()),
-        Err(QztError::ContainerCorrupt)
+    assert_sidecar_open_errors(
+        &container,
+        &sidecar,
+        QztError::ContainerCorrupt,
+        "original checksum mismatch",
     );
+    assert_core_deep_verify_ok(&container);
+}
+
+#[test]
+fn wrong_source_qzt_footer_checksum_sidecar_is_rejected() {
+    let (container, mut sidecar) = token_sidecar_fixture(b"alpha\n", [0xf3; 16]);
+    patch_sidecar_source_qzt_footer_checksum(&mut sidecar);
+    assert_sidecar_open_errors(
+        &container,
+        &sidecar,
+        QztError::ContainerCorrupt,
+        "footer checksum mismatch",
+    );
+    assert_core_deep_verify_ok(&container);
 }
 
 #[test]
@@ -188,25 +211,18 @@ fn unsupported_source_format_version_sidecar_is_rejected() {
         .expect("container should pack");
     let sidecar =
         build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
-    let file_reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
-        .expect("file reader should open");
 
     for (major, minor) in [(0, 2), (1, 0)] {
         let mut patched = sidecar.clone();
         patch_sidecar_source_format_version(&mut patched, major, minor);
-
-        assert_eq!(
-            QziSidecar::open(&container, &patched).map(|_| ()),
-            Err(QztError::UnsupportedVersion),
-            "in-memory open should reject [{major}, {minor}]"
-        );
-        assert_eq!(
-            QziFileSidecar::open_read_at(patched.as_slice(), patched.len() as u64, &file_reader,)
-                .map(|_| ()),
-            Err(QztError::UnsupportedVersion),
-            "file sidecar open should reject [{major}, {minor}]"
+        assert_sidecar_open_errors(
+            &container,
+            &patched,
+            QztError::UnsupportedVersion,
+            &format!("unsupported source format version [{major}, {minor}]"),
         );
     }
+    assert_core_deep_verify_ok(&container);
 }
 
 #[test]
@@ -712,6 +728,34 @@ fn flip_first_sidecar_payload_byte(sidecar: &mut [u8]) {
         "sidecar must have at least one payload byte"
     );
     sidecar[payload_offset] ^= 0xff;
+}
+
+fn patch_sidecar_schema(sidecar: &mut [u8]) {
+    // Same-length mutation keeps CBOR manifest size stable for a focused binding test.
+    replace_first(sidecar, b"qzt.sidecar.v1", b"qzt.sidecar.v9");
+}
+
+fn patch_sidecar_source_qzt_footer_checksum(sidecar: &mut [u8]) {
+    let manifest_end = sidecar_manifest_end(sidecar);
+    let manifest = &mut sidecar[16..manifest_end];
+    let key = b"source_qzt_footer_checksum";
+    let key_offset = manifest
+        .windows(key.len())
+        .position(|window| window == key)
+        .expect("source_qzt_footer_checksum key should exist in manifest");
+    let value_key = b"value";
+    let value_key_offset = manifest[key_offset..]
+        .windows(value_key.len())
+        .position(|window| window == value_key)
+        .expect("source_qzt_footer_checksum value key should exist")
+        + key_offset;
+    let hash_start = value_key_offset + value_key.len();
+    assert_eq!(
+        manifest[hash_start], 0x58,
+        "source_qzt_footer_checksum value must be a 32-byte CBOR byte string"
+    );
+    assert_eq!(manifest[hash_start + 1], 0x20);
+    manifest[hash_start + 2] ^= 0xff;
 }
 
 fn patch_sidecar_source_format_version(sidecar: &mut [u8], major: u8, minor: u8) {
