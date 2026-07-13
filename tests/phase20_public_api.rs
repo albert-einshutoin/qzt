@@ -8,7 +8,6 @@ use qzt::{
 };
 mod support;
 use support::writer_options;
-
 fn assert_human_readable_display(
     error: QztError,
     raw_variant_name: &str,
