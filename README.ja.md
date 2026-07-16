@@ -125,6 +125,17 @@ Exit codes:
 QZT は引き続き `v0.1 technical preview` です。以下は production-ready な挙動ではなく、
 参照実装の制約として扱ってください。
 
+### `qzt sidecar-rebuild` で高 RSS または OOM
+
+`qzt sidecar-rebuild` はsourceをchunk単位でdecodeしますが、v0.1 builderは
+sidecar生成中にterm dictionaryとposting map全体を保持します。そのためpeak memoryは
+corpusの語彙量とposting量に応じて増え、1 chunkのdecode量を大きく上回る場合があります。
+
+corpusに見合ったマシンでsidecarを構築し、繰り返しqueryでは再利用してください。
+`qzt search --sidecar <file.qzi>` はfile-backed readerを使い、posting map全体を
+再構築せず、query対象のposting listとcandidate granuleを読み込みます。これは
+technical preview向けの運用指針であり、production memory SLAではありません。
+
 ### 検索結果が上限で打ち切られた場合（`capped=true`）
 
 hit 数が結果上限を超えると、metrics 行（text mode）または JSON の
