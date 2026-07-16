@@ -30,6 +30,18 @@ fn export_to_bytes(packed: &std::path::Path) -> Vec<u8> {
     out.stdout
 }
 
+fn verify_deep(packed: &std::path::Path) {
+    let out = bin()
+        .args(["verify", packed.to_str().unwrap(), "--deep"])
+        .output()
+        .expect("deep verify should run");
+    assert!(
+        out.status.success(),
+        "deep verify failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+}
+
 // ---------------------------------------------------------------------------
 // pack_reads_stdin_and_roundtrips
 // ---------------------------------------------------------------------------
@@ -98,6 +110,8 @@ fn pack_stdin_empty_input_roundtrips() {
     );
     assert!(out.exists(), "output container must exist for empty input");
 
+    verify_deep(&out);
+
     // Exporting an empty container must yield 0 bytes.
     let restored = export_to_bytes(&out);
     assert!(
@@ -105,6 +119,37 @@ fn pack_stdin_empty_input_roundtrips() {
         "empty round-trip must produce empty output, got {} byte(s)",
         restored.len()
     );
+
+    let _ = fs::remove_dir_all(dir);
+}
+
+/// A one-byte stdin input exercises the smallest non-empty streaming chunk.
+#[test]
+fn pack_stdin_one_byte_deep_verifies_and_roundtrips() {
+    let dir = std::env::temp_dir().join(format!("qzt-37-stdin-one-{}", std::process::id()));
+    fs::create_dir_all(&dir).unwrap();
+    let out = dir.join("stdin_one.qzt");
+
+    let mut child = bin()
+        .args(["pack", "-", "-o", out.to_str().unwrap()])
+        .stdin(Stdio::piped())
+        .spawn()
+        .expect("spawn");
+    child
+        .stdin
+        .as_mut()
+        .unwrap()
+        .write_all(b"x")
+        .expect("write one-byte stdin");
+    drop(child.stdin.take());
+
+    let status = child.wait().unwrap();
+    assert!(
+        status.success(),
+        "packing one-byte stdin must succeed, got: {status:?}"
+    );
+    verify_deep(&out);
+    assert_eq!(export_to_bytes(&out), b"x");
 
     let _ = fs::remove_dir_all(dir);
 }
