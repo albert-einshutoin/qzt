@@ -102,6 +102,9 @@ Exit codes:
 
 ## Troubleshooting
 
+QZT remains a `v0.1 technical preview`; treat the following as constraints of
+the reference implementation rather than production-ready behavior.
+
 ### Search capped at result limit (`capped=true`)
 
 When a search hits more matches than the result cap allows, the report shows
@@ -112,6 +115,25 @@ index answered—the search simply reached its configured ceiling.
 
 Raise the cap with `--max-results <N>` when you need more hits (for example
 `qzt search file.qzt needle --max-results 100`).
+
+### `qzt pack -` (stdin) rejects the request
+
+Stdin packing only works with `--profile core` and requires `-o <path>`.
+Stdout output, other profiles, and `--dense-line-index on` are unsupported for
+stdin input and exit with code **2** as usage errors.
+
+### n-gram query is shorter than index `n`
+
+If a query is shorter than the sidecar's n-gram `n` (default 3), the index
+cannot answer it. Search does not report a confident empty result; it prints a
+warning and sets `incomplete_reason=query_shorter_than_ngram_n`.
+
+### Memory profile requires a Document Index
+
+The `memory` profile requires a Document Index at pack time. The `qzt pack`
+CLI cannot supply one, so `qzt pack --profile memory` fails with exit code
+**1**. Use the writer API with a `DocumentIndex`, or choose another profile
+such as `core`.
 
 ## Documentation
 
