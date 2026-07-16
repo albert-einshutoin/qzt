@@ -102,10 +102,15 @@ Any mismatch MUST reject the sidecar (`ContainerIdMismatch` or `ContainerCorrupt
 
 ### Index type rules
 
-- `index_type = "token"`: `ngram_n` MUST be null.
-- `index_type = "ngram"`: `ngram_n` MUST be a positive integer.
+- `index_type = "token"`: canonical writers emit `ngram_n = null`. The v0.1
+  reference readers accept a non-negative integer for compatibility but ignore
+  it on the token path; readers MUST NOT use it to change token semantics.
+- `index_type = "ngram"`: canonical writers emit a positive integer. The
+  reference reader requires the field to be present; zero cannot form a valid
+  n-gram search configuration and search returns an error.
 
-Any other `index_type` or invalid `ngram_n` MUST reject the sidecar.
+Any other `index_type`, a malformed `ngram_n`, or a missing `ngram_n` on the
+n-gram path rejects the sidecar.
 
 ## Section payloads
 
@@ -151,6 +156,13 @@ repeat term_count times:
 ```
 
 `posting_offset + posting_size` MUST lie within the postings section bounds.
+
+`skip_offset` and `skip_size` are reserved planning metadata in QZI v0.1.
+There is no serialized skip-data section and these values have no file-offset
+base. Readers MUST NOT seek with them. The reference in-memory reader rebuilds
+skip points from decoded posting lists; the file-backed reader ignores these
+fields. A future sidecar version must define a new payload contract before
+persisted skip data can be consumed.
 
 Term keys are sorted. `key_hash` is a lookup accelerator; exact `key` comparison is still required.
 
