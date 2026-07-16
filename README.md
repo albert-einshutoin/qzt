@@ -133,6 +133,19 @@ Exit codes:
 QZT remains a `v0.1 technical preview`; treat the following as constraints of
 the reference implementation rather than production-ready behavior.
 
+### High RSS or OOM during `qzt sidecar-rebuild`
+
+`qzt sidecar-rebuild` decodes the source a chunk at a time, but the v0.1
+builder still retains the full term dictionary and posting map while producing
+the sidecar. Peak memory therefore grows with corpus vocabulary and posting
+volume, and may be much larger than one decoded chunk.
+
+Build the sidecar on a machine sized for the corpus, then reuse it for repeated
+queries. `qzt search --sidecar <file.qzi>` uses the file-backed reader and
+loads the queried posting lists and candidate granules instead of rebuilding
+the complete posting map. This is technical-preview guidance, not a production
+memory SLA.
+
 ### Search capped at result limit (`capped=true`)
 
 When a search hits more matches than the result cap allows, the report shows
