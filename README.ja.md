@@ -94,6 +94,19 @@ Exit codes:
   2  usage error (unknown option / missing argument)
 ```
 
+## トラブルシューティング
+
+### 検索結果が上限で打ち切られた場合（`capped=true`）
+
+hit 数が結果上限を超えると、metrics 行（text mode）または JSON の
+`"capped": true` に `capped=true` が出ます。これは**失敗ではありません**。
+command は上限まで見つかった hit を返して **exit 0** のままです。
+`incomplete_reason` は `none` のままで、n-gram query が短すぎるケースとは別物です
+（index は回答できており、設定された上限に達しただけです）。
+
+より多くの hit が必要なら `--max-results <N>` で上限を上げてください（例:
+`qzt search file.qzt needle --max-results 100`）。
+
 ## ドキュメント
 
 - 仕様要約: [docs/QZT_v0.1_Core_Spec.ja.md](docs/QZT_v0.1_Core_Spec.ja.md)

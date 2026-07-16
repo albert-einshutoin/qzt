@@ -100,6 +100,19 @@ Exit codes:
   2  usage error (unknown option / missing argument)
 ```
 
+## Troubleshooting
+
+### Search capped at result limit (`capped=true`)
+
+When a search hits more matches than the result cap allows, the report shows
+`capped=true` in the metrics line (text mode) or JSON `"capped": true`. This is
+**not** a failure: the command still exits **0** with the hits found up to the
+limit. `incomplete_reason` stays `none`; unlike a too-short n-gram query, the
+index answered—the search simply reached its configured ceiling.
+
+Raise the cap with `--max-results <N>` when you need more hits (for example
+`qzt search file.qzt needle --max-results 100`).
+
 ## Documentation
 
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](docs/QZT_v0.1_Core_Spec.md)
