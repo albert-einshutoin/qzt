@@ -132,6 +132,23 @@ The gate runs:
 - cargo test --all-targets --all-features
 ```
 
+## Quickstart
+
+The smallest successful path with one text file: pack, inspect, export, and
+confirm round-trip equality. QZT is a `v0.1 technical preview`—an experimental
+reference implementation, not production-ready software.
+
+Prepare a plain text file (for example `input.txt`), then:
+
+```sh
+./target/release/qzt pack input.txt -o output.qzt
+./target/release/qzt info output.qzt
+./target/release/qzt export output.qzt -o restored.txt
+diff input.txt restored.txt
+```
+
+No output from `diff` means the restored bytes match the source.
+
 ## Main CLI
 
 ```sh
