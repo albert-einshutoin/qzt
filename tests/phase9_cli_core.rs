@@ -1,4 +1,5 @@
 use std::fs;
+use std::io::Write as _;
 use std::process::{Command, Stdio};
 
 use qzt::skeleton::open_skeleton_details;
@@ -225,6 +226,106 @@ fn stdin_pack_memory_profile_conflict_exits_2_with_clear_stderr() {
         !packed.exists(),
         "no container should be written on usage error"
     );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+fn run_stdin_pack(args: &[&str], stdin_bytes: &[u8]) -> std::process::Output {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("pack")
+        .arg("-")
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("qzt pack should spawn");
+    if let Err(error) = child
+        .stdin
+        .as_mut()
+        .expect("stdin pipe should exist")
+        .write_all(stdin_bytes)
+    {
+        // Usage validation may terminate before reading stdin. Only that
+        // expected early-close race is acceptable; other I/O errors are bugs.
+        assert_eq!(error.kind(), std::io::ErrorKind::BrokenPipe, "{error}");
+    }
+    // Explicit EOF is required so the streaming command can finish.
+    drop(child.stdin.take());
+    child.wait_with_output().expect("qzt pack should finish")
+}
+
+/// Issue #161: the streaming core path succeeds, while unsupported stdin
+/// combinations remain usage errors with actionable diagnostics.
+#[test]
+fn stdin_pack_table_driven_core_success_and_rejections() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-stdin-table-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = b"alpha\nbeta\n";
+
+    let packed = base.join("success.qzt");
+    let output = run_stdin_pack(
+        &[
+            "-o",
+            packed.to_str().expect("output path is utf-8"),
+            "--profile",
+            "core",
+        ],
+        input,
+    );
+    assert!(
+        output.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let exported = output_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("export")
+            .arg(&packed),
+    );
+    assert_eq!(exported, input);
+
+    let cases: &[(&str, &[&str], &[&str], bool)] = &[
+        (
+            "archive",
+            &["--profile", "archive"],
+            &["stdin", "archive", "--profile core"],
+            true,
+        ),
+        (
+            "dense",
+            &["--dense-line-index", "on"],
+            &["stdin", "--dense-line-index on", "--profile core"],
+            true,
+        ),
+        ("missing-output", &[], &["missing -o"], false),
+    ];
+
+    for (name, extra_args, stderr_needles, with_output) in cases {
+        let rejected = base.join(format!("{name}.qzt"));
+        let mut args = Vec::new();
+        if *with_output {
+            args.extend_from_slice(&["-o", rejected.to_str().expect("output path is utf-8")]);
+        }
+        args.extend_from_slice(extra_args);
+
+        let output = run_stdin_pack(&args, input);
+        assert_eq!(
+            output.status.code(),
+            Some(2),
+            "{name} must be a usage error"
+        );
+        assert!(output.stdout.is_empty(), "{name} must keep stdout empty");
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        for needle in *stderr_needles {
+            assert!(
+                stderr.contains(needle),
+                "{name} stderr must contain {needle:?}: {stderr}"
+            );
+        }
+        assert!(!stderr.contains("panic"), "{name} must not panic: {stderr}");
+        assert!(!rejected.exists(), "{name} must not create a container");
+    }
 
     let _ = fs::remove_dir_all(base);
 }
