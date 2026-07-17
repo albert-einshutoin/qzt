@@ -3,9 +3,41 @@ use std::time::Instant;
 use qzt::dense_line_index::{DenseLineEntry, DenseLineIndex};
 use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
+use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{pack_bytes_with_dense_line_index, pack_bytes_with_dense_line_index_override};
+use qzt::writer::{
+    pack_bytes_with_dense_line_index, pack_bytes_with_dense_line_index_override,
+    pack_bytes_with_memory_profile,
+};
 mod support;
+
+fn newline_corpus(line_count: u64) -> Vec<u8> {
+    let mut input = Vec::new();
+    for index in 0..line_count {
+        input.extend_from_slice(format!("line-{index:04}\n").as_bytes());
+    }
+    input
+}
+
+fn single_document_memory_profile_index(
+    input: &[u8],
+    container_id: [u8; 16],
+    line_count: u64,
+) -> DocumentIndex {
+    DocumentIndex {
+        container_id,
+        documents: vec![DocumentEntry::new(
+            "all",
+            0,
+            input.len() as u64,
+            0,
+            line_count,
+            0,
+            1,
+            Checksum::blake3(input),
+        )],
+    }
+}
 
 #[test]
 fn dense_line_index_reads_final_line_without_newline() {
@@ -73,6 +105,60 @@ fn deep_verify_detects_dense_line_index_disagreement() {
         reader.verify(VerifyLevel::Deep),
         Err(QztError::ChunkTableInvalid)
     );
+}
+
+#[test]
+fn memory_profile_below_dense_threshold_omits_dense_line_index() {
+    let line_count = 1024;
+    let container_id = [0xb5; 16];
+    let input = newline_corpus(line_count);
+    let document_index = single_document_memory_profile_index(&input, container_id, line_count);
+    let options = support::writer_options(65_536, 65_536);
+
+    let container = pack_bytes_with_memory_profile(&input, container_id, options, &document_index)
+        .expect("memory profile should pack");
+    let details = open_skeleton_details(&container).expect("memory profile should open");
+
+    assert_eq!(details.metadata.profile, "memory");
+    assert!(!details.metadata.dense_line_index);
+    assert!(details.dense_line_index.is_none());
+    assert!(details.metadata.document_index);
+    assert!(details.document_index.is_some());
+
+    let reader = QztReader::open(container).expect("memory profile reader should open");
+    assert_eq!(reader.read_line_raw(0), Ok(b"line-0000\n".to_vec()));
+    assert_eq!(
+        reader.read_line_raw(line_count - 1),
+        Ok(format!("line-{:04}\n", line_count - 1).into_bytes())
+    );
+    assert!(reader.verify(VerifyLevel::Deep).is_ok());
+}
+
+#[test]
+fn memory_profile_at_dense_threshold_writes_dense_line_index() {
+    let line_count = 2048;
+    let container_id = [0xb6; 16];
+    let input = newline_corpus(line_count);
+    let document_index = single_document_memory_profile_index(&input, container_id, line_count);
+    let options = support::writer_options(65_536, 65_536);
+
+    let container = pack_bytes_with_memory_profile(&input, container_id, options, &document_index)
+        .expect("memory profile should pack");
+    let details = open_skeleton_details(&container).expect("memory profile should open");
+
+    assert_eq!(details.metadata.profile, "memory");
+    assert!(details.metadata.dense_line_index);
+    assert!(details.dense_line_index.is_some());
+    assert!(details.metadata.document_index);
+    assert!(details.document_index.is_some());
+
+    let reader = QztReader::open(container).expect("memory profile reader should open");
+    assert_eq!(reader.read_line_raw(0), Ok(b"line-0000\n".to_vec()));
+    assert_eq!(
+        reader.read_line_raw(line_count - 1),
+        Ok(format!("line-{:04}\n", line_count - 1).into_bytes())
+    );
+    assert!(reader.verify(VerifyLevel::Deep).is_ok());
 }
 
 #[test]

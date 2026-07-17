@@ -61,7 +61,7 @@ fn document_index_chunk_range_inconsistency_is_rejected_by_deep_verify() {
 }
 
 #[test]
-fn memory_profile_writes_dense_and_document_index_flags_and_deep_verifies() {
+fn memory_profile_writes_document_index_flags_and_deep_verifies() {
     let input = b"doc-one\ndoc-two\n";
     let document_index = DocumentIndex {
         container_id: [0xb2; 16],
@@ -94,9 +94,10 @@ fn memory_profile_writes_dense_and_document_index_flags_and_deep_verifies() {
     let details = open_skeleton_details(&container).expect("memory profile should open");
 
     assert_eq!(details.metadata.profile, "memory");
-    assert!(details.metadata.dense_line_index);
+    // Two lines is below the memory-profile Dense Line Index threshold (2048).
+    assert!(!details.metadata.dense_line_index);
     assert!(details.metadata.document_index);
-    assert!(details.dense_line_index.is_some());
+    assert!(details.dense_line_index.is_none());
     assert!(details.document_index.is_some());
 
     let reader = QztReader::open(container).expect("memory profile reader should open");
