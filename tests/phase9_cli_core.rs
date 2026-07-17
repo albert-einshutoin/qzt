@@ -132,8 +132,36 @@ fn help_mentions_exit_codes() {
     }
 }
 
-/// CHANGELOG contract: `qzt pack -` with `--dense-line-index on` exits 2 and explains
-/// the streaming-only stdin path so large streams are never buffered silently.
+/// Pack help keeps stdin constraints next to its I/O usage.
+#[test]
+fn pack_help_mentions_stdin_packing_constraints() {
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .args(["pack", "--help"])
+        .output()
+        .expect("qzt pack --help should run");
+    assert!(output.status.success());
+
+    let stdout = String::from_utf8(output.stdout).expect("help output should be UTF-8");
+    assert!(
+        stdout.contains("Usage: qzt pack [OPTIONS] <INPUT>"),
+        "pack help must show the pack-specific usage line:\n{stdout}"
+    );
+    for expected in [
+        "stdin",
+        "--profile core",
+        "--dense-line-index",
+        "-o <path>",
+        "stdout output is not supported",
+    ] {
+        assert!(
+            stdout.contains(expected),
+            "pack help must contain {expected:?}:\n{stdout}"
+        );
+    }
+}
+
+/// CHANGELOG contract: stdin with a forced Dense Line Index exits 2 and explains
+/// the streaming-only path so large streams are never buffered silently.
 #[test]
 fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
     let base = std::env::temp_dir().join(format!(
