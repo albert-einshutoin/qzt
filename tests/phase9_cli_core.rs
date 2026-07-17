@@ -463,6 +463,73 @@ fn verify_json_reports_ok_with_counts() {
     let _ = fs::remove_dir_all(base);
 }
 
+/// Machine-readable verification metrics are fixed by verification level.
+#[test]
+fn verify_json_decoded_bytes_are_fixed_by_level() {
+    let base = std::env::temp_dir().join(format!("qzt-phase9-vjson-levels-{}", std::process::id()));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    let content = b"alpha\nbeta\ngamma\n";
+    fs::write(&input, content).expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    let mut checked_chunks = None;
+    for (flag, level, expected_decoded) in [
+        ("--quick", "quick", 0_u64),
+        ("--normal", "normal", 0_u64),
+        ("--deep", "deep", content.len() as u64),
+    ] {
+        let json = output_success(
+            Command::new(env!("CARGO_BIN_EXE_qzt"))
+                .arg("verify")
+                .arg(&packed)
+                .arg(flag)
+                .arg("--format")
+                .arg("json"),
+        );
+        let value: serde_json::Value =
+            serde_json::from_slice(&json).expect("success output must be valid JSON");
+
+        assert_eq!(
+            value.get("ok").and_then(serde_json::Value::as_bool),
+            Some(true)
+        );
+        assert_eq!(
+            value.get("level").and_then(serde_json::Value::as_str),
+            Some(level)
+        );
+        assert_eq!(
+            value
+                .get("decoded_bytes")
+                .and_then(serde_json::Value::as_u64),
+            Some(expected_decoded),
+            "decoded_bytes must match {level} verification"
+        );
+
+        let chunks = value
+            .get("checked_chunks")
+            .and_then(serde_json::Value::as_u64)
+            .expect("checked_chunks must be present");
+        assert!(chunks >= 1, "checked_chunks must be non-zero for {level}");
+        match checked_chunks {
+            None => checked_chunks = Some(chunks),
+            Some(expected) => {
+                assert_eq!(chunks, expected, "checked_chunks must match across levels");
+            }
+        }
+    }
+
+    let _ = fs::remove_dir_all(base);
+}
+
 /// `qzt verify --deep --format json` on a corrupt container exits with code 1 and emits
 /// `"ok":false` plus an `"error"` key to stdout (no stderr output in JSON mode).
 #[test]
