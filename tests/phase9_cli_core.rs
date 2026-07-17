@@ -103,6 +103,34 @@ fn cli_pack_rejects_invalid_utf8() {
     let _ = fs::remove_dir_all(base);
 }
 
+/// Issue #91: `qzt --help` documents exit codes 0, 1, and 2 as an automation contract.
+#[test]
+fn help_mentions_exit_codes() {
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("--help")
+        .output()
+        .expect("qzt --help should run");
+
+    assert!(
+        output.status.success(),
+        "qzt --help must exit 0, got {:?}",
+        output.status.code()
+    );
+
+    let stdout = String::from_utf8(output.stdout).expect("help output should be UTF-8");
+    for expected in [
+        "Exit codes:",
+        "0  success (verify: container is valid)",
+        "1  command failed (verify: container is corrupt or unreadable)",
+        "2  usage error (unknown option / missing argument)",
+    ] {
+        assert!(
+            stdout.contains(expected),
+            "help must contain {expected:?}, got:\n{stdout}"
+        );
+    }
+}
+
 /// CHANGELOG contract: `qzt pack -` with `--dense-line-index on` exits 2 and explains
 /// the streaming-only stdin path so large streams are never buffered silently.
 #[test]
