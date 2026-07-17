@@ -76,6 +76,28 @@ Known limitations before production use:
 - **No production benchmark**: No comparison against SQLite FTS, Tantivy,
   Lucene, or seekable-zstd has been conducted for v0.1.
 
+### Optional competitive benchmarks
+
+Phase 18 includes an optional competitive benchmark harness. Its measurements
+are reproducible local evidence, not an SLA or production performance guarantee.
+
+The portable smoke test does not require external tools:
+
+```sh
+cargo test --test phase18_competitive_benchmark -- --nocapture
+```
+
+Comparisons with ripgrep and SQLite FTS5 are enabled by `bench-compete`. A
+comparator is skipped when `rg` or an FTS5-enabled `sqlite3` is unavailable;
+available tools must match the reference byte-scan hit count.
+
+```sh
+cargo test --features bench-compete --test phase18_competitive_benchmark -- --nocapture
+```
+
+See [the competitive benchmark methodology](docs/QZT_v0.1_Competitive_Benchmarks.md)
+for details and guidance on when to use QZT.
+
 ## Local Quality Gate
 
 ```sh

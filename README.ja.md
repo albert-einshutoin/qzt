@@ -69,6 +69,29 @@ production use の前に残っている既知の制限は以下です。
 - **Production benchmark は未実施**: v0.1 では SQLite FTS、Tantivy、Lucene、
   seekable-zstd との比較はまだ実施していません。
 
+### 任意の competitive benchmarks
+
+Phase 18 には optional な competitive benchmark harness があります。計測値は
+再現可能なローカル evidence であり、SLA や production の性能保証ではありません。
+
+外部ツールを必要としない portable な smoke test:
+
+```sh
+cargo test --test phase18_competitive_benchmark -- --nocapture
+```
+
+ripgrep と SQLite FTS5 との比較は `bench-compete` で有効になります。`rg` または
+FTS5 対応の `sqlite3` が利用できない場合、その comparator は skip されます。
+利用可能なツールは参照 byte-scan の hit count と一致する必要があります。
+
+```sh
+cargo test --features bench-compete --test phase18_competitive_benchmark -- --nocapture
+```
+
+詳細と QZT を使うべき場面は
+[competitive benchmark methodology](docs/QZT_v0.1_Competitive_Benchmarks.md)
+を参照してください。
+
 ## ローカル品質ゲート
 
 ```sh
