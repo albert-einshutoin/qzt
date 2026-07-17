@@ -156,16 +156,32 @@ fn search_json_zero_hits_produces_empty_array() {
         "stderr: {}",
         String::from_utf8_lossy(&out.stderr)
     );
+    assert!(
+        out.stderr.is_empty(),
+        "ordinary zero-hit JSON search must not warn: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     let json = String::from_utf8(out.stdout).expect("stdout is utf-8");
-
+    let value: serde_json::Value = serde_json::from_str(&json)
+        .unwrap_or_else(|error| panic!("stdout must be one valid JSON object: {error}\n{json}"));
     assert!(
-        json.contains("\"hits\":[]"),
-        "hits must be empty array: {json}"
+        value.as_object().is_some(),
+        "stdout must be a JSON object: {json}"
+    );
+    assert_eq!(
+        value
+            .get("hits")
+            .and_then(serde_json::Value::as_array)
+            .map(Vec::as_slice),
+        Some([].as_slice()),
+        "hits must be an empty array: {json}"
     );
     assert!(
-        json.contains("\"incomplete_reason\":null") || json.contains("\"incomplete_reason\": null"),
-        "incomplete_reason must be null when no hits: {json}"
+        value
+            .get("incomplete_reason")
+            .is_some_and(serde_json::Value::is_null),
+        "incomplete_reason must be explicit null: {json}"
     );
 
     let _ = fs::remove_dir_all(base);
