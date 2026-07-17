@@ -115,9 +115,9 @@ QZT は `v0.1 technical preview` であり、production-ready ではない実験
 プレーンテキスト（例: `input.txt`）を用意し、次を実行します。
 
 ```sh
-qzt pack input.txt -o output.qzt
-qzt info output.qzt
-qzt export output.qzt -o restored.txt
+./target/release/qzt pack input.txt -o output.qzt
+./target/release/qzt info output.qzt
+./target/release/qzt export output.qzt -o restored.txt
 diff input.txt restored.txt
 ```
 

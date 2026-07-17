@@ -122,9 +122,9 @@ reference implementation, not production-ready software.
 Prepare a plain text file (for example `input.txt`), then:
 
 ```sh
-qzt pack input.txt -o output.qzt
-qzt info output.qzt
-qzt export output.qzt -o restored.txt
+./target/release/qzt pack input.txt -o output.qzt
+./target/release/qzt info output.qzt
+./target/release/qzt export output.qzt -o restored.txt
 diff input.txt restored.txt
 ```
 
