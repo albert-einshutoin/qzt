@@ -142,6 +142,10 @@ fn pack_help_mentions_stdin_packing_constraints() {
     assert!(output.status.success());
 
     let stdout = String::from_utf8(output.stdout).expect("help output should be UTF-8");
+    assert!(
+        stdout.contains("Usage: qzt pack [OPTIONS] <INPUT>"),
+        "pack help must show the pack-specific usage line:\n{stdout}"
+    );
     for expected in [
         "stdin",
         "--profile core",
