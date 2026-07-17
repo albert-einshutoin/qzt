@@ -240,12 +240,16 @@ fn run_stdin_pack(args: &[&str], stdin_bytes: &[u8]) -> std::process::Output {
         .stderr(Stdio::piped())
         .spawn()
         .expect("qzt pack should spawn");
-    child
+    if let Err(error) = child
         .stdin
         .as_mut()
         .expect("stdin pipe should exist")
         .write_all(stdin_bytes)
-        .expect("stdin bytes should be written");
+    {
+        // Usage validation may terminate before reading stdin. Only that
+        // expected early-close race is acceptable; other I/O errors are bugs.
+        assert_eq!(error.kind(), std::io::ErrorKind::BrokenPipe, "{error}");
+    }
     // Explicit EOF is required so the streaming command can finish.
     drop(child.stdin.take());
     child.wait_with_output().expect("qzt pack should finish")
