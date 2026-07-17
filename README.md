@@ -136,7 +136,9 @@ qzt search output.qzt "error" --sidecar output.qzt.qzi --format json
 ```
 
 Range semantics: `--bytes A:B` is a half-open byte range `[A, B)`, while
-`--lines A:B` is 1-based and inclusive on both ends. An n-gram query shorter
+`--lines A:B` is 1-based and inclusive on both ends. `qzt line FILE N` returns
+the same raw line bytes as `qzt range FILE --lines N:N` — a convenience wrapper
+for a single-line range. An n-gram query shorter
 than the index `n` (default 3) cannot be answered by the index; instead of a
 confident empty result the CLI reports
 `incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
