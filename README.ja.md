@@ -69,6 +69,25 @@ production use の前に残っている既知の制限は以下です。
 - **Production benchmark は未実施**: v0.1 では SQLite FTS、Tantivy、Lucene、
   seekable-zstd との比較はまだ実施していません。
 
+### 性能数値の再現
+
+上記の RSS 数値はローカル smoke evidence であり、SLA や production 保証では
+ありません。release benchmark と profiling は次のコマンドで再現できます。
+
+```sh
+cargo test --test release_hardening -- --nocapture
+make bench-profile
+```
+
+軽量な反復用:
+
+```sh
+QZT_RELEASE_BENCH_QUERY_REPETITIONS=5 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=2 make bench-profile
+```
+
+コーパス詳細、指標の定義、追加の profiling 対象は
+[release-hardening guide](docs/QZT_v0.1_Release_Hardening.ja.md) を参照してください。
+
 ### 任意の competitive benchmarks
 
 Phase 18 には optional な competitive benchmark harness があります。計測値は
