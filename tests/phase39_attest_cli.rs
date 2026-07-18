@@ -1,6 +1,6 @@
 use std::fmt::Write as _;
 use std::fs;
-use std::process::{Command, Output};
+use std::process::{Command, Output, Stdio};
 
 #[cfg(feature = "internal-testing")]
 use qzt::{Checksum, fixed::FooterTrailer, format::FOOTER_TRAILER_LEN, schema::FooterPayload};
@@ -235,4 +235,28 @@ fn attest_help_documents_the_stable_output_contract() {
     assert!(stdout.contains("--level <LEVEL>"));
     assert!(stdout.contains("default: deep"));
     assert!(stdout.contains("canonical JSON"));
+}
+
+#[test]
+fn attest_reports_stdout_delivery_failure() {
+    let (path, _) = fixture("closed-stdout");
+    let mut child = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("attest")
+        .arg(path)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("qzt attest should start");
+
+    // Close the pipe before the child writes. A canonical attestation is only
+    // successful when the caller can actually receive the complete bytes.
+    drop(child.stdout.take());
+    let output = child.wait_with_output().expect("qzt attest should finish");
+
+    assert_eq!(output.status.code(), Some(1));
+    assert!(
+        String::from_utf8_lossy(&output.stderr).contains("failed to write stdout"),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 }

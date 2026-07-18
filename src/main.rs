@@ -328,14 +328,9 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
             } else {
                 Box::new(std::fs::File::open(&input_path)?)
             };
-            let temp_output_path = format!("{output_path}.tmp");
+            let output_path = Path::new(&output_path);
+            let (temp_output_path, output) = create_atomic_output(output_path, true)?;
             let stream_result: CliResult<()> = (|| {
-                let output = std::fs::OpenOptions::new()
-                    .read(true)
-                    .write(true)
-                    .create(true)
-                    .truncate(true)
-                    .open(&temp_output_path)?;
                 let mut writer = QztFileWriter::new(output, options)?;
                 let mut buffer = vec![0_u8; 64 * 1024];
                 loop {
@@ -346,17 +341,19 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
                     writer.push(&buffer[..read])?;
                 }
                 writer.finish()?;
+                let output = writer.into_inner();
+                output.sync_all()?;
+                drop(output);
+                std::fs::rename(&temp_output_path, output_path)?;
                 Ok(())
             })();
-            if stream_result.is_err() {
-                let _ = std::fs::remove_file(&temp_output_path);
+            if let Err(primary_error) = stream_result {
+                return Err(cleanup_atomic_output(&temp_output_path, primary_error));
             }
-            stream_result?;
-            std::fs::rename(temp_output_path, output_path)?;
         } else {
             let input = std::fs::read(input_path)?;
             let container = pack_bytes_with_profile(&input, options, &profile, dense_line_index)?;
-            std::fs::write(output_path, container)?;
+            write_container_atomically(&output_path, &container)?;
         }
         Ok(())
     })();
@@ -605,6 +602,24 @@ fn build_pack_docs_container(
 
 fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<()> {
     let output_path = Path::new(output_path);
+    let (temp_output_path, mut file) = create_atomic_output(output_path, false)?;
+    let write_result: CliResult<()> = (|| {
+        file.write_all(container)?;
+        file.sync_all()?;
+        drop(file);
+        std::fs::rename(&temp_output_path, output_path)?;
+        Ok(())
+    })();
+    if let Err(primary_error) = write_result {
+        return Err(cleanup_atomic_output(&temp_output_path, primary_error));
+    }
+    Ok(())
+}
+
+fn create_atomic_output(
+    output_path: &Path,
+    read_access: bool,
+) -> CliResult<(std::path::PathBuf, std::fs::File)> {
     let file_name = output_path.file_name().ok_or_else(|| {
         std::io::Error::new(
             std::io::ErrorKind::InvalidInput,
@@ -618,57 +633,49 @@ fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
         Err(error) => return Err(error.into()),
     };
-    let mut temporary = None;
+    // Why create_new in the destination directory: pack writes can be large, so
+    // we stream without buffering the container while preventing a pre-created
+    // symlink from redirecting/truncating an unrelated file before atomic rename.
     for attempt in 0_u16..128 {
         let mut name = std::ffi::OsString::from(".");
         name.push(file_name);
         name.push(format!(".qzt-tmp-{}-{attempt}", std::process::id()));
         let path = parent.join(name);
         match std::fs::OpenOptions::new()
+            .read(read_access)
             .write(true)
             .create_new(true)
             .open(&path)
         {
             Ok(file) => {
-                temporary = Some((path, file));
-                break;
+                if let Some(permissions) = inherited_permissions {
+                    if let Err(primary_error) = file.set_permissions(permissions) {
+                        drop(file);
+                        return Err(cleanup_atomic_output(&path, primary_error.into()));
+                    }
+                }
+                return Ok((path, file));
             }
             Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
             Err(error) => return Err(error.into()),
         }
     }
-    let (temp_output_path, mut file) = temporary.ok_or_else(|| {
-        std::io::Error::new(
-            std::io::ErrorKind::AlreadyExists,
-            "could not allocate a unique temporary output file",
-        )
-    })?;
-    let write_result: std::io::Result<()> = (|| {
-        if let Some(permissions) = inherited_permissions {
-            file.set_permissions(permissions)?;
-        }
-        file.write_all(container)?;
-        file.sync_all()?;
-        drop(file);
-        std::fs::rename(&temp_output_path, output_path)?;
-        Ok(())
-    })();
-    if let Err(primary_error) = write_result {
-        return match std::fs::remove_file(&temp_output_path) {
-            Ok(()) => Err(primary_error.into()),
-            Err(cleanup_error) if cleanup_error.kind() == std::io::ErrorKind::NotFound => {
-                Err(primary_error.into())
-            }
-            Err(cleanup_error) => Err(std::io::Error::new(
-                primary_error.kind(),
-                format!(
-                    "{primary_error}; additionally failed to remove temporary output: {cleanup_error}"
-                ),
-            )
-            .into()),
-        };
+    Err(std::io::Error::new(
+        std::io::ErrorKind::AlreadyExists,
+        "could not allocate a unique temporary output file",
+    )
+    .into())
+}
+
+fn cleanup_atomic_output(temp_output_path: &Path, primary_error: CliError) -> CliError {
+    match std::fs::remove_file(temp_output_path) {
+        Ok(()) => primary_error,
+        Err(cleanup_error) if cleanup_error.kind() == std::io::ErrorKind::NotFound => primary_error,
+        Err(cleanup_error) => std::io::Error::other(format!(
+            "{primary_error}; additionally failed to remove temporary output: {cleanup_error}"
+        ))
+        .into(),
     }
-    Ok(())
 }
 
 /// Output format requested by the caller of `qzt info`.
@@ -863,6 +870,10 @@ fn run_range(mut args: impl Iterator<Item = String>) -> ExitCode {
         eprintln!("qzt range: missing range");
         return ExitCode::from(2);
     };
+    if let Some(arg) = args.next() {
+        eprintln!("qzt range: unknown option '{arg}'");
+        return ExitCode::from(2);
+    }
 
     let result: CliResult<Vec<u8>> = if flag == "--bytes" {
         let Some((start, end)) = parse_range(&range) else {
@@ -1197,7 +1208,15 @@ fn run_line(mut args: impl Iterator<Item = String>) -> ExitCode {
         eprintln!("qzt line: missing line number");
         return ExitCode::from(2);
     };
-    let zero_based = args.any(|arg| arg == "--zero-based");
+    let mut zero_based = false;
+    for arg in args {
+        if arg == "--zero-based" {
+            zero_based = true;
+        } else {
+            eprintln!("qzt line: unknown option '{arg}'");
+            return ExitCode::from(2);
+        }
+    }
     let Ok(mut line_number) = line.parse::<u64>() else {
         eprintln!("qzt line: invalid line number");
         return ExitCode::from(2);
@@ -1661,9 +1680,14 @@ fn read_line_range_file(
 }
 
 fn write_stdout(bytes: &[u8]) -> ExitCode {
-    match std::io::stdout().write_all(bytes) {
+    let stdout = std::io::stdout();
+    let mut output = stdout.lock();
+    match output.write_all(bytes).and_then(|()| output.flush()) {
         Ok(()) => ExitCode::SUCCESS,
-        Err(_) => ExitCode::from(1),
+        Err(error) => {
+            eprintln!("qzt: failed to write stdout: {error}");
+            ExitCode::from(1)
+        }
     }
 }
 

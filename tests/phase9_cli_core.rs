@@ -77,6 +77,52 @@ fn cli_pack_info_verify_range_lines_and_export_round_trip() {
     let _ = fs::remove_dir_all(base);
 }
 
+#[cfg(unix)]
+#[test]
+fn streaming_pack_does_not_follow_the_legacy_temporary_path_symlink() {
+    use std::os::unix::fs::symlink;
+
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase9-pack-temp-symlink-{}",
+        std::process::id()
+    ));
+    let _ = fs::remove_dir_all(&base);
+    fs::create_dir_all(&base).expect("fixture directory");
+    let input = base.join("input.txt");
+    let output = base.join("output.qzt");
+    let legacy_temp = base.join("output.qzt.tmp");
+    let victim = base.join("victim.txt");
+    fs::write(&input, b"safe pack input\n").expect("input should be written");
+    fs::write(&victim, b"do not overwrite\n").expect("victim should be written");
+    symlink(&victim, &legacy_temp).expect("legacy temp symlink should be created");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("--profile")
+            .arg("core")
+            .arg("--dense-line-index")
+            .arg("off")
+            .arg("-o")
+            .arg(&output),
+    );
+
+    assert_eq!(
+        fs::read(&victim).expect("victim should remain readable"),
+        b"do not overwrite\n"
+    );
+    assert!(output.exists());
+    assert!(
+        fs::symlink_metadata(&legacy_temp)
+            .expect("unrelated legacy path should remain")
+            .file_type()
+            .is_symlink()
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
 #[test]
 fn cli_pack_rejects_invalid_utf8() {
     let base = std::env::temp_dir().join(format!("qzt-phase9-invalid-{}", std::process::id()));
@@ -145,6 +191,39 @@ fn help_links_the_full_cli_stability_contract() {
         stdout.contains("See docs/CLI.md for the full reference and stability contract."),
         "help must link the stable CLI contract:\n{stdout}"
     );
+}
+
+#[test]
+fn range_and_line_reject_unknown_trailing_options_as_usage_errors() {
+    let base = std::env::temp_dir().join(format!("qzt-phase41-args-{}", std::process::id()));
+    fs::create_dir_all(&base).expect("create fixture directory");
+    let packed = base.join("input.qzt");
+    fs::write(
+        &packed,
+        pack_bytes(b"alpha\n", WriterOptions::default()).expect("pack fixture"),
+    )
+    .expect("write fixture");
+
+    for arguments in [
+        vec![
+            "range",
+            packed.to_str().unwrap(),
+            "--bytes",
+            "0:1",
+            "--bogus",
+        ],
+        vec!["line", packed.to_str().unwrap(), "1", "--bogus"],
+    ] {
+        let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .args(arguments)
+            .output()
+            .expect("qzt command should run");
+        assert_eq!(output.status.code(), Some(2));
+        assert!(output.stdout.is_empty());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("unknown option '--bogus'"));
+    }
+
+    fs::remove_dir_all(base).expect("remove fixture directory");
 }
 
 /// Pack help keeps stdin constraints next to its I/O usage.

@@ -40,7 +40,9 @@ These meanings are frozen for v0.1:
 - `verify --format json` is the deliberate exception: verification failure
   writes one `{ "ok": false, ... }` object to stdout, keeps stderr empty, and
   exits `1`.
-- `attest` verifies before writing anything. On failure stdout is empty.
+- `attest` verifies before writing anything. A verification failure leaves
+  stdout empty. A stdout I/O failure exits `1` and reports to stderr, but bytes
+  already accepted by the output stream cannot be retracted and may be partial.
 - No command writes progress output today. Progress output may be added only to
   stderr.
 
@@ -70,8 +72,10 @@ Pack one UTF-8 byte stream. `INPUT` must be the first command argument.
 `-` reads stdin only on the streaming path: profile `core`, Dense Line Index
 off, and a required file output. stdout cannot be the QZT output because the
 writer patches offsets by seeking. File input on this path is also streamed in
-64 KiB reads and written via `<output>.tmp` then rename. Other profile/Dense
-combinations read the complete input into memory. `qzt pack --profile memory`
+64 KiB reads and committed through a unique same-directory temporary file with
+an atomic rename. Peak memory includes the chunk buffer plus `O(chunk_count)`
+chunk metadata; very small configured chunks increase that metadata. Other
+profile/Dense combinations read the complete input into memory. `qzt pack --profile memory`
 cannot create the required Document Index and exits `1`; use `pack-docs`.
 
 ```sh
@@ -115,7 +119,10 @@ Print structural metadata. Default format is text. JSON fields are:
 ### `qzt export <FILE> [-o <OUTPUT>]`
 
 Stream all original bytes to stdout, or to a newly created/truncated output
-file. This performs normal reader integrity checks while decoding chunks.
+file. Opening checks the container structure, and decoding validates each
+chunk's compressed and uncompressed checksums. It does not validate the
+whole-container prefix checksum or aggregate original checksum; run
+`qzt verify <FILE> --deep` first when exporting evidence.
 
 ### `qzt range <FILE> --bytes A:B|--lines A:B`
 
@@ -126,7 +133,7 @@ file. This performs normal reader integrity checks while decoding chunks.
 Executed examples:
 
 ```text
-$ qzt range evidence.qzt --bytes 0:14
+$ qzt range evidence.qzt --bytes 0:15
 alpha evidence
 $ qzt range evidence.qzt --lines 2:3
 shared token
@@ -174,9 +181,10 @@ JSON top-level fields are `hits` (array), `metrics` (object), `capped`
 `candidate_granules`, `candidate_chunks`, `decoded_bytes`,
 `physical_decoded_bytes`, `verified_matches`, and `query_time_ms`.
 
-`incomplete_reason` currently uses `query_shorter_than_ngram_n` or
-`query_has_no_indexable_tokens`. A non-null reason means the empty/partial
-result must not be interpreted as a complete negative finding.
+`incomplete_reason` currently uses `query_shorter_than_ngram_n`,
+`query_has_no_indexable_tokens`, or
+`missing_required_key_in_incomplete_index`. A non-null reason means the
+empty/partial result must not be interpreted as a complete negative finding.
 
 ### `qzt sidecar-rebuild <FILE> -o <OUTPUT.qzi> [OPTIONS]`
 
@@ -214,7 +222,7 @@ line. See [Attestation canonical form](#attestation-canonical-form) and the
 | Profile | v0.1 behavior |
 |---|---|
 | `minimal` | Metadata declares `minimal`; CLI pack uses the complete-input path. No optional index by default. |
-| `core` | Default. With Dense off, single-input `pack` uses the bounded streaming writer. |
+| `core` | Default. With Dense off, single-input `pack` streams payload data; memory is the chunk buffer plus `O(chunk_count)` metadata, not a constant-memory SLA. |
 | `log` | Metadata declares `log`; physical layout is otherwise the same as core for identical options. Complete-input CLI path. |
 | `archive` | Metadata declares `archive`; physical layout is otherwise the same as core for identical options. Complete-input CLI path. |
 | `memory` | Requires a Document Index, so use `pack-docs`. Uses retrieval-oriented chunk defaults there and automatic Dense generation for at least 2048 lines. |
@@ -273,22 +281,26 @@ All displayed output was executed with the repository binary and these exact
 inputs (LF endings):
 
 ```sh
+cargo build --all-features --bin qzt
+QZT_BIN="$(pwd)/target/debug/qzt"
+QZT_EXAMPLE_DIR="$(mktemp -d)"
+trap 'rm -rf -- "$QZT_EXAMPLE_DIR"' EXIT
+cd "$QZT_EXAMPLE_DIR"
 printf 'alpha evidence\nshared token\n' > alpha.txt
 printf 'beta evidence\nshared token\n' > beta.txt
-cargo build --all-features --bin qzt
-qzt pack-docs alpha.txt beta.txt --doc-id-prefix demo/ -o evidence.qzt
-qzt info evidence.qzt --format json
-qzt verify evidence.qzt --deep --format json
-qzt range evidence.qzt --bytes 0:14
-qzt range evidence.qzt --lines 2:3
-qzt line evidence.qzt 1
-qzt docs evidence.qzt --format json
-qzt doc evidence.qzt demo/beta.txt
-qzt search evidence.qzt shared --format json
-qzt sidecar-rebuild evidence.qzt --index token -o evidence.qzi
-qzt search evidence.qzt shared --sidecar evidence.qzi --format json
-qzt attest evidence.qzt --level deep
-qzt export evidence.qzt -o exported.txt
+"$QZT_BIN" pack-docs alpha.txt beta.txt --doc-id-prefix demo/ -o evidence.qzt
+"$QZT_BIN" info evidence.qzt --format json
+"$QZT_BIN" verify evidence.qzt --deep --format json
+"$QZT_BIN" range evidence.qzt --bytes 0:15
+"$QZT_BIN" range evidence.qzt --lines 2:3
+"$QZT_BIN" line evidence.qzt 1
+"$QZT_BIN" docs evidence.qzt --format json
+"$QZT_BIN" doc evidence.qzt demo/beta.txt
+"$QZT_BIN" search evidence.qzt shared --format json
+"$QZT_BIN" sidecar-rebuild evidence.qzt --index token -o evidence.qzi
+"$QZT_BIN" search evidence.qzt shared --sidecar evidence.qzi --format json
+"$QZT_BIN" attest evidence.qzt --level deep
+"$QZT_BIN" export evidence.qzt -o exported.txt
 ```
 
 The final exported file was compared byte-for-byte with the concatenated two
