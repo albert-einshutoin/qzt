@@ -1,44 +1,34 @@
-# QZT
+# QZT — Cold Evidence Container for Text
 
-日本語版: [README.ja.md](README.ja.md)
+日本語版: [README.ja.md](README.ja.md) · [![CI](https://github.com/albert-einshutoin/qzt/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/albert-einshutoin/qzt/actions/workflows/ci.yml?query=branch%3Amain)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE-MIT)
 
-QZT is a binary format for storing large text as a cold evidence container.
-This repository contains the Rust reference implementation.
+> Store large text once, prove it later: chunked zstd archives with
+> BLAKE3-verified random access, line addressing, and verified search.
 
-It can also emit a deterministic, verified attestation for external signing or
-trusted timestamping, so container integrity can be anchored outside QZT.
+## Why QZT
 
-QZT does not try to build a better compression algorithm than zstd. It splits
-source text into independent zstd chunks and combines them with verifiable
-metadata, a Chunk Table, a Footer, and a search sidecar so callers can restore
-only the required range and return to the original evidence position.
-
-## Current Status
-
-```text
-- QZT v0.1 Core: release candidate
-- Search Extension / QZI sidecar: technical preview
-- Product status: experimental reference implementation
-```
-
-When publishing QZT externally, it should be positioned as a
-`v0.1 technical preview`, not as production-ready software.
+- **Verified evidence** — bind every read and attestation to the original bytes.
+- **Random access** — restore byte or line ranges without full decompression.
+- **Verified search** — recheck token and n-gram hits against original bytes.
 
 ## Install
 
-The first binary distribution will be the `v0.1.0-pre.2` technical preview.
-The commands below become available after the prerelease rehearsal in issue
-[#43](https://github.com/albert-einshutoin/qzt/issues/43) is marked complete.
-For security-sensitive installation, use the checksum-verified manual path
-below. As a convenience path, the generated installer selects the archive for
-your macOS or Linux host:
+Install the live [`v0.1.0-pre.2` technical preview](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
+on macOS or Linux:
 
 ```sh
-curl --proto '=https' --tlsv1.2 -LsSf \
-  https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.2/qzt-installer.sh \
-  | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.2/qzt-installer.sh | sh
 qzt --version
 ```
+
+Verify checksums before extraction; manual macOS/Linux, Windows, and source
+paths follow.
+
+<details>
+<summary>Checksum-verified and source installation options</summary>
+
+<br>
 
 For a verified manual install, choose one of
 `aarch64-apple-darwin`, `x86_64-apple-darwin`, or
@@ -77,44 +67,51 @@ the reviewed tag instead of downloading a prebuilt binary:
 cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked
 ```
 
-## Build / Quick Start
+</details>
 
-Build the release binary from the repository root:
+## 60-second Tour
 
-```sh
-cargo build --release
-./target/release/qzt --help
-```
-
-The binary lives at `./target/release/qzt` unless you install it on your `PATH`.
-The examples below use that path.
-
-QZT packs large text into a **seekable, verifiable evidence container**
-(`v0.1 technical preview` / experimental reference implementation—not
-production-ready):
+Run these commands in order after installation:
 
 ```sh
-./target/release/qzt pack input.txt -o output.qzt
-./target/release/qzt pack-docs server-a.log server-b.log report.txt -o bundle.qzt
-./target/release/qzt docs bundle.qzt
-./target/release/qzt doc bundle.qzt server-a.log -o restored.log
-./target/release/qzt info output.qzt
-./target/release/qzt attest output.qzt > output.attest.json
-./target/release/qzt range output.qzt --lines 1:10
-./target/release/qzt sidecar-rebuild output.qzt -o output.qzt.qzi
-./target/release/qzt search output.qzt "error" --sidecar output.qzt.qzi
+printf 'alpha\nbeta\nerror gamma\n' > app.log
+qzt pack app.log -o app.qzt
+qzt info app.qzt --format json
+qzt range app.qzt --lines 2:2
+qzt sidecar-rebuild app.qzt -o app.qzt.qzi
+qzt search app.qzt "error" --sidecar app.qzt.qzi
+qzt verify app.qzt --deep
+qzt attest app.qzt > app.attest.json
 ```
 
-`pack` creates the container; `info` and `range` inspect and read slices
-without full decode; `attest` deep-verifies it and emits canonical JSON for
-external signing; `sidecar-rebuild` builds a search index; `search --sidecar`
-queries it. See the [attestation signing and anchoring guide](docs/guides/attestation.md).
+The range command prints `beta`. Search reports a hit whose source is
+`verified_original_bytes`; deep verification checks every chunk; attestation
+emits one deterministic JSON claim suitable for external signing or trusted
+timestamping.
+
+## Use Cases
+
+- **Server log preservation** — stream logs into daily containers, deep-verify
+  them on a schedule, and anchor deterministic attestations separately.
+- **Pipeline artifact fixation** — use `pack-docs` to bind each input artifact
+  to a named, checksum-verified document inside one container.
+- **Incident forensics** — search a rebuildable QZI sidecar, then disclose only
+  the verified byte or line range needed for an investigation.
+
+## Status & Limitations
+
+QZT v0.1 Core is a release candidate; QZI search and the product remain an
+experimental `v0.1 technical preview`, not production-ready software.
+
+```text
+- QZT v0.1 Core: release candidate
+- Search Extension / QZI sidecar: technical preview
+- Product status: experimental reference implementation
+```
 
 QZI (`.qzi`) is a derived, rebuildable, untrusted search sidecar—not part of
 the Core container format. Review its fail-closed boundary and on-disk layout
 in the [QZI v0.1 Sidecar Spec](docs/QZI_v0.1_Sidecar_Spec.md) before adoption.
-
-## v0.1 Technical Preview — Limitations
 
 QZT v0.1 is a reference implementation focused on spec coverage and correctness.
 Known limitations before production use:
@@ -199,11 +196,21 @@ The gate runs:
 - cargo test --all-targets --all-features
 ```
 
-## Quickstart
+## Round-trip Smoke Test
 
 The smallest successful path with one text file: pack, inspect, export, and
 confirm round-trip equality. QZT is a `v0.1 technical preview`—an experimental
 reference implementation, not production-ready software.
+
+From a local checkout, build the release binary first:
+
+```sh
+cargo build --release
+./target/release/qzt --help
+```
+
+The binary remains at `./target/release/qzt` unless you install it on your
+`PATH`.
 
 Prepare a plain text file (for example `input.txt`), then:
 
@@ -216,7 +223,7 @@ diff input.txt restored.txt
 
 No output from `diff` means the restored bytes match the source.
 
-## Main CLI
+## CLI Reference
 
 See [docs/CLI.md](docs/CLI.md) for every option, JSON schema, profile
 behavior, stdout/stderr rule, and the v0.1 automation stability contract. This
@@ -357,12 +364,13 @@ another profile such as `core`.
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](https://github.com/albert-einshutoin/qzt/blob/main/docs/QZT_v0.1_Core_Spec.md)
 - Format stability: [docs/QZT_v0.1_Format_Stability.md](docs/QZT_v0.1_Format_Stability.md)
 - QZI sidecar spec: [docs/QZI_v0.1_Sidecar_Spec.md](docs/QZI_v0.1_Sidecar_Spec.md)
+- Attestation signing and anchoring: [docs/guides/attestation.md](docs/guides/attestation.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.md](docs/QZT_v0.1_Core_Readiness.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md)
 - Implementation phases: [tasks/README.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.md)
 - Progress: [tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)
 
-## Phase Plan
+## Development
 
 Implementation proceeded in two tracks, all phases complete:
 
