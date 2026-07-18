@@ -323,6 +323,7 @@ Implementation proceeded in two tracks, all phases complete:
   retrieval, and portable conformance vectors with a frozen format-stability
   statement.
 
-Phase docs live in [tasks/](tasks/); Japanese versions are available as
+Phase docs live in [tasks/](https://github.com/albert-einshutoin/qzt/tree/main/tasks); Japanese versions are available as
 `*.ja.md` files in the same directory. Current progress is tracked in
-[tasks/status.md](tasks/status.md) and [tasks/status.ja.md](tasks/status.ja.md).
+[tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md) and
+[tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md).

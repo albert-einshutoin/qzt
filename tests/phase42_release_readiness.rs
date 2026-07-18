@@ -113,6 +113,17 @@ fn release_guide_preserves_owner_gate_and_dependency_checks() {
 
 #[test]
 fn packaged_readmes_link_excluded_documents_to_the_repository() {
+    for readme in [README, JAPANESE_README] {
+        assert!(
+            !readme.contains("](tasks/"),
+            "packaged README must not use relative links into excluded tasks/"
+        );
+        assert!(
+            !readme.contains("](docs/QZT_v0.1_Core_Spec"),
+            "packaged README must not use relative links to an excluded Core Spec"
+        );
+    }
+
     for (readme, excluded_path) in [
         (README, "docs/QZT_v0.1_Core_Spec.md"),
         (JAPANESE_README, "docs/QZT_v0.1_Core_Spec.ja.md"),

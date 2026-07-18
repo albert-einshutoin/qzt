@@ -295,5 +295,6 @@ query が sidecar の n-gram `n`（デフォルト 3）より短い場合、inde
   resource governance、curated public API、verified evidence retrieval、portable
   conformance vectors と frozen format-stability statement。
 
-Phase ドキュメントは [tasks/](tasks/) にあり、日本語版は同じディレクトリの `*.ja.md` です。
-進捗は [tasks/status.md](tasks/status.md) と [tasks/status.ja.md](tasks/status.ja.md) で管理します。
+Phase ドキュメントは [tasks/](https://github.com/albert-einshutoin/qzt/tree/main/tasks) にあり、日本語版は同じディレクトリの `*.ja.md` です。
+進捗は [tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md) と
+[tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md) で管理します。
