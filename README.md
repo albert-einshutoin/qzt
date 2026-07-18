@@ -24,6 +24,45 @@ only the required range and return to the original evidence position.
 When publishing QZT externally, it should be positioned as a
 `v0.1 technical preview`, not as production-ready software.
 
+## Install
+
+The current binary distribution is the `v0.1.0-pre.1` technical preview.
+On macOS or Linux, the generated installer selects the archive for your host:
+
+```sh
+curl --proto '=https' --tlsv1.2 -LsSf \
+  https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.1/qzt-installer.sh \
+  | sh
+qzt --version
+```
+
+For a verified manual install, choose one of
+`aarch64-apple-darwin`, `x86_64-apple-darwin`, or
+`x86_64-unknown-linux-gnu`, then verify the downloaded archive before
+extracting it. This example is for Apple silicon:
+
+```sh
+release=v0.1.0-pre.1
+target=aarch64-apple-darwin
+archive="qzt-${target}.tar.xz"
+base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
+curl --proto '=https' --tlsv1.2 -fLO "${base}/${archive}"
+curl --proto '=https' --tlsv1.2 -fLO "${base}/${archive}.sha256"
+expected="$(awk 'NF { print $1; exit }' "${archive}.sha256")"
+actual="$(shasum -a 256 "${archive}" | awk '{ print $1 }')"
+test "${expected}" = "${actual}"
+tar -xJf "${archive}"
+./"qzt-${target}"/qzt --version
+```
+
+Windows users can download the matching `.zip` and `.zip.sha256` assets or
+run `qzt-installer.ps1` from the same Release. To build from the reviewed tag
+instead of downloading a prebuilt binary:
+
+```sh
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.1 --locked
+```
+
 ## Build / Quick Start
 
 Build the release binary from the repository root:

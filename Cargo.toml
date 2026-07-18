@@ -1,6 +1,6 @@
 [package]
 name = "qzt"
-version = "0.1.0"
+version = "0.1.0-pre.1"
 edition = "2024"
 rust-version = "1.87"
 description = "Cold evidence container for seekable, verifiable UTF-8 text archives"
@@ -12,6 +12,11 @@ readme = "README.md"
 keywords = ["archive", "compression", "evidence", "text", "zstd"]
 categories = ["compression", "encoding", "filesystem"]
 publish = false
+
+[package.metadata.dist]
+# `publish = false` protects crates.io, while this explicit opt-in allows
+# signed-off GitHub binary releases to remain an independent distribution path.
+dist = true
 exclude = [
     ".github/",
     "fuzz/",
@@ -59,3 +64,8 @@ missing_errors_doc = "allow"        # to be resolved in P5-4
 missing_panics_doc = "allow"        # to be resolved in P5-4
 # ---- temporary allow (remove after referenced issue is closed) ----
 too_many_lines = "allow"            # remove after P3-2 / P4-2 / P4-3 function splits
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
