@@ -1,7 +1,14 @@
 use std::collections::BTreeSet;
 use std::fs;
-use std::process::{Command, Output, Stdio};
+use std::process::{Command, Output};
 use std::sync::atomic::{AtomicU64, Ordering};
+
+#[cfg(unix)]
+use std::os::fd::OwnedFd;
+#[cfg(unix)]
+use std::os::unix::net::UnixStream;
+#[cfg(unix)]
+use std::process::Stdio;
 
 use qzt::{DocumentSpan, SearchOptions, WriterBuilder, WriterOptions, pack_bytes};
 
@@ -411,6 +418,7 @@ fn documented_search_defaults_and_schema_are_scoped_to_the_runtime_command() {
 }
 
 #[test]
+#[cfg(unix)]
 fn machine_readable_commands_report_closed_stdout_as_runtime_failure() {
     let fixture = CliFixture::new();
     let packed = fixture.packed.to_str().unwrap();
@@ -425,14 +433,7 @@ fn machine_readable_commands_report_closed_stdout_as_runtime_failure() {
         vec!["docs", documents, "--format", "json"],
         vec!["search", packed, "alpha", "--format", "json"],
     ] {
-        let mut child = Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .args(&arguments)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .expect("qzt command should start");
-        drop(child.stdout.take());
-        let output = child.wait_with_output().expect("qzt command should finish");
+        let output = run_with_closed_stdout(&arguments);
         assert_eq!(
             output.status.code(),
             Some(1),
@@ -448,6 +449,7 @@ fn machine_readable_commands_report_closed_stdout_as_runtime_failure() {
 }
 
 #[test]
+#[cfg(unix)]
 fn help_and_version_report_closed_stdout_as_runtime_failure() {
     for arguments in [
         vec!["--help"],
@@ -456,14 +458,7 @@ fn help_and_version_report_closed_stdout_as_runtime_failure() {
         vec!["pack-docs", "--help"],
         vec!["attest", "--help"],
     ] {
-        let mut child = Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .args(&arguments)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .expect("qzt command should start");
-        drop(child.stdout.take());
-        let output = child.wait_with_output().expect("qzt command should finish");
+        let output = run_with_closed_stdout(&arguments);
         assert_eq!(output.status.code(), Some(1), "arguments: {arguments:?}");
         assert!(
             String::from_utf8_lossy(&output.stderr).contains("failed to write stdout"),
@@ -471,6 +466,21 @@ fn help_and_version_report_closed_stdout_as_runtime_failure() {
             String::from_utf8_lossy(&output.stderr)
         );
     }
+}
+
+#[cfg(unix)]
+fn run_with_closed_stdout(arguments: &[&str]) -> Output {
+    let (child_stdout, peer) = UnixStream::pair().expect("stdout socket pair");
+    // Drop the only peer before spawn. Every child write then fails with EPIPE,
+    // independent of scheduler order or whether the payload fits a pipe buffer.
+    drop(peer);
+    let child_stdout = OwnedFd::from(child_stdout);
+    Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .args(arguments)
+        .stdout(Stdio::from(child_stdout))
+        .stderr(Stdio::piped())
+        .output()
+        .expect("qzt command should run with stdout closed")
 }
 
 #[test]
