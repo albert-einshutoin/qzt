@@ -205,8 +205,8 @@ fn pack_docs_memory_uses_bounded_default_chunks_and_honors_explicit_sizes() {
     let max_only_details =
         qzt::open_skeleton_details(&fs::read(&max_only_output).expect("read max-only container"))
             .expect("max-only container details");
-    assert_eq!(max_only_details.metadata.target_chunk_size, 131072);
-    assert_eq!(max_only_details.metadata.max_chunk_size, 131072);
+    assert_eq!(max_only_details.metadata.target_chunk_size, 131_072);
+    assert_eq!(max_only_details.metadata.max_chunk_size, 131_072);
 
     let target_only_output = base.join("target-only.qzt");
     let target_only = run(&[
@@ -228,8 +228,8 @@ fn pack_docs_memory_uses_bounded_default_chunks_and_honors_explicit_sizes() {
         &fs::read(&target_only_output).expect("read target-only container"),
     )
     .expect("target-only container details");
-    assert_eq!(target_only_details.metadata.target_chunk_size, 4194304);
-    assert_eq!(target_only_details.metadata.max_chunk_size, 4194304);
+    assert_eq!(target_only_details.metadata.target_chunk_size, 4_194_304);
+    assert_eq!(target_only_details.metadata.max_chunk_size, 4_194_304);
 
     let _ = fs::remove_dir_all(base);
 }
