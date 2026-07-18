@@ -13,10 +13,15 @@ use crate::writer::{pack_bytes_with_container_id, WriterOptions};
 /// Reproducible release benchmark configuration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ReleaseBenchmarkOptions {
+    /// Number of deterministic log lines generated for the benchmark corpus.
     pub line_count: usize,
+    /// Target uncompressed QZT chunk size in bytes.
     pub chunk_size: usize,
+    /// Logical byte length restored by the range-access benchmark.
     pub range_size: u64,
+    /// Number of measured executions for each search query.
     pub query_repetitions: usize,
+    /// Number of unmeasured warm-up executions before each query measurement.
     pub query_warmup_repetitions: usize,
 }
 
@@ -35,40 +40,70 @@ impl Default for ReleaseBenchmarkOptions {
 /// Release hardening benchmark output.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReleaseBenchmarkReport {
+    /// Original deterministic corpus size in bytes.
     pub corpus_bytes: u64,
+    /// Number of lines generated in the corpus.
     pub line_count: usize,
+    /// Encoded QZT container size in bytes.
     pub packed_bytes: u64,
+    /// Number of bytes restored by a full export.
     pub exported_bytes: u64,
+    /// Encoded token QZI sidecar size in bytes.
     pub qzi_token_bytes: u64,
+    /// Encoded n-gram QZI sidecar size in bytes.
     pub qzi_ngram_bytes: u64,
+    /// `packed_bytes / corpus_bytes`.
     pub compression_ratio: f64,
+    /// `qzi_token_bytes / corpus_bytes`.
     pub qzi_token_size_ratio: f64,
+    /// `qzi_ngram_bytes / corpus_bytes`.
     pub qzi_ngram_size_ratio: f64,
+    /// Observed packing throughput in mebibytes per second.
     pub pack_mib_s: f64,
+    /// Observed full-export throughput in mebibytes per second.
     pub export_mib_s: f64,
+    /// Observed logical-range restoration throughput in mebibytes per second.
     pub range_mib_s: f64,
+    /// Granules selected by the rare-token query planner.
     pub rare_token_candidate_granules: u64,
+    /// Chunks decoded while verifying the rare-token query.
     pub rare_token_candidate_chunks: u64,
+    /// Original bytes decoded while verifying the rare-token query.
     pub rare_token_decoded_bytes: u64,
+    /// Original-byte matches verified for the rare-token query.
     pub rare_token_verified_matches: u64,
+    /// Granules selected by the common n-gram query planner.
     pub common_ngram_candidate_granules: u64,
+    /// Original bytes decoded while verifying the common n-gram query.
     pub common_ngram_decoded_bytes: u64,
+    /// Whether the common n-gram query reached a configured result or work cap.
     pub common_ngram_capped: bool,
+    /// Corpus bytes a full raw scan would decode for comparison.
     pub raw_scan_decoded_bytes: u64,
+    /// Number of measured executions used for each query latency sample.
     pub query_repetitions: usize,
+    /// Number of unmeasured warm-up executions used for each query.
     pub query_warmup_repetitions: usize,
+    /// Detailed latency and work metrics for the rare-token query.
     pub rare_token_query: ReleaseBenchmarkQueryReport,
+    /// Detailed latency and work metrics for the absent-token query.
     pub missing_token_query: ReleaseBenchmarkQueryReport,
+    /// Detailed latency and work metrics for the common n-gram query.
     pub common_ngram_query: ReleaseBenchmarkQueryReport,
 }
 
 /// Competitive benchmark smoke configuration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CompetitiveBenchmarkOptions {
+    /// Deterministic validation-corpus family to generate.
     pub corpus_kind: CorpusKind,
+    /// Requested original corpus size in bytes.
     pub corpus_bytes: usize,
+    /// Target uncompressed QZT chunk size in bytes.
     pub chunk_size: usize,
+    /// Zero-based logical byte offset used for range comparison.
     pub range_offset: u64,
+    /// Logical byte length used for range comparison.
     pub range_size: u64,
 }
 
@@ -87,18 +122,31 @@ impl Default for CompetitiveBenchmarkOptions {
 /// Competitive benchmark smoke output.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CompetitiveBenchmarkReport {
+    /// Stable identifier of the generated validation corpus.
     pub corpus_id: &'static str,
+    /// Original generated corpus size in bytes.
     pub corpus_bytes: u64,
+    /// Encoded QZT container size in bytes.
     pub qzt_bytes: u64,
+    /// Size of a whole-stream zstd reference encoding in bytes.
     pub raw_zstd_bytes: u64,
+    /// Number of original bytes returned by the QZT range read.
     pub qzt_range_bytes: u64,
+    /// Original bytes whole-stream zstd decoded to restore the same range.
     pub raw_zstd_decoded_bytes: u64,
+    /// Observed QZT range-read duration in microseconds.
     pub qzt_range_micros: u128,
+    /// Observed whole-stream zstd range-read duration in microseconds.
     pub raw_zstd_range_micros: u128,
+    /// Verified matches returned by QZT token search.
     pub token_hit_count: u64,
+    /// Matches returned by the built-in raw-byte reference scan.
     pub reference_hit_count: u64,
+    /// Whether optional external search-tool comparisons were requested.
     pub external_search_tools_enabled: bool,
+    /// `ripgrep` match count, or `None` when the optional tool was not run.
     pub ripgrep_hit_count: Option<u64>,
+    /// `SQLite FTS5` match count, or `None` when the optional tool was not run.
     pub sqlite_fts5_hit_count: Option<u64>,
 }
 

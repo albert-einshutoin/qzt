@@ -121,14 +121,21 @@ impl GranuleEncoding {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum SidecarIndexKind {
+    /// ASCII-token inverted index.
     Token,
-    Ngram { n: usize },
+    /// Raw UTF-8 Unicode-scalar n-gram index with the supplied gram width.
+    Ngram {
+        /// Number of Unicode scalar values per indexed n-gram; must be greater than zero.
+        n: usize,
+    },
 }
 
 /// Opened QZI sidecar.
 #[derive(Debug, Clone)]
 pub struct QziSidecar {
+    /// Validated source binding, index declaration, and section metadata.
     pub manifest: SidecarManifest,
+    /// Fully decoded in-memory search index.
     pub index: SidecarSearchIndex,
 }
 
@@ -166,6 +173,16 @@ struct SectionRef {
     checksum: Checksum,
 }
 
+/// Builds a validated QZI sidecar from an in-memory QZT container.
+///
+/// The sidecar is derived, rebuildable data. Its manifest records the source's
+/// declared container ID, original checksum, original size, and footer-payload
+/// checksum so later opens can reject mismatched source metadata.
+///
+/// # Errors
+///
+/// Returns a container validation, search-index construction, encoding, or
+/// resource-limit error. An n-gram width of zero is rejected.
 pub fn build_search_sidecar(qzt_bytes: &[u8], kind: SidecarIndexKind) -> Result<Vec<u8>> {
     let len = usize_to_u64(qzt_bytes.len())?;
     let reader = QztFileReader::open_read_at(qzt_bytes, len)?;
@@ -175,6 +192,11 @@ pub fn build_search_sidecar(qzt_bytes: &[u8], kind: SidecarIndexKind) -> Result<
 /// Builds a QZI sidecar from a file-backed container, decoding one chunk at a
 /// time instead of materializing the full original text. Produces bytes
 /// identical to [`build_search_sidecar`].
+///
+/// # Errors
+///
+/// Returns a source I/O, container validation, search-index construction,
+/// encoding, or resource-limit error. An n-gram width of zero is rejected.
 pub fn build_search_sidecar_from_file<R: ReadAt>(
     reader: &QztFileReader<R>,
     kind: SidecarIndexKind,
@@ -286,11 +308,32 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
 }
 
 impl QziSidecar {
+    /// Opens an in-memory QZI sidecar, validates every sidecar section, and
+    /// checks its declared source metadata against `qzt_bytes`.
+    ///
+    /// This performs quick structural validation of the QZT container, not a
+    /// normal or deep verification pass. Search verifies candidate bytes as it
+    /// decodes them; chunks untouched by a query are not verified by this call.
+    ///
+    /// # Errors
+    ///
+    /// Returns an integrity, version, declared-source-binding, sidecar-decoding,
+    /// or resource-limit error detected by the checks described above.
     pub fn open(qzt_bytes: &[u8], sidecar_bytes: &[u8]) -> Result<Self> {
         Self::open_with_limits(qzt_bytes, sidecar_bytes, SidecarLimits::default())
     }
 
     /// Opens an in-memory sidecar with explicit untrusted-input limits.
+    ///
+    /// This performs quick structural validation of the QZT container, not a
+    /// normal or deep verification pass. Search verifies candidate bytes as it
+    /// decodes them; chunks untouched by a query are not verified by this call.
+    ///
+    /// # Errors
+    ///
+    /// Returns an integrity, version, declared-source-binding, sidecar-decoding,
+    /// or resource-limit error detected by the checks described above, including
+    /// when sidecar structures exceed `limits`.
     pub fn open_with_limits(
         qzt_bytes: &[u8],
         sidecar_bytes: &[u8],
@@ -379,6 +422,12 @@ impl QziSidecar {
         Ok(Self { manifest, index })
     }
 
+    /// Searches this sidecar and verifies candidates against original source bytes.
+    ///
+    /// # Errors
+    ///
+    /// Returns a source-binding, query-validation, resource-limit, decompression,
+    /// or integrity error. A sidecar opened for another reader is rejected.
     pub fn search(
         &self,
         reader: &QztReader,
@@ -404,6 +453,11 @@ impl QziSidecar {
 /// and granule records are fetched from the source per query, so search
 /// memory scales with the query's candidate set instead of the sidecar size.
 ///
+/// Opening validates every QZI section and compares declared source metadata
+/// with the supplied container. It does not perform normal or deep QZT
+/// verification. Search verifies decoded candidate bytes; container chunks
+/// untouched by a query are not verified by this type.
+///
 /// Reported metrics differ from the in-memory [`QziSidecar`] in two
 /// deliberate ways: `posting_bytes_read` counts the bytes actually fetched
 /// (no skip-probe simulation), and `candidate_chunks` stays `0` when the
@@ -418,7 +472,16 @@ pub struct QziFileSidecar<R> {
 }
 
 impl<R: ReadAt> QziFileSidecar<R> {
-    /// Opens a sidecar over a positioned source and binds it to `container`.
+    /// Opens a sidecar over a positioned source and compares its declared source
+    /// metadata with `container`.
+    ///
+    /// The container has already received quick structural validation from its
+    /// reader; this call does not upgrade it to normal or deep verification.
+    ///
+    /// # Errors
+    ///
+    /// Returns a source I/O, sidecar integrity, version, declared-source-binding,
+    /// decoding, or resource-limit error detected during open.
     pub fn open_read_at<C: ReadAt>(
         source: R,
         len: u64,
@@ -428,6 +491,15 @@ impl<R: ReadAt> QziFileSidecar<R> {
     }
 
     /// Opens a positioned sidecar with explicit untrusted-input limits.
+    ///
+    /// The container has already received quick structural validation from its
+    /// reader; this call does not upgrade it to normal or deep verification.
+    /// Search later verifies only candidate bytes decoded for that query.
+    ///
+    /// # Errors
+    ///
+    /// Returns a source I/O, sidecar integrity, version, declared-source-binding,
+    /// decoding, or resource-limit error, including structures exceeding `limits`.
     pub fn open_read_at_with_limits<C: ReadAt>(
         source: R,
         len: u64,
@@ -538,6 +610,11 @@ impl<R: ReadAt> QziFileSidecar<R> {
     /// Search over a file-backed container. Fetches only the queried terms'
     /// posting lists and the candidate granule records from the sidecar, and
     /// decodes only candidate chunks from the container.
+    ///
+    /// # Errors
+    ///
+    /// Returns a declared-source-binding, query-validation, sidecar I/O,
+    /// resource-limit, decompression, or candidate-byte integrity error.
     pub fn search<C: ReadAt>(
         &self,
         reader: &QztFileReader<C>,
@@ -794,7 +871,15 @@ impl<R: ReadAt> QziFileSidecar<R> {
 
 #[cfg(unix)]
 impl QziFileSidecar<File> {
-    /// Opens a sidecar file from a filesystem path and binds it to `container`.
+    /// Opens a sidecar path and compares its declared source metadata with `container`.
+    ///
+    /// This validates QZI sections but does not perform normal or deep QZT
+    /// verification; later searches verify only decoded candidate bytes.
+    ///
+    /// # Errors
+    ///
+    /// Returns a filesystem I/O error or any error documented by
+    /// [`Self::open_path_with_limits`].
     pub fn open_path<C: ReadAt>(
         path: impl AsRef<Path>,
         container: &QztFileReader<C>,
@@ -803,6 +888,14 @@ impl QziFileSidecar<File> {
     }
 
     /// Opens a sidecar path with explicit untrusted-input limits.
+    ///
+    /// This validates QZI sections but does not perform normal or deep QZT
+    /// verification; later searches verify only decoded candidate bytes.
+    ///
+    /// # Errors
+    ///
+    /// Returns a filesystem I/O, sidecar integrity, version,
+    /// declared-source-binding, decoding, or resource-limit error.
     pub fn open_path_with_limits<C: ReadAt>(
         path: impl AsRef<Path>,
         container: &QztFileReader<C>,
@@ -819,7 +912,15 @@ impl QziFileSidecar<File> {
 
 #[cfg(windows)]
 impl QziFileSidecar<Mutex<File>> {
-    /// Opens a sidecar file from a filesystem path and binds it to `container`.
+    /// Opens a sidecar path and compares its declared source metadata with `container`.
+    ///
+    /// This validates QZI sections but does not perform normal or deep QZT
+    /// verification; later searches verify only decoded candidate bytes.
+    ///
+    /// # Errors
+    ///
+    /// Returns a filesystem I/O error or any error documented by
+    /// [`Self::open_path_with_limits`].
     pub fn open_path<C: ReadAt>(
         path: impl AsRef<Path>,
         container: &QztFileReader<C>,
@@ -828,6 +929,14 @@ impl QziFileSidecar<Mutex<File>> {
     }
 
     /// Opens a sidecar path with explicit untrusted-input limits.
+    ///
+    /// This validates QZI sections but does not perform normal or deep QZT
+    /// verification; later searches verify only decoded candidate bytes.
+    ///
+    /// # Errors
+    ///
+    /// Returns a filesystem I/O, sidecar integrity, version,
+    /// declared-source-binding, decoding, or resource-limit error.
     pub fn open_path_with_limits<C: ReadAt>(
         path: impl AsRef<Path>,
         container: &QztFileReader<C>,

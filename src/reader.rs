@@ -35,9 +35,13 @@ pub struct QztFileReader<R> {
 /// Reader-visible container summary.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct QztInfo {
+    /// Stable 128-bit identifier binding indexes and sidecars to this container.
     pub container_id: [u8; 16],
+    /// Original uncompressed content size in bytes.
     pub original_size: u64,
+    /// Number of independently compressed chunks.
     pub chunk_count: u64,
+    /// Number of logical lines in the original content.
     pub line_count: u64,
 }
 
@@ -45,16 +49,22 @@ pub struct QztInfo {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum VerifyLevel {
+    /// Validate the header, footer, metadata, indexes, and structural invariants only.
     Quick,
+    /// Additionally hash every compressed chunk and the optional whole-container prefix.
     Normal,
+    /// Additionally decode and hash every original chunk.
     Deep,
 }
 
 /// Verification result.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerifyReport {
+    /// Verification level that produced this report.
     pub level: VerifyLevel,
+    /// Number of chunks covered by the verification pass.
     pub checked_chunks: u64,
+    /// Total original bytes decoded; zero for quick and normal verification.
     pub decoded_bytes: u64,
 }
 
@@ -73,6 +83,8 @@ impl QztReader {
         Ok(Self { bytes, details })
     }
 
+    /// Returns immutable summary metadata without decoding content chunks.
+    #[must_use]
     pub fn info(&self) -> QztInfo {
         QztInfo {
             container_id: self.details.summary.container_id,
@@ -82,6 +94,12 @@ impl QztReader {
         }
     }
 
+    /// Decodes the complete original content into `writer` in logical order.
+    ///
+    /// # Errors
+    ///
+    /// Returns an integrity, decompression, range, resource-limit, or output
+    /// I/O error when a chunk cannot be restored or written.
     pub fn export_to<W: Write>(&self, mut writer: W) -> Result<()> {
         for entry in &self.details.chunk_entries {
             let decoded = self.decode_entry(entry)?;
@@ -92,12 +110,24 @@ impl QztReader {
         Ok(())
     }
 
+    /// Decodes and returns the complete original content.
+    ///
+    /// # Errors
+    ///
+    /// Returns an integrity, decompression, range, or resource-limit error when
+    /// any chunk cannot be restored.
     pub fn export_all(&self) -> Result<Vec<u8>> {
         let mut output = Vec::new();
         self.export_to(&mut output)?;
         Ok(output)
     }
 
+    /// Restores an exact logical byte range, decoding only intersecting chunks.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::LogicalRangeOutOfBounds`] for an invalid range, or an
+    /// integrity, decompression, or resource-limit error while decoding it.
     pub fn read_range(&self, offset: u64, length: u64) -> Result<Vec<u8>> {
         read_range_from_entries(
             &self.details.chunk_entries,
@@ -108,11 +138,23 @@ impl QztReader {
         )
     }
 
+    /// Restores a logical byte range and requires its endpoints to form valid UTF-8 text.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::InvalidUtf8Boundary`] when the selected bytes are not
+    /// complete UTF-8, plus the errors documented by [`Self::read_range`].
     pub fn read_text_range(&self, offset: u64, length: u64) -> Result<String> {
         let bytes = self.read_range(offset, length)?;
         String::from_utf8(bytes).map_err(|_| QztError::InvalidUtf8Boundary)
     }
 
+    /// Restores a logical byte range and verifies it against `expected`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::VerifiedChecksumMismatch`] when restored bytes do not
+    /// match, plus the errors documented by [`Self::read_range`].
     pub fn read_range_verified(
         &self,
         offset: u64,
@@ -124,27 +166,57 @@ impl QztReader {
         Ok(bytes)
     }
 
+    /// Restores the exact original bytes associated with `doc_id`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::DocumentNotFound`] when no Document Index entry
+    /// matches, plus the errors documented by [`Self::read_range`].
     pub fn read_document(&self, doc_id: &str) -> Result<Vec<u8>> {
         let document = find_document(&self.details, doc_id)?;
         self.read_range(document.logical_offset, document.byte_length)
     }
 
+    /// Restores a document and verifies it against a caller-supplied checksum.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::VerifiedChecksumMismatch`] on checksum disagreement,
+    /// plus the errors documented by [`Self::read_document`].
     pub fn read_document_verified(&self, doc_id: &str, expected: &Checksum) -> Result<Vec<u8>> {
         let bytes = self.read_document(doc_id)?;
         verify_expected_checksum(&bytes, expected)?;
         Ok(bytes)
     }
 
+    /// Restores one zero-based logical line as original bytes, including its line ending when present.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::LineOutOfRange`] when the line is unavailable, or an
+    /// integrity, decompression, or resource-limit error during restoration.
     pub fn read_line_raw(&self, line_zero_based: u64) -> Result<Vec<u8>> {
         read_line_from_entries(&self.details, line_zero_based, |entry| {
             self.decode_entry(entry)
         })
     }
 
+    /// Restores one zero-based logical line as UTF-8 text, including its line ending when present.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::InvalidUtf8`] for invalid text, plus the errors
+    /// documented by [`Self::read_line_raw`].
     pub fn read_line_text(&self, line_zero_based: u64) -> Result<String> {
         String::from_utf8(self.read_line_raw(line_zero_based)?).map_err(|_| QztError::InvalidUtf8)
     }
 
+    /// Verifies the container at the requested integrity level.
+    ///
+    /// # Errors
+    ///
+    /// Returns the first structural, checksum, decompression, range, or
+    /// resource-limit failure encountered at `level`.
     pub fn verify(&self, level: VerifyLevel) -> Result<VerifyReport> {
         match level {
             VerifyLevel::Quick => Ok(VerifyReport {
@@ -271,6 +343,8 @@ impl<R: ReadAt> QztFileReader<R> {
         self.source
     }
 
+    /// Returns immutable summary metadata without decoding content chunks.
+    #[must_use]
     pub fn info(&self) -> QztInfo {
         QztInfo {
             container_id: self.details.summary.container_id,
@@ -280,6 +354,12 @@ impl<R: ReadAt> QztFileReader<R> {
         }
     }
 
+    /// Decodes the complete original content into `writer` in logical order.
+    ///
+    /// # Errors
+    ///
+    /// Returns an integrity, decompression, range, resource-limit, source I/O,
+    /// or output I/O error when a chunk cannot be restored or written.
     pub fn export_to<W: Write>(&self, mut writer: W) -> Result<()> {
         for entry in &self.details.chunk_entries {
             let decoded = self.decode_entry(entry)?;
@@ -290,12 +370,24 @@ impl<R: ReadAt> QztFileReader<R> {
         Ok(())
     }
 
+    /// Decodes and returns the complete original content.
+    ///
+    /// # Errors
+    ///
+    /// Returns an integrity, decompression, range, resource-limit, or source I/O
+    /// error when any chunk cannot be restored.
     pub fn export_all(&self) -> Result<Vec<u8>> {
         let mut output = Vec::new();
         self.export_to(&mut output)?;
         Ok(output)
     }
 
+    /// Restores an exact logical byte range, reading only intersecting chunks.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::LogicalRangeOutOfBounds`] for an invalid range, or an
+    /// integrity, decompression, resource-limit, or source I/O error.
     pub fn read_range(&self, offset: u64, length: u64) -> Result<Vec<u8>> {
         read_range_from_entries(
             &self.details.chunk_entries,
@@ -306,11 +398,23 @@ impl<R: ReadAt> QztFileReader<R> {
         )
     }
 
+    /// Restores a logical byte range and requires valid UTF-8 text boundaries.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::InvalidUtf8Boundary`] for incomplete UTF-8, plus the
+    /// errors documented by [`Self::read_range`].
     pub fn read_text_range(&self, offset: u64, length: u64) -> Result<String> {
         let bytes = self.read_range(offset, length)?;
         String::from_utf8(bytes).map_err(|_| QztError::InvalidUtf8Boundary)
     }
 
+    /// Restores a logical byte range and verifies it against `expected`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::VerifiedChecksumMismatch`] when restored bytes do not
+    /// match, plus the errors documented by [`Self::read_range`].
     pub fn read_range_verified(
         &self,
         offset: u64,
@@ -322,27 +426,57 @@ impl<R: ReadAt> QztFileReader<R> {
         Ok(bytes)
     }
 
+    /// Restores the exact original bytes associated with `doc_id`.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::DocumentNotFound`] when the document is absent, plus
+    /// the errors documented by [`Self::read_range`].
     pub fn read_document(&self, doc_id: &str) -> Result<Vec<u8>> {
         let document = find_document(&self.details, doc_id)?;
         self.read_range(document.logical_offset, document.byte_length)
     }
 
+    /// Restores a document and verifies it against a caller-supplied checksum.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::VerifiedChecksumMismatch`] on checksum disagreement,
+    /// plus the errors documented by [`Self::read_document`].
     pub fn read_document_verified(&self, doc_id: &str, expected: &Checksum) -> Result<Vec<u8>> {
         let bytes = self.read_document(doc_id)?;
         verify_expected_checksum(&bytes, expected)?;
         Ok(bytes)
     }
 
+    /// Restores one zero-based logical line as original bytes, including its line ending when present.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::LineOutOfRange`] when unavailable, or an integrity,
+    /// decompression, resource-limit, or source I/O error.
     pub fn read_line_raw(&self, line_zero_based: u64) -> Result<Vec<u8>> {
         read_line_from_entries(&self.details, line_zero_based, |entry| {
             self.decode_entry(entry)
         })
     }
 
+    /// Restores one zero-based logical line as UTF-8 text, including its line ending when present.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::InvalidUtf8`] for invalid text, plus the errors
+    /// documented by [`Self::read_line_raw`].
     pub fn read_line_text(&self, line_zero_based: u64) -> Result<String> {
         String::from_utf8(self.read_line_raw(line_zero_based)?).map_err(|_| QztError::InvalidUtf8)
     }
 
+    /// Verifies the positioned container at the requested integrity level.
+    ///
+    /// # Errors
+    ///
+    /// Returns the first structural, checksum, decompression, range,
+    /// resource-limit, or source I/O failure encountered at `level`.
     pub fn verify(&self, level: VerifyLevel) -> Result<VerifyReport> {
         match level {
             VerifyLevel::Quick => Ok(VerifyReport {

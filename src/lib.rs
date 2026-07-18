@@ -3,7 +3,7 @@
 //! Use the re-exported reader, writer, error, checksum, and validation corpus
 //! types as the stable v0.1 technical-preview surface.
 
-#![cfg_attr(not(feature = "internal-testing"), warn(missing_docs))]
+#![cfg_attr(not(feature = "internal-testing"), deny(missing_docs))]
 
 // Some module items exist only for the internal-testing surface; they are
 // unreachable (and therefore dead code) in the curated default build.
@@ -21,38 +21,23 @@ macro_rules! internal_module {
 }
 
 internal_module!(benchmark);
-internal_module!(
-    #[allow(dead_code)]
-    cbor
-);
+internal_module!(cbor);
 internal_module!(chunk_table);
 internal_module!(chunker);
 internal_module!(corpus);
 internal_module!(dense_line_index);
 internal_module!(error);
 internal_module!(fixed);
-internal_module!(
-    #[allow(dead_code)]
-    format
-);
+internal_module!(format);
 internal_module!(io);
 internal_module!(limits);
 internal_module!(primitives);
 internal_module!(reader);
-internal_module!(
-    #[allow(dead_code)]
-    schema
-);
+internal_module!(schema);
 internal_module!(search);
 internal_module!(sidecar);
-internal_module!(
-    #[allow(dead_code)]
-    skeleton
-);
-internal_module!(
-    #[allow(dead_code)]
-    writer
-);
+internal_module!(skeleton);
+internal_module!(writer);
 
 pub use benchmark::{
     CompetitiveBenchmarkOptions, CompetitiveBenchmarkReport, ReleaseBenchmarkOptions,

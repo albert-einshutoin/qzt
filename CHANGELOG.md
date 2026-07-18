@@ -171,6 +171,16 @@ Container format for UTF-8 text.
   and deterministic-fixture cases; equivalent builder configurations preserve
   container bytes.
 
+- Completed the public API documentation gate: the default-feature crate now
+  denies `missing_docs`, all crate-root reachable fields, variants, and methods
+  document their caller-visible semantics, and fallible public APIs describe
+  error conditions. `make doc` continues to treat every rustdoc warning as an
+  error for the all-feature surface.
+- Removed the temporary `missing_errors_doc` and `missing_panics_doc` Clippy
+  allowances. Module-wide `allow(dead_code)` suppression is gone; the few
+  conformance-fixture helpers used only by `internal-testing` now carry narrow,
+  reasoned item-level exceptions.
+
 - Migrated the crate and fuzz manifests to Rust 2024 edition.
 
 - `QztError::Display` now emits human-readable messages for all variants instead
@@ -204,8 +214,8 @@ Container format for UTF-8 text.
 - `make bench-release` now actually builds with `--release`; earlier recorded
   throughput numbers in `tasks/status.md` were debug-build values.
 - The quality gate (`make check` and CI) also compiles the default-features
-  surface via `cargo check --lib --bins`; internal-testing-only items are
-  explicitly `allow(dead_code)` in the curated build.
+  surface via `cargo check --lib --bins`; internal-testing-only fixture helpers
+  use narrow, reasoned item-level `allow(dead_code)` attributes where needed.
 - **Public API signatures** (pedantic pass, #9): `pack_bytes_with_document_index`
   and `pack_bytes_with_memory_profile` now take `&DocumentIndex` instead of an
   owned value; `run_release_benchmark_with_corpus` now takes `&[u8]` instead of

@@ -5,11 +5,19 @@ use crate::primitives::usize_to_u64;
 /// Writer options required by deterministic chunk planning.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ChunkerOptions {
+    /// Preferred uncompressed chunk size in bytes.
     pub target_chunk_size: usize,
+    /// Hard maximum uncompressed chunk size in bytes.
     pub max_chunk_size: usize,
 }
 
 impl ChunkerOptions {
+    /// Validates that both sizes are non-zero and the target does not exceed the maximum.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::ResourceLimitExceeded`] when either size is zero or
+    /// `target_chunk_size` is greater than `max_chunk_size`.
     pub fn validate(self) -> Result<()> {
         if self.target_chunk_size == 0 || self.max_chunk_size == 0 {
             return Err(QztError::ResourceLimitExceeded);

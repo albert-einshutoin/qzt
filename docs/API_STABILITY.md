@@ -1,6 +1,6 @@
 # QZT API Stability Policy
 
-Date: 2026-06-08
+Date: 2026-07-19
 
 QZT v0.1 is a technical preview. The container byte format is compatibility
 sensitive; the Rust API is stabilizing through the Product Completeness Track.
@@ -42,6 +42,20 @@ This is an intentional technical-preview breaking change made while
 `publish = false`; it removes overlapping names without changing container
 bytes for an equivalent builder configuration.
 
+### Public documentation and lint contract
+
+The default-feature crate denies `missing_docs`, so every crate-root reachable
+type, field, variant, function, and method must document its caller-visible
+contract before it can compile. Public functions describe failure conditions
+with `# Errors` sections where applicable. CI and `make doc` additionally build
+all-feature rustdoc with warnings treated as errors.
+
+The curated build no longer suppresses `dead_code` for entire internal modules.
+A small number of low-level fixture helpers retain item-scoped allowances with
+nearby rationale because they are reachable only through `internal-testing`.
+That feature is a conformance-test compatibility surface, not a supported
+embedding API.
+
 ## Compatibility Shims
 
 The historical `pub mod` module paths are available only with the
@@ -58,7 +72,7 @@ also re-exported at crate root.
   version bump while pre-1.0.
 - Internal module changes may happen in patch releases during the technical
   preview.
-- The crate is package- and publish-dry-run ready, but `publish = false` remains
-  enforced. Actual crates.io publication requires issues #22 and #30 to be
-  merged and the release owner to explicitly open the irreversible publish
-  gate; see [RELEASE.md](RELEASE.md).
+- The crate remains protected by `publish = false`. Issue #22 is merged; issue
+  #30 completes the documentation/lint gate described above. Actual crates.io
+  publication may proceed only after #30 is merged and the release owner
+  explicitly opens the irreversible publish gate; see [RELEASE.md](RELEASE.md).
