@@ -20,6 +20,9 @@ or reinterpreted. The test suite freezes both regenerated container bytes and a
 BLAKE3 digest of every committed `.qzt.hex` file. It also requires exact set
 equality among manifest rows, vector files, and the frozen hash registry. LF
 checkout is fixed through `.gitattributes` so the raw-file hashes are portable.
+All published base and extension expectation rows must exactly match their
+frozen registries; additions become immutable in the same change that publishes
+them.
 
 ## Version Negotiation
 

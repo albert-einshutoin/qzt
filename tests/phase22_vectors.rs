@@ -31,7 +31,7 @@ const REQUIRED_VECTORS: [&str; 14] = [
 // The UTF-8 fixture deliberately contains `e` plus a combining accent. Keeping
 // the non-NFC sequence proves that readers preserve bytes without normalization.
 #[allow(clippy::unicode_not_nfc)]
-const FROZEN_MANIFEST_V1_ROWS: [&str; 14] = [
+const FROZEN_MANIFEST_ROWS: [&str; 14] = [
     "valid_c1\thex\tok\tok\talpha\\nbeta\\n\t-",
     "valid_empty\thex\tok\tok\t\t-",
     "valid_crlf\thex\tok\tok\ta\\r\\nb\\r\\n\t-",
@@ -46,6 +46,11 @@ const FROZEN_MANIFEST_V1_ROWS: [&str; 14] = [
     "corrupt_chunk_data\thex\tok\terr\t-\tcompressed_chunk_checksum_mismatch",
     "corrupt_truncated\thex\terr\t-\t-\tinvalid_footer_trailer",
     "corrupt_noncanonical_cbor\thex\terr\t-\t-\tnon_canonical_cbor",
+];
+
+const FROZEN_EXTENSION_ROWS: [&str; 2] = [
+    "valid_dense_line_index\ttrue\tfalse\t-\t-\t-\t-\t-\t-\t-\t-",
+    "valid_document_index\tfalse\ttrue\tdoc-1\t0\t13\t0\t1\t0\t1\tblake3:2ec48cafde4afeeeffcb2264d1b080d3f91b542682fd246ce57fdc926c64ece9",
 ];
 
 const FROZEN_VECTOR_BLAKE3: [(&str, &str); 14] = [
@@ -117,14 +122,15 @@ fn published_manifest_has_v1_schema_and_required_coverage() {
     );
 
     let rows = lines.collect::<Vec<_>>();
-    assert!(
-        rows.len() >= FROZEN_MANIFEST_V1_ROWS.len(),
-        "published v1 manifest rows must remain present"
+    assert_eq!(
+        rows.len(),
+        FROZEN_MANIFEST_ROWS.len(),
+        "every published manifest row must be added to the frozen registry"
     );
     assert_eq!(
-        &rows[..FROZEN_MANIFEST_V1_ROWS.len()],
-        FROZEN_MANIFEST_V1_ROWS.as_slice(),
-        "published v1 manifest rows are immutable and new rows must be appended"
+        rows.as_slice(),
+        FROZEN_MANIFEST_ROWS.as_slice(),
+        "published manifest expectations are immutable"
     );
     let names = rows
         .iter()
@@ -296,7 +302,14 @@ fn extension_aware_runner_matches_index_expectations() {
         )
     );
 
-    for line in lines {
+    let rows = lines.collect::<Vec<_>>();
+    assert_eq!(
+        rows.as_slice(),
+        FROZEN_EXTENSION_ROWS.as_slice(),
+        "published extension expectations are immutable"
+    );
+
+    for line in rows {
         let fields = line.split('\t').collect::<Vec<_>>();
         let [
             name,

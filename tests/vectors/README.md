@@ -66,17 +66,21 @@ observable instead of allowing a reader to ignore their blocks. It records:
 A full-kit runner must also retrieve `doc-1` by ID, read its recorded logical
 range, and verify that the returned 13 bytes equal `document one\n` and match
 the recorded BLAKE3 checksum. The Dense Line Index runner must use the decoded
-index to resolve the starts of lines 0, 1, and 2 as byte offsets 0, 5, and 9.
+index to resolve the starts of lines 0, 1, and 2 as offsets 0, 5, and 9 within
+decoded chunk 0. These are chunk-local offsets, not container logical offsets.
 
 ## Conformance rule
 
-Core stream conformance requires all three applicable `manifest.tsv` checks:
-structural open, deep verification and error normalization, and byte-for-byte
-export. Full QZT vector set v1 conformance additionally requires every
+Passing the vector-kit Core profile requires all three applicable
+`manifest.tsv` checks: structural open, deep verification and error
+normalization, and byte-for-byte export. Full QZT vector set v1 conformance
+additionally requires every
 `extensions.tsv` assertion and lookup above. Implementations that intentionally
-omit optional indexes may claim only “QZT v0.1 Core stream conformance”; they
-must not claim full vector-set conformance. Merely decoding valid files is not
-sufficient, and corrupt files must fail at the recorded stage.
+omit optional indexes may claim only “QZT vector-kit Core profile passed”; they
+must not claim full vector-set conformance. Passing this kit alone does not
+prove the broader “Reader Core conformance” defined by the Core specification,
+which has additional API and verification requirements. Merely decoding valid
+files is not sufficient, and corrupt files must fail at the recorded stage.
 
 Language-independent runner pseudocode:
 
@@ -113,8 +117,10 @@ writer regression, not a reason to update an existing vector.
 
 The Rust suite requires the manifest names, committed `.qzt.hex` names, and
 frozen BLAKE3 registry to be exactly the same set. It freezes the original 14
-manifest rows, stores a raw-file BLAKE3 for every published vector, and also
-regenerates each fixture in memory to compare decoded bytes.
+manifest rows and both extension rows, stores a raw-file BLAKE3 for every
+published vector, and also regenerates each fixture in memory to compare
+decoded bytes. Every future published row must be added to the corresponding
+frozen row registry in the same change; otherwise tests fail.
 
 Maintainers can generate candidate files with:
 
