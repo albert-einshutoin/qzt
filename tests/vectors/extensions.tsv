@@ -1,0 +1,3 @@
+name	expect_dense_line_index	expect_document_index	doc_id	logical_offset	byte_length	first_line	line_count	chunk_start	chunk_end	checksum
+valid_dense_line_index	true	false	-	-	-	-	-	-	-	-
+valid_document_index	false	true	doc-1	0	13	0	1	0	1	blake3:2ec48cafde4afeeeffcb2264d1b080d3f91b542682fd246ce57fdc926c64ece9

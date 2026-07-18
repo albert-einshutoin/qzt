@@ -1,4 +1,5 @@
-use std::fs;
+use std::fs::{self, OpenOptions};
+use std::io::{ErrorKind, Write};
 use std::path::PathBuf;
 
 use qzt::chunker::ChunkerOptions;
@@ -27,6 +28,85 @@ const REQUIRED_VECTORS: [&str; 14] = [
     "corrupt_noncanonical_cbor",
 ];
 
+// The UTF-8 fixture deliberately contains `e` plus a combining accent. Keeping
+// the non-NFC sequence proves that readers preserve bytes without normalization.
+#[allow(clippy::unicode_not_nfc)]
+const FROZEN_MANIFEST_V1_ROWS: [&str; 14] = [
+    "valid_c1\thex\tok\tok\talpha\\nbeta\\n\t-",
+    "valid_empty\thex\tok\tok\t\t-",
+    "valid_crlf\thex\tok\tok\ta\\r\\nb\\r\\n\t-",
+    "valid_mixed_newline\thex\tok\tok\ta\\nb\\r\\n\t-",
+    "valid_utf8_multibyte\thex\tok\tok\t日本語🙂é\\n\t-",
+    "valid_multi_chunk\thex\tok\tok\talpha\\nbeta\\ngamma\\n\t-",
+    "valid_no_trailing_newline\thex\tok\tok\ta\\nb\t-",
+    "valid_dense_line_index\thex\tok\tok\tzero\\none\\ntwo\\n\t-",
+    "valid_document_index\thex\tok\tok\tdocument one\\n\t-",
+    "corrupt_header\thex\terr\t-\t-\tinvalid_magic",
+    "corrupt_footer_checksum\thex\terr\t-\t-\tfooter_checksum_mismatch",
+    "corrupt_chunk_data\thex\tok\terr\t-\tcompressed_chunk_checksum_mismatch",
+    "corrupt_truncated\thex\terr\t-\t-\tinvalid_footer_trailer",
+    "corrupt_noncanonical_cbor\thex\terr\t-\t-\tnon_canonical_cbor",
+];
+
+const FROZEN_VECTOR_BLAKE3: [(&str, &str); 14] = [
+    (
+        "valid_c1",
+        "ba2af047411719ce4c439d6c8d6171bf5d50506f2de7b3fa28e69c5c239a3d03",
+    ),
+    (
+        "valid_empty",
+        "5d3ef0d2bdf977c9b48046856437c23e49e698e0a8383d89402ced8b93ef884b",
+    ),
+    (
+        "valid_crlf",
+        "6ad783acb3406a406f72a752d35aef0a58820013597a323b5333d061b9306c1a",
+    ),
+    (
+        "valid_mixed_newline",
+        "007038e125559a646c68b1d9787df69eeb05f8669d1224ac4649efc0c9c249cb",
+    ),
+    (
+        "valid_utf8_multibyte",
+        "9d5eadbcba84bbbe1f3a0200c0e2b0a08854d55a34b1e1c54c56e974d313c4f3",
+    ),
+    (
+        "valid_multi_chunk",
+        "b1c39822af64e77f69144646b32b966e35e66345a5a03a190cb359a9fed44e7c",
+    ),
+    (
+        "valid_no_trailing_newline",
+        "9a65476bdabbbb441a3617b86082ef2e51731a67cccccb1f8918fd597fa3d4c0",
+    ),
+    (
+        "valid_dense_line_index",
+        "bfd94258110aea44e879096a45e499c1c79f3124a2ac2dd2956af63ee13f16a9",
+    ),
+    (
+        "valid_document_index",
+        "9dbb05d5e42a308a995a59b1a1c389bdf71332a03f06996421817c3787275605",
+    ),
+    (
+        "corrupt_header",
+        "833c28f5f8c9f65efb81199b674f8e15582cb7c5dd9afef579cb1e9176207ada",
+    ),
+    (
+        "corrupt_footer_checksum",
+        "81258d3a122be82d660c640772ebd629aed5a0e62c0ff230b623cbd3217a0906",
+    ),
+    (
+        "corrupt_chunk_data",
+        "36d2ff056129d68954d9b1e4e4cee98ed513e24873c3d01fbb62b270c9f2e77c",
+    ),
+    (
+        "corrupt_truncated",
+        "29e3828faa7f44540d03bbbc23d287ae40ab4d52fd4105b167a231fed27db37c",
+    ),
+    (
+        "corrupt_noncanonical_cbor",
+        "9c90260a999b6e1080e31f962e9e808a336d7831419a23f706401dfae269a9b1",
+    ),
+];
+
 #[test]
 fn published_manifest_has_v1_schema_and_required_coverage() {
     let manifest = include_str!("vectors/manifest.tsv");
@@ -36,7 +116,18 @@ fn published_manifest_has_v1_schema_and_required_coverage() {
         Some("name\tkind\texpect_open\texpect_deep_verify\texpect_export_text\texpect_error")
     );
 
-    let names = lines
+    let rows = lines.collect::<Vec<_>>();
+    assert!(
+        rows.len() >= FROZEN_MANIFEST_V1_ROWS.len(),
+        "published v1 manifest rows must remain present"
+    );
+    assert_eq!(
+        &rows[..FROZEN_MANIFEST_V1_ROWS.len()],
+        FROZEN_MANIFEST_V1_ROWS.as_slice(),
+        "published v1 manifest rows are immutable and new rows must be appended"
+    );
+    let names = rows
+        .iter()
         .map(|line| {
             let fields = line.split('\t').collect::<Vec<_>>();
             assert_eq!(
@@ -44,6 +135,12 @@ fn published_manifest_has_v1_schema_and_required_coverage() {
                 6,
                 "manifest row must have six columns: {line}"
             );
+            match (fields[2], fields[3], fields[4], fields[5]) {
+                ("ok", "ok", export, "-") if export != "-" => {}
+                ("ok", "err", "-", error) if error != "-" => {}
+                ("err", "-", "-", error) if error != "-" => {}
+                _ => panic!("invalid expectation state for manifest row: {line}"),
+            }
             fields[0]
         })
         .collect::<Vec<_>>();
@@ -65,6 +162,27 @@ fn published_manifest_has_v1_schema_and_required_coverage() {
         unique_names.len(),
         names.len(),
         "vector names must be unique"
+    );
+
+    let frozen_names = frozen_vector_names();
+    let mut manifest_names = names.clone();
+    manifest_names.sort_unstable();
+    assert_eq!(
+        manifest_names, frozen_names,
+        "every manifest vector must have exactly one frozen hash"
+    );
+
+    let mut file_names = fs::read_dir(vector_dir())
+        .expect("read vector directory")
+        .filter_map(|entry| {
+            let name = entry.ok()?.file_name().into_string().ok()?;
+            name.strip_suffix(".qzt.hex").map(str::to_owned)
+        })
+        .collect::<Vec<_>>();
+    file_names.sort_unstable();
+    assert_eq!(
+        file_names, frozen_names,
+        "committed vector files and frozen hashes must be the same set"
     );
 }
 
@@ -113,7 +231,9 @@ fn portable_vector_runner_matches_manifest() {
                 if *expect_export != "-" {
                     assert_eq!(
                         reader.export_all().expect("export should pass"),
-                        unescape_manifest_text(expect_export).as_bytes(),
+                        unescape_manifest_text(expect_export)
+                            .expect("manifest export text uses the documented escape grammar")
+                            .as_bytes(),
                         "export mismatch for {name}"
                     );
                 }
@@ -166,78 +286,101 @@ fn valid_vectors_encode_the_declared_core_features() {
 }
 
 #[test]
-fn published_vector_files_match_frozen_blake3() {
-    // Filled only when vector set v1 is deliberately published. These hashes
-    // freeze the public interop contract independently of generator behavior.
-    const FROZEN_VECTOR_BLAKE3: [(&str, &str); 14] = [
-        (
-            "valid_c1",
-            "ba2af047411719ce4c439d6c8d6171bf5d50506f2de7b3fa28e69c5c239a3d03",
-        ),
-        (
-            "valid_empty",
-            "5d3ef0d2bdf977c9b48046856437c23e49e698e0a8383d89402ced8b93ef884b",
-        ),
-        (
-            "valid_crlf",
-            "6ad783acb3406a406f72a752d35aef0a58820013597a323b5333d061b9306c1a",
-        ),
-        (
-            "valid_mixed_newline",
-            "007038e125559a646c68b1d9787df69eeb05f8669d1224ac4649efc0c9c249cb",
-        ),
-        (
-            "valid_utf8_multibyte",
-            "9d5eadbcba84bbbe1f3a0200c0e2b0a08854d55a34b1e1c54c56e974d313c4f3",
-        ),
-        (
-            "valid_multi_chunk",
-            "b1c39822af64e77f69144646b32b966e35e66345a5a03a190cb359a9fed44e7c",
-        ),
-        (
-            "valid_no_trailing_newline",
-            "9a65476bdabbbb441a3617b86082ef2e51731a67cccccb1f8918fd597fa3d4c0",
-        ),
-        (
-            "valid_dense_line_index",
-            "bfd94258110aea44e879096a45e499c1c79f3124a2ac2dd2956af63ee13f16a9",
-        ),
-        (
-            "valid_document_index",
-            "9dbb05d5e42a308a995a59b1a1c389bdf71332a03f06996421817c3787275605",
-        ),
-        (
-            "corrupt_header",
-            "833c28f5f8c9f65efb81199b674f8e15582cb7c5dd9afef579cb1e9176207ada",
-        ),
-        (
-            "corrupt_footer_checksum",
-            "81258d3a122be82d660c640772ebd629aed5a0e62c0ff230b623cbd3217a0906",
-        ),
-        (
-            "corrupt_chunk_data",
-            "36d2ff056129d68954d9b1e4e4cee98ed513e24873c3d01fbb62b270c9f2e77c",
-        ),
-        (
-            "corrupt_truncated",
-            "29e3828faa7f44540d03bbbc23d287ae40ab4d52fd4105b167a231fed27db37c",
-        ),
-        (
-            "corrupt_noncanonical_cbor",
-            "9c90260a999b6e1080e31f962e9e808a336d7831419a23f706401dfae269a9b1",
-        ),
-    ];
+fn extension_aware_runner_matches_index_expectations() {
+    let manifest = include_str!("vectors/extensions.tsv");
+    let mut lines = manifest.lines();
+    assert_eq!(
+        lines.next(),
+        Some(
+            "name\texpect_dense_line_index\texpect_document_index\tdoc_id\tlogical_offset\tbyte_length\tfirst_line\tline_count\tchunk_start\tchunk_end\tchecksum"
+        )
+    );
 
+    for line in lines {
+        let fields = line.split('\t').collect::<Vec<_>>();
+        let [
+            name,
+            expect_dense,
+            expect_document,
+            doc_id,
+            logical_offset,
+            byte_length,
+            first_line,
+            line_count,
+            chunk_start,
+            chunk_end,
+            checksum,
+        ] = fields.as_slice()
+        else {
+            panic!("extension row must have eleven columns: {line}")
+        };
+        let bytes = decode_hex(&vector_hex(name)).expect("extension vector hex should decode");
+        let details = open_skeleton_details(&bytes).expect("extension vector should open");
+        assert_eq!(details.dense_line_index.is_some(), *expect_dense == "true");
+        assert_eq!(details.document_index.is_some(), *expect_document == "true");
+
+        if *expect_dense == "true" {
+            let dense = details
+                .dense_line_index
+                .as_ref()
+                .expect("expected Dense Line Index");
+            assert_eq!(dense.entries.len(), 1);
+            assert_eq!(dense.entries[0].line_start_offsets, [0, 5, 9]);
+            let reader = QztReader::open(&bytes).expect("dense vector reader opens");
+            assert_eq!(reader.read_line_raw(0).unwrap(), b"zero\n");
+            assert_eq!(reader.read_line_raw(1).unwrap(), b"one\n");
+            assert_eq!(reader.read_line_raw(2).unwrap(), b"two\n");
+        }
+
+        if *expect_document == "true" {
+            let documents = details
+                .document_index
+                .as_ref()
+                .expect("expected Document Index")
+                .documents
+                .as_slice();
+            assert_eq!(documents.len(), 1);
+            let document = &documents[0];
+            assert_eq!(document.doc_id, *doc_id);
+            assert_eq!(document.logical_offset, parse_u64(logical_offset));
+            assert_eq!(document.byte_length, parse_u64(byte_length));
+            assert_eq!(document.first_line, parse_u64(first_line));
+            assert_eq!(document.line_count, parse_u64(line_count));
+            assert_eq!(document.chunk_start, parse_u64(chunk_start));
+            assert_eq!(document.chunk_end, parse_u64(chunk_end));
+            assert_eq!(
+                format!(
+                    "{}:{}",
+                    document.checksum.algorithm,
+                    encode_hex(&document.checksum.value)
+                ),
+                *checksum
+            );
+            let reader = QztReader::open(&bytes).expect("document vector reader opens");
+            assert_eq!(
+                reader
+                    .read_document_verified(doc_id, &document.checksum)
+                    .expect("document lookup and checksum verification succeed"),
+                b"document one\n"
+            );
+        } else {
+            assert!(fields[3..].iter().all(|value| *value == "-"));
+        }
+    }
+}
+
+fn parse_u64(value: &str) -> u64 {
+    value.parse().expect("extension expectation must be u64")
+}
+
+#[test]
+fn published_vector_files_match_frozen_blake3() {
     assert_eq!(
         FROZEN_VECTOR_BLAKE3.len(),
         REQUIRED_VECTORS.len(),
         "every published vector must have a frozen hash"
     );
-    let mut frozen_names = FROZEN_VECTOR_BLAKE3
-        .iter()
-        .map(|(name, _)| *name)
-        .collect::<Vec<_>>();
-    frozen_names.sort_unstable();
+    let frozen_names = frozen_vector_names();
     let mut required_names = REQUIRED_VECTORS.to_vec();
     required_names.sort_unstable();
     assert_eq!(
@@ -256,14 +399,44 @@ fn published_vector_files_match_frozen_blake3() {
     }
 }
 
+fn frozen_vector_names() -> Vec<&'static str> {
+    let mut names = FROZEN_VECTOR_BLAKE3
+        .iter()
+        .map(|(name, _)| *name)
+        .collect::<Vec<_>>();
+    names.sort_unstable();
+    names
+}
+
 #[test]
 #[ignore = "only run manually to regenerate test vectors"]
 fn regenerate_vectors() {
-    let vector_dir = vector_dir();
+    let candidate_dir =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("target/conformance-vectors-candidate");
+    fs::create_dir_all(&candidate_dir).expect("create candidate vector directory");
+    assert!(
+        !fs::symlink_metadata(&candidate_dir)
+            .expect("inspect candidate vector directory")
+            .file_type()
+            .is_symlink(),
+        "candidate directory must not be a symlink"
+    );
     for (name, bytes) in generated_vectors() {
-        let path = vector_dir.join(format!("{name}.qzt.hex"));
+        let path = candidate_dir.join(format!("{name}.qzt.hex"));
         let contents = format!("{}\n", encode_hex(&bytes));
-        fs::write(path, &contents).expect("write generated vector");
+        match OpenOptions::new().write(true).create_new(true).open(&path) {
+            Ok(mut file) => file
+                .write_all(contents.as_bytes())
+                .expect("write complete candidate vector"),
+            Err(error) if error.kind() == ErrorKind::AlreadyExists => {
+                assert_eq!(
+                    fs::read(&path).expect("read existing candidate vector"),
+                    contents.as_bytes(),
+                    "candidate {name} already exists with different bytes; remove the candidate directory explicitly before regenerating"
+                );
+            }
+            Err(error) => panic!("create candidate vector {name}: {error}"),
+        }
         println!("{name}\t{}", blake3::hash(contents.as_bytes()).to_hex());
     }
 }
@@ -452,8 +625,36 @@ fn error_category(error: QztError) -> &'static str {
     }
 }
 
-fn unescape_manifest_text(input: &str) -> String {
-    input.replace("\\r", "\r").replace("\\n", "\n")
+#[test]
+fn manifest_export_escape_grammar_is_strict_and_byte_preserving() {
+    assert_eq!(
+        unescape_manifest_text("slash=\\\\ tab=\\t cr=\\r lf=\\n 日本語").unwrap(),
+        "slash=\\ tab=\t cr=\r lf=\n 日本語"
+    );
+    assert!(unescape_manifest_text("unknown=\\x").is_err());
+    assert!(unescape_manifest_text("dangling=\\").is_err());
+}
+
+fn unescape_manifest_text(input: &str) -> Result<String, String> {
+    let mut output = String::with_capacity(input.len());
+    let mut characters = input.chars();
+    while let Some(character) = characters.next() {
+        if character != '\\' {
+            output.push(character);
+            continue;
+        }
+        let escaped = characters
+            .next()
+            .ok_or_else(|| "dangling manifest escape".to_owned())?;
+        output.push(match escaped {
+            '\\' => '\\',
+            't' => '\t',
+            'r' => '\r',
+            'n' => '\n',
+            other => return Err(format!("unknown manifest escape \\{other}")),
+        });
+    }
+    Ok(output)
 }
 
 fn decode_hex(input: &str) -> Result<Vec<u8>, String> {

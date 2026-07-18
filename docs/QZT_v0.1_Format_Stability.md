@@ -17,7 +17,9 @@ category outcomes recorded in `manifest.tsv`.
 The 14 published files and their expectations are immutable. New vectors may
 be appended for additional coverage, but an existing vector must not be edited
 or reinterpreted. The test suite freezes both regenerated container bytes and a
-BLAKE3 digest of every committed `.qzt.hex` file.
+BLAKE3 digest of every committed `.qzt.hex` file. It also requires exact set
+equality among manifest rows, vector files, and the frozen hash registry. LF
+checkout is fixed through `.gitattributes` so the raw-file hashes are portable.
 
 ## Version Negotiation
 

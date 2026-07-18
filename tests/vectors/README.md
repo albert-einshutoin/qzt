@@ -16,6 +16,9 @@ the complete QZT byte stream:
 - one final LF after the hexadecimal line;
 - decode the hexadecimal text before passing bytes to a QZT reader.
 
+Git attributes force LF checkout for the vector and TSV files, so hashes remain
+portable when a contributor has automatic line-ending conversion enabled.
+
 ## Manifest schema
 
 `manifest.tsv` is UTF-8, tab-separated, and has six columns. The original first
@@ -27,25 +30,53 @@ five columns are unchanged; `expect_error` is an appended compatibility column.
 | `kind` | Encoding of the fixture. Vector set v1 uses `hex`. |
 | `expect_open` | `ok` when structural open must succeed; otherwise `err`. |
 | `expect_deep_verify` | `ok` or `err` after a successful open; `-` when open must fail. |
-| `expect_export_text` | Exact original UTF-8 bytes after replacing `\r` and `\n`; `-` when export is not expected. An empty field means zero bytes. |
-| `expect_error` | Stable snake_case category when an expected stage fails; `-` for valid vectors. |
+| `expect_export_text` | Escaped exact original UTF-8 bytes; `-` only when export must not run. An empty field means zero bytes. |
+| `expect_error` | Language-independent snake_case validation category when an expected stage fails; `-` for valid vectors. |
 
-Error categories correspond to `QztError` variants as follows:
+The export grammar recognizes exactly four escapes: `\\` for one backslash,
+`\t` for TAB, `\r` for CR, and `\n` for LF. A trailing backslash or any other
+escape is invalid. All other Unicode scalar values are encoded directly as
+UTF-8, byte-for-byte; runners must not perform Unicode normalization.
 
-| Manifest category | QztError variant | Detection stage |
-|---|---|---|
-| `invalid_magic` | `InvalidMagic` | open |
-| `invalid_footer_trailer` | `InvalidFooterTrailer` | open |
-| `footer_checksum_mismatch` | `FooterChecksumMismatch` | open |
-| `non_canonical_cbor` | `NonCanonicalCbor` | open |
-| `compressed_chunk_checksum_mismatch` | `CompressedChunkChecksumMismatch` | deep verify |
+Error categories name the failed format validation, not a language-specific
+exception class. An implementation maps its native error to the category in
+the last column. The Rust names are informative reference mappings only.
+
+| Manifest category | Language-independent failed validation | Rust reference mapping | Stage |
+|---|---|---|---|
+| `invalid_magic` | Fixed Header bytes 0–7 are not `QZT\0TXT1`. | `InvalidMagic` | open |
+| `invalid_footer_trailer` | After the recorded 32-byte truncation, the final 64-byte window cannot decode as a complete fixed Footer Trailer with `QZTTAIL1` magic and required length/version. Native EOF/truncation errors map here for this vector. | `InvalidFooterTrailer` | open |
+| `footer_checksum_mismatch` | The Footer Trailer is structurally valid, but BLAKE3 of its referenced Footer Payload differs from the stored trailer checksum. | `FooterChecksumMismatch` | open |
+| `non_canonical_cbor` | All enclosing references and checksums are valid, but Metadata map keys are not in deterministic CBOR order. | `NonCanonicalCbor` | open |
+| `compressed_chunk_checksum_mismatch` | Structural open succeeds, but BLAKE3 of the stored compressed chunk differs from its Chunk Table entry. | `CompressedChunkChecksumMismatch` | deep verify |
+
+The recorded stage and predicate are part of this kit's contract. A native
+reader may expose different exception names, but its adapter must normalize
+the failure according to the predicate above.
+
+## Optional index expectations
+
+`extensions.tsv` makes the Dense Line Index and Document Index vectors
+observable instead of allowing a reader to ignore their blocks. It records:
+
+- whether each optional block must be present and successfully decoded;
+- for the Document Index, the exact `doc_id`, logical range, line range, chunk
+  range, algorithm, and document checksum of its single entry.
+
+A full-kit runner must also retrieve `doc-1` by ID, read its recorded logical
+range, and verify that the returned 13 bytes equal `document one\n` and match
+the recorded BLAKE3 checksum. The Dense Line Index runner must use the decoded
+index to resolve the starts of lines 0, 1, and 2 as byte offsets 0, 5, and 9.
 
 ## Conformance rule
 
-A reader conforms to this vector set only when all three applicable checks
-match the manifest: structural open result, deep verification result and error
-category, and byte-for-byte export of valid content. Merely decoding the valid
-files is not sufficient; corrupt files must fail at the recorded stage.
+Core stream conformance requires all three applicable `manifest.tsv` checks:
+structural open, deep verification and error normalization, and byte-for-byte
+export. Full QZT vector set v1 conformance additionally requires every
+`extensions.tsv` assertion and lookup above. Implementations that intentionally
+omit optional indexes may claim only “QZT v0.1 Core stream conformance”; they
+must not claim full vector-set conformance. Merely decoding valid files is not
+sufficient, and corrupt files must fail at the recorded stage.
 
 Language-independent runner pseudocode:
 
@@ -64,9 +95,13 @@ for row in manifest.rows:
     assert category(verified.error) == row.expect_error
     continue
   if row.expect_export_text != "-":
-    expected = unescape_cr_lf(row.expect_export_text)
+    expected = strict_unescape(row.expect_export_text, ["\\\\", "\\t", "\\r", "\\n"])
     assert opened.reader.export_all() == utf8_bytes(expected)
 ```
+
+Then apply every row of `extensions.tsv`, parse the required optional block,
+compare every recorded field, and perform the Dense Line and document lookup
+checks described above.
 
 ## Frozen vector policy
 
@@ -76,15 +111,24 @@ existing vector file and its manifest expectations never change. Future sets
 may add new rows and files only. A byte change caused by a writer refactor is a
 writer regression, not a reason to update an existing vector.
 
-The Rust suite stores a BLAKE3 hash for every published `.qzt.hex` file and
-fails if file bytes change. It also regenerates each fixture in memory and
-compares the decoded bytes. Maintainers can deliberately regenerate candidate
-files with:
+The Rust suite requires the manifest names, committed `.qzt.hex` names, and
+frozen BLAKE3 registry to be exactly the same set. It freezes the original 14
+manifest rows, stores a raw-file BLAKE3 for every published vector, and also
+regenerates each fixture in memory to compare decoded bytes.
+
+Maintainers can generate candidate files with:
 
 ```sh
 cargo test --all-features --test phase22_vectors -- --ignored regenerate_vectors
 ```
 
-Run the command twice and require an empty `git diff` before proposing any new
-vector. Never regenerate an already published vector as part of routine test or
-writer maintenance.
+The ignored test writes with create-new semantics only to
+`target/conformance-vectors-candidate/`; it never overwrites the published
+`tests/vectors/` files. A second run requires the candidate bytes to be
+identical. Compare the candidate directory with this directory before proposing
+a new vector. If a candidate name already exists with different bytes, the test
+fails and requires the maintainer to remove that ignored candidate explicitly.
+
+Never copy a changed candidate over an already published vector. Additions must
+append a manifest row and add the file hash to the frozen registry in the same
+reviewed change.

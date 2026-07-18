@@ -1,0 +1,2 @@
+tests/vectors/*.qzt.hex text eol=lf
+tests/vectors/*.tsv text eol=lf
