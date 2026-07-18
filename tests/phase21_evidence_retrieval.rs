@@ -109,10 +109,13 @@ fn windows_file_backed_range_and_search_match_serial_under_concurrency() {
         .duration_since(UNIX_EPOCH)
         .expect("clock after epoch")
         .as_nanos();
-    let base = std::env::temp_dir().join(format!(
-        "qzt-windows-concurrency-{}-{nonce}",
-        std::process::id()
-    ));
+    let base = std::env::current_dir()
+        .expect("test working directory")
+        .join("target")
+        .join(format!(
+            "qzt-windows-concurrency-{}-{nonce}",
+            std::process::id()
+        ));
     let container_path = base.with_extension("qzt");
     let sidecar_path = base.with_extension("qzi");
     std::fs::write(&container_path, &container).expect("write container fixture");

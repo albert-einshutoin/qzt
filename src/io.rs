@@ -122,7 +122,10 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .expect("clock after epoch")
             .as_nanos();
-        let path = std::env::temp_dir().join(format!("qzt-read-at-{}-{nonce}", std::process::id()));
+        let path = std::env::current_dir()
+            .expect("test working directory")
+            .join("target")
+            .join(format!("qzt-read-at-{}-{nonce}", std::process::id()));
         let mut file = OpenOptions::new()
             .create_new(true)
             .read(true)
