@@ -565,7 +565,7 @@ fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<
                 temporary = Some((path, file));
                 break;
             }
-            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
             Err(error) => return Err(error.into()),
         }
     }
