@@ -1,5 +1,6 @@
 const MANIFEST: &str = include_str!("../Cargo.toml");
 const RELEASE_GUIDE: &str = include_str!("../docs/RELEASE.md");
+const JAPANESE_RELEASE_GUIDE: &str = include_str!("../docs/RELEASE.ja.md");
 const CHANGELOG: &str = include_str!("../CHANGELOG.md");
 
 #[test]
@@ -42,23 +43,30 @@ fn package_excludes_repository_only_material() {
 
 #[test]
 fn release_guide_preserves_owner_gate_and_dependency_checks() {
-    for requirement in [
-        "#22",
-        "#30",
-        "cargo publish --dry-run",
-        "cargo package --list",
-        "cargo doc --no-deps --all-features",
-        "publish = false",
-        "release owner",
-        "cargo publish",
-        "docs.rs",
-        "v0.1.0",
-    ] {
-        assert!(
-            RELEASE_GUIDE.contains(requirement),
-            "release guide is missing: {requirement}"
-        );
+    for guide in [RELEASE_GUIDE, JAPANESE_RELEASE_GUIDE] {
+        for requirement in [
+            "#22",
+            "#30",
+            "cargo publish --dry-run",
+            "cargo package --list",
+            "cargo doc --no-deps --all-features",
+            "publish = false",
+            "release owner",
+            "cargo publish",
+            "docs.rs",
+            "v0.1.0",
+            "https://crates.io/crates/qzt",
+            "https://index.crates.io/3/q/qzt",
+        ] {
+            assert!(
+                guide.contains(requirement),
+                "release guide is missing: {requirement}"
+            );
+        }
     }
+
+    assert!(RELEASE_GUIDE.contains("choosing a new name"));
+    assert!(JAPANESE_RELEASE_GUIDE.contains("別名を選ばず"));
 
     let publish = RELEASE_GUIDE
         .find("cargo publish` succeeds")

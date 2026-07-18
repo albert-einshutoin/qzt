@@ -22,9 +22,9 @@ release pull request.
 - [ ] Refactoring issue #30 (public rustdoc and lint cleanup) is merged.
 - [ ] The release owner has explicitly approved crates.io publication.
 - [ ] The `qzt` name is still unclaimed immediately before opening the release
-      pull request. Check both `https://crates.io/crates/qzt` and the crates.io
-      sparse-index endpoint; escalate any conflict instead of choosing a new
-      name.
+      pull request. Check both `https://crates.io/crates/qzt` and
+      `https://index.crates.io/3/q/qzt`; escalate any conflict instead of
+      choosing a new name.
 - [ ] `main` is clean, up to date, and all required GitHub checks are green.
 - [ ] The version remains `0.1.0` and the product is still presented as a
       technical preview.

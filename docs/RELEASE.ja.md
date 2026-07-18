@@ -20,7 +20,9 @@ Issue #42では`publish = false`を維持したまま公開準備だけを証明
 - [ ] #22（公開pack APIの集約）がマージ済み
 - [ ] #30（公開rustdocとlintの仕上げ）がマージ済み
 - [ ] release ownerがcrates.io公開を明示承認済み
-- [ ] リリースPR作成直前にも`qzt`名が未使用
+- [ ] リリースPR作成直前に`https://crates.io/crates/qzt`と
+      `https://index.crates.io/3/q/qzt`の両方で`qzt`名が未使用であることを
+      再確認し、競合時は別名を選ばずオーナーへエスカレーション
 - [ ] `main`がcleanかつ最新で、必須CIがすべて成功
 - [ ] バージョンが`0.1.0`で、technical preview表記を維持
 
