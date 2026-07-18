@@ -12,7 +12,10 @@ fn manifest_is_discoverable_but_cannot_be_published_from_this_change() {
         "license = \"MIT OR Apache-2.0\"",
         "readme = \"README.md\"",
     ] {
-        assert!(MANIFEST.contains(metadata), "missing package metadata: {metadata}");
+        assert!(
+            MANIFEST.contains(metadata),
+            "missing package metadata: {metadata}"
+        );
     }
 
     assert!(
@@ -30,7 +33,10 @@ fn package_excludes_repository_only_material() {
         "\"docs/QZT_v0.1_Core_Spec.md\"",
         "\"docs/QZT_v0.1_Core_Spec.ja.md\"",
     ] {
-        assert!(MANIFEST.contains(excluded), "missing package exclusion: {excluded}");
+        assert!(
+            MANIFEST.contains(excluded),
+            "missing package exclusion: {excluded}"
+        );
     }
 }
 
@@ -70,7 +76,7 @@ fn release_guide_preserves_owner_gate_and_dependency_checks() {
 fn changelog_points_release_owners_to_the_new_gate() {
     assert!(CHANGELOG.contains("Ready for owner-gated crates.io publication"));
     assert!(CHANGELOG.contains("[release checklist](docs/RELEASE.md)"));
-    assert!(!CHANGELOG.contains(
-        "crates.io publication and publish dry-run until Phase20 stabilizes"
-    ));
+    assert!(
+        !CHANGELOG.contains("crates.io publication and publish dry-run until Phase20 stabilizes")
+    );
 }
