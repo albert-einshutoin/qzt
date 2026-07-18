@@ -58,7 +58,7 @@ fn release_guide_preserves_owner_gate_and_dependency_checks() {
         .find("cargo publish` succeeds")
         .expect("guide must identify the successful publish event");
     let tag = RELEASE_GUIDE
-        .find("git tag v0.1.0")
+        .find("git tag -a v0.1.0")
         .expect("guide must document the release tag");
     assert!(
         publish < tag,

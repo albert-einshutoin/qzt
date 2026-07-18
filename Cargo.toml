@@ -3,13 +3,22 @@ name = "qzt"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.87"
-description = "Cold evidence container reference implementation for verifiable UTF-8 text archives"
+description = "Cold evidence container for seekable, verifiable UTF-8 text archives"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/albert-einshutoin/qzt"
+documentation = "https://docs.rs/qzt"
+homepage = "https://github.com/albert-einshutoin/qzt"
 readme = "README.md"
 keywords = ["archive", "compression", "evidence", "text", "zstd"]
 categories = ["compression", "encoding", "filesystem"]
 publish = false
+exclude = [
+    ".github/",
+    "fuzz/",
+    "tasks/",
+    "docs/QZT_v0.1_Core_Spec.md",
+    "docs/QZT_v0.1_Core_Spec.ja.md",
+]
 
 [package.metadata.docs.rs]
 all-features = true
