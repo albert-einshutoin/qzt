@@ -19,6 +19,7 @@ harden_workflow() {
     grep -Fq 'environment: release' "$workflow"
     grep -Fq 'Validate release tag and main ancestry' "$workflow"
     grep -Fq 'Install digest-pinned dist (Windows)' "$workflow"
+    test "$(grep -Fc -- '--allow-dirty --output-format=json' "$workflow")" -eq 4
     if grep -Fq 'cargo-dist-installer.sh | sh' "$workflow" || \
         grep -Fq 'matrix.install_dist.run' "$workflow"; then
         echo "unsafe cargo-dist installer survived workflow hardening" >&2

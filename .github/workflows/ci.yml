@@ -38,3 +38,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo package --allow-dirty
+
+  dist-workflow:
+    name: dist workflow
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install digest-pinned cargo-dist
+        shell: bash
+        run: scripts/install-cargo-dist-linux.sh
+      - run: make dist-check

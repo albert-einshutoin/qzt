@@ -1,6 +1,7 @@
 const MANIFEST: &str = include_str!("../Cargo.toml");
 const DIST_CONFIG: &str = include_str!("../dist-workspace.toml");
 const RELEASE_WORKFLOW: &str = include_str!("../.github/workflows/release.yml");
+const CI_WORKFLOW: &str = include_str!("../.github/workflows/ci.yml");
 const README: &str = include_str!("../README.md");
 const JAPANESE_README: &str = include_str!("../README.ja.md");
 
@@ -74,6 +75,15 @@ fn generated_release_workflow_has_no_branch_or_pull_request_trigger() {
     assert!(RELEASE_WORKFLOW.contains("git merge-base --is-ancestor"));
     assert!(!RELEASE_WORKFLOW.contains("cargo-dist-installer.sh | sh"));
     assert!(!RELEASE_WORKFLOW.contains("matrix.install_dist.run"));
+    assert_eq!(
+        RELEASE_WORKFLOW
+            .matches("--allow-dirty --output-format=json")
+            .count(),
+        4,
+        "every cargo-dist CI command must acknowledge the reviewed hardening delta"
+    );
+    assert!(CI_WORKFLOW.contains("name: dist workflow"));
+    assert!(CI_WORKFLOW.contains("run: make dist-check"));
     for digest in [
         "decb01c64c12501931c3cac3111b368a7f48adf8d9e65455c08e5757b9a1fd6f",
         "fd4d8f9f07802359cbcdc52bac3abd7d5201c4b73a7cbcdd6faca2232a389f0c",

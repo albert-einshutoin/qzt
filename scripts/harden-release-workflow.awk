@@ -10,6 +10,7 @@ BEGIN {
     skip_install = 0
     root_permission_hardened = 0
     in_host = 0
+    dist_command_count = 0
 }
 
 skip_install {
@@ -50,6 +51,11 @@ $0 == "  host:" {
     next
 }
 
+$0 ~ /^[[:space:]]+dist / && $0 ~ / --output-format=json/ {
+    sub(/ --output-format=json/, " --allow-dirty --output-format=json")
+    dist_command_count++
+}
+
 $0 ~ /^  [a-zA-Z0-9_-]+:$/ && $0 != "  host:" {
     in_host = 0
 }
@@ -67,7 +73,7 @@ in_host && $0 == "    runs-on: \"ubuntu-22.04\"" && previous == "      GH_TOKEN:
 }
 
 END {
-    if (install_count != 2 || !root_permission_hardened) {
+    if (install_count != 2 || !root_permission_hardened || dist_command_count != 4) {
         print "cargo-dist workflow structure was not fully recognized" > "/dev/stderr"
         exit 2
     }
