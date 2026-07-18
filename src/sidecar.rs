@@ -52,7 +52,10 @@ impl Default for SidecarLimits {
     fn default() -> Self {
         Self {
             max_manifest_size: 16 * 1024 * 1024,
-            max_terms_size: 64 * 1024 * 1024,
+            // The 100 MB release corpus produces an n-gram dictionary above
+            // 64 MiB. Keep the default bounded, but large enough to open a
+            // sidecar produced by QZT's own supported release benchmark.
+            max_terms_size: 256 * 1024 * 1024,
             max_term_count: 2_000_000,
             max_granule_count: 10_000_000,
             max_postings_size: 256 * 1024 * 1024,
