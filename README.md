@@ -137,8 +137,10 @@ Known limitations before production use:
   reduction. The release gate keeps token and n-gram sidecars at or below 1.7x
   source size on the reproducible 10 MB high-cardinality log corpus; results on
   a different vocabulary or line shape may vary.
-- **No production benchmark**: No comparison against SQLite FTS, Tantivy,
-  Lucene, or seekable-zstd has been conducted for v0.1.
+- **Benchmark evidence is local, not an SLA**: see the [July 2026 v0.1
+  report](docs/benchmarks/2026-07-v0.1.md) for raw-zstd range evidence and
+  ripgrep / SQLite FTS5 correctness checks. Tantivy, Lucene, seekable-zstd,
+  production logs, and cross-tool search latency remain unmeasured.
 
 ### Reproducing the performance numbers
 
@@ -175,7 +177,7 @@ comparator is skipped when `rg` or an FTS5-enabled `sqlite3` is unavailable;
 available tools must match the reference byte-scan hit count.
 
 ```sh
-cargo test --features bench-compete --test phase18_competitive_benchmark -- --nocapture
+cargo test --release --all-features --test phase18_competitive_benchmark -- --nocapture
 ```
 
 See [the competitive benchmark methodology](docs/QZT_v0.1_Competitive_Benchmarks.md)

@@ -1,0 +1,59 @@
+cargo test --release --all-features --test release_hardening -- --nocapture
+   Compiling libc v0.2.186
+   Compiling shlex v2.0.1
+   Compiling cfg-if v1.0.4
+   Compiling find-msvc-tools v0.1.9
+   Compiling pkg-config v0.3.33
+   Compiling getrandom v0.3.4
+   Compiling zerocopy v0.8.50
+   Compiling zstd-safe v7.2.4
+   Compiling getrandom v0.4.2
+   Compiling rustix v1.1.4
+   Compiling bitflags v2.13.0
+   Compiling autocfg v1.5.1
+   Compiling fastrand v2.4.1
+   Compiling zmij v1.0.21
+   Compiling num-traits v0.2.19
+   Compiling arrayref v0.3.9
+   Compiling serde_core v1.0.228
+   Compiling arrayvec v0.7.6
+   Compiling once_cell v1.21.4
+   Compiling constant_time_eq v0.4.2
+   Compiling quick-error v1.2.3
+   Compiling fnv v1.0.7
+   Compiling serde_json v1.0.150
+   Compiling bit-vec v0.8.0
+   Compiling bit-set v0.8.0
+   Compiling unarray v0.1.4
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.1
+   Compiling regex-syntax v0.8.10
+   Compiling jobserver v0.1.34
+   Compiling errno v0.3.14
+   Compiling rand_core v0.9.5
+   Compiling wait-timeout v0.2.1
+   Compiling cc v1.2.63
+   Compiling rand_xorshift v0.4.0
+   Compiling rand v0.9.4
+   Compiling os_pipe v1.2.3
+   Compiling ppv-lite86 v0.2.21
+   Compiling tempfile v3.27.0
+   Compiling rand_chacha v0.9.0
+   Compiling rusty-fork v0.3.1
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling blake3 v1.8.5
+   Compiling proptest v1.11.0
+   Compiling zstd v0.13.3
+   Compiling qzt v0.1.0-pre.2 (/private/tmp/qzt-issue45.lnUR8K)
+    Finished `release` profile [optimized] target(s) in 9.13s
+     Running tests/release_hardening.rs (target/release/deps/release_hardening-9f3fa9cfd4b36baa)
+
+running 4 tests
+test release_benchmark_profile ... ignored, Profiling run. Execute with `make bench-profile`
+test release_benchmark_profile_matrix ... ignored, Profiling run. Execute with `make bench-profile-matrix`
+release_bench corpus_bytes=2423996 lines=24000 packed_bytes=132316 compression_ratio=0.054586 qzi_token_bytes=1064553 qzi_token_ratio=0.439173 qzi_ngram_bytes=2723748 qzi_ngram_ratio=1.123660 pack_mib_s=129.915 export_mib_s=454.508 range_mib_s=533.808 rare_token_candidate_granules=1 rare_token_candidate_chunks=1 rare_token_decoded_bytes=97 rare_token_verified_matches=1 common_ngram_candidate_granules=24000 common_ngram_decoded_bytes=0 common_ngram_capped=true raw_scan_decoded_bytes=2423996 query_repetitions=5 query_warmup_repetitions=2 rare_token_query="rare-token query=rare-token-unique iterations=5 warmup=2 candidate_granules=1 candidate_chunks=1 decoded_bytes=97 verified_matches=1 capped=false p50_us=11 p95_us=16 p99_us=16" missing_token_query="missing-token query=missing-token-for-release-benchmark iterations=5 warmup=2 candidate_granules=0 candidate_chunks=0 decoded_bytes=0 verified_matches=0 capped=false p50_us=1 p95_us=1 p99_us=1" common_ngram_query="common-ngram query=aaa iterations=5 warmup=2 candidate_granules=24000 candidate_chunks=0 decoded_bytes=0 verified_matches=0 capped=true p50_us=377 p95_us=494 p99_us=494"
+test release_benchmark_reports_reproducible_large_corpus_metrics ... ok
+test release_value_targets_hold_for_ten_megabyte_logs ... ok
+
+test result: ok. 2 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 1.85s
+

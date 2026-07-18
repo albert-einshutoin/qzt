@@ -73,8 +73,12 @@ fn tour_closes_the_verified_evidence_loop_with_real_commands() {
         }
     }
 
-    assert!(ENGLISH.contains("No production benchmark"));
-    assert!(JAPANESE.contains("Production benchmarkは未実施"));
+    for readme in [ENGLISH, JAPANESE] {
+        assert!(readme.contains("docs/benchmarks/2026-07-v0.1.md"));
+        assert!(readme.contains("Tantivy"));
+        assert!(readme.contains("Lucene"));
+        assert!(readme.contains("seekable-zstd"));
+    }
     for readme in [ENGLISH, JAPANESE] {
         assert!(readme.contains("cargo build --release"));
         assert!(readme.contains("docs/guides/attestation.md"));

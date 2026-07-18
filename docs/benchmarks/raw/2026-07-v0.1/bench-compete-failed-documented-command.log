@@ -1,0 +1,1378 @@
+   Compiling qzt v0.1.0-pre.2 (/private/tmp/qzt-issue45.lnUR8K)
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:16:5
+   |
+16 |     pub line_count: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> src/lib.rs:6:53
+   |
+ 6 | #![cfg_attr(not(feature = "internal-testing"), warn(missing_docs))]
+   |                                                     ^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:17:5
+   |
+17 |     pub chunk_size: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:18:5
+   |
+18 |     pub range_size: u64,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:19:5
+   |
+19 |     pub query_repetitions: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:20:5
+   |
+20 |     pub query_warmup_repetitions: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:38:5
+   |
+38 |     pub corpus_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:39:5
+   |
+39 |     pub line_count: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:40:5
+   |
+40 |     pub packed_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:41:5
+   |
+41 |     pub exported_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:42:5
+   |
+42 |     pub qzi_token_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:43:5
+   |
+43 |     pub qzi_ngram_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:44:5
+   |
+44 |     pub compression_ratio: f64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:45:5
+   |
+45 |     pub qzi_token_size_ratio: f64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:46:5
+   |
+46 |     pub qzi_ngram_size_ratio: f64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:47:5
+   |
+47 |     pub pack_mib_s: f64,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:48:5
+   |
+48 |     pub export_mib_s: f64,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:49:5
+   |
+49 |     pub range_mib_s: f64,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:50:5
+   |
+50 |     pub rare_token_candidate_granules: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:51:5
+   |
+51 |     pub rare_token_candidate_chunks: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:52:5
+   |
+52 |     pub rare_token_decoded_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:53:5
+   |
+53 |     pub rare_token_verified_matches: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:54:5
+   |
+54 |     pub common_ngram_candidate_granules: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:55:5
+   |
+55 |     pub common_ngram_decoded_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:56:5
+   |
+56 |     pub common_ngram_capped: bool,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:57:5
+   |
+57 |     pub raw_scan_decoded_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:58:5
+   |
+58 |     pub query_repetitions: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:59:5
+   |
+59 |     pub query_warmup_repetitions: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:60:5
+   |
+60 |     pub rare_token_query: ReleaseBenchmarkQueryReport,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:61:5
+   |
+61 |     pub missing_token_query: ReleaseBenchmarkQueryReport,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:62:5
+   |
+62 |     pub common_ngram_query: ReleaseBenchmarkQueryReport,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:68:5
+   |
+68 |     pub corpus_kind: CorpusKind,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:69:5
+   |
+69 |     pub corpus_bytes: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:70:5
+   |
+70 |     pub chunk_size: usize,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:71:5
+   |
+71 |     pub range_offset: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:72:5
+   |
+72 |     pub range_size: u64,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:90:5
+   |
+90 |     pub corpus_id: &'static str,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:91:5
+   |
+91 |     pub corpus_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:92:5
+   |
+92 |     pub qzt_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:93:5
+   |
+93 |     pub raw_zstd_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:94:5
+   |
+94 |     pub qzt_range_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:95:5
+   |
+95 |     pub raw_zstd_decoded_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:96:5
+   |
+96 |     pub qzt_range_micros: u128,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:97:5
+   |
+97 |     pub raw_zstd_range_micros: u128,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:98:5
+   |
+98 |     pub token_hit_count: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/benchmark.rs:99:5
+   |
+99 |     pub reference_hit_count: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/benchmark.rs:100:5
+    |
+100 |     pub external_search_tools_enabled: bool,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/benchmark.rs:101:5
+    |
+101 |     pub ripgrep_hit_count: Option<u64>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/benchmark.rs:102:5
+    |
+102 |     pub sqlite_fts5_hit_count: Option<u64>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> src/chunker.rs:8:5
+  |
+8 |     pub target_chunk_size: usize,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> src/chunker.rs:9:5
+  |
+9 |     pub max_chunk_size: usize,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> src/chunker.rs:13:5
+   |
+13 |     pub fn validate(self) -> Result<()> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+ --> src/error.rs:7:5
+  |
+7 |     InvalidMagic,
+  |     ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+ --> src/error.rs:8:5
+  |
+8 |     UnsupportedVersion,
+  |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+ --> src/error.rs:9:5
+  |
+9 |     InvalidHeader,
+  |     ^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:10:5
+   |
+10 |     InvalidFooterTrailer,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:11:5
+   |
+11 |     InvalidFooterPayload,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:12:5
+   |
+12 |     NonCanonicalCbor,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:13:5
+   |
+13 |     DuplicateCborKey,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:14:5
+   |
+14 |     FooterChecksumMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:15:5
+   |
+15 |     FinalFileSizeMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:16:5
+   |
+16 |     ContainerIdMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:17:5
+   |
+17 |     MetadataChecksumMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:18:5
+   |
+18 |     MetadataInvalid,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:21:5
+   |
+21 |     VersionMismatch,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:22:5
+   |
+22 |     NewlineModeMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:23:5
+   |
+23 |     IndexRootChecksumMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:24:5
+   |
+24 |     MissingRequiredBlock,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:25:5
+   |
+25 |     UnknownRequiredBlock,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:26:5
+   |
+26 |     DocumentNotFound,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:27:5
+   |
+27 |     InvalidFlags,
+   |     ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:28:5
+   |
+28 |     ChunkTableChecksumMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:29:5
+   |
+29 |     ChunkTableInvalid,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:30:5
+   |
+30 |     ChunkCountMismatch,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:31:5
+   |
+31 |     ChunkSizeMismatch,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:32:5
+   |
+32 |     PhysicalRangeOutOfBounds,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:33:5
+   |
+33 |     LogicalRangeOutOfBounds,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:34:5
+   |
+34 |     InvalidUtf8,
+   |     ^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:35:5
+   |
+35 |     InvalidUtf8Boundary,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:36:5
+   |
+36 |     LineOutOfRange,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:37:5
+   |
+37 |     MissingDictionary,
+   |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:38:5
+   |
+38 |     DictionaryChecksumMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:39:5
+   |
+39 |     CompressedChunkChecksumMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:40:5
+   |
+40 |     UncompressedChunkChecksumMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:41:5
+   |
+41 |     ZstdEncodeError,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:42:5
+   |
+42 |     ZstdDecodeError,
+   |     ^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:43:5
+   |
+43 |     ContainerCorrupt,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:44:5
+   |
+44 |     ResourceLimitExceeded,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:45:5
+   |
+45 |     RangeOverlap,
+   |     ^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:46:5
+   |
+46 |     UnexpectedEof,
+   |     ^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:47:5
+   |
+47 |     WriterAlreadyFinished,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:48:5
+   |
+48 |     VerifiedChecksumMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/error.rs:49:5
+   |
+49 |     BenchmarkMetricsMismatch,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> src/limits.rs:6:5
+  |
+6 |     pub max_uncompressed_chunk_size: u64,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> src/limits.rs:7:5
+  |
+7 |     pub max_dictionary_size: u64,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> src/limits.rs:8:5
+  |
+8 |     pub max_index_block_size: u64,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+ --> src/limits.rs:9:5
+  |
+9 |     pub max_preview_bytes: u64,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/limits.rs:10:5
+   |
+10 |     pub max_cbor_allocation: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/limits.rs:11:5
+   |
+11 |     pub max_cbor_items: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/reader.rs:38:5
+   |
+38 |     pub container_id: [u8; 16],
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/reader.rs:39:5
+   |
+39 |     pub original_size: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/reader.rs:40:5
+   |
+40 |     pub chunk_count: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/reader.rs:41:5
+   |
+41 |     pub line_count: u64,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/reader.rs:48:5
+   |
+48 |     Quick,
+   |     ^^^^^
+
+warning: missing documentation for a variant
+  --> src/reader.rs:49:5
+   |
+49 |     Normal,
+   |     ^^^^^^
+
+warning: missing documentation for a variant
+  --> src/reader.rs:50:5
+   |
+50 |     Deep,
+   |     ^^^^
+
+warning: missing documentation for a struct field
+  --> src/reader.rs:56:5
+   |
+56 |     pub level: VerifyLevel,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/reader.rs:57:5
+   |
+57 |     pub checked_chunks: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/reader.rs:58:5
+   |
+58 |     pub decoded_bytes: u64,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> src/reader.rs:76:5
+   |
+76 |     pub fn info(&self) -> QztInfo {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> src/reader.rs:85:5
+   |
+85 |     pub fn export_to<W: Write>(&self, mut writer: W) -> Result<()> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+  --> src/reader.rs:95:5
+   |
+95 |     pub fn export_all(&self) -> Result<Vec<u8>> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:101:5
+    |
+101 |     pub fn read_range(&self, offset: u64, length: u64) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:111:5
+    |
+111 |     pub fn read_text_range(&self, offset: u64, length: u64) -> Result<String> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:116:5
+    |
+116 | /     pub fn read_range_verified(
+117 | |         &self,
+118 | |         offset: u64,
+119 | |         length: u64,
+120 | |         expected: &Checksum,
+121 | |     ) -> Result<Vec<u8>> {
+    | |________________________^
+
+warning: missing documentation for a method
+   --> src/reader.rs:127:5
+    |
+127 |     pub fn read_document(&self, doc_id: &str) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:132:5
+    |
+132 |     pub fn read_document_verified(&self, doc_id: &str, expected: &Checksum) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:138:5
+    |
+138 |     pub fn read_line_raw(&self, line_zero_based: u64) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:144:5
+    |
+144 |     pub fn read_line_text(&self, line_zero_based: u64) -> Result<String> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:148:5
+    |
+148 |     pub fn verify(&self, level: VerifyLevel) -> Result<VerifyReport> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:274:5
+    |
+274 |     pub fn info(&self) -> QztInfo {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:283:5
+    |
+283 |     pub fn export_to<W: Write>(&self, mut writer: W) -> Result<()> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:293:5
+    |
+293 |     pub fn export_all(&self) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:299:5
+    |
+299 |     pub fn read_range(&self, offset: u64, length: u64) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:309:5
+    |
+309 |     pub fn read_text_range(&self, offset: u64, length: u64) -> Result<String> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:314:5
+    |
+314 | /     pub fn read_range_verified(
+315 | |         &self,
+316 | |         offset: u64,
+317 | |         length: u64,
+318 | |         expected: &Checksum,
+319 | |     ) -> Result<Vec<u8>> {
+    | |________________________^
+
+warning: missing documentation for a method
+   --> src/reader.rs:325:5
+    |
+325 |     pub fn read_document(&self, doc_id: &str) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:330:5
+    |
+330 |     pub fn read_document_verified(&self, doc_id: &str, expected: &Checksum) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:336:5
+    |
+336 |     pub fn read_line_raw(&self, line_zero_based: u64) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:342:5
+    |
+342 |     pub fn read_line_text(&self, line_zero_based: u64) -> Result<String> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/reader.rs:346:5
+    |
+346 |     pub fn verify(&self, level: VerifyLevel) -> Result<VerifyReport> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/schema.rs:25:5
+   |
+25 |     pub algorithm: String,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/schema.rs:26:5
+   |
+26 |     pub value: [u8; 32],
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:684:5
+    |
+684 |     pub container_id: [u8; 16],
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:685:5
+    |
+685 |     pub documents: Vec<DocumentEntry>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/schema.rs:697:5
+    |
+697 |     pub fn encode(&self) -> Result<Vec<u8>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+   --> src/schema.rs:710:5
+    |
+710 |     pub fn decode(bytes: &[u8]) -> Result<Self> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:738:5
+    |
+738 |     pub doc_id: String,
+    |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:739:5
+    |
+739 |     pub doc_id_hash: [u8; 16],
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:740:5
+    |
+740 |     pub logical_offset: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:741:5
+    |
+741 |     pub byte_length: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:742:5
+    |
+742 |     pub first_line: u64,
+    |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:743:5
+    |
+743 |     pub line_count: u64,
+    |     ^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:744:5
+    |
+744 |     pub chunk_start: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:745:5
+    |
+745 |     pub chunk_end: u64,
+    |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/schema.rs:746:5
+    |
+746 |     pub checksum: Checksum,
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/search.rs:39:5
+   |
+39 |     RawUtf8,
+   |     ^^^^^^^
+
+warning: missing documentation for a variant
+  --> src/search.rs:40:5
+   |
+40 |     NormalizedUtf8,
+   |     ^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/search.rs:52:5
+   |
+52 |     pub source: SearchIndexSource,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/search.rs:53:5
+   |
+53 |     pub posting_granularity: PostingGranularity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/search.rs:74:5
+   |
+74 |     pub source: SearchIndexSource,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/search.rs:75:5
+   |
+75 |     pub posting_granularity: PostingGranularity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/search.rs:76:5
+   |
+76 |     pub n: usize,
+   |     ^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/search.rs:77:5
+   |
+77 |     pub complete: bool,
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/search.rs:78:5
+   |
+78 |     pub high_df_per_million: u32,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:160:5
+    |
+160 |     pub max_candidate_granules: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:161:5
+    |
+161 |     pub max_decoded_bytes: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:162:5
+    |
+162 |     pub max_search_results: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:204:5
+    |
+204 |     pub logical_offset: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:205:5
+    |
+205 |     pub byte_length: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:206:5
+    |
+206 |     pub chunk_start: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:207:5
+    |
+207 |     pub chunk_end: u64,
+    |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:208:5
+    |
+208 |     pub score: Option<f64>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:209:5
+    |
+209 |     pub source: &'static str,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:215:5
+    |
+215 |     pub query: String,
+    |     ^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:216:5
+    |
+216 |     pub index_kind: &'static str,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:217:5
+    |
+217 |     pub posting_granularity: &'static str,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:218:5
+    |
+218 |     pub index_size_bytes: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:219:5
+    |
+219 |     pub source_size_bytes: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:220:5
+    |
+220 |     pub index_size_ratio: f64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:221:5
+    |
+221 |     pub term_lookups: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:222:5
+    |
+222 |     pub posting_bytes_read: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:223:5
+    |
+223 |     pub candidate_granules: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:224:5
+    |
+224 |     pub candidate_chunks: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:225:5
+    |
+225 |     pub decoded_bytes: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:230:5
+    |
+230 |     pub verified_matches: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:231:5
+    |
+231 |     pub query_time_ms: f64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:237:5
+    |
+237 |     pub hits: Vec<SearchHit>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:238:5
+    |
+238 |     pub metrics: SearchMetrics,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:239:5
+    |
+239 |     pub capped: bool,
+    |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:240:5
+    |
+240 |     pub planner: PlannerDecision,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:241:5
+    |
+241 |     pub incomplete_reason: Option<&'static str>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:247:5
+    |
+247 |     pub container_id: [u8; 16],
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:248:5
+    |
+248 |     pub source_size_bytes: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:249:5
+    |
+249 |     pub source: SearchIndexSource,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:250:5
+    |
+250 |     pub posting_granularity: PostingGranularity,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:251:5
+    |
+251 |     pub complete: bool,
+    |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:252:5
+    |
+252 |     pub granules: Vec<SearchGranule>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:253:5
+    |
+253 |     pub terms: Vec<TermDictionaryEntry>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:254:5
+    |
+254 |     pub postings: Vec<Vec<u64>>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+   --> src/search.rs:259:5
+    |
+259 |     pub fn build_from_container(bytes: &[u8], options: TokenIndexBuildOptions) -> Result<Self> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+   --> src/search.rs:300:5
+    |
+300 | /     pub fn from_parts(
+301 | |         container_id: [u8; 16],
+302 | |         source_size_bytes: u64,
+303 | |         granules: Vec<SearchGranule>,
+304 | |         mut terms: Vec<TermDictionaryEntry>,
+305 | |         postings: Vec<Vec<u64>>,
+306 | |     ) -> Result<Self> {
+    | |_____________________^
+
+warning: missing documentation for a method
+   --> src/search.rs:345:5
+    |
+345 | /     pub fn search(
+346 | |         &self,
+347 | |         reader: &QztReader,
+348 | |         query: &str,
+349 | |         options: SearchOptions,
+350 | |     ) -> Result<SearchReport> {
+    | |_____________________________^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:532:5
+    |
+532 |     pub container_id: [u8; 16],
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:533:5
+    |
+533 |     pub source_size_bytes: u64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:534:5
+    |
+534 |     pub source: SearchIndexSource,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:535:5
+    |
+535 |     pub posting_granularity: PostingGranularity,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:536:5
+    |
+536 |     pub complete: bool,
+    |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:537:5
+    |
+537 |     pub declaration: NgramDeclaration,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:538:5
+    |
+538 |     pub planner_config: PlannerConfig,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:539:5
+    |
+539 |     pub granules: Vec<SearchGranule>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:540:5
+    |
+540 |     pub terms: Vec<TermDictionaryEntry>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:541:5
+    |
+541 |     pub postings: Vec<Vec<u64>>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/search.rs:542:5
+    |
+542 |     pub skip_data: Vec<Vec<SkipPoint>>,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+   --> src/search.rs:547:5
+    |
+547 |     pub fn build_from_container(bytes: &[u8], options: NgramIndexBuildOptions) -> Result<Self> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+   --> src/search.rs:590:5
+    |
+590 | /     pub fn from_parts(
+591 | |         container_id: [u8; 16],
+592 | |         source_size_bytes: u64,
+593 | |         granules: Vec<SearchGranule>,
+...   |
+596 | |         options: NgramIndexBuildOptions,
+597 | |     ) -> Result<Self> {
+    | |_____________________^
+
+warning: missing documentation for a method
+   --> src/search.rs:656:5
+    |
+656 | /     pub fn search(
+657 | |         &self,
+658 | |         reader: &QztReader,
+659 | |         query: &str,
+660 | |         options: SearchOptions,
+661 | |     ) -> Result<SearchReport> {
+    | |_____________________________^
+
+warning: missing documentation for a variant
+   --> src/sidecar.rs:124:5
+    |
+124 |     Token,
+    |     ^^^^^
+
+warning: missing documentation for a variant
+   --> src/sidecar.rs:125:5
+    |
+125 |     Ngram { n: usize },
+    |     ^^^^^
+
+warning: missing documentation for a struct field
+   --> src/sidecar.rs:125:13
+    |
+125 |     Ngram { n: usize },
+    |             ^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/sidecar.rs:131:5
+    |
+131 |     pub manifest: SidecarManifest,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+   --> src/sidecar.rs:132:5
+    |
+132 |     pub index: SidecarSearchIndex,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a function
+   --> src/sidecar.rs:169:1
+    |
+169 | pub fn build_search_sidecar(qzt_bytes: &[u8], kind: SidecarIndexKind) -> Result<Vec<u8>> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an associated function
+   --> src/sidecar.rs:289:5
+    |
+289 |     pub fn open(qzt_bytes: &[u8], sidecar_bytes: &[u8]) -> Result<Self> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a method
+   --> src/sidecar.rs:382:5
+    |
+382 | /     pub fn search(
+383 | |         &self,
+384 | |         reader: &QztReader,
+385 | |         query: &str,
+386 | |         options: SearchOptions,
+387 | |     ) -> Result<SearchReport> {
+    | |_____________________________^
+
+warning: missing documentation for a struct field
+  --> src/writer.rs:60:5
+   |
+60 |     pub chunker: ChunkerOptions,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> src/writer.rs:61:5
+   |
+61 |     pub zstd_level: i32,
+   |     ^^^^^^^^^^^^^^^^^^^
+
+warning: `qzt` (lib) generated 216 warnings
+error[E0603]: module `benchmark` is private
+  --> tests/phase18_competitive_benchmark.rs:1:10
+   |
+ 1 | use qzt::benchmark::{CompetitiveBenchmarkOptions, run_competitive_benchmark};
+   |          ^^^^^^^^^ private module
+   |
+note: the module `benchmark` is defined here
+  --> src/lib.rs:19:9
+   |
+19 |         mod $name;
+   |         ^^^^^^^^^^
+...
+23 | internal_module!(benchmark);
+   | --------------------------- in this macro invocation
+   = note: this error originates in the macro `internal_module` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0603]: module `corpus` is private
+  --> tests/phase18_competitive_benchmark.rs:2:10
+   |
+ 2 | use qzt::corpus::CorpusKind;
+   |          ^^^^^^  ---------- enum `CorpusKind` is not publicly re-exported
+   |          |
+   |          private module
+   |
+note: the module `corpus` is defined here
+  --> src/lib.rs:19:9
+   |
+19 |         mod $name;
+   |         ^^^^^^^^^^
+...
+30 | internal_module!(corpus);
+   | ------------------------ in this macro invocation
+   = note: this error originates in the macro `internal_module` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+For more information about this error, try `rustc --explain E0603`.
+error: could not compile `qzt` (test "phase18_competitive_benchmark") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...

@@ -6,6 +6,9 @@ The Phase18 harness is reproducible measurement, not an SLA. It uses the
 Phase23 validation corpus generators and compares QZT range restore against
 whole-file raw zstd restore on the same bytes.
 
+The latest measured report and complete raw runs are published in
+[docs/benchmarks/2026-07-v0.1.md](benchmarks/2026-07-v0.1.md).
+
 ## When To Use QZT
 
 QZT v0.1 is a technical preview. Use it when verified original-byte evidence
@@ -31,8 +34,11 @@ tools are skipped; tools that are present must return the same hit count as the
 reference byte scan.
 
 ```sh
-cargo test --features bench-compete --test phase18_competitive_benchmark -- --nocapture
+cargo test --release --all-features --test phase18_competitive_benchmark -- --nocapture
 ```
+
+`--all-features` enables `bench-compete` together with the internal test
+surface imported by this integration harness.
 
 ## Methodology
 
