@@ -28,6 +28,38 @@ Use `--level quick` or `--level normal` only when the reduced verification is an
 intentional operational trade-off. The selected level and measured coverage are
 recorded in the `verify` object, so a verifier can reject a weaker claim.
 
+Verification levels are not interchangeable:
+
+| Level | Payload coverage | Appropriate use |
+| --- | --- | --- |
+| `quick` | Parses and validates container structure; does not read chunk payloads | Triage only |
+| `normal` | Adds compressed-chunk checksums and the container checksum when present; does not reconstruct original bytes | Storage scrubbing where full decode is intentionally deferred |
+| `deep` | Adds chunk decode, uncompressed checksums, and the original-content checksum | External evidence, signing, and timestamping |
+
+`checked_chunks` is the number of chunk records covered by the selected
+verification path; it does not mean that `quick` decoded those chunks. A relying
+party accepting an external evidence claim should parse the JSON and require all
+of the following before checking its signature:
+
+```sh
+jq -e '
+  .verify.level == "deep" and
+  .verify.decoded_bytes == .original_size and
+  .verify.checked_chunks == .chunk_count
+' evidence.attest.json
+```
+
+If policy requires the exact QZT container bytes—not only the reconstructed
+original content—also require `.container_checksum != null`:
+
+```sh
+jq -e '.container_checksum != null' evidence.attest.json
+```
+
+Install `jq` with the operating system package manager when enforcing these
+examples in shell. Production verifiers should apply the equivalent checks in
+their JSON parser before trusting a signature.
+
 ## 2. Sign with minisign
 
 Install minisign using your operating system's package manager or follow the
@@ -60,7 +92,9 @@ Create a DER-encoded request that includes a nonce and asks the Time Stamping
 Authority (TSA) to include its certificate:
 
 ```sh
+TSA_POLICY_OID='1.2.3.4.5' # Replace with the policy OID published by your TSA.
 openssl ts -query -data evidence.attest.json -sha256 -cert \
+  -tspolicy "$TSA_POLICY_OID" \
   -out evidence.attest.tsq
 ```
 
@@ -90,6 +124,9 @@ openssl ts -verify \
 
 Do not treat a successful HTTP response as proof. Archive the `.tsr`, verify it,
 and pin the intended TSA policy and trust roots in your operational procedure.
+If your TSA requires its default policy instead, document that explicit choice
+and inspect the returned token's policy OID rather than silently accepting any
+default.
 
 ## 4. Verify the evidence later
 
