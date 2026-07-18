@@ -1,0 +1,72 @@
+name: preserve-pipeline-artifacts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Build QZT from the workflow commit
+        run: cargo install --locked --path .
+      - name: Produce pipeline outputs
+        run: |
+          printf 'Pipeline report\n' > report.txt
+          printf 'metric,value\nrows,1200\n' > metrics.csv
+          printf 'pipeline complete\n' > run.log
+      - name: Fix, attest, and enforce deep coverage
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          for path in run-1234.qzt run-1234.qzt.partial \
+            run-1234.attest.json run-1234.attest.json.partial \
+            run-1234.provenance.txt run-1234.provenance.txt.partial \
+            run-1234.sha256 run-1234.sha256.partial; do
+            test ! -e "$path"
+          done
+          trap 'rm -f -- run-1234.qzt run-1234.qzt.partial run-1234.attest.json run-1234.attest.json.partial run-1234.provenance.txt run-1234.provenance.txt.partial run-1234.sha256 run-1234.sha256.partial' EXIT
+          qzt pack-docs report.txt metrics.csv run.log -o run-1234.qzt.partial
+          mv -- run-1234.qzt.partial run-1234.qzt
+          qzt attest run-1234.qzt > run-1234.attest.json.partial
+          jq -e '.verify.level == "deep" and
+            .verify.decoded_bytes == .original_size and
+            .verify.checked_chunks == .chunk_count' run-1234.attest.json.partial
+          mv -- run-1234.attest.json.partial run-1234.attest.json
+          {
+            printf 'repository=%s\n' "$SOURCE_REPOSITORY"
+            printf 'source_commit=%s\n' "$SOURCE_COMMIT"
+            printf 'workflow_run_id=%s\n' "$WORKFLOW_RUN_ID"
+            printf 'workflow_run_attempt=%s\n' "$WORKFLOW_RUN_ATTEMPT"
+            printf 'workflow_ref=%s\n' "$WORKFLOW_REF"
+            qzt --version
+          } > run-1234.provenance.txt.partial
+          mv -- run-1234.provenance.txt.partial run-1234.provenance.txt
+          sha256sum run-1234.qzt run-1234.attest.json \
+            run-1234.provenance.txt > run-1234.sha256.partial
+          mv -- run-1234.sha256.partial run-1234.sha256
+          trap - EXIT
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: run-1234-evidence-${{ github.run_id }}
+          retention-days: 30
+          path: |
+            run-1234.qzt
+            run-1234.attest.json
+            run-1234.provenance.txt
+            run-1234.sha256
+          if-no-files-found: error
