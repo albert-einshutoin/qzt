@@ -67,10 +67,15 @@ sha256sum evidence.qzt evidence.attest.json > evidence.sha256
 minisign -Sm evidence.sha256
 ```
 
-On macOS, use `shasum -a 256 evidence.qzt evidence.attest.json` for the first
-command. Install `jq` with the operating system package manager when enforcing
-the JSON examples in shell. Production verifiers should apply the equivalent
-checks in their JSON parser before trusting a signature.
+On macOS, use the following for the first command:
+
+```sh
+shasum -a 256 evidence.qzt evidence.attest.json > evidence.sha256
+```
+
+Install `jq` with the operating system package manager when enforcing the JSON
+examples in shell. Production verifiers should apply the equivalent checks in
+their JSON parser before trusting a signature.
 
 ## 2. Sign with minisign
 
@@ -149,6 +154,12 @@ then verify the external signature or timestamp.
 qzt verify evidence.qzt --deep
 qzt attest evidence.qzt | diff - evidence.attest.json
 minisign -Vm evidence.attest.json -p minisign.pub
+
+# If the optional whole-file manifest was created, authenticate it before
+# trusting its hashes, then verify both files byte-for-byte:
+minisign -Vm evidence.sha256 -p minisign.pub
+sha256sum -c evidence.sha256
+# macOS: shasum -a 256 -c evidence.sha256
 
 # If RFC 3161 was used instead of, or in addition to, minisign:
 openssl ts -verify \
