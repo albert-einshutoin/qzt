@@ -52,6 +52,10 @@ production-ready):
 without full decode; `sidecar-rebuild` builds a search index;
 `search --sidecar` queries it.
 
+QZI (`.qzi`) is a derived, rebuildable, untrusted search sidecar—not part of
+the Core container format. Review its fail-closed boundary and on-disk layout
+in the [QZI v0.1 Sidecar Spec](docs/QZI_v0.1_Sidecar_Spec.md) before adoption.
+
 ## v0.1 Technical Preview — Limitations
 
 QZT v0.1 is a reference implementation focused on spec coverage and correctness.
