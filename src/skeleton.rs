@@ -220,7 +220,9 @@ pub fn open_skeleton_details_with_limits(
         index_root.line_count,
     )?;
     for entry in &chunk_entries {
-        if entry.uncompressed_size > limits.max_uncompressed_chunk_size {
+        if entry.compressed_size > limits.max_compressed_chunk_size
+            || entry.uncompressed_size > limits.max_uncompressed_chunk_size
+        {
             return Err(QztError::ResourceLimitExceeded);
         }
     }
@@ -359,7 +361,9 @@ pub fn open_skeleton_details_read_at<R: ReadAt>(
         index_root.line_count,
     )?;
     for entry in &chunk_entries {
-        if entry.uncompressed_size > limits.max_uncompressed_chunk_size {
+        if entry.compressed_size > limits.max_compressed_chunk_size
+            || entry.uncompressed_size > limits.max_uncompressed_chunk_size
+        {
             return Err(QztError::ResourceLimitExceeded);
         }
     }

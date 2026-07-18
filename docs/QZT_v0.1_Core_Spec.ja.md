@@ -243,6 +243,7 @@ Reader は untrusted input を扱う前提です。
 ```text
 - offset + size overflow を拒否
 - allocation limit を確認
+- compressed / uncompressed chunk size の設定上限を open 時に確認
 - decompression bomb を防ぐ
 - malformed CBOR を拒否
 - unknown required block を拒否

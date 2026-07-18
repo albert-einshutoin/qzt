@@ -111,6 +111,10 @@ Container format for UTF-8 text.
 
 ### Fixed
 
+- Untrusted Chunk Table entries can no longer request an unbounded allocation:
+  `ResourceLimits::max_compressed_chunk_size` is enforced during open before a
+  chunk is read. File-backed normal verification now streams compressed BLAKE3
+  checks through a 64 KiB buffer instead of allocating a full compressed chunk.
 - `WriterBuilder::pack` now validates the profile string via `validate_profile`;
   previously any arbitrary string was accepted, producing a container whose
   metadata would be rejected at read time. All pack paths now call

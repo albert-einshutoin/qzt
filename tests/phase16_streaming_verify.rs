@@ -4,7 +4,7 @@ use qzt::writer::{
     pack_bytes_with_document_index, pack_bytes_with_memory_profile, pack_bytes_with_profile,
 };
 mod support;
-use support::{document_with_checksum, writer_options};
+use support::{CountingReadAt, document_with_checksum, writer_options};
 
 #[test]
 fn file_backed_deep_verify_matches_in_memory_deep_verify() {
@@ -38,6 +38,41 @@ fn file_backed_deep_verify_matches_in_memory_deep_verify() {
     assert_eq!(
         file.verify(VerifyLevel::Deep),
         memory.verify(VerifyLevel::Deep)
+    );
+}
+
+#[test]
+fn file_backed_normal_verify_hashes_compressed_chunks_with_bounded_reads() {
+    let mut state = 0x1234_5678_u32;
+    let input = (0..256 * 1024)
+        .map(|_| {
+            state ^= state << 13;
+            state ^= state >> 17;
+            state ^= state << 5;
+            b'a' + u8::try_from(state % 26).expect("modulo 26 fits u8")
+        })
+        .collect::<Vec<_>>();
+    let container = pack_bytes_with_profile(
+        &input,
+        writer_options(512 * 1024, 512 * 1024),
+        "core",
+        false,
+    )
+    .expect("container should pack");
+    let source = CountingReadAt::new(container);
+    let reader = QztFileReader::open_read_at(source.clone(), source.bytes.len() as u64)
+        .expect("file reader should open");
+    source.reads.lock().unwrap().clear();
+
+    reader
+        .verify(VerifyLevel::Normal)
+        .expect("normal verify should succeed");
+
+    let reads = source.reads.lock().unwrap();
+    assert!(!reads.is_empty());
+    assert!(
+        reads.iter().all(|(_, size)| *size <= 64 * 1024),
+        "normal verify must hash large compressed chunks without one large allocation: {reads:?}"
     );
 }
 

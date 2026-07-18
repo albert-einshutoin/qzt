@@ -2283,6 +2283,7 @@ Readers MUST validate:
 - all sizes are reasonable and do not overflow u64
 - physical chunk ranges do not overlap invalidly
 - metadata, index, chunk, footer payload, and footer trailer ranges do not overlap invalidly
+- compressed chunk size <= configured max
 - uncompressed chunk size <= configured max
 - dictionary size <= configured max
 - index block size <= configured max
@@ -2296,6 +2297,7 @@ Readers MUST validate:
 Recommended default limits:
 
 ```yaml
+max_compressed_chunk_size: 72MiB
 max_uncompressed_chunk_size: 64MiB
 max_dictionary_size: 16MiB
 max_index_block_size: configurable
