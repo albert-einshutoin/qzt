@@ -1,0 +1,21 @@
+[Unit]
+Description=Alert after failed QZT verification (%i)
+
+[Service]
+Type=oneshot
+User=qzt-alert
+ExecStart=/usr/local/sbin/qzt-verify-alert %i
+TimeoutStartSec=2min
+MemoryMax=256M
+TasksMax=16
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true

@@ -1,0 +1,26 @@
+[Unit]
+Description=Deep-verify one QZT archive
+OnFailure=qzt-verify-alert@%n.service
+RequiresMountsFor=/archive
+
+[Service]
+Type=oneshot
+User=qzt-verify
+ExecStart=/usr/local/bin/qzt verify /archive/daily.qzt --deep --format json
+TimeoutStartSec=30min
+MemoryMax=1G
+TasksMax=32
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+PrivateNetwork=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+StandardOutput=journal
+StandardError=journal

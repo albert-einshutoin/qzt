@@ -91,12 +91,15 @@ timestamping.
 
 ## Use Cases
 
-- **Server log preservation** — stream logs into daily containers, deep-verify
-  them on a schedule, and anchor deterministic attestations separately.
-- **Pipeline artifact fixation** — use `pack-docs` to bind each input artifact
-  to a named, checksum-verified document inside one container.
-- **Incident forensics** — search a rebuildable QZI sidecar, then disclose only
-  the verified byte or line range needed for an investigation.
+- **[Server log preservation](docs/guides/log-preservation.md)** — stream logs
+  into daily containers, deep-verify them on a schedule, and anchor
+  deterministic attestations separately.
+- **[Pipeline artifact fixation](docs/guides/artifact-fixation.md)** — use
+  `pack-docs` to bind each input artifact to a named, checksum-verified document
+  inside one container.
+- **[Incident search operations](docs/guides/search-operations.md)** — search a
+  rebuildable QZI sidecar under explicit budgets, then disclose only the
+  verified byte or line range needed for an investigation.
 
 ## Status & Limitations
 

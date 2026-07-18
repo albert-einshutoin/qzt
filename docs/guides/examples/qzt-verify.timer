@@ -1,0 +1,11 @@
+[Unit]
+Description=Run QZT archive verification daily
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=5min
+Persistent=true
+Unit=qzt-verify.service
+
+[Install]
+WantedBy=timers.target
