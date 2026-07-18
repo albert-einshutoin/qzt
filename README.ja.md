@@ -1,37 +1,34 @@
-# QZT
+# QZT — テキストのための Cold Evidence Container
 
-[English](README.md)
+[English](README.md) · [![CI](https://github.com/albert-einshutoin/qzt/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/albert-einshutoin/qzt/actions/workflows/ci.yml?query=branch%3Amain)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE-MIT)
 
-QZT は、大きなテキストを「冷たい証拠コンテナ」として保存するためのバイナリフォーマットです。このリポジトリは Rust による参照実装です。
+> 大きなテキストを一度保存し、あとから証明する。QZTはchunked zstd、
+> BLAKE3検証付きrandom access、行指定、検証済み検索を1つにまとめます。
 
-外部署名や信頼できるタイムスタンプに渡せる、決定的かつ検証済みの attestation も出力できるため、container の完全性を QZT の外側に anchor できます。
+## QZTを選ぶ理由
 
-QZT の目的は、zstd より良い圧縮アルゴリズムを作ることではありません。元テキストを独立した zstd chunk に分け、検証可能なメタデータ、Chunk Table、Footer、検索 sidecar を組み合わせることで、必要な範囲だけを復元し、証拠位置へ戻れるようにすることです。
-
-## 現在の位置づけ
-
-```text
-- QZT v0.1 Core: release candidate
-- Search Extension / QZI sidecar: technical preview
-- Product status: 実験的な参照実装
-```
-
-外部に出すときは、production-ready ではなく `v0.1 technical preview` として扱うのが妥当です。
+- **検証可能な証拠** — readとattestationを原文byteへ結び付けます。
+- **random access** — 全体解凍せずbyte範囲や行範囲を復元します。
+- **検証済み検索** — token / n-gramのhitを原文byteに再照合します。
 
 ## Install / インストール
 
-最初のbinary配布は`v0.1.0-pre.2` technical previewです。以下のコマンドは
-Issue [#43](https://github.com/albert-einshutoin/qzt/issues/43)のprerelease予行が
-完了した後に利用できます。securityを重視する導入では、下記のchecksum検証付き
-手動経路を利用してください。簡便な経路として、macOS / Linux用installerも
-実行環境に合うarchiveを選択します。
+macOS / Linuxに公開済みの[`v0.1.0-pre.2` technical preview](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
+をinstallします。
 
 ```sh
-curl --proto '=https' --tlsv1.2 -LsSf \
-  https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.2/qzt-installer.sh \
-  | sh
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.2/qzt-installer.sh | sh
 qzt --version
 ```
+
+展開前にchecksumを検証してください。macOS/Linux、Windows、source buildの
+手順は以下で確認できます。
+
+<details>
+<summary>checksum検証付き手動導入とsource build</summary>
+
+<br>
 
 checksumを確認して手動導入する場合は、`aarch64-apple-darwin`、
 `x86_64-apple-darwin`、`x86_64-unknown-linux-gnu`から対象を選び、展開前に
@@ -68,43 +65,50 @@ tagからbuildして導入する場合:
 cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked
 ```
 
-## ビルド / クイックスタート
+</details>
 
-リポジトリのルートで release binary をビルドします。
+## 60秒ツアー
 
-```sh
-cargo build --release
-./target/release/qzt --help
-```
-
-`PATH` にインストールしていない場合、binary は `./target/release/qzt` にあります。
-以下の例ではそのパスを使います。
-
-QZT は大きなテキストを **seekable かつ verifiable な証拠コンテナ** にまとめます
-（`v0.1 technical preview` / 実験的な参照実装であり、production-ready ではありません）。
+install後、次のコマンドを上から順に実行します。
 
 ```sh
-./target/release/qzt pack input.txt -o output.qzt
-./target/release/qzt pack-docs server-a.log server-b.log report.txt -o bundle.qzt
-./target/release/qzt docs bundle.qzt
-./target/release/qzt doc bundle.qzt server-a.log -o restored.log
-./target/release/qzt info output.qzt
-./target/release/qzt attest output.qzt > output.attest.json
-./target/release/qzt range output.qzt --lines 1:10
-./target/release/qzt sidecar-rebuild output.qzt -o output.qzt.qzi
-./target/release/qzt search output.qzt "error" --sidecar output.qzt.qzi
+printf 'alpha\nbeta\nerror gamma\n' > app.log
+qzt pack app.log -o app.qzt
+qzt info app.qzt --format json
+qzt range app.qzt --lines 2:2
+qzt sidecar-rebuild app.qzt -o app.qzt.qzi
+qzt search app.qzt "error" --sidecar app.qzt.qzi
+qzt verify app.qzt --deep
+qzt attest app.qzt > app.attest.json
 ```
 
-`pack` でコンテナを作成し、`info` と `range` で全体展開せずに確認・部分読み取り、
-`attest` で deep verify 後に外部署名用の canonical JSON を出力し、
-`sidecar-rebuild` で検索 index を構築、`search --sidecar` で検索します。
-運用手順は [attestation signing and anchoring guide](docs/guides/attestation.md) を参照してください。
+rangeは`beta`を出力します。searchはsourceが`verified_original_bytes`のhitを返し、
+deep verifyは全chunkを検証します。attestationは外部署名や信頼できるtimestampへ
+渡せる決定的なJSON claimを1行で出力します。
 
-QZI（`.qzi`）は Core container format の一部ではなく、派生・再構築可能・非信頼の
-検索 sidecar です。導入前に fail-closed 境界と on-disk layout を
-[QZI v0.1 Sidecar Spec](docs/QZI_v0.1_Sidecar_Spec.ja.md) で確認してください。
+## ユースケース
 
-## v0.1 Technical Preview の制限
+- **server log保全** — logを日次containerへstreamし、定期的にdeep verifyして、
+  決定的attestationを別系統へanchorします。
+- **pipeline artifact固定** — `pack-docs`で各input artifactを、1つのcontainer内の
+  名前付き・checksum検証可能なdocumentとして固定します。
+- **incident forensics** — 再構築可能なQZI sidecarを検索し、調査に必要な検証済み
+  byte範囲または行範囲だけを提示します。
+
+## ステータスと制限
+
+QZT v0.1 Coreはrelease candidateです。QZI検索とproduct全体は実験的な
+`v0.1 technical preview`であり、production-readyではありません。
+
+```text
+- QZT v0.1 Core: release candidate
+- Search Extension / QZI sidecar: technical preview
+- Product status: 実験的な参照実装
+```
+
+QZI（`.qzi`）はCore container formatの一部ではなく、派生・再構築可能・非信頼の
+検索sidecarです。導入前にfail-closed境界とon-disk layoutを
+[QZI v0.1 Sidecar Spec](docs/QZI_v0.1_Sidecar_Spec.ja.md)で確認してください。
 
 QZT v0.1 は、仕様カバレッジと正しさを重視した参照実装です。
 production use の前に残っている既知の制限は以下です。
@@ -129,7 +133,7 @@ production use の前に残っている既知の制限は以下です。
   既存の QZI v1 sidecar も読み込めますが、v2 の容量削減を得るには再構築が必要です。
   release gate では再現可能な 10 MB high-cardinality log corpus に対し token / n-gram
   sidecar を原文の 1.7 倍以下に保ちます。語彙や行形状が異なるデータでは結果も変わります。
-- **Production benchmark は未実施**: v0.1 では SQLite FTS、Tantivy、Lucene、
+- **Production benchmarkは未実施**: v0.1ではSQLite FTS、Tantivy、Lucene、
   seekable-zstd との比較はまだ実施していません。
 
 ### 性能数値の再現
@@ -189,10 +193,19 @@ make check
 - cargo test --all-targets --all-features
 ```
 
-## クイックスタート
+## Round-trip smoke test
 
 1 つのテキストファイルで pack → inspect → export → diff まで試す最短パスです。
 QZT は `v0.1 technical preview` であり、production-ready ではない実験的な参照実装として扱ってください。
+
+local checkoutから使う場合は、先にrelease binaryをbuildします。
+
+```sh
+cargo build --release
+./target/release/qzt --help
+```
+
+`PATH`へinstallしない場合、binaryは`./target/release/qzt`にあります。
 
 プレーンテキスト（例: `input.txt`）を用意し、次を実行します。
 
@@ -205,7 +218,7 @@ diff input.txt restored.txt
 
 `diff` で出力がなければ、復元されたバイト列が元ファイルと一致しています。
 
-## 主な CLI
+## CLIリファレンス
 
 全option、JSON schema、profileの実挙動、stdout/stderr規則、v0.1自動化向け
 安定性契約は[docs/CLI.ja.md](docs/CLI.ja.md)を参照してください。この節は
@@ -327,12 +340,13 @@ query が sidecar の n-gram `n`（デフォルト 3）より短い場合、inde
 - 仕様要約: [docs/QZT_v0.1_Core_Spec.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/docs/QZT_v0.1_Core_Spec.ja.md)
 - v0.1 byte-layout 互換性方針（英語正本）: [docs/QZT_v0.1_Format_Stability.md](docs/QZT_v0.1_Format_Stability.md)
 - QZI sidecar 仕様: [docs/QZI_v0.1_Sidecar_Spec.ja.md](docs/QZI_v0.1_Sidecar_Spec.ja.md)
+- attestationの署名とanchor: [docs/guides/attestation.md](docs/guides/attestation.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.ja.md](docs/QZT_v0.1_Core_Readiness.ja.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.ja.md](docs/QZT_v0.1_Release_Hardening.ja.md)
 - 実装 Phase: [tasks/README.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.ja.md)
 - 進捗: [tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)
 
-## Phase 計画
+## 開発
 
 実装は 2 トラックで進み、全 Phase が完了しています。
 
