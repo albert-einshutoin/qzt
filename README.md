@@ -26,7 +26,9 @@ When publishing QZT externally, it should be positioned as a
 
 ## Install
 
-The current binary distribution is the `v0.1.0-pre.1` technical preview.
+The first binary distribution will be the `v0.1.0-pre.1` technical preview.
+The commands below become available after the prerelease rehearsal in issue
+[#43](https://github.com/albert-einshutoin/qzt/issues/43) is marked complete.
 On macOS or Linux, the generated installer selects the archive for your host:
 
 ```sh
@@ -55,9 +57,18 @@ tar -xJf "${archive}"
 ./"qzt-${target}"/qzt --version
 ```
 
-Windows users can download the matching `.zip` and `.zip.sha256` assets or
-run `qzt-installer.ps1` from the same Release. To build from the reviewed tag
-instead of downloading a prebuilt binary:
+Windows users can download the matching `.zip` and `.zip.sha256` assets and
+verify them before extraction:
+
+```powershell
+$archive = "qzt-x86_64-pc-windows-msvc.zip"
+$expected = (Get-Content "$archive.sha256" | Select-String -Pattern '\S').Line.Split()[0]
+$actual = (Get-FileHash -Algorithm SHA256 $archive).Hash
+if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
+```
+
+Alternatively, run `qzt-installer.ps1` from the same Release. To build from
+the reviewed tag instead of downloading a prebuilt binary:
 
 ```sh
 cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.1 --locked

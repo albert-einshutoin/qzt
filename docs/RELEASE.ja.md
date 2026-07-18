@@ -69,8 +69,8 @@ Issue #42にはdry-run結果、ファイル数、packageサイズ、除外確認
 ## GitHub binary prerelease rehearsal
 
 Issue #43はGitHubだけを使う可逆な予行であり、crates.ioへの公開を許可しません。
-manifest versionは`0.1.0-pre.1`とし、この予行が成功した後のIssue #44でのみ
-stable版`0.1.0`へ戻します。
+manifest versionは`0.1.0-pre.1`とし、この予行と他の全release前提が成功した後、
+release ownerが承認する専用PRでのみstable版`0.1.0`へ戻します。
 
 生成された`.github/workflows/release.yml`はtag pushだけをtriggerにし、branchや
 pull requestでは起動しません。Issue #43のPRをreviewしてmergeした後、その正確な

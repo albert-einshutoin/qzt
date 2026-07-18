@@ -86,6 +86,7 @@ fn both_readmes_offer_installer_checksum_and_source_fallback_paths() {
             "v0.1.0-pre.1",
             ".sha256",
             "shasum -a 256",
+            "Get-FileHash -Algorithm SHA256",
             "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.1 --locked",
         ] {
             assert!(

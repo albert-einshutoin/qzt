@@ -81,8 +81,9 @@ data in that evidence.
 ## GitHub binary prerelease rehearsal
 
 Issue #43 is a reversible GitHub-only rehearsal and does not authorize a
-crates.io upload. Its manifest version is `0.1.0-pre.1`; issue #44 restores the
-stable `0.1.0` version only after this rehearsal succeeds.
+crates.io upload. Its manifest version is `0.1.0-pre.1`. A separate,
+owner-approved release pull request restores the stable `0.1.0` version only
+after this rehearsal and every other release prerequisite succeed.
 
 The generated `.github/workflows/release.yml` has a tag-push trigger and no
 branch or pull-request trigger. After the issue #43 pull request is reviewed
