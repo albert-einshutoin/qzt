@@ -46,12 +46,13 @@ Rules:
 
 ## Sidecar manifest
 
-Top-level manifest schema: `qzt.sidecar.v1`.
+Top-level manifest schema: `qzt.sidecar.v1` (legacy) or `qzt.sidecar.v2`
+(current compact writer format).
 
 Required fields (names match the reference encoder in `src/sidecar.rs`):
 
 ```yaml
-schema: "qzt.sidecar.v1"
+schema: "qzt.sidecar.v2"
 source_container_id: bstr16
 source_format_version: [0, 1]          # major, minor of the bound QZT container
 source_original_checksum:
@@ -64,6 +65,8 @@ index_type: "token" | "ngram"
 ngram_n: null | u64                    # required when index_type = "ngram"; null for token
 complete: bool
 high_df_per_million: u32
+granule_encoding: "legacy-v1" | "line-implied-v2"
+term_encoding: "legacy-v1" | "key-posting-varint-v2"
 index_manifest:
   schema: "qzt.search-index.v1"
   kind: string                         # same value as index_type
@@ -88,11 +91,17 @@ checksum:
 
 Manifest CBOR MUST use deterministic encoding (canonical map key order and integer widths), matching the Core container CBOR rules.
 
+Current writers emit `qzt.sidecar.v2` with both encoding fields. `qzt.sidecar.v1`
+has fixed legacy layouts and omits them; current readers interpret that omission
+as `legacy-v1`. Existing v1 files remain readable, but must be rebuilt to obtain
+compact v2 storage. A v1-only reader rejects the v2 schema rather than silently
+decoding its payload with the wrong record layout.
+
 ### Source binding
 
 Before any section is used, readers MUST validate:
 
-1. `schema` is exactly `qzt.sidecar.v1`.
+1. `schema` is exactly `qzt.sidecar.v1` or `qzt.sidecar.v2`.
 2. `source_format_version` is exactly `[0, 1]`. Any other pair is rejected (`UnsupportedVersion`).
 3. `source_container_id` equals the bound container's `container_id`.
 4. `source_original_checksum` equals the bound container metadata `original_checksum`.
@@ -122,6 +131,11 @@ Binary layout:
 
 ```text
 u64le granule_count
+```
+
+`granule_encoding = "legacy-v1"` uses the original 56-byte records:
+
+```text
 repeat granule_count times (56 bytes each):
   u64le granule_id
   u64le logical_offset
@@ -132,13 +146,30 @@ repeat granule_count times (56 bytes each):
   u64le line_count      # u64::MAX means absent
 ```
 
-Expected section size: `8 + granule_count * 56`. Size mismatch MUST reject the sidecar.
+`granule_encoding = "line-implied-v2"` uses 20-byte fixed records for the
+canonical line index:
+
+```text
+repeat granule_count times (20 bytes each):
+  u64le logical_offset
+  u32le byte_length
+  u32le chunk_start
+  u32le chunk_span                 # chunk_end - chunk_start
+```
+
+For `line-implied-v2`, `granule_id` and `first_line` equal the zero-based
+record index, and `line_count` is one. Fixed-size records retain O(1)
+file-backed random lookup while avoiding serializing those implied values.
+
+Expected section size is `8 + granule_count * record_size`, where `record_size`
+is 56 for `legacy-v1` and 20 for `line-implied-v2`. Size mismatch MUST reject
+the sidecar.
 
 Each granule record maps a posting target to a logical byte range and chunk span in the source container.
 
 ### `terms` section
 
-Binary layout:
+`term_encoding = "legacy-v1"` has the original fixed-field layout:
 
 ```text
 u64le term_count
@@ -155,9 +186,28 @@ repeat term_count times:
   u64le flags
 ```
 
-`posting_offset + posting_size` MUST lie within the postings section bounds.
+`term_encoding = "key-posting-varint-v2"` is the compact v2 layout:
 
-`skip_offset` and `skip_size` are reserved planning metadata in QZI v0.1.
+```text
+u64le term_count
+repeat term_count times:
+  varuint key_len
+  key_len bytes key
+  varuint granule_frequency
+  varuint posting_size
+```
+
+For v2, `key_hash` is recalculated from `key`, `posting_offset` is the
+cumulative prior `posting_size`, and document/skip/flag fields are zero. This
+preserves sorted binary lookup and tamper checks without an 80-byte fixed
+envelope for each unique log token.
+
+Terms MUST be strictly sorted by `key`; `key_hash` MUST equal the BLAKE3-derived
+hash of `key`; and `flags` MUST be zero. Posting ranges MUST be contiguous from
+zero and end exactly at the postings-section size. These checks let readers use
+binary search without trusting an unverified dictionary ordering.
+
+In `legacy-v1`, `skip_offset` and `skip_size` are reserved planning metadata.
 There is no serialized skip-data section and these values have no file-offset
 base. Readers MUST NOT seek with them. The reference in-memory reader rebuilds
 skip points from decoded posting lists; the file-backed reader ignores these
