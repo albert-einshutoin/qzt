@@ -66,9 +66,10 @@ production use の前に残っている既知の制限は以下です。
   必要はありません。grep-compatible ではありません。
 - **Normalized search は未実装**: `SearchIndexSource::NormalizedUtf8`
   (Unicode normalization、case folding、width folding) はまだ実装されていません。
-- **Sidecar のサイズ**: QZI token / n-gram sidecar は非圧縮の MVP 構造です。
-  現実的な 45 MB のログコーパスでは token sidecar は原文の約 2.1 倍でした。
-  sidecar のストレージはその前提で見積もってください。
+- **Sidecar のサイズ**: 現行 writer は compact な QZI v2 layout を出力します。
+  既存の QZI v1 sidecar も読み込めますが、v2 の容量削減を得るには再構築が必要です。
+  release gate では再現可能な 10 MB high-cardinality log corpus に対し token / n-gram
+  sidecar を原文の 1.7 倍以下に保ちます。語彙や行形状が異なるデータでは結果も変わります。
 - **Production benchmark は未実施**: v0.1 では SQLite FTS、Tantivy、Lucene、
   seekable-zstd との比較はまだ実施していません。
 
@@ -204,6 +205,16 @@ Exit codes:
 
 QZT は引き続き `v0.1 technical preview` です。以下は production-ready な挙動ではなく、
 参照実装の制約として扱ってください。
+
+### Sidecar が古い、または別の container に属している
+
+QZI は1つの正確な QZT container に binding されます。古い、または不一致の `.qzi` は
+sidecar 経路だけで fail-closed になり、source `.qzt` の Core read / export / range /
+verify は sidecar なしで継続できます。現在の container から再構築してください。
+
+```sh
+qzt sidecar-rebuild file.qzt -o file.qzt.qzi
+```
 
 ### `qzt sidecar-rebuild` で高 RSS または OOM
 

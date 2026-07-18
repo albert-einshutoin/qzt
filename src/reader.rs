@@ -208,6 +208,24 @@ impl QztReader {
         )
     }
 
+    pub(crate) fn skeleton_details(&self) -> &SkeletonDetails {
+        &self.details
+    }
+
+    pub(crate) fn footer_checksum(&self) -> Result<Checksum> {
+        let end = self
+            .bytes
+            .len()
+            .checked_sub(FOOTER_TRAILER_LEN)
+            .ok_or(QztError::InvalidFooterTrailer)?;
+        let start = u64_to_usize(self.details.footer_payload_offset)?;
+        let footer = self
+            .bytes
+            .get(start..end)
+            .ok_or(QztError::InvalidFooterPayload)?;
+        Ok(Checksum::blake3(footer))
+    }
+
     fn decode_entry(&self, entry: &ChunkEntry) -> Result<Vec<u8>> {
         let compressed = self.slice_physical(PhysicalRange::new(
             entry.physical_offset,

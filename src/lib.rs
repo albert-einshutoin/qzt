@@ -70,7 +70,7 @@ pub use search::{
     SearchIndexSource, SearchMetrics, SearchOptions, SearchReport, TokenIndexBuildOptions,
 };
 pub use sidecar::{
-    QziFileSidecar, QziSidecar, SidecarIndexKind, build_search_sidecar,
+    QziFileSidecar, QziSidecar, SidecarIndexKind, SidecarLimits, build_search_sidecar,
     build_search_sidecar_from_file,
 };
 #[doc(hidden)]

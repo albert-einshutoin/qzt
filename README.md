@@ -73,9 +73,11 @@ Known limitations before production use:
   not need to be adjacent.  This is not grep-compatible.
 - **Normalized search not implemented**: `SearchIndexSource::NormalizedUtf8`
   (Unicode normalization, case folding, width folding) is not yet implemented.
-- **Sidecar size**: the QZI token/n-gram sidecars are uncompressed MVP
-  structures. On a realistic 45 MB log corpus the token sidecar measured about
-  2.1x the original text; budget sidecar storage accordingly.
+- **Sidecar size**: current writers emit the compact QZI v2 layout. Existing
+  QZI v1 sidecars remain readable, but must be rebuilt to receive the v2 space
+  reduction. The release gate keeps token and n-gram sidecars at or below 1.7x
+  source size on the reproducible 10 MB high-cardinality log corpus; results on
+  a different vocabulary or line shape may vary.
 - **No production benchmark**: No comparison against SQLite FTS, Tantivy,
   Lucene, or seekable-zstd has been conducted for v0.1.
 
@@ -227,6 +229,17 @@ Exit codes:
 
 QZT remains a `v0.1 technical preview`; treat the following as constraints of
 the reference implementation rather than production-ready behavior.
+
+### Sidecar is stale or belongs to another container
+
+QZI is bound to one exact QZT container. A stale or mismatched `.qzi` fails
+closed on the sidecar path; the source `.qzt` still supports Core read, export,
+range access, and verify without that sidecar. Rebuild it from the current
+container:
+
+```sh
+qzt sidecar-rebuild file.qzt -o file.qzt.qzi
+```
 
 ### High RSS or OOM during `qzt sidecar-rebuild`
 

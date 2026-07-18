@@ -16,6 +16,38 @@ fn release_benchmark_reports_reproducible_large_corpus_metrics() {
 }
 
 #[test]
+fn release_value_targets_hold_for_ten_megabyte_logs() {
+    let (corpus, line_count) = build_profile_corpus(10_000_000, MatrixCorpusKind::Ascii);
+    let report = run_release_benchmark_with_corpus(
+        &corpus,
+        ReleaseBenchmarkOptions {
+            line_count,
+            query_repetitions: 1,
+            query_warmup_repetitions: 0,
+            ..ReleaseBenchmarkOptions::default()
+        },
+    )
+    .expect("10 MB release value gate should run");
+
+    assert!(
+        report.compression_ratio <= 0.15,
+        "log container must stay within the documented C2 target: {report}"
+    );
+    assert!(
+        report.qzi_token_size_ratio <= 1.70,
+        "token sidecar must stay within the documented size target: {report}"
+    );
+    assert!(
+        report.qzi_ngram_size_ratio <= 1.70,
+        "ngram sidecar must stay within the documented size target: {report}"
+    );
+    assert!(
+        report.rare_token_decoded_bytes.saturating_mul(100) < report.corpus_bytes,
+        "rare-token search must decode less than 1% of the source: {report}"
+    );
+}
+
+#[test]
 #[ignore = "Profiling run. Execute with `make bench-profile`"]
 fn release_benchmark_profile() {
     let report = run_release_benchmark(ReleaseBenchmarkOptions {

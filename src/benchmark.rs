@@ -7,7 +7,7 @@ use crate::error::{QztError, Result};
 use crate::primitives::{u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
 use crate::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
-use crate::sidecar::{build_search_sidecar, QziSidecar, SidecarIndexKind};
+use crate::sidecar::{build_search_sidecar, QziFileSidecar, SidecarIndexKind};
 use crate::writer::{pack_bytes_with_container_id, WriterOptions};
 
 /// Reproducible release benchmark configuration.
@@ -243,10 +243,17 @@ pub fn run_release_benchmark_with_corpus(
     let qzi_token_bytes = usize_to_u64(qzi_token.len())?;
     let qzi_ngram_bytes = usize_to_u64(qzi_ngram.len())?;
 
-    let token_sidecar = QziSidecar::open(&packed, &qzi_token)?;
+    // Release measurements exercise the same lazy, bounded-memory sidecar path
+    // as the CLI. Decoding every posting at open would benchmark the legacy
+    // in-memory compatibility API and reject otherwise valid large corpora.
+    let file_reader = QztFileReader::open_read_at(packed.as_slice(), packed.len() as u64)?;
+    let token_sidecar = QziFileSidecar::open_read_at(
+        qzi_token.as_slice(),
+        qzi_token.len() as u64,
+        &file_reader,
+    )?;
     let rare_token_query = run_query_case(
-        &token_sidecar,
-        &reader,
+        |query, options| token_sidecar.search(&file_reader, query, options),
         ReleaseBenchmarkQuery {
             name: "rare-token",
             query: "rare-token-unique",
@@ -257,8 +264,7 @@ pub fn run_release_benchmark_with_corpus(
     )?;
 
     let missing_token_query = run_query_case(
-        &token_sidecar,
-        &reader,
+        |query, options| token_sidecar.search(&file_reader, query, options),
         ReleaseBenchmarkQuery {
             name: "missing-token",
             query: "missing-token-for-release-benchmark",
@@ -268,10 +274,13 @@ pub fn run_release_benchmark_with_corpus(
         options.query_repetitions,
     )?;
 
-    let ngram_sidecar = QziSidecar::open(&packed, &qzi_ngram)?;
+    let ngram_sidecar = QziFileSidecar::open_read_at(
+        qzi_ngram.as_slice(),
+        qzi_ngram.len() as u64,
+        &file_reader,
+    )?;
     let common_ngram_query = run_query_case(
-        &ngram_sidecar,
-        &reader,
+        |query, options| ngram_sidecar.search(&file_reader, query, options),
         ReleaseBenchmarkQuery {
             name: "common-ngram",
             query: "aaa",
@@ -433,21 +442,20 @@ struct ReleaseBenchmarkQuery {
 }
 
 fn run_query_case(
-    sidecar: &QziSidecar,
-    reader: &QztReader,
+    mut search: impl FnMut(&str, SearchOptions) -> Result<crate::search::SearchReport>,
     query: ReleaseBenchmarkQuery,
     warmup_repetitions: usize,
     query_repetitions: usize,
 ) -> Result<ReleaseBenchmarkQueryReport> {
     for _ in 0..warmup_repetitions {
-        let _ = sidecar.search(reader, query.query, query.search_options)?;
+        let _ = search(query.query, query.search_options)?;
     }
 
     let mut samples = Vec::with_capacity(query_repetitions);
     let mut baseline = None;
     for _ in 0..query_repetitions {
         let started = Instant::now();
-        let current = sidecar.search(reader, query.query, query.search_options)?;
+        let current = search(query.query, query.search_options)?;
         samples.push(started.elapsed().as_micros());
         let current = ReleaseBenchmarkQueryReportBaseline {
             candidate_granules: current.metrics.candidate_granules,
