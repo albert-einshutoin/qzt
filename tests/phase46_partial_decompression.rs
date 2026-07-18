@@ -170,6 +170,11 @@ fn production_probe_has_a_reproducible_and_honest_publication_contract() {
                 "missing isolated-probe command: {command_fragment}"
             );
         }
+        assert!(
+            evidence
+                .contains("cargo build --release --bin qzt --example partial_decompression_probe"),
+            "isolated probe must build both executables used by the recipe"
+        );
     }
 }
 

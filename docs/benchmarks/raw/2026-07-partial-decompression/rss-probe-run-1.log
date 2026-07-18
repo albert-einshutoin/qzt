@@ -4,8 +4,8 @@ dd if=/dev/zero of="$QZT_PARTIAL_RSS_DIR/source.bin" bs=1048576 count=1024
 1024+0 records out
 1073741824 bytes transferred in 1.927679 secs (557012772 bytes/sec)
 
-cargo build --release --example partial_decompression_probe
-    Finished `release` profile [optimized] target(s) in 0.02s
+cargo build --release --bin qzt --example partial_decompression_probe
+    Finished `release` profile [optimized] target(s) in 0.05s
 
 target/release/qzt pack "$QZT_PARTIAL_RSS_DIR/source.bin" -o "$QZT_PARTIAL_RSS_DIR/source.qzt" --chunk-size 16777216 --max-chunk-size 16777216
 

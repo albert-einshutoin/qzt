@@ -77,7 +77,7 @@ the exact isolated RSS run with:
 ```sh
 QZT_PARTIAL_RSS_DIR="$(mktemp -d /private/tmp/qzt-partial-rss.XXXXXX)"
 dd if=/dev/zero of="$QZT_PARTIAL_RSS_DIR/source.bin" bs=1048576 count=1024
-cargo build --release --example partial_decompression_probe
+cargo build --release --bin qzt --example partial_decompression_probe
 target/release/qzt pack "$QZT_PARTIAL_RSS_DIR/source.bin" \
   -o "$QZT_PARTIAL_RSS_DIR/source.qzt" \
   --chunk-size 16777216 --max-chunk-size 16777216
