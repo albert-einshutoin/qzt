@@ -10,6 +10,13 @@ const MAKEFILE: &str = include_str!("../Makefile");
 const PRODUCTION_EVIDENCE: &str =
     include_str!("../docs/benchmarks/2026-07-partial-decompression.md");
 const ISOLATED_PROBE: &str = include_str!("../examples/partial_decompression_probe.rs");
+const README_EN: &str = include_str!("../README.md");
+const README_JA: &str = include_str!("../README.ja.md");
+const PRODUCTION_RUNS: [&str; 3] = [
+    include_str!("../docs/benchmarks/raw/2026-07-partial-decompression/production-run-1.log"),
+    include_str!("../docs/benchmarks/raw/2026-07-partial-decompression/production-run-2.log"),
+    include_str!("../docs/benchmarks/raw/2026-07-partial-decompression/production-run-3.log"),
+];
 
 #[test]
 fn range_metrics_measure_only_the_single_intersecting_chunk() {
@@ -129,4 +136,33 @@ fn production_probe_has_a_reproducible_and_honest_publication_contract() {
     }
     assert!(ISOLATED_PROBE.contains("QztFileReader::open_path"));
     assert!(!ISOLATED_PROBE.contains("read_to_end"));
+    for readme in [README_EN, README_JA] {
+        assert!(readme.contains("docs/benchmarks/2026-07-partial-decompression.md"));
+    }
+}
+
+#[test]
+fn published_structural_metrics_are_derived_from_all_retained_runs() {
+    for log in PRODUCTION_RUNS {
+        assert!(log.contains("test result: ok"));
+        let record = log
+            .lines()
+            .find(|line| line.starts_with("partial_decompression_benchmark "))
+            .expect("raw run must contain a machine-readable record");
+        assert_eq!(record_field(record, "corpus_bytes"), "1073741824");
+        assert_eq!(record_field(record, "returned_bytes"), "65536");
+        assert_eq!(record_field(record, "decoded_chunks"), "1");
+        assert_eq!(record_field(record, "decoded_bytes"), "262085");
+        assert_eq!(record_field(record, "compressed_bytes"), "14339");
+    }
+
+    assert!(PRODUCTION_EVIDENCE.contains("65,536 B | 262,085 B | 14,339 B | 1"));
+}
+
+fn record_field<'a>(record: &'a str, key: &str) -> &'a str {
+    let prefix = format!("{key}=");
+    record
+        .split_whitespace()
+        .find_map(|field| field.strip_prefix(&prefix))
+        .unwrap_or_else(|| panic!("missing {key} in benchmark record"))
 }

@@ -1,0 +1,10 @@
+Benchmark source commit: c5a79f33f4082d80138c53d26cc389e86bab5d16
+Measured: 2026-07-19 07:05:59 JST
+ProductName: macOS
+ProductVersion: 26.5
+BuildVersion: 25F71
+Architecture: arm64
+CPU: Apple M4
+Memory bytes: 34359738368
+rustc 1.96.0 (ac68faa20 2026-05-25)
+cargo 1.96.0 (30a34c682 2026-05-25)
