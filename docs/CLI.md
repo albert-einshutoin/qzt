@@ -214,7 +214,10 @@ to stdout as described in the stability contract.
 
 Default level is deep. The option may precede or follow the file. QZT emits
 nothing until verification succeeds, then writes exactly one canonical JSON
-line. See [Attestation canonical form](#attestation-canonical-form) and the
+line. Top-level fields are `chunk_count`, `container_checksum`, `container_id`,
+`final_file_size`, `format`, `line_count`, `original_checksum`, `original_size`,
+and `verify`; the nested `verify` object contains `checked_chunks`,
+`decoded_bytes`, and `level`. See [Attestation canonical form](#attestation-canonical-form) and the
 [signing guide](guides/attestation.md).
 
 ## Profiles

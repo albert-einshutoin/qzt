@@ -49,14 +49,8 @@ fn main() -> ExitCode {
     let _program = args.next();
 
     match args.next().as_deref() {
-        Some("help" | "--help" | "-h") | None => {
-            print_help();
-            ExitCode::SUCCESS
-        }
-        Some("--version" | "-V") => {
-            println!("{}", qzt::version());
-            ExitCode::SUCCESS
-        }
+        Some("help" | "--help" | "-h") | None => print_help(),
+        Some("--version" | "-V") => write_stdout(format!("{}\n", qzt::version()).as_bytes()),
         Some("pack") => run_pack(args),
         Some("pack-docs") => run_pack_docs(args),
         Some("attest") => run_attest(args),
@@ -77,87 +71,84 @@ fn main() -> ExitCode {
     }
 }
 
-fn print_help() {
-    println!("qzt {}", qzt::version());
-    println!();
-    println!("Usage: qzt <COMMAND>");
-    println!();
-    println!("Commands:");
-    println!("  help       Show this help");
-    println!("  pack       Pack a UTF-8 text file into QZT");
-    println!("             Use '-' as the input path to read from stdin:");
-    println!("             journalctl --since today | qzt pack - -o today.qzt");
-    println!("             (stdin requires --profile core without --dense-line-index;");
-    println!("              stdout output is not supported; -o <path> is always required)");
-    println!("  pack-docs  Pack multiple files as verified documents in one QZT container");
-    println!("  attest     Emit a verified canonical JSON attestation for signing");
-    println!("  info       Print container summary (--format json for machine-readable output)");
-    println!("  export     Restore original bytes (streams to -o file or stdout)");
-    println!("  range      Print original bytes (--bytes A:B half-open) or lines");
-    println!("             (--lines A:B 1-based inclusive)");
-    println!("  line       Print one original line (1-based; --zero-based to switch)");
-    println!(
-        "  docs       List documents in a Document Index (--format json for machine-readable)"
+fn print_help() -> ExitCode {
+    let output = format!(
+        concat!(
+            "qzt {}\n\n",
+            "Usage: qzt <COMMAND>\n\n",
+            "Commands:\n",
+            "  help       Show this help\n",
+            "  pack       Pack a UTF-8 text file into QZT\n",
+            "             Use '-' as the input path to read from stdin:\n",
+            "             journalctl --since today | qzt pack - -o today.qzt\n",
+            "             (stdin requires --profile core without --dense-line-index;\n",
+            "              stdout output is not supported; -o <path> is always required)\n",
+            "  pack-docs  Pack multiple files as verified documents in one QZT container\n",
+            "  attest     Emit a verified canonical JSON attestation for signing\n",
+            "  info       Print container summary (--format json for machine-readable output)\n",
+            "  export     Restore original bytes (streams to -o file or stdout)\n",
+            "  range      Print original bytes (--bytes A:B half-open) or lines\n",
+            "             (--lines A:B 1-based inclusive)\n",
+            "  line       Print one original line (1-based; --zero-based to switch)\n",
+            "  docs       List documents in a Document Index (--format json for machine-readable)\n",
+            "  doc        Extract one document (verified by default; --no-verify to skip)\n",
+            "  search     Search raw UTF-8 tokens with verified original-byte hits (--format json)\n",
+            "  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)\n",
+            "  verify     Verify container integrity (--format json for machine-readable output)\n\n",
+            "Options:\n",
+            "  -h, --help     Show this help\n",
+            "  -V, --version  Show version\n\n",
+            "Exit codes:\n",
+            "  0  success (verify: container is valid)\n",
+            "  1  command failed (verify: container is corrupt or unreadable)\n",
+            "  2  usage error (unknown option / missing argument)\n\n",
+            "See docs/CLI.md for the full reference and stability contract.\n"
+        ),
+        qzt::version()
     );
-    println!("  doc        Extract one document (verified by default; --no-verify to skip)");
-    println!(
-        "  search     Search raw UTF-8 tokens with verified original-byte hits (--format json)"
-    );
-    println!("  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)");
-    println!("  verify     Verify container integrity (--format json for machine-readable output)");
-    println!();
-    println!("Options:");
-    println!("  -h, --help     Show this help");
-    println!("  -V, --version  Show version");
-    println!();
-    println!("Exit codes:");
-    println!("  0  success (verify: container is valid)");
-    println!("  1  command failed (verify: container is corrupt or unreadable)");
-    println!("  2  usage error (unknown option / missing argument)");
-    println!();
-    println!("See docs/CLI.md for the full reference and stability contract.");
+    write_stdout(output.as_bytes())
 }
 
-fn print_attest_help() {
-    println!("qzt {}", qzt::version());
-    println!();
-    println!("Verify a QZT container and emit canonical JSON for external signing.");
-    println!();
-    println!("Usage: qzt attest [OPTIONS] <FILE>");
-    println!();
-    println!("Options:");
-    println!("  --level <LEVEL>  Verification level: quick, normal, or deep (default: deep)");
-    println!("  -h, --help       Show this help");
-    println!();
-    println!("Output is one deterministic canonical JSON line followed by one newline.");
+fn print_attest_help() -> ExitCode {
+    let output = format!(
+        concat!(
+            "qzt {}\n\n",
+            "Verify a QZT container and emit canonical JSON for external signing.\n\n",
+            "Usage: qzt attest [OPTIONS] <FILE>\n\n",
+            "Options:\n",
+            "  --level <LEVEL>  Verification level: quick, normal, or deep (default: deep)\n",
+            "  -h, --help       Show this help\n\n",
+            "Output is one deterministic canonical JSON line followed by one newline.\n"
+        ),
+        qzt::version()
+    );
+    write_stdout(output.as_bytes())
 }
 
-fn print_pack_docs_help() {
-    println!("qzt {}", qzt::version());
-    println!();
-    println!("Pack multiple UTF-8 files into one Document Index container.");
-    println!();
-    println!("Usage: qzt pack-docs [OPTIONS] <INPUT>...");
-    println!();
-    println!("Options:");
-    println!("  -o, --output <PATH>          Output .qzt path (required)");
-    println!("  --doc-id-prefix <PREFIX>     Prefix each basename document id");
-    println!("  --profile <PROFILE>           Pack profile (default: core)");
-    println!("  --chunk-size <BYTES>          Target chunk size");
-    println!("  --max-chunk-size <BYTES>      Maximum chunk size");
-    println!("  --zstd-level <LEVEL>          Zstd compression level");
-    println!("  --checksum blake3             Checksum algorithm (only blake3 is supported)");
-    println!("  --dict none                   Dictionary mode (CLI writing not implemented)");
-    println!("  --dense-line-index on|off     Dense line index (default: on for memory profile)");
-    println!("  -h, --help                    Show this help");
-    println!();
-    println!(
-        "Memory: this command reads all inputs before packing and uses memory proportional to their total input size."
+fn print_pack_docs_help() -> ExitCode {
+    let output = format!(
+        concat!(
+            "qzt {}\n\n",
+            "Pack multiple UTF-8 files into one Document Index container.\n\n",
+            "Usage: qzt pack-docs [OPTIONS] <INPUT>...\n\n",
+            "Options:\n",
+            "  -o, --output <PATH>          Output .qzt path (required)\n",
+            "  --doc-id-prefix <PREFIX>     Prefix each basename document id\n",
+            "  --profile <PROFILE>           Pack profile (default: core)\n",
+            "  --chunk-size <BYTES>          Target chunk size\n",
+            "  --max-chunk-size <BYTES>      Maximum chunk size\n",
+            "  --zstd-level <LEVEL>          Zstd compression level\n",
+            "  --checksum blake3             Checksum algorithm (only blake3 is supported)\n",
+            "  --dict none                   Dictionary mode (CLI writing not implemented)\n",
+            "  --dense-line-index on|off     Dense line index (default: on for memory profile)\n",
+            "  -h, --help                    Show this help\n\n",
+            "Memory: this command reads all inputs before packing and uses memory proportional to their total input size.\n",
+            "        With --profile memory, the default 256 KiB target / 2 MiB maximum chunks bound small reads but may reduce compression ratio;\n",
+            "        --chunk-size and --max-chunk-size override that trade-off.\n"
+        ),
+        qzt::version()
     );
-    println!(
-        "        With --profile memory, the default 256 KiB target / 2 MiB maximum chunks bound small reads but may reduce compression ratio;"
-    );
-    println!("        --chunk-size and --max-chunk-size override that trade-off.");
+    write_stdout(output.as_bytes())
 }
 
 /// Exact profile list line; kept in sync with `tests/cli_help.rs` (issue #71).
@@ -165,40 +156,39 @@ const PACK_PROFILES_LINE: &str = "Profiles: minimal, core, log, archive, memory"
 const PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE: usize = 256 * 1024;
 const PACK_DOCS_MEMORY_DEFAULT_MAX_CHUNK_SIZE: usize = 2 * 1024 * 1024;
 
-fn print_pack_help() {
-    println!("qzt {}", qzt::version());
-    println!();
-    println!(
-        "Pack a UTF-8 text file into a QZT container (v0.1 technical preview; not production-ready)."
+fn print_pack_help() -> ExitCode {
+    let output = format!(
+        concat!(
+            "qzt {}\n\n",
+            "Pack a UTF-8 text file into a QZT container (v0.1 technical preview; not production-ready).\n\n",
+            "Usage: qzt pack [OPTIONS] <INPUT>\n\n",
+            "{}\n\n",
+            "Options:\n",
+            "  -o, --output <PATH>          Output .qzt path (required)\n",
+            "  --profile <PROFILE>          Pack profile (default: core)\n",
+            "  --chunk-size <BYTES>         Target chunk size\n",
+            "  --max-chunk-size <BYTES>     Maximum chunk size\n",
+            "  --zstd-level <LEVEL>         Zstd compression level\n",
+            "  --checksum blake3            Checksum algorithm (only blake3 is supported)\n",
+            "  --dict none                  Dictionary mode (CLI writing not implemented)\n",
+            "  --dense-line-index on|off    Dense line index (default: on for memory profile)\n",
+            "  -h, --help                   Show this help\n\n",
+            "stdin:\n",
+            "  Use '-' as INPUT to read from stdin:\n",
+            "  journalctl --since today | qzt pack - -o today.qzt\n",
+            "  (stdin requires --profile core without --dense-line-index;\n",
+            "   stdout output is not supported; -o <path> is always required)\n"
+        ),
+        qzt::version(),
+        PACK_PROFILES_LINE
     );
-    println!();
-    println!("Usage: qzt pack [OPTIONS] <INPUT>");
-    println!();
-    println!("{PACK_PROFILES_LINE}");
-    println!();
-    println!("Options:");
-    println!("  -o, --output <PATH>          Output .qzt path (required)");
-    println!("  --profile <PROFILE>          Pack profile (default: core)");
-    println!("  --chunk-size <BYTES>         Target chunk size");
-    println!("  --max-chunk-size <BYTES>     Maximum chunk size");
-    println!("  --zstd-level <LEVEL>         Zstd compression level");
-    println!("  --checksum blake3            Checksum algorithm (only blake3 is supported)");
-    println!("  --dict none                  Dictionary mode (CLI writing not implemented)");
-    println!("  --dense-line-index on|off    Dense line index (default: on for memory profile)");
-    println!("  -h, --help                   Show this help");
-    println!();
-    println!("stdin:");
-    println!("  Use '-' as INPUT to read from stdin:");
-    println!("  journalctl --since today | qzt pack - -o today.qzt");
-    println!("  (stdin requires --profile core without --dense-line-index;");
-    println!("   stdout output is not supported; -o <path> is always required)");
+    write_stdout(output.as_bytes())
 }
 
 fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
     let args: Vec<String> = args.collect();
     if args.iter().any(|arg| arg == "--help" || arg == "-h") {
-        print_pack_help();
-        return ExitCode::SUCCESS;
+        return print_pack_help();
     }
 
     let mut args = args.into_iter();
@@ -527,8 +517,7 @@ impl PackDocsArgs {
 fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
     let args: Vec<String> = args.collect();
     if args.iter().any(|arg| arg == "--help" || arg == "-h") {
-        print_pack_docs_help();
-        return ExitCode::SUCCESS;
+        return print_pack_docs_help();
     }
 
     let args = match PackDocsArgs::parse(args.into_iter()) {
@@ -1077,8 +1066,7 @@ fn verify_level_as_str(level: VerifyLevel) -> &'static str {
 fn run_attest(args: impl Iterator<Item = String>) -> ExitCode {
     let args: Vec<String> = args.collect();
     if args.iter().any(|arg| arg == "--help" || arg == "-h") {
-        print_attest_help();
-        return ExitCode::SUCCESS;
+        return print_attest_help();
     }
 
     let mut args = args.into_iter();

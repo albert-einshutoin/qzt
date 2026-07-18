@@ -305,61 +305,108 @@ fn documented_search_defaults_and_schema_are_scoped_to_the_runtime_command() {
     let decoded_mib = defaults.max_decoded_bytes / (1024 * 1024);
 
     for document in [ENGLISH, JAPANESE] {
+        let info = command_section(document, "qzt info");
+        assert_fields_in_section(
+            info,
+            &[
+                "chunk_count",
+                "compressed_size",
+                "container_id",
+                "dense_line_index",
+                "document_count",
+                "document_index",
+                "format",
+                "line_count",
+                "max_chunk_size",
+                "newline_mode",
+                "original_checksum",
+                "original_size",
+                "profile",
+                "target_chunk_size",
+                "zstd_level",
+                "algorithm",
+                "value",
+            ],
+            "info",
+        );
+
         let search = command_section(document, "qzt search");
         assert!(search.contains(&candidate_default));
         assert!(search.contains(&format!("{decoded_mib} MiB")));
         assert!(search.contains("u64::MAX"));
-        for field in [
-            "hits",
-            "metrics",
-            "capped",
-            "incomplete_reason",
-            "logical_offset",
-            "byte_length",
-            "chunk_start",
-            "chunk_end",
-            "source",
-            "candidate_granules",
-            "candidate_chunks",
-            "decoded_bytes",
-            "query_time_ms",
-        ] {
-            assert!(search.contains(field), "search docs miss {field}");
-        }
+        assert_fields_in_section(
+            search,
+            &[
+                "capped",
+                "hits",
+                "incomplete_reason",
+                "metrics",
+                "byte_length",
+                "chunk_end",
+                "chunk_start",
+                "logical_offset",
+                "source",
+                "candidate_chunks",
+                "candidate_granules",
+                "decoded_bytes",
+                "index_kind",
+                "index_size_bytes",
+                "index_size_ratio",
+                "physical_decoded_bytes",
+                "posting_bytes_read",
+                "posting_granularity",
+                "query",
+                "query_time_ms",
+                "source_size_bytes",
+                "term_lookups",
+                "verified_matches",
+            ],
+            "search",
+        );
 
         let verify = command_section(document, "qzt verify");
-        for field in ["ok", "level", "checked_chunks", "decoded_bytes", "error"] {
-            assert!(verify.contains(field), "verify docs miss {field}");
-        }
+        assert_fields_in_section(
+            verify,
+            &["checked_chunks", "decoded_bytes", "error", "level", "ok"],
+            "verify",
+        );
 
         let docs = command_section(document, "qzt docs");
-        for field in [
-            "documents",
-            "doc_id",
-            "logical_offset",
-            "byte_length",
-            "first_line",
-            "line_count",
-            "algorithm",
-            "value",
-        ] {
-            assert!(docs.contains(field), "docs JSON contract misses {field}");
-        }
+        assert_fields_in_section(
+            docs,
+            &[
+                "documents",
+                "algorithm",
+                "byte_length",
+                "checksum",
+                "doc_id",
+                "first_line",
+                "line_count",
+                "logical_offset",
+                "value",
+            ],
+            "docs",
+        );
 
         let attest = command_section(document, "qzt attest");
-        for field in [
-            "chunk_count",
-            "container_checksum",
-            "container_id",
-            "final_file_size",
-            "format",
-            "line_count",
-            "original_checksum",
-            "original_size",
-            "verify",
-        ] {
-            assert!(attest.contains(field), "attest docs miss {field}");
-        }
+        assert_fields_in_section(
+            attest,
+            &[
+                "chunk_count",
+                "container_checksum",
+                "container_id",
+                "final_file_size",
+                "format",
+                "line_count",
+                "original_checksum",
+                "original_size",
+                "verify",
+                "checked_chunks",
+                "decoded_bytes",
+                "level",
+            ],
+            "attest",
+        );
     }
 }
 
@@ -400,6 +447,32 @@ fn machine_readable_commands_report_closed_stdout_as_runtime_failure() {
     }
 }
 
+#[test]
+fn help_and_version_report_closed_stdout_as_runtime_failure() {
+    for arguments in [
+        vec!["--help"],
+        vec!["--version"],
+        vec!["pack", "--help"],
+        vec!["pack-docs", "--help"],
+        vec!["attest", "--help"],
+    ] {
+        let mut child = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .args(&arguments)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("qzt command should start");
+        drop(child.stdout.take());
+        let output = child.wait_with_output().expect("qzt command should finish");
+        assert_eq!(output.status.code(), Some(1), "arguments: {arguments:?}");
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains("failed to write stdout"),
+            "arguments: {arguments:?}; stderr: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+}
+
 fn command_section<'a>(document: &'a str, command: &str) -> &'a str {
     let marker = format!("### `{command}");
     let start = document
@@ -407,9 +480,18 @@ fn command_section<'a>(document: &'a str, command: &str) -> &'a str {
         .expect("command heading should exist");
     let tail = &document[start..];
     let end = tail[marker.len()..]
-        .find("\n### ")
+        .find("\n##")
         .map_or(tail.len(), |offset| marker.len() + offset);
     &tail[..end]
+}
+
+fn assert_fields_in_section(section: &str, fields: &[&str], command: &str) {
+    for field in fields {
+        assert!(
+            section.contains(field),
+            "{command} docs miss schema field {field}"
+        );
+    }
 }
 
 fn assert_usage_error(arguments: &[&str], expected_stderr: &str) {
