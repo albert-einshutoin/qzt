@@ -6,7 +6,7 @@ use qzt::error::QztError;
 use qzt::fixed::{FooterTrailer, Header};
 use qzt::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
 use qzt::limits::ResourceLimits;
-use qzt::reader::QztReader;
+use qzt::reader::{QztFileReader, QztReader};
 use qzt::schema::{
     BlockDescriptor, BlockRef, Checksum, DictionaryBlock, DictionaryEntry, FooterPayload,
     IndexRoot, Metadata, MetadataOptions,
@@ -143,7 +143,16 @@ fn resource_limits_are_enforced_before_decode() {
     };
 
     assert_eq!(
-        QztReader::open_with_limits(compressed_limited, limits).map(|_| ()),
+        QztReader::open_with_limits(&compressed_limited, limits).map(|_| ()),
+        Err(QztError::ResourceLimitExceeded)
+    );
+    assert_eq!(
+        QztFileReader::open_read_at_with_limits(
+            &compressed_limited[..],
+            compressed_limited.len() as u64,
+            limits,
+        )
+        .map(|_| ()),
         Err(QztError::ResourceLimitExceeded)
     );
 
