@@ -1,0 +1,21 @@
+Measurement UTC: 2026-07-18T19:49:01Z
+Measurement local: 2026-07-19T04:49:01+0900 JST
+Repository commit: 75aa77bb3f2ed6afe8b7d524258e303b7a059930
+
+Machine: Mac mini (Mac16,10)
+Chip: Apple M4, 10 cores (4 performance, 6 efficiency)
+Memory: 32 GB (34359738368 bytes)
+Power: AC Power
+Storage: internal Apple Fabric solid-state storage, APFS
+Free storage before runs: 8.7 GB
+OS: macOS 26.5 (25F71), Darwin 25.5.0 arm64
+
+rustc 1.96.0 (ac68faa20 2026-05-25)
+cargo 1.96.0 (30a34c682 2026-05-25)
+ripgrep 15.1.0
+SQLite 3.51.0 (FTS5 enabled by successful harness execution)
+Zstandard CLI 1.5.7
+
+Run conditions: interactive developer machine on AC power. The benchmark
+commands were run serially from one release checkout. Background operating
+system services were not disabled, so timings are local evidence, not an SLA.

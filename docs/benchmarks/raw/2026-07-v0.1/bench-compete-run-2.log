@@ -1,0 +1,9 @@
+    Finished `release` profile [optimized] target(s) in 0.02s
+     Running tests/phase18_competitive_benchmark.rs (target/release/deps/phase18_competitive_benchmark-0bffff612b909f2b)
+
+running 1 test
+competitive_benchmark corpus_id=C2 corpus_bytes=65536 qzt_bytes=10775 raw_zstd_bytes=3792 qzt_range_bytes=1024 raw_zstd_decoded_bytes=65536 qzt_range_micros=52 raw_zstd_range_micros=26 token_hit_count=504 reference_hit_count=504 external_search_tools_enabled=true ripgrep_hit_count=504 sqlite_fts5_hit_count=504
+test competitive_benchmark_records_qzt_vs_raw_zstd_range_metrics ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

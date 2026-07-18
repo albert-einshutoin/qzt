@@ -128,6 +128,7 @@ common-ngram       194 / 271 / 571         191 / 205 / 277         192 / 204 / 2
 
 ## 残る product evidence gap
 
-この gate は SQLite FTS、Tantivy、Lucene、seekable zstd、split-frame object storage との比較を含みません。
-
-競合 benchmark は次の product-level release question です。
+[2026年7月benchmark report](benchmarks/2026-07-v0.1.md)で、raw-zstdとのrange evidence、
+ripgrep / SQLite FTS5との正確性照合を公開しました。cross-tool search latency、
+Tantivy、Lucene、seekable-zstd、split-frame object storage、production log、
+継続的な並行実行は未計測です。

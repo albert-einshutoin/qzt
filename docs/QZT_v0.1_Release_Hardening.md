@@ -130,6 +130,7 @@ The automated gate asserts:
 
 ## Remaining Product Evidence Gap
 
-This gate does not compare QZT against SQLite FTS, Tantivy, Lucene, seekable zstd, or split-frame object storage.
-
-That competitive benchmark remains the next product-level release question.
+The [July 2026 benchmark report](benchmarks/2026-07-v0.1.md) now publishes
+raw-zstd range evidence and ripgrep / SQLite FTS5 correctness checks. It does
+not measure cross-tool search latency, Tantivy, Lucene, seekable-zstd,
+split-frame object storage, production logs, or sustained concurrency.

@@ -133,8 +133,10 @@ production use の前に残っている既知の制限は以下です。
   既存の QZI v1 sidecar も読み込めますが、v2 の容量削減を得るには再構築が必要です。
   release gate では再現可能な 10 MB high-cardinality log corpus に対し token / n-gram
   sidecar を原文の 1.7 倍以下に保ちます。語彙や行形状が異なるデータでは結果も変わります。
-- **Production benchmarkは未実施**: v0.1ではSQLite FTS、Tantivy、Lucene、
-  seekable-zstd との比較はまだ実施していません。
+- **benchmarkはlocal evidenceでありSLAではない**: raw-zstdとのrange比較、
+  ripgrep / SQLite FTS5との正確性照合は[2026年7月 v0.1 report](docs/benchmarks/2026-07-v0.1.md)
+  を参照してください。Tantivy、Lucene、seekable-zstd、production log、
+  cross-tool search latencyは未計測です。
 
 ### 性能数値の再現
 
@@ -171,7 +173,7 @@ FTS5 対応の `sqlite3` が利用できない場合、その comparator は ski
 利用可能なツールは参照 byte-scan の hit count と一致する必要があります。
 
 ```sh
-cargo test --features bench-compete --test phase18_competitive_benchmark -- --nocapture
+cargo test --release --all-features --test phase18_competitive_benchmark -- --nocapture
 ```
 
 詳細と QZT を使うべき場面は
