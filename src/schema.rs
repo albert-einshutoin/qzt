@@ -686,7 +686,16 @@ pub struct DocumentIndex {
 }
 
 impl DocumentIndex {
+    pub(crate) fn validate_unique_doc_ids(&self) -> Result<()> {
+        let mut seen = std::collections::HashSet::with_capacity(self.documents.len());
+        if self.documents.iter().any(|document| !seen.insert(&document.doc_id)) {
+            return Err(QztError::MetadataInvalid);
+        }
+        Ok(())
+    }
+
     pub fn encode(&self) -> Result<Vec<u8>> {
+        self.validate_unique_doc_ids()?;
         encode_deterministic(&CborValue::Map(vec![
             text_pair("schema", CborValue::Text(SCHEMA_DOCUMENT_INDEX.to_owned())),
             text_pair("format_version", version_value()),
@@ -712,10 +721,14 @@ impl DocumentIndex {
             .map(decode_document_entry)
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(Self {
+        let index = Self {
             container_id: required_bstr16(map, "container_id", QztError::ContainerCorrupt)?,
             documents,
-        })
+        };
+        index
+            .validate_unique_doc_ids()
+            .map_err(|_| QztError::ContainerCorrupt)?;
+        Ok(index)
     }
 }
 
@@ -1492,5 +1505,25 @@ mod refactor {
         )
         .expect_err("format_version mismatch is rejected");
         assert!(matches!(err, QztError::InvalidFooterPayload));
+    }
+
+    #[test]
+    fn document_index_decode_rejects_duplicate_document_ids() {
+        let documents = [
+            DocumentEntry::new("same", 0, 1, 0, 1, 0, 1, Checksum::blake3(b"a")),
+            DocumentEntry::new("same", 1, 1, 1, 1, 1, 2, Checksum::blake3(b"b")),
+        ];
+        let bytes = encode_deterministic(&CborValue::Map(vec![
+            text_pair("schema", CborValue::Text(SCHEMA_DOCUMENT_INDEX.to_owned())),
+            text_pair("format_version", version_value()),
+            text_pair("container_id", CborValue::Bytes(vec![0x38; 16])),
+            text_pair(
+                "documents",
+                CborValue::Array(documents.iter().map(document_entry_value).collect()),
+            ),
+        ]))
+        .expect("fixture encoding");
+
+        assert_eq!(DocumentIndex::decode(&bytes), Err(QztError::ContainerCorrupt));
     }
 }
