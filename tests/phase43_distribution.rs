@@ -13,10 +13,10 @@ const RELEASE_TARGETS: [&str; 4] = [
 ];
 
 #[test]
-fn distribution_is_reproducibly_pinned_for_the_prerelease() {
-    // Cargo publication remains owner-gated, so dist must be explicitly
-    // opted in instead of inferring eligibility from `publish`.
-    for requirement in ["version = \"0.1.0-pre.2\"", "dist = true"] {
+fn distribution_is_reproducibly_pinned_for_the_stable_release() {
+    // Distribution remains explicitly configured instead of inferring release
+    // intent from crates.io publication eligibility.
+    for requirement in ["version = \"0.1.0\"", "dist = true"] {
         assert!(
             MANIFEST.contains(requirement),
             "missing package distribution contract: {requirement}"

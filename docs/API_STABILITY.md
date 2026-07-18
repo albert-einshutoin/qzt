@@ -72,7 +72,7 @@ also re-exported at crate root.
   version bump while pre-1.0.
 - Internal module changes may happen in patch releases during the technical
   preview.
-- The crate remains protected by `publish = false`. Issue #22 is merged; issue
-  #30 completes the documentation/lint gate described above. Actual crates.io
-  publication may proceed only after #30 is merged and the release owner
-  explicitly opens the irreversible publish gate; see [RELEASE.md](RELEASE.md).
+- Issues #22 and #30 are merged, and the dedicated stable release change makes
+  the manifest eligible for publication. Actual crates.io publication remains
+  an irreversible release-owner-only action and must follow the clean-commit
+  gate in [RELEASE.md](RELEASE.md).
