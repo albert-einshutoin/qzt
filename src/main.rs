@@ -114,6 +114,8 @@ fn print_help() {
     println!("  0  success (verify: container is valid)");
     println!("  1  command failed (verify: container is corrupt or unreadable)");
     println!("  2  usage error (unknown option / missing argument)");
+    println!();
+    println!("See docs/CLI.md for the full reference and stability contract.");
 }
 
 fn print_attest_help() {

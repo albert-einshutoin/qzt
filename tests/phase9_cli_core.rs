@@ -132,6 +132,21 @@ fn help_mentions_exit_codes() {
     }
 }
 
+#[test]
+fn help_links_the_full_cli_stability_contract() {
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("--help")
+        .output()
+        .expect("qzt --help should run");
+    assert!(output.status.success());
+
+    let stdout = String::from_utf8(output.stdout).expect("help output should be UTF-8");
+    assert!(
+        stdout.contains("See docs/CLI.md for the full reference and stability contract."),
+        "help must link the stable CLI contract:\n{stdout}"
+    );
+}
+
 /// Pack help keeps stdin constraints next to its I/O usage.
 #[test]
 fn pack_help_mentions_stdin_packing_constraints() {
