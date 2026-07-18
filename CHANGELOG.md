@@ -1,14 +1,14 @@
 # Changelog
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-07-19
 
 QZT v0.1 is a technical preview reference implementation of the Cold Evidence
 Container format for UTF-8 text.
 
 ### Release readiness
 
-- Ready for owner-gated crates.io publication after the remaining public API
-  and documentation prerequisites are merged. The
+- Ready for owner-gated crates.io publication after the public API and
+  documentation prerequisites were merged. The
   [release checklist](docs/RELEASE.md) records the verified package contents,
   dry-run procedure, irreversible-action boundary, and post-publish checks.
 

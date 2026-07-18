@@ -9,7 +9,7 @@ const JAPANESE_README: &str = include_str!("../README.ja.md");
 const VECTOR_README: &str = include_str!("vectors/README.md");
 
 #[test]
-fn manifest_is_discoverable_but_cannot_be_published_from_this_change() {
+fn owner_approved_release_manifest_is_stable_and_publishable() {
     for metadata in [
         "description = \"Cold evidence container for seekable, verifiable UTF-8 text archives\"",
         "documentation = \"https://docs.rs/qzt\"",
@@ -31,10 +31,19 @@ fn manifest_is_discoverable_but_cannot_be_published_from_this_change() {
     assert!(metadata.status.success(), "cargo metadata must succeed");
     let metadata: serde_json::Value =
         serde_json::from_slice(&metadata.stdout).expect("cargo metadata must be JSON");
+    let package = metadata["packages"]
+        .as_array()
+        .and_then(|packages| packages.iter().find(|package| package["name"] == "qzt"))
+        .expect("cargo metadata must contain the qzt package");
     assert_eq!(
-        metadata["packages"][0]["publish"],
-        serde_json::json!([]),
-        "effective Cargo metadata must keep publication disabled"
+        package["version"],
+        serde_json::json!("0.1.0"),
+        "the owner-approved release manifest must use the stable version"
+    );
+    assert_eq!(
+        package["publish"],
+        serde_json::Value::Null,
+        "the owner-approved release manifest must not block crates.io publication"
     );
 }
 
@@ -91,7 +100,7 @@ fn release_guide_preserves_owner_gate_and_dependency_checks() {
             "cargo package --list",
             "cargo doc --no-deps\n",
             "cargo doc --no-deps --all-features",
-            "publish = false",
+            "cargo metadata --no-deps --format-version 1",
             "release owner",
             "cargo publish",
             "docs.rs",
@@ -112,6 +121,10 @@ fn release_guide_preserves_owner_gate_and_dependency_checks() {
         assert!(
             guide.matches("git status --porcelain").count() >= 2,
             "release evidence must prove the whole worktree is clean before and after dry-run"
+        );
+        assert!(
+            !guide.contains("git restore Cargo.toml"),
+            "the stable release runbook must preserve intentional publication eligibility"
         );
     }
 
@@ -169,6 +182,7 @@ fn packaged_readmes_link_excluded_documents_to_the_repository() {
 
 #[test]
 fn changelog_points_release_owners_to_the_new_gate() {
+    assert!(CHANGELOG.contains("## 0.1.0 - 2026-07-19"));
     assert!(CHANGELOG.contains("Ready for owner-gated crates.io publication"));
     assert!(CHANGELOG.contains("[release checklist](docs/RELEASE.md)"));
     assert!(

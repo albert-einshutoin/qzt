@@ -1,6 +1,6 @@
 [package]
 name = "qzt"
-version = "0.1.0-pre.2"
+version = "0.1.0"
 edition = "2024"
 rust-version = "1.87"
 description = "Cold evidence container for seekable, verifiable UTF-8 text archives"
@@ -11,7 +11,6 @@ homepage = "https://github.com/albert-einshutoin/qzt"
 readme = "README.md"
 keywords = ["archive", "compression", "evidence", "text", "zstd"]
 categories = ["compression", "encoding", "filesystem"]
-publish = false
 exclude = [
     ".github/",
     "fuzz/",
@@ -22,8 +21,8 @@ exclude = [
 ]
 
 [package.metadata.dist]
-# `publish = false` protects crates.io, while this explicit opt-in allows
-# signed-off GitHub binary releases to remain an independent distribution path.
+# Keep GitHub binary distribution explicit and independently reviewable from
+# crates.io publication eligibility.
 dist = true
 
 [package.metadata.docs.rs]

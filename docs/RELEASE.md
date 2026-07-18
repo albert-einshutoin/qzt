@@ -8,15 +8,17 @@ must be described as a technical preview, not as production-ready software.
 
 ## Gate ownership
 
-Only the release owner may approve removal of `publish = false` and run the
-real `cargo publish`. A dry-run is not approval to publish. Never paste a
+Only the release owner may approve the dedicated pull request that removes
+`publish = false` and run the real `cargo publish`. A publishable stable
+manifest and a successful dry-run are not approval to upload. Never paste a
 crates.io token into an issue, pull request, terminal transcript, or CI log.
 
-Issue #42 proves packaging readiness while deliberately preserving
-`publish = false`. Actual publication happens from a separate, owner-approved
-release pull request.
+Issue #42 proved packaging readiness while deliberately preserving
+`publish = false`. The dedicated stable release pull request intentionally
+keeps publication eligibility after removing that guard; actual upload remains
+a separate release-owner-only command from its exact merge commit.
 
-## Blocking prerequisites
+## Merge and publication prerequisites
 
 - [ ] Refactoring issue #22 (public pack API consolidation) is merged.
 - [ ] Refactoring issue #30 (public rustdoc and lint cleanup) is merged.
@@ -29,7 +31,9 @@ release pull request.
 - [ ] The version remains `0.1.0` and the product is still presented as a
       technical preview.
 
-Stop if any prerequisite is unchecked.
+Reversible candidate preparation and dry-runs may run before owner approval.
+Do not merge the stable release pull request or publish while any prerequisite
+is unchecked.
 
 ## Reversible preparation
 
@@ -55,24 +59,25 @@ Review the complete `cargo package --list` output. It must include at least
 must not include `.github/`, `fuzz/`, `tasks/`, or either full Core Spec file.
 Record the file count and compressed `.crate` size in the release pull request.
 
-For the publish dry-run only, remove `publish = false` from the working copy,
-then run:
+On the dedicated stable release commit, confirm the manifest is intentionally
+publishable and run the dry-run from a clean worktree:
 
 ```sh
-cargo publish --dry-run --allow-dirty --locked
+cargo metadata --no-deps --format-version 1
+cargo publish --dry-run --locked
 ```
 
-Immediately restore `publish = false` and prove that the dry-run did not leave
-an accidental gate change:
+The effective `qzt` package metadata must report version `0.1.0` with no
+publication allow-list or deny-list. Publication eligibility is an intentional
+release input and must not be restored to `publish = false` after the dry-run.
+Prove that the dry-run left the exact reviewed commit unchanged:
 
 ```sh
-git restore Cargo.toml
 git status --porcelain
 git diff --exit-code HEAD --
 ```
 
-Both commands must print nothing. This proves that the temporary manifest edit
-did not alter any tracked or untracked release input, not only `Cargo.toml`.
+Both commands must print nothing.
 
 Attach the dry-run result, package file count, package size, and reviewed
 exclusions to issue #42. Do not include credentials or unrelated environment
@@ -122,9 +127,11 @@ request that:
 - [ ] removes `publish = false`;
 - [ ] contains no unrelated code or API changes;
 - [ ] repeats `make check`, warning-free rustdoc, `cargo package --list`, and
-      `cargo publish --dry-run --allow-dirty --locked`;
+      `cargo publish --dry-run --locked` from a clean commit;
 - [ ] records the exact commit SHA whose package was reviewed;
 - [ ] receives explicit approval from the release owner before merge.
+- [ ] adds an exact `v0.1.0` tag policy to the protected `release` environment
+      while retaining the required release-owner reviewer.
 
 ## Irreversible publication — release owner only
 
