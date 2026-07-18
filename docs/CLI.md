@@ -277,8 +277,8 @@ Executed fixture output:
 
 ## Reproducing the examples
 
-All displayed output was executed with the repository binary and these exact
-inputs (LF endings):
+Run this block from the repository root. All displayed output was executed with
+the repository binary and these exact inputs (LF endings):
 
 ```sh
 cargo build --all-features --bin qzt

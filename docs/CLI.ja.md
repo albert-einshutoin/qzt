@@ -251,7 +251,8 @@ offset 28/length 27/first line 3の`demo/beta.txt`を返します。
 
 ## 例の再現方法
 
-掲載出力は次のLF入力とrepository binaryで実行しました。
+repository rootから実行してください。掲載出力は次のLF入力とrepository binaryで
+実行しました。
 
 ```sh
 cargo build --all-features --bin qzt
