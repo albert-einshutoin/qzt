@@ -49,16 +49,28 @@ jq -e '
 ' evidence.attest.json
 ```
 
-If policy requires the exact QZT container bytes—not only the reconstructed
-original content—also require `.container_checksum != null`:
+If policy requires the QZT checksummed prefix (the encoded header, payload,
+metadata, and indexes before the Footer Payload), also require
+`.container_checksum != null`:
 
 ```sh
 jq -e '.container_checksum != null' evidence.attest.json
 ```
 
-Install `jq` with the operating system package manager when enforcing these
-examples in shell. Production verifiers should apply the equivalent checks in
-their JSON parser before trusting a signature.
+The QZT `container_checksum` ends at the start of the Footer Payload; it is not a
+whole-file digest. When policy requires byte-for-byte identity of the complete
+`.qzt` file, calculate a separate whole-file digest and sign or timestamp it
+alongside the attestation:
+
+```sh
+sha256sum evidence.qzt evidence.attest.json > evidence.sha256
+minisign -Sm evidence.sha256
+```
+
+On macOS, use `shasum -a 256 evidence.qzt evidence.attest.json` for the first
+command. Install `jq` with the operating system package manager when enforcing
+the JSON examples in shell. Production verifiers should apply the equivalent
+checks in their JSON parser before trusting a signature.
 
 ## 2. Sign with minisign
 
