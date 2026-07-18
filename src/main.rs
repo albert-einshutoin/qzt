@@ -49,14 +49,8 @@ fn main() -> ExitCode {
     let _program = args.next();
 
     match args.next().as_deref() {
-        Some("help" | "--help" | "-h") | None => {
-            print_help();
-            ExitCode::SUCCESS
-        }
-        Some("--version" | "-V") => {
-            println!("{}", qzt::version());
-            ExitCode::SUCCESS
-        }
+        Some("help" | "--help" | "-h") | None => print_help(),
+        Some("--version" | "-V") => write_stdout(format!("qzt {}\n", qzt::version()).as_bytes()),
         Some("pack") => run_pack(args),
         Some("pack-docs") => run_pack_docs(args),
         Some("attest") => run_attest(args),
@@ -77,85 +71,84 @@ fn main() -> ExitCode {
     }
 }
 
-fn print_help() {
-    println!("qzt {}", qzt::version());
-    println!();
-    println!("Usage: qzt <COMMAND>");
-    println!();
-    println!("Commands:");
-    println!("  help       Show this help");
-    println!("  pack       Pack a UTF-8 text file into QZT");
-    println!("             Use '-' as the input path to read from stdin:");
-    println!("             journalctl --since today | qzt pack - -o today.qzt");
-    println!("             (stdin requires --profile core without --dense-line-index;");
-    println!("              stdout output is not supported; -o <path> is always required)");
-    println!("  pack-docs  Pack multiple files as verified documents in one QZT container");
-    println!("  attest     Emit a verified canonical JSON attestation for signing");
-    println!("  info       Print container summary (--format json for machine-readable output)");
-    println!("  export     Restore original bytes (streams to -o file or stdout)");
-    println!("  range      Print original bytes (--bytes A:B half-open) or lines");
-    println!("             (--lines A:B 1-based inclusive)");
-    println!("  line       Print one original line (1-based; --zero-based to switch)");
-    println!(
-        "  docs       List documents in a Document Index (--format json for machine-readable)"
+fn print_help() -> ExitCode {
+    let output = format!(
+        concat!(
+            "qzt {}\n\n",
+            "Usage: qzt <COMMAND>\n\n",
+            "Commands:\n",
+            "  help       Show this help\n",
+            "  pack       Pack a UTF-8 text file into QZT\n",
+            "             Use '-' as the input path to read from stdin:\n",
+            "             journalctl --since today | qzt pack - -o today.qzt\n",
+            "             (stdin requires --profile core without --dense-line-index;\n",
+            "              stdout output is not supported; -o <path> is always required)\n",
+            "  pack-docs  Pack multiple files as verified documents in one QZT container\n",
+            "  attest     Emit a verified canonical JSON attestation for signing\n",
+            "  info       Print container summary (--format json for machine-readable output)\n",
+            "  export     Restore original bytes (streams to -o file or stdout)\n",
+            "  range      Print original bytes (--bytes A:B half-open) or lines\n",
+            "             (--lines A:B 1-based inclusive)\n",
+            "  line       Print one original line (1-based; --zero-based to switch)\n",
+            "  docs       List documents in a Document Index (--format json for machine-readable)\n",
+            "  doc        Extract one document (verified by default; --no-verify to skip)\n",
+            "  search     Search raw UTF-8 tokens with verified original-byte hits (--format json)\n",
+            "  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)\n",
+            "  verify     Verify container integrity (--format json for machine-readable output)\n\n",
+            "Options:\n",
+            "  -h, --help     Show this help\n",
+            "  -V, --version  Show version\n\n",
+            "Exit codes:\n",
+            "  0  success (verify: container is valid)\n",
+            "  1  command failed (verify: container is corrupt or unreadable)\n",
+            "  2  usage error (unknown option / missing argument)\n\n",
+            "See docs/CLI.md for the full reference and stability contract.\n"
+        ),
+        qzt::version()
     );
-    println!("  doc        Extract one document (verified by default; --no-verify to skip)");
-    println!(
-        "  search     Search raw UTF-8 tokens with verified original-byte hits (--format json)"
-    );
-    println!("  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)");
-    println!("  verify     Verify container integrity (--format json for machine-readable output)");
-    println!();
-    println!("Options:");
-    println!("  -h, --help     Show this help");
-    println!("  -V, --version  Show version");
-    println!();
-    println!("Exit codes:");
-    println!("  0  success (verify: container is valid)");
-    println!("  1  command failed (verify: container is corrupt or unreadable)");
-    println!("  2  usage error (unknown option / missing argument)");
+    write_stdout(output.as_bytes())
 }
 
-fn print_attest_help() {
-    println!("qzt {}", qzt::version());
-    println!();
-    println!("Verify a QZT container and emit canonical JSON for external signing.");
-    println!();
-    println!("Usage: qzt attest [OPTIONS] <FILE>");
-    println!();
-    println!("Options:");
-    println!("  --level <LEVEL>  Verification level: quick, normal, or deep (default: deep)");
-    println!("  -h, --help       Show this help");
-    println!();
-    println!("Output is one deterministic canonical JSON line followed by one newline.");
+fn print_attest_help() -> ExitCode {
+    let output = format!(
+        concat!(
+            "qzt {}\n\n",
+            "Verify a QZT container and emit canonical JSON for external signing.\n\n",
+            "Usage: qzt attest [OPTIONS] <FILE>\n\n",
+            "Options:\n",
+            "  --level <LEVEL>  Verification level: quick, normal, or deep (default: deep)\n",
+            "  -h, --help       Show this help\n\n",
+            "Output is one deterministic canonical JSON line followed by one newline.\n"
+        ),
+        qzt::version()
+    );
+    write_stdout(output.as_bytes())
 }
 
-fn print_pack_docs_help() {
-    println!("qzt {}", qzt::version());
-    println!();
-    println!("Pack multiple UTF-8 files into one Document Index container.");
-    println!();
-    println!("Usage: qzt pack-docs [OPTIONS] <INPUT>...");
-    println!();
-    println!("Options:");
-    println!("  -o, --output <PATH>          Output .qzt path (required)");
-    println!("  --doc-id-prefix <PREFIX>     Prefix each basename document id");
-    println!("  --profile <PROFILE>           Pack profile (default: core)");
-    println!("  --chunk-size <BYTES>          Target chunk size");
-    println!("  --max-chunk-size <BYTES>      Maximum chunk size");
-    println!("  --zstd-level <LEVEL>          Zstd compression level");
-    println!("  --checksum blake3             Checksum algorithm (only blake3 is supported)");
-    println!("  --dict none                   Dictionary mode (CLI writing not implemented)");
-    println!("  --dense-line-index on|off     Dense line index (default: on for memory profile)");
-    println!("  -h, --help                    Show this help");
-    println!();
-    println!(
-        "Memory: this command reads all inputs before packing and uses memory proportional to their total input size."
+fn print_pack_docs_help() -> ExitCode {
+    let output = format!(
+        concat!(
+            "qzt {}\n\n",
+            "Pack multiple UTF-8 files into one Document Index container.\n\n",
+            "Usage: qzt pack-docs [OPTIONS] <INPUT>...\n\n",
+            "Options:\n",
+            "  -o, --output <PATH>          Output .qzt path (required)\n",
+            "  --doc-id-prefix <PREFIX>     Prefix each basename document id\n",
+            "  --profile <PROFILE>           Pack profile (default: core)\n",
+            "  --chunk-size <BYTES>          Target chunk size\n",
+            "  --max-chunk-size <BYTES>      Maximum chunk size\n",
+            "  --zstd-level <LEVEL>          Zstd compression level\n",
+            "  --checksum blake3             Checksum algorithm (only blake3 is supported)\n",
+            "  --dict none                   Dictionary mode (CLI writing not implemented)\n",
+            "  --dense-line-index on|off     Dense line index (default: on for memory profile)\n",
+            "  -h, --help                    Show this help\n\n",
+            "Memory: this command reads all inputs before packing and uses memory proportional to their total input size.\n",
+            "        With --profile memory, the default 256 KiB target / 2 MiB maximum chunks bound small reads but may reduce compression ratio;\n",
+            "        --chunk-size and --max-chunk-size override that trade-off.\n"
+        ),
+        qzt::version()
     );
-    println!(
-        "        With --profile memory, the default 256 KiB target / 2 MiB maximum chunks bound small reads but may reduce compression ratio;"
-    );
-    println!("        --chunk-size and --max-chunk-size override that trade-off.");
+    write_stdout(output.as_bytes())
 }
 
 /// Exact profile list line; kept in sync with `tests/cli_help.rs` (issue #71).
@@ -163,40 +156,39 @@ const PACK_PROFILES_LINE: &str = "Profiles: minimal, core, log, archive, memory"
 const PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE: usize = 256 * 1024;
 const PACK_DOCS_MEMORY_DEFAULT_MAX_CHUNK_SIZE: usize = 2 * 1024 * 1024;
 
-fn print_pack_help() {
-    println!("qzt {}", qzt::version());
-    println!();
-    println!(
-        "Pack a UTF-8 text file into a QZT container (v0.1 technical preview; not production-ready)."
+fn print_pack_help() -> ExitCode {
+    let output = format!(
+        concat!(
+            "qzt {}\n\n",
+            "Pack a UTF-8 text file into a QZT container (v0.1 technical preview; not production-ready).\n\n",
+            "Usage: qzt pack [OPTIONS] <INPUT>\n\n",
+            "{}\n\n",
+            "Options:\n",
+            "  -o, --output <PATH>          Output .qzt path (required)\n",
+            "  --profile <PROFILE>          Pack profile (default: core)\n",
+            "  --chunk-size <BYTES>         Target chunk size\n",
+            "  --max-chunk-size <BYTES>     Maximum chunk size\n",
+            "  --zstd-level <LEVEL>         Zstd compression level\n",
+            "  --checksum blake3            Checksum algorithm (only blake3 is supported)\n",
+            "  --dict none                  Dictionary mode (CLI writing not implemented)\n",
+            "  --dense-line-index on|off    Dense line index (default: on for memory profile)\n",
+            "  -h, --help                   Show this help\n\n",
+            "stdin:\n",
+            "  Use '-' as INPUT to read from stdin:\n",
+            "  journalctl --since today | qzt pack - -o today.qzt\n",
+            "  (stdin requires --profile core without --dense-line-index;\n",
+            "   stdout output is not supported; -o <path> is always required)\n"
+        ),
+        qzt::version(),
+        PACK_PROFILES_LINE
     );
-    println!();
-    println!("Usage: qzt pack [OPTIONS] <INPUT>");
-    println!();
-    println!("{PACK_PROFILES_LINE}");
-    println!();
-    println!("Options:");
-    println!("  -o, --output <PATH>          Output .qzt path (required)");
-    println!("  --profile <PROFILE>          Pack profile (default: core)");
-    println!("  --chunk-size <BYTES>         Target chunk size");
-    println!("  --max-chunk-size <BYTES>     Maximum chunk size");
-    println!("  --zstd-level <LEVEL>         Zstd compression level");
-    println!("  --checksum blake3            Checksum algorithm (only blake3 is supported)");
-    println!("  --dict none                  Dictionary mode (CLI writing not implemented)");
-    println!("  --dense-line-index on|off    Dense line index (default: on for memory profile)");
-    println!("  -h, --help                   Show this help");
-    println!();
-    println!("stdin:");
-    println!("  Use '-' as INPUT to read from stdin:");
-    println!("  journalctl --since today | qzt pack - -o today.qzt");
-    println!("  (stdin requires --profile core without --dense-line-index;");
-    println!("   stdout output is not supported; -o <path> is always required)");
+    write_stdout(output.as_bytes())
 }
 
 fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
     let args: Vec<String> = args.collect();
     if args.iter().any(|arg| arg == "--help" || arg == "-h") {
-        print_pack_help();
-        return ExitCode::SUCCESS;
+        return print_pack_help();
     }
 
     let mut args = args.into_iter();
@@ -326,14 +318,9 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
             } else {
                 Box::new(std::fs::File::open(&input_path)?)
             };
-            let temp_output_path = format!("{output_path}.tmp");
+            let output_path = Path::new(&output_path);
+            let (temp_output_path, output) = create_atomic_output(output_path, true)?;
             let stream_result: CliResult<()> = (|| {
-                let output = std::fs::OpenOptions::new()
-                    .read(true)
-                    .write(true)
-                    .create(true)
-                    .truncate(true)
-                    .open(&temp_output_path)?;
                 let mut writer = QztFileWriter::new(output, options)?;
                 let mut buffer = vec![0_u8; 64 * 1024];
                 loop {
@@ -344,17 +331,19 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
                     writer.push(&buffer[..read])?;
                 }
                 writer.finish()?;
+                let output = writer.into_inner();
+                output.sync_all()?;
+                drop(output);
+                std::fs::rename(&temp_output_path, output_path)?;
                 Ok(())
             })();
-            if stream_result.is_err() {
-                let _ = std::fs::remove_file(&temp_output_path);
+            if let Err(primary_error) = stream_result {
+                return Err(cleanup_atomic_output(&temp_output_path, primary_error));
             }
-            stream_result?;
-            std::fs::rename(temp_output_path, output_path)?;
         } else {
             let input = std::fs::read(input_path)?;
             let container = pack_bytes_with_profile(&input, options, &profile, dense_line_index)?;
-            std::fs::write(output_path, container)?;
+            write_container_atomically(&output_path, &container)?;
         }
         Ok(())
     })();
@@ -528,8 +517,7 @@ impl PackDocsArgs {
 fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
     let args: Vec<String> = args.collect();
     if args.iter().any(|arg| arg == "--help" || arg == "-h") {
-        print_pack_docs_help();
-        return ExitCode::SUCCESS;
+        return print_pack_docs_help();
     }
 
     let args = match PackDocsArgs::parse(args.into_iter()) {
@@ -603,6 +591,24 @@ fn build_pack_docs_container(
 
 fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<()> {
     let output_path = Path::new(output_path);
+    let (temp_output_path, mut file) = create_atomic_output(output_path, false)?;
+    let write_result: CliResult<()> = (|| {
+        file.write_all(container)?;
+        file.sync_all()?;
+        drop(file);
+        std::fs::rename(&temp_output_path, output_path)?;
+        Ok(())
+    })();
+    if let Err(primary_error) = write_result {
+        return Err(cleanup_atomic_output(&temp_output_path, primary_error));
+    }
+    Ok(())
+}
+
+fn create_atomic_output(
+    output_path: &Path,
+    read_access: bool,
+) -> CliResult<(std::path::PathBuf, std::fs::File)> {
     let file_name = output_path.file_name().ok_or_else(|| {
         std::io::Error::new(
             std::io::ErrorKind::InvalidInput,
@@ -616,57 +622,49 @@ fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
         Err(error) => return Err(error.into()),
     };
-    let mut temporary = None;
+    // Why create_new in the destination directory: pack writes can be large, so
+    // we stream without buffering the container while preventing a pre-created
+    // symlink from redirecting/truncating an unrelated file before atomic rename.
     for attempt in 0_u16..128 {
         let mut name = std::ffi::OsString::from(".");
         name.push(file_name);
         name.push(format!(".qzt-tmp-{}-{attempt}", std::process::id()));
         let path = parent.join(name);
         match std::fs::OpenOptions::new()
+            .read(read_access)
             .write(true)
             .create_new(true)
             .open(&path)
         {
             Ok(file) => {
-                temporary = Some((path, file));
-                break;
+                if let Some(permissions) = inherited_permissions {
+                    if let Err(primary_error) = file.set_permissions(permissions) {
+                        drop(file);
+                        return Err(cleanup_atomic_output(&path, primary_error.into()));
+                    }
+                }
+                return Ok((path, file));
             }
             Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
             Err(error) => return Err(error.into()),
         }
     }
-    let (temp_output_path, mut file) = temporary.ok_or_else(|| {
-        std::io::Error::new(
-            std::io::ErrorKind::AlreadyExists,
-            "could not allocate a unique temporary output file",
-        )
-    })?;
-    let write_result: std::io::Result<()> = (|| {
-        if let Some(permissions) = inherited_permissions {
-            file.set_permissions(permissions)?;
-        }
-        file.write_all(container)?;
-        file.sync_all()?;
-        drop(file);
-        std::fs::rename(&temp_output_path, output_path)?;
-        Ok(())
-    })();
-    if let Err(primary_error) = write_result {
-        return match std::fs::remove_file(&temp_output_path) {
-            Ok(()) => Err(primary_error.into()),
-            Err(cleanup_error) if cleanup_error.kind() == std::io::ErrorKind::NotFound => {
-                Err(primary_error.into())
-            }
-            Err(cleanup_error) => Err(std::io::Error::new(
-                primary_error.kind(),
-                format!(
-                    "{primary_error}; additionally failed to remove temporary output: {cleanup_error}"
-                ),
-            )
-            .into()),
-        };
+    Err(std::io::Error::new(
+        std::io::ErrorKind::AlreadyExists,
+        "could not allocate a unique temporary output file",
+    )
+    .into())
+}
+
+fn cleanup_atomic_output(temp_output_path: &Path, primary_error: CliError) -> CliError {
+    match std::fs::remove_file(temp_output_path) {
+        Ok(()) => primary_error,
+        Err(cleanup_error) if cleanup_error.kind() == std::io::ErrorKind::NotFound => primary_error,
+        Err(cleanup_error) => std::io::Error::other(format!(
+            "{primary_error}; additionally failed to remove temporary output: {cleanup_error}"
+        ))
+        .into(),
     }
-    Ok(())
 }
 
 /// Output format requested by the caller of `qzt info`.
@@ -724,31 +722,39 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
             };
             // Text output: existing lines unchanged, then three new lines appended.
             if format == InfoFormat::Text {
-                println!("Format: QZT 0.1");
-                println!("Profile: {}", metadata.profile);
-                println!("Original size: {}", info.original_size);
-                println!("Compressed size: {compressed_size}");
-                println!("Chunks: {}", info.chunk_count);
-                println!("Lines: {}", info.line_count);
-                println!("Compression: zstd");
-                println!("Zstd level: {}", metadata.zstd_level);
-                println!("Target chunk size: {}", metadata.target_chunk_size);
-                println!("Max chunk size: {}", metadata.max_chunk_size);
-                println!("Line index: {line_index}");
-                println!(
-                    "Document index: {}",
-                    if metadata.document_index { "yes" } else { "no" }
-                );
-                println!("Checksum: blake3");
-                println!("Zstd stream compatible: no");
-                // New lines for container identity and original checksum.
-                println!("Container ID: {}", cli_json::hex(&info.container_id));
-                println!(
-                    "Original checksum: {}:{}",
-                    metadata.original_checksum.algorithm,
-                    cli_json::hex(&metadata.original_checksum.value),
-                );
-                println!("Newline mode: {}", metadata.newline_mode);
+                write_stdout_with(|output| {
+                    writeln!(output, "Format: QZT 0.1")?;
+                    writeln!(output, "Profile: {}", metadata.profile)?;
+                    writeln!(output, "Original size: {}", info.original_size)?;
+                    writeln!(output, "Compressed size: {compressed_size}")?;
+                    writeln!(output, "Chunks: {}", info.chunk_count)?;
+                    writeln!(output, "Lines: {}", info.line_count)?;
+                    writeln!(output, "Compression: zstd")?;
+                    writeln!(output, "Zstd level: {}", metadata.zstd_level)?;
+                    writeln!(output, "Target chunk size: {}", metadata.target_chunk_size)?;
+                    writeln!(output, "Max chunk size: {}", metadata.max_chunk_size)?;
+                    writeln!(output, "Line index: {line_index}")?;
+                    writeln!(
+                        output,
+                        "Document index: {}",
+                        if metadata.document_index { "yes" } else { "no" }
+                    )?;
+                    writeln!(output, "Checksum: blake3")?;
+                    writeln!(output, "Zstd stream compatible: no")?;
+                    // New lines for container identity and original checksum.
+                    writeln!(
+                        output,
+                        "Container ID: {}",
+                        cli_json::hex(&info.container_id)
+                    )?;
+                    writeln!(
+                        output,
+                        "Original checksum: {}:{}",
+                        metadata.original_checksum.algorithm,
+                        cli_json::hex(&metadata.original_checksum.value),
+                    )?;
+                    writeln!(output, "Newline mode: {}", metadata.newline_mode)
+                })
             } else {
                 // JSON output: single object on stdout.
                 let container_id_hex = cli_json::hex(&info.container_id);
@@ -756,7 +762,7 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
                 let checksum_value = cli_json::hex(&metadata.original_checksum.value);
                 let profile = cli_json::escape(&metadata.profile);
                 let newline_mode = cli_json::escape(&metadata.newline_mode);
-                println!(
+                let output = format!(
                     concat!(
                         "{{\n",
                         "  \"format\": \"qzt-0.1\",\n",
@@ -774,7 +780,7 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
                         "  \"dense_line_index\": {dense_line_index},\n",
                         "  \"document_index\": {document_index},\n",
                         "  \"document_count\": {document_count}\n",
-                        "}}"
+                        "}}\n"
                     ),
                     container_id = container_id_hex,
                     profile = profile,
@@ -792,8 +798,8 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
                     document_index = metadata.document_index,
                     document_count = document_count,
                 );
+                write_stdout(output.as_bytes())
             }
-            ExitCode::SUCCESS
         }
         Err(error) => command_failed("info", &error),
     }
@@ -861,6 +867,10 @@ fn run_range(mut args: impl Iterator<Item = String>) -> ExitCode {
         eprintln!("qzt range: missing range");
         return ExitCode::from(2);
     };
+    if let Some(arg) = args.next() {
+        eprintln!("qzt range: unknown option '{arg}'");
+        return ExitCode::from(2);
+    }
 
     let result: CliResult<Vec<u8>> = if flag == "--bytes" {
         let Some((start, end)) = parse_range(&range) else {
@@ -900,16 +910,18 @@ enum SearchFormat {
 /// The output is byte-identical to the pre-existing format. Each hit is on its
 /// own line followed by a single `metrics` line and an optional stderr warning
 /// when `incomplete_reason` is set.
-fn print_search_report_text(report: &SearchReport) {
+fn write_search_report_text(report: &SearchReport, output: &mut dyn Write) -> std::io::Result<()> {
     for hit in &report.hits {
-        println!(
+        writeln!(
+            output,
             "hit logical_offset={} byte_length={} chunk_start={} chunk_end={} source={}",
             hit.logical_offset, hit.byte_length, hit.chunk_start, hit.chunk_end, hit.source
-        );
+        )?;
     }
     // Escape query so LF/CR/quotes cannot break the single-line metrics contract.
     let query_escaped = cli_json::escape(&report.metrics.query);
-    println!(
+    writeln!(
+        output,
         "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
         query_escaped,
         report.metrics.index_kind,
@@ -927,10 +939,11 @@ fn print_search_report_text(report: &SearchReport) {
         report.metrics.query_time_ms,
         report.capped,
         report.incomplete_reason.unwrap_or("none")
-    );
+    )?;
     if let Some(reason) = report.incomplete_reason {
         eprintln!("qzt search: warning: result may be incomplete ({reason})");
     }
+    Ok(())
 }
 
 /// Prints the JSON-mode search report to stdout.
@@ -946,18 +959,19 @@ fn print_search_report_text(report: &SearchReport) {
 /// Note: the `score` field from [`SearchHit`] is intentionally omitted from
 /// JSON output — it is always `None` in the current implementation and is also
 /// absent from text output.
-fn print_search_report_json(report: &SearchReport) {
+fn write_search_report_json(report: &SearchReport, output: &mut dyn Write) -> std::io::Result<()> {
     let query_escaped = cli_json::escape(&report.metrics.query);
     let index_kind_escaped = cli_json::escape(report.metrics.index_kind);
     let granularity_escaped = cli_json::escape(report.metrics.posting_granularity);
 
-    print!("{{\"hits\":[");
+    write!(output, "{{\"hits\":[")?;
     for (i, hit) in report.hits.iter().enumerate() {
         if i > 0 {
-            print!(",");
+            write!(output, ",")?;
         }
         let source_escaped = cli_json::escape(hit.source);
-        print!(
+        write!(
+            output,
             concat!(
                 "{{",
                 "\"logical_offset\":{logical_offset},",
@@ -972,7 +986,7 @@ fn print_search_report_json(report: &SearchReport) {
             chunk_start = hit.chunk_start,
             chunk_end = hit.chunk_end,
             source = source_escaped,
-        );
+        )?;
     }
     let incomplete_json = match report.incomplete_reason {
         None => "null".to_owned(),
@@ -981,7 +995,8 @@ fn print_search_report_json(report: &SearchReport) {
     // Guard against NaN/inf producing invalid JSON for the f64 metric fields.
     debug_assert!(report.metrics.index_size_ratio.is_finite());
     debug_assert!(report.metrics.query_time_ms.is_finite());
-    println!(
+    writeln!(
+        output,
         concat!(
             "],",
             "\"metrics\":{{",
@@ -1020,10 +1035,11 @@ fn print_search_report_json(report: &SearchReport) {
         query_time_ms = report.metrics.query_time_ms,
         capped = report.capped,
         incomplete_reason = incomplete_json,
-    );
+    )?;
     if let Some(reason) = report.incomplete_reason {
         eprintln!("qzt search: warning: result may be incomplete ({reason})");
     }
+    Ok(())
 }
 
 /// Output format requested by the caller of `qzt verify`.
@@ -1050,8 +1066,7 @@ fn verify_level_as_str(level: VerifyLevel) -> &'static str {
 fn run_attest(args: impl Iterator<Item = String>) -> ExitCode {
     let args: Vec<String> = args.collect();
     if args.iter().any(|arg| arg == "--help" || arg == "-h") {
-        print_attest_help();
-        return ExitCode::SUCCESS;
+        return print_attest_help();
     }
 
     let mut args = args.into_iter();
@@ -1160,25 +1175,32 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
             if format == VerifyFormat::Text {
                 // First line is byte-identical to the pre-existing output for script
                 // compatibility; report lines are appended below it.
-                println!("Verify: {:?} ok", report.level);
-                println!("Checked chunks: {}", report.checked_chunks);
-                println!("Decoded bytes: {}", report.decoded_bytes);
+                write_stdout_with(|output| {
+                    writeln!(output, "Verify: {:?} ok", report.level)?;
+                    writeln!(output, "Checked chunks: {}", report.checked_chunks)?;
+                    writeln!(output, "Decoded bytes: {}", report.decoded_bytes)
+                })
             } else {
                 let chunks = report.checked_chunks;
                 let bytes = report.decoded_bytes;
-                println!(
+                let output = format!(
                     "{{\"ok\":true,\"level\":\"{level_str}\",\"checked_chunks\":{chunks},\"decoded_bytes\":{bytes}}}"
                 );
+                write_stdout(format!("{output}\n").as_bytes())
             }
-            ExitCode::SUCCESS
         }
         Err(ref error) => {
             if format == VerifyFormat::Json {
                 // JSON consumers read stdout only; no stderr output in JSON mode.
                 let error_msg = cli_json::escape(&error.to_string());
                 let level_str = verify_level_as_str(level);
-                println!("{{\"ok\":false,\"level\":\"{level_str}\",\"error\":\"{error_msg}\"}}");
-                ExitCode::from(1)
+                let output = format!(
+                    "{{\"ok\":false,\"level\":\"{level_str}\",\"error\":\"{error_msg}\"}}\n"
+                );
+                match write_stdout(output.as_bytes()) {
+                    code if code == ExitCode::SUCCESS => ExitCode::from(1),
+                    code => code,
+                }
             } else {
                 command_failed("verify", error)
             }
@@ -1195,7 +1217,15 @@ fn run_line(mut args: impl Iterator<Item = String>) -> ExitCode {
         eprintln!("qzt line: missing line number");
         return ExitCode::from(2);
     };
-    let zero_based = args.any(|arg| arg == "--zero-based");
+    let mut zero_based = false;
+    for arg in args {
+        if arg == "--zero-based" {
+            zero_based = true;
+        } else {
+            eprintln!("qzt line: unknown option '{arg}'");
+            return ExitCode::from(2);
+        }
+    }
     let Ok(mut line_number) = line.parse::<u64>() else {
         eprintln!("qzt line: invalid line number");
         return ExitCode::from(2);
@@ -1283,57 +1313,61 @@ fn run_docs(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(documents) => {
-            if format == DocsFormat::Text {
-                println!("doc_id\toffset\tbytes\tfirst_line\tlines\tchecksum");
-                for doc in &documents {
-                    let doc_id_escaped = escape_doc_id_text(&doc.doc_id);
-                    let checksum_hex = cli_json::hex(&doc.checksum.value);
-                    let first_line_one_based = doc.first_line.saturating_add(1);
-                    println!(
-                        "{}\t{}\t{}\t{}\t{}\t{}:{}",
-                        doc_id_escaped,
-                        doc.logical_offset,
-                        doc.byte_length,
-                        first_line_one_based,
-                        doc.line_count,
-                        cli_json::escape(&doc.checksum.algorithm),
-                        checksum_hex,
-                    );
-                }
-            } else {
-                // JSON output: {"documents":[...]}
-                print!("{{\"documents\":[");
-                for (i, doc) in documents.iter().enumerate() {
-                    if i > 0 {
-                        print!(",");
+            write_stdout_with(|output| {
+                if format == DocsFormat::Text {
+                    writeln!(output, "doc_id\toffset\tbytes\tfirst_line\tlines\tchecksum")?;
+                    for doc in &documents {
+                        let doc_id_escaped = escape_doc_id_text(&doc.doc_id);
+                        let checksum_hex = cli_json::hex(&doc.checksum.value);
+                        let first_line_one_based = doc.first_line.saturating_add(1);
+                        writeln!(
+                            output,
+                            "{}\t{}\t{}\t{}\t{}\t{}:{}",
+                            doc_id_escaped,
+                            doc.logical_offset,
+                            doc.byte_length,
+                            first_line_one_based,
+                            doc.line_count,
+                            cli_json::escape(&doc.checksum.algorithm),
+                            checksum_hex,
+                        )?;
                     }
-                    let doc_id_json = cli_json::escape(&doc.doc_id);
-                    let alg_json = cli_json::escape(&doc.checksum.algorithm);
-                    let checksum_hex = cli_json::hex(&doc.checksum.value);
-                    let first_line_one_based = doc.first_line.saturating_add(1);
-                    print!(
-                        concat!(
-                            "{{",
-                            "\"doc_id\":\"{doc_id}\",",
-                            "\"logical_offset\":{offset},",
-                            "\"byte_length\":{length},",
-                            "\"first_line\":{first_line},",
-                            "\"line_count\":{line_count},",
-                            "\"checksum\":{{\"algorithm\":\"{alg}\",\"value\":\"{chk}\"}}",
-                            "}}"
-                        ),
-                        doc_id = doc_id_json,
-                        offset = doc.logical_offset,
-                        length = doc.byte_length,
-                        first_line = first_line_one_based,
-                        line_count = doc.line_count,
-                        alg = alg_json,
-                        chk = checksum_hex,
-                    );
+                    Ok(())
+                } else {
+                    // JSON output: {"documents":[...]}
+                    write!(output, "{{\"documents\":[")?;
+                    for (i, doc) in documents.iter().enumerate() {
+                        if i > 0 {
+                            write!(output, ",")?;
+                        }
+                        let doc_id_json = cli_json::escape(&doc.doc_id);
+                        let alg_json = cli_json::escape(&doc.checksum.algorithm);
+                        let checksum_hex = cli_json::hex(&doc.checksum.value);
+                        let first_line_one_based = doc.first_line.saturating_add(1);
+                        write!(
+                            output,
+                            concat!(
+                                "{{",
+                                "\"doc_id\":\"{doc_id}\",",
+                                "\"logical_offset\":{offset},",
+                                "\"byte_length\":{length},",
+                                "\"first_line\":{first_line},",
+                                "\"line_count\":{line_count},",
+                                "\"checksum\":{{\"algorithm\":\"{alg}\",\"value\":\"{chk}\"}}",
+                                "}}"
+                            ),
+                            doc_id = doc_id_json,
+                            offset = doc.logical_offset,
+                            length = doc.byte_length,
+                            first_line = first_line_one_based,
+                            line_count = doc.line_count,
+                            alg = alg_json,
+                            chk = checksum_hex,
+                        )?;
+                    }
+                    writeln!(output, "]}}")
                 }
-                println!("]}}");
-            }
-            ExitCode::SUCCESS
+            })
         }
         Err(ref error) => {
             eprintln!("qzt docs: {error}");
@@ -1540,13 +1574,10 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     })();
 
     match result {
-        Ok(report) => {
-            match format {
-                SearchFormat::Text => print_search_report_text(&report),
-                SearchFormat::Json => print_search_report_json(&report),
-            }
-            ExitCode::SUCCESS
-        }
+        Ok(report) => write_stdout_with(|output| match format {
+            SearchFormat::Text => write_search_report_text(&report, output),
+            SearchFormat::Json => write_search_report_json(&report, output),
+        }),
         Err(error) => command_failed("search", &error),
     }
 }
@@ -1659,9 +1690,18 @@ fn read_line_range_file(
 }
 
 fn write_stdout(bytes: &[u8]) -> ExitCode {
-    match std::io::stdout().write_all(bytes) {
+    write_stdout_with(|output| output.write_all(bytes))
+}
+
+fn write_stdout_with(write: impl FnOnce(&mut dyn Write) -> std::io::Result<()>) -> ExitCode {
+    let stdout = std::io::stdout();
+    let mut output = stdout.lock();
+    match write(&mut output).and_then(|()| output.flush()) {
         Ok(()) => ExitCode::SUCCESS,
-        Err(_) => ExitCode::from(1),
+        Err(error) => {
+            eprintln!("qzt: failed to write stdout: {error}");
+            ExitCode::from(1)
+        }
     }
 }
 

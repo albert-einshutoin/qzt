@@ -7,6 +7,13 @@ Container format for UTF-8 text.
 
 ### Added
 
+- Added complete English and Japanese CLI references covering every command and
+  option, honest profile behavior, range/line conventions, JSON schemas,
+  canonical attestation bytes, exit codes, and stdout/stderr compatibility
+  rules. Top-level help and both READMEs now link to the v0.1 automation
+  stability contract, and every displayed example was executed against the
+  documented reproducible fixture.
+
 - Published QZT v0.1 portable conformance vector set v1 with 14 deterministic
   valid and corrupt fixtures covering newline modes, multibyte UTF-8,
   multi-chunk layout, Dense Line and Document indexes, fixed structures,

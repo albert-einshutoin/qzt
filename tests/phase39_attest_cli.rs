@@ -2,6 +2,13 @@ use std::fmt::Write as _;
 use std::fs;
 use std::process::{Command, Output};
 
+#[cfg(unix)]
+use std::os::fd::OwnedFd;
+#[cfg(unix)]
+use std::os::unix::net::UnixStream;
+#[cfg(unix)]
+use std::process::Stdio;
+
 #[cfg(feature = "internal-testing")]
 use qzt::{Checksum, fixed::FooterTrailer, format::FOOTER_TRAILER_LEN, schema::FooterPayload};
 use qzt::{QztFileReader, WriterOptions, pack_bytes_with_container_id};
@@ -235,4 +242,27 @@ fn attest_help_documents_the_stable_output_contract() {
     assert!(stdout.contains("--level <LEVEL>"));
     assert!(stdout.contains("default: deep"));
     assert!(stdout.contains("canonical JSON"));
+}
+
+#[test]
+#[cfg(unix)]
+fn attest_reports_stdout_delivery_failure() {
+    let (path, _) = fixture("closed-stdout");
+    let (child_stdout, peer) = UnixStream::pair().expect("stdout socket pair");
+    drop(peer);
+    let child_stdout = OwnedFd::from(child_stdout);
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("attest")
+        .arg(path)
+        .stdout(Stdio::from(child_stdout))
+        .stderr(Stdio::piped())
+        .output()
+        .expect("qzt attest should run with stdout closed");
+
+    assert_eq!(output.status.code(), Some(1));
+    assert!(
+        String::from_utf8_lossy(&output.stderr).contains("failed to write stdout"),
+        "stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 }
