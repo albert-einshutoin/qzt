@@ -6,6 +6,7 @@ const JAPANESE_RELEASE_GUIDE: &str = include_str!("../docs/RELEASE.ja.md");
 const CHANGELOG: &str = include_str!("../CHANGELOG.md");
 const README: &str = include_str!("../README.md");
 const JAPANESE_README: &str = include_str!("../README.ja.md");
+const VECTOR_README: &str = include_str!("vectors/README.md");
 
 #[test]
 fn manifest_is_discoverable_but_cannot_be_published_from_this_change() {
@@ -123,6 +124,16 @@ fn packaged_readmes_link_excluded_documents_to_the_repository() {
             "packaged README must not use relative links to an excluded Core Spec"
         );
     }
+
+    assert!(
+        !VECTOR_README.contains("](../../docs/QZT_v0.1_Core_Spec.md)"),
+        "packaged vector guide must not link relatively to the excluded Core Spec"
+    );
+    assert!(
+        VECTOR_README.contains(
+            "https://github.com/albert-einshutoin/qzt/blob/main/docs/QZT_v0.1_Core_Spec.md"
+        )
+    );
 
     for (readme, excluded_path) in [
         (README, "docs/QZT_v0.1_Core_Spec.md"),
