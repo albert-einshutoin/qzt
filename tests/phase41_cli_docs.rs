@@ -473,6 +473,22 @@ fn help_and_version_report_closed_stdout_as_runtime_failure() {
     }
 }
 
+#[test]
+fn version_stdout_matches_the_documented_stable_form() {
+    for flag in ["--version", "-V"] {
+        let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg(flag)
+            .output()
+            .expect("qzt version should run");
+        assert!(output.status.success());
+        assert_eq!(
+            output.stdout,
+            format!("qzt {}\n", env!("CARGO_PKG_VERSION")).as_bytes()
+        );
+        assert!(output.stderr.is_empty());
+    }
+}
+
 fn command_section<'a>(document: &'a str, command: &str) -> &'a str {
     let marker = format!("### `{command}");
     let start = document

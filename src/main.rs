@@ -50,7 +50,7 @@ fn main() -> ExitCode {
 
     match args.next().as_deref() {
         Some("help" | "--help" | "-h") | None => print_help(),
-        Some("--version" | "-V") => write_stdout(format!("{}\n", qzt::version()).as_bytes()),
+        Some("--version" | "-V") => write_stdout(format!("qzt {}\n", qzt::version()).as_bytes()),
         Some("pack") => run_pack(args),
         Some("pack-docs") => run_pack_docs(args),
         Some("attest") => run_attest(args),
