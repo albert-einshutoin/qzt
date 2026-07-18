@@ -1,4 +1,15 @@
-name	kind	expect_open	expect_deep_verify	expect_export_text
-valid_c1	hex	ok	ok	alpha\nbeta\n
-valid_empty	hex	ok	ok	
-corrupt_header	hex	err	-	-
+name	kind	expect_open	expect_deep_verify	expect_export_text	expect_error
+valid_c1	hex	ok	ok	alpha\nbeta\n	-
+valid_empty	hex	ok	ok		-
+valid_crlf	hex	ok	ok	a\r\nb\r\n	-
+valid_mixed_newline	hex	ok	ok	a\nb\r\n	-
+valid_utf8_multibyte	hex	ok	ok	日本語🙂é\n	-
+valid_multi_chunk	hex	ok	ok	alpha\nbeta\ngamma\n	-
+valid_no_trailing_newline	hex	ok	ok	a\nb	-
+valid_dense_line_index	hex	ok	ok	zero\none\ntwo\n	-
+valid_document_index	hex	ok	ok	document one\n	-
+corrupt_header	hex	err	-	-	invalid_magic
+corrupt_footer_checksum	hex	err	-	-	footer_checksum_mismatch
+corrupt_chunk_data	hex	ok	err	-	compressed_chunk_checksum_mismatch
+corrupt_truncated	hex	err	-	-	invalid_footer_trailer
+corrupt_noncanonical_cbor	hex	err	-	-	non_canonical_cbor

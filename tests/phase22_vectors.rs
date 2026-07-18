@@ -1,69 +1,299 @@
+use std::fs;
+use std::path::PathBuf;
+
+use qzt::chunker::ChunkerOptions;
+use qzt::error::QztError;
+use qzt::fixed::{FooterTrailer, Header};
+use qzt::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
 use qzt::reader::{QztReader, VerifyLevel};
-use qzt::writer::{WriterOptions, pack_bytes};
+use qzt::schema::{Checksum, FooterPayload};
+use qzt::skeleton::open_skeleton_details;
+use qzt::writer::{DocumentSpan, WriterBuilder, WriterOptions, pack_bytes};
+
+const REQUIRED_VECTORS: [&str; 14] = [
+    "valid_c1",
+    "valid_empty",
+    "valid_crlf",
+    "valid_mixed_newline",
+    "valid_utf8_multibyte",
+    "valid_multi_chunk",
+    "valid_no_trailing_newline",
+    "valid_dense_line_index",
+    "valid_document_index",
+    "corrupt_header",
+    "corrupt_footer_checksum",
+    "corrupt_chunk_data",
+    "corrupt_truncated",
+    "corrupt_noncanonical_cbor",
+];
+
+#[test]
+fn published_manifest_has_v1_schema_and_required_coverage() {
+    let manifest = include_str!("vectors/manifest.tsv");
+    let mut lines = manifest.lines();
+    assert_eq!(
+        lines.next(),
+        Some("name\tkind\texpect_open\texpect_deep_verify\texpect_export_text\texpect_error")
+    );
+
+    let names = lines
+        .map(|line| {
+            let fields = line.split('\t').collect::<Vec<_>>();
+            assert_eq!(
+                fields.len(),
+                6,
+                "manifest row must have six columns: {line}"
+            );
+            fields[0]
+        })
+        .collect::<Vec<_>>();
+    assert!(
+        names.len() >= 14,
+        "vector set v1 requires at least 14 cases"
+    );
+    for required in REQUIRED_VECTORS {
+        assert!(
+            names.contains(&required),
+            "missing required vector {required}"
+        );
+    }
+
+    let mut unique_names = names.clone();
+    unique_names.sort_unstable();
+    unique_names.dedup();
+    assert_eq!(
+        unique_names.len(),
+        names.len(),
+        "vector names must be unique"
+    );
+}
 
 #[test]
 fn portable_vector_runner_matches_manifest() {
     let manifest = include_str!("vectors/manifest.tsv");
     for line in manifest.lines().skip(1) {
         let fields = line.split('\t').collect::<Vec<_>>();
-        let name = fields[0];
-        let expect_open = fields[2];
-        let expect_deep = fields[3];
-        let expect_export = fields[4].replace("\\n", "\n");
-        let bytes = decode_hex(vector_hex(name)).expect("vector hex should decode");
+        assert_eq!(
+            fields.len(),
+            6,
+            "manifest row must have six columns: {line}"
+        );
+        let [
+            name,
+            kind,
+            expect_open,
+            expect_deep,
+            expect_export,
+            expect_error,
+        ] = fields.as_slice()
+        else {
+            unreachable!("column count was checked above")
+        };
+        assert_eq!(*kind, "hex", "unsupported vector kind for {name}");
+        let bytes = decode_hex(&vector_hex(name)).expect("vector hex should decode");
 
-        match expect_open {
+        match *expect_open {
             "ok" => {
                 let reader = QztReader::open(&bytes).expect("vector should open");
-                if expect_deep == "ok" {
-                    reader
-                        .verify(VerifyLevel::Deep)
-                        .expect("deep verify should pass");
+                match *expect_deep {
+                    "ok" => {
+                        reader
+                            .verify(VerifyLevel::Deep)
+                            .expect("deep verify should pass");
+                    }
+                    "err" => assert_error_category(
+                        reader
+                            .verify(VerifyLevel::Deep)
+                            .expect_err("deep verify should fail"),
+                        expect_error,
+                        name,
+                    ),
+                    other => panic!("unknown deep-verify expectation {other}"),
                 }
-                assert_eq!(
-                    reader.export_all().expect("export"),
-                    expect_export.as_bytes()
-                );
+                if *expect_export != "-" {
+                    assert_eq!(
+                        reader.export_all().expect("export should pass"),
+                        unescape_manifest_text(expect_export).as_bytes(),
+                        "export mismatch for {name}"
+                    );
+                }
             }
-            "err" => assert!(QztReader::open(&bytes).is_err()),
-            other => panic!("unknown expectation {other}"),
+            "err" => match QztReader::open(&bytes) {
+                Ok(_) => panic!("vector open should fail for {name}"),
+                Err(error) => assert_error_category(error, expect_error, name),
+            },
+            other => panic!("unknown open expectation {other}"),
         }
     }
 }
 
 #[test]
 fn vectors_regenerate_byte_identically() {
-    assert_eq!(decode_hex(vector_hex("valid_c1")).unwrap(), valid_c1());
+    for (name, generated) in generated_vectors() {
+        assert_eq!(
+            decode_hex(&vector_hex(name)).expect("committed vector should decode"),
+            generated,
+            "generated bytes changed for frozen vector {name}"
+        );
+    }
+}
+
+#[test]
+fn valid_vectors_encode_the_declared_core_features() {
+    let crlf = open_skeleton_details(&valid_crlf()).expect("CRLF vector opens");
+    assert_eq!(crlf.metadata.newline_mode, "crlf");
+
+    let mixed = open_skeleton_details(&valid_mixed_newline()).expect("mixed vector opens");
+    assert_eq!(mixed.metadata.newline_mode, "mixed");
+
+    let multi = open_skeleton_details(&valid_multi_chunk()).expect("multi-chunk vector opens");
+    assert!(multi.chunk_entries.len() > 1);
+
+    let dense = open_skeleton_details(&valid_dense_line_index()).expect("dense vector opens");
+    assert!(dense.metadata.dense_line_index);
+    assert!(dense.dense_line_index.is_some());
+
+    let document = open_skeleton_details(&valid_document_index()).expect("document vector opens");
+    assert!(document.metadata.document_index);
     assert_eq!(
-        decode_hex(vector_hex("valid_empty")).unwrap(),
-        valid_empty()
+        document
+            .document_index
+            .expect("Document Index block exists")
+            .documents
+            .len(),
+        1
     );
+}
+
+#[test]
+fn published_vector_files_match_frozen_blake3() {
+    // Filled only when vector set v1 is deliberately published. These hashes
+    // freeze the public interop contract independently of generator behavior.
+    const FROZEN_VECTOR_BLAKE3: [(&str, &str); 14] = [
+        (
+            "valid_c1",
+            "ba2af047411719ce4c439d6c8d6171bf5d50506f2de7b3fa28e69c5c239a3d03",
+        ),
+        (
+            "valid_empty",
+            "5d3ef0d2bdf977c9b48046856437c23e49e698e0a8383d89402ced8b93ef884b",
+        ),
+        (
+            "valid_crlf",
+            "6ad783acb3406a406f72a752d35aef0a58820013597a323b5333d061b9306c1a",
+        ),
+        (
+            "valid_mixed_newline",
+            "007038e125559a646c68b1d9787df69eeb05f8669d1224ac4649efc0c9c249cb",
+        ),
+        (
+            "valid_utf8_multibyte",
+            "9d5eadbcba84bbbe1f3a0200c0e2b0a08854d55a34b1e1c54c56e974d313c4f3",
+        ),
+        (
+            "valid_multi_chunk",
+            "b1c39822af64e77f69144646b32b966e35e66345a5a03a190cb359a9fed44e7c",
+        ),
+        (
+            "valid_no_trailing_newline",
+            "9a65476bdabbbb441a3617b86082ef2e51731a67cccccb1f8918fd597fa3d4c0",
+        ),
+        (
+            "valid_dense_line_index",
+            "bfd94258110aea44e879096a45e499c1c79f3124a2ac2dd2956af63ee13f16a9",
+        ),
+        (
+            "valid_document_index",
+            "9dbb05d5e42a308a995a59b1a1c389bdf71332a03f06996421817c3787275605",
+        ),
+        (
+            "corrupt_header",
+            "833c28f5f8c9f65efb81199b674f8e15582cb7c5dd9afef579cb1e9176207ada",
+        ),
+        (
+            "corrupt_footer_checksum",
+            "81258d3a122be82d660c640772ebd629aed5a0e62c0ff230b623cbd3217a0906",
+        ),
+        (
+            "corrupt_chunk_data",
+            "36d2ff056129d68954d9b1e4e4cee98ed513e24873c3d01fbb62b270c9f2e77c",
+        ),
+        (
+            "corrupt_truncated",
+            "29e3828faa7f44540d03bbbc23d287ae40ab4d52fd4105b167a231fed27db37c",
+        ),
+        (
+            "corrupt_noncanonical_cbor",
+            "9c90260a999b6e1080e31f962e9e808a336d7831419a23f706401dfae269a9b1",
+        ),
+    ];
+
     assert_eq!(
-        decode_hex(vector_hex("corrupt_header")).unwrap(),
-        corrupt_header()
+        FROZEN_VECTOR_BLAKE3.len(),
+        REQUIRED_VECTORS.len(),
+        "every published vector must have a frozen hash"
     );
+    let mut frozen_names = FROZEN_VECTOR_BLAKE3
+        .iter()
+        .map(|(name, _)| *name)
+        .collect::<Vec<_>>();
+    frozen_names.sort_unstable();
+    let mut required_names = REQUIRED_VECTORS.to_vec();
+    required_names.sort_unstable();
+    assert_eq!(
+        frozen_names, required_names,
+        "frozen hashes must cover exactly the published vectors"
+    );
+    for (name, expected) in FROZEN_VECTOR_BLAKE3 {
+        let path = vector_dir().join(format!("{name}.qzt.hex"));
+        let file = fs::read(path).expect("read frozen vector file");
+        let actual = blake3::hash(&file);
+        assert_eq!(
+            actual.to_hex().as_str(),
+            expected,
+            "hash changed for {name}"
+        );
+    }
 }
 
 #[test]
 #[ignore = "only run manually to regenerate test vectors"]
 fn regenerate_vectors() {
-    for (name, bytes) in [
-        ("valid_c1", valid_c1()),
-        ("valid_empty", valid_empty()),
-        ("corrupt_header", corrupt_header()),
-    ] {
-        println!("{name}:{}", encode_hex(&bytes));
+    let vector_dir = vector_dir();
+    for (name, bytes) in generated_vectors() {
+        let path = vector_dir.join(format!("{name}.qzt.hex"));
+        let contents = format!("{}\n", encode_hex(&bytes));
+        fs::write(path, &contents).expect("write generated vector");
+        println!("{name}\t{}", blake3::hash(contents.as_bytes()).to_hex());
     }
 }
 
-fn vector_hex(name: &str) -> &'static str {
-    match name {
-        "valid_c1" => include_str!("vectors/valid_c1.qzt.hex"),
-        "valid_empty" => include_str!("vectors/valid_empty.qzt.hex"),
-        "corrupt_header" => include_str!("vectors/corrupt_header.qzt.hex"),
-        _ => panic!("unknown vector {name}"),
-    }
-    .trim()
+fn generated_vectors() -> Vec<(&'static str, Vec<u8>)> {
+    vec![
+        ("valid_c1", valid_c1()),
+        ("valid_empty", valid_empty()),
+        ("valid_crlf", valid_crlf()),
+        ("valid_mixed_newline", valid_mixed_newline()),
+        ("valid_utf8_multibyte", valid_utf8_multibyte()),
+        ("valid_multi_chunk", valid_multi_chunk()),
+        ("valid_no_trailing_newline", valid_no_trailing_newline()),
+        ("valid_dense_line_index", valid_dense_line_index()),
+        ("valid_document_index", valid_document_index()),
+        ("corrupt_header", corrupt_header()),
+        ("corrupt_footer_checksum", corrupt_footer_checksum()),
+        ("corrupt_chunk_data", corrupt_chunk_data()),
+        ("corrupt_truncated", corrupt_truncated()),
+        ("corrupt_noncanonical_cbor", corrupt_noncanonical_cbor()),
+    ]
+}
+
+fn vector_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/vectors")
+}
+
+fn vector_hex(name: &str) -> String {
+    fs::read_to_string(vector_dir().join(format!("{name}.qzt.hex")))
+        .unwrap_or_else(|error| panic!("read vector {name}: {error}"))
 }
 
 fn valid_c1() -> Vec<u8> {
@@ -74,10 +304,156 @@ fn valid_empty() -> Vec<u8> {
     pack_bytes(b"", WriterOptions::default()).expect("pack valid_empty")
 }
 
+fn valid_crlf() -> Vec<u8> {
+    pack_bytes(b"a\r\nb\r\n", WriterOptions::default()).expect("pack CRLF vector")
+}
+
+fn valid_mixed_newline() -> Vec<u8> {
+    pack_bytes(b"a\nb\r\n", WriterOptions::default()).expect("pack mixed-newline vector")
+}
+
+fn valid_utf8_multibyte() -> Vec<u8> {
+    pack_bytes("日本語🙂e\u{301}\n".as_bytes(), WriterOptions::default())
+        .expect("pack multibyte UTF-8 vector")
+}
+
+fn valid_multi_chunk() -> Vec<u8> {
+    pack_bytes(b"alpha\nbeta\ngamma\n", small_chunk_options()).expect("pack multi-chunk vector")
+}
+
+fn valid_no_trailing_newline() -> Vec<u8> {
+    pack_bytes(b"a\nb", WriterOptions::default()).expect("pack no-trailing-newline vector")
+}
+
+fn valid_dense_line_index() -> Vec<u8> {
+    WriterBuilder::new()
+        .dense_line_index(true)
+        .pack(b"zero\none\ntwo\n")
+        .expect("pack Dense Line Index vector")
+}
+
+fn valid_document_index() -> Vec<u8> {
+    let input = b"document one\n";
+    WriterBuilder::new()
+        .document_spans(vec![DocumentSpan::new(
+            "doc-1",
+            0,
+            u64::try_from(input.len()).expect("fixture length fits u64"),
+        )])
+        .pack(input)
+        .expect("pack Document Index vector")
+}
+
+fn small_chunk_options() -> WriterOptions {
+    WriterOptions {
+        chunker: ChunkerOptions {
+            target_chunk_size: 8,
+            max_chunk_size: 8,
+        },
+        zstd_level: 0,
+    }
+}
+
 fn corrupt_header() -> Vec<u8> {
     let mut bytes = valid_c1();
     bytes[0] ^= 0xff;
     bytes
+}
+
+fn corrupt_footer_checksum() -> Vec<u8> {
+    let mut bytes = valid_c1();
+    // The final 32 trailer bytes are the footer-payload BLAKE3 checksum.
+    let checksum_byte = bytes.len() - 1;
+    bytes[checksum_byte] ^= 0x01;
+    bytes
+}
+
+fn corrupt_chunk_data() -> Vec<u8> {
+    let mut bytes = valid_c1();
+    // The first compressed frame starts immediately after the fixed header.
+    // Open remains structural; deep verification detects its stored checksum.
+    bytes[HEADER_LEN] ^= 0x01;
+    bytes
+}
+
+fn corrupt_truncated() -> Vec<u8> {
+    let mut bytes = valid_c1();
+    // Remove half of the fixed footer trailer, including checksum bytes.
+    bytes.truncate(bytes.len() - 32);
+    bytes
+}
+
+fn corrupt_noncanonical_cbor() -> Vec<u8> {
+    let mut bytes = valid_c1();
+    let header = Header::decode(&bytes[..HEADER_LEN]).expect("decode fixture header");
+    let metadata_start = usize::try_from(header.metadata_offset).expect("metadata offset fits");
+    let metadata_size = usize::try_from(header.metadata_size).expect("metadata size fits");
+    let metadata_end = metadata_start + metadata_size;
+
+    let format_pair = b"\x66format\x63qzt";
+    let schema_pair = b"\x66schema\x6fqzt.metadata.v1";
+    let metadata = bytes[metadata_start..metadata_end].to_vec();
+    let format_start = find_subslice(&metadata, format_pair).expect("format pair exists");
+    let schema_start = find_subslice(&metadata, schema_pair).expect("schema pair exists");
+    assert_eq!(format_start + format_pair.len(), schema_start);
+
+    // Swapping same-length-key map entries preserves valid CBOR semantics and
+    // total block size, but violates deterministic canonical key ordering.
+    let mut noncanonical = Vec::with_capacity(metadata.len());
+    noncanonical.extend_from_slice(&metadata[..format_start]);
+    noncanonical.extend_from_slice(schema_pair);
+    noncanonical.extend_from_slice(format_pair);
+    noncanonical.extend_from_slice(&metadata[schema_start + schema_pair.len()..]);
+    assert_eq!(noncanonical.len(), metadata.len());
+    bytes[metadata_start..metadata_end].copy_from_slice(&noncanonical);
+
+    let trailer_start = bytes.len() - FOOTER_TRAILER_LEN;
+    let mut trailer =
+        FooterTrailer::decode(&bytes[trailer_start..]).expect("decode fixture trailer");
+    let footer_start = usize::try_from(trailer.footer_payload_offset).expect("footer offset fits");
+    let footer_end =
+        footer_start + usize::try_from(trailer.footer_payload_size).expect("footer size fits");
+    let mut footer = FooterPayload::decode(&bytes[footer_start..footer_end])
+        .expect("decode fixture footer payload");
+    footer.metadata.checksum = Checksum::blake3(&noncanonical);
+    if footer.container_checksum.is_some() {
+        footer.container_checksum = Some(Checksum::blake3(&bytes[..footer_start]));
+    }
+    let footer_bytes = footer.encode().expect("re-encode footer payload");
+    assert_eq!(footer_bytes.len(), footer_end - footer_start);
+    bytes[footer_start..footer_end].copy_from_slice(&footer_bytes);
+    trailer.footer_payload_checksum_blake3 = Checksum::blake3(&footer_bytes).value;
+    bytes[trailer_start..].copy_from_slice(&trailer.encode());
+    bytes
+}
+
+fn find_subslice(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    haystack
+        .windows(needle.len())
+        .position(|window| window == needle)
+}
+
+fn assert_error_category(error: QztError, expected: &str, name: &str) {
+    assert_eq!(
+        error_category(error),
+        expected,
+        "unexpected error category for {name}: {error}"
+    );
+}
+
+fn error_category(error: QztError) -> &'static str {
+    match error {
+        QztError::InvalidMagic => "invalid_magic",
+        QztError::InvalidFooterTrailer => "invalid_footer_trailer",
+        QztError::FooterChecksumMismatch => "footer_checksum_mismatch",
+        QztError::CompressedChunkChecksumMismatch => "compressed_chunk_checksum_mismatch",
+        QztError::NonCanonicalCbor => "non_canonical_cbor",
+        _ => "unexpected_error_category",
+    }
+}
+
+fn unescape_manifest_text(input: &str) -> String {
+    input.replace("\\r", "\r").replace("\\n", "\n")
 }
 
 fn decode_hex(input: &str) -> Result<Vec<u8>, String> {
