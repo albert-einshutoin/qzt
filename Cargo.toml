@@ -12,18 +12,19 @@ readme = "README.md"
 keywords = ["archive", "compression", "evidence", "text", "zstd"]
 categories = ["compression", "encoding", "filesystem"]
 publish = false
+exclude = [
+    ".github/",
+    "fuzz/",
+    "scripts/",
+    "tasks/",
+    "docs/QZT_v0.1_Core_Spec.md",
+    "docs/QZT_v0.1_Core_Spec.ja.md",
+]
 
 [package.metadata.dist]
 # `publish = false` protects crates.io, while this explicit opt-in allows
 # signed-off GitHub binary releases to remain an independent distribution path.
 dist = true
-exclude = [
-    ".github/",
-    "fuzz/",
-    "tasks/",
-    "docs/QZT_v0.1_Core_Spec.md",
-    "docs/QZT_v0.1_Core_Spec.ja.md",
-]
 
 [package.metadata.docs.rs]
 # `internal-testing` exposes hidden conformance internals and must never define

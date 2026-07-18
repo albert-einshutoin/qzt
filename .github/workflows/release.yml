@@ -15,7 +15,7 @@
 
 name: Release
 permissions:
-  "contents": "write"
+  "contents": "read"
 
 # This task will run whenever you push a git tag that looks like a version
 # like "1.0.0", "v0.1.0-prerelease.1", "my-app/0.1.0", "releases/v1.0.0", etc.
@@ -59,11 +59,28 @@ jobs:
         with:
           persist-credentials: false
           submodules: recursive
-      - name: Install dist
-        # we specify bash to get pipefail; it guards against the `curl` command
-        # failing. otherwise `sh` won't catch that `curl` returned non-0
+      - name: Validate release tag and main ancestry
         shell: bash
-        run: "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.sh | sh"
+        run: |
+          set -euo pipefail
+          manifest_version="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)"
+          test "${GITHUB_REF_NAME}" = "v${manifest_version}"
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor "${GITHUB_SHA}" refs/remotes/origin/main
+      - name: Install digest-pinned dist
+        shell: bash
+        env:
+          DIST_ARCHIVE: cargo-dist-x86_64-unknown-linux-gnu.tar.xz
+          DIST_SHA256: cd355dab0b4c02fb59038fef87655550021d07f45f1d82f947a34ef98560abb8
+        run: |
+          set -euo pipefail
+          url="https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/${DIST_ARCHIVE}"
+          archive="${RUNNER_TEMP}/${DIST_ARCHIVE}"
+          curl --proto '=https' --tlsv1.2 -fsSL "${url}" -o "${archive}"
+          actual="$(shasum -a 256 "${archive}" | awk '{ print $1 }')"
+          test "${DIST_SHA256}" = "${actual}"
+          tar -xJf "${archive}" -C "${RUNNER_TEMP}"
+          install -m 0755 "${RUNNER_TEMP}/${DIST_ARCHIVE%.tar.xz}/dist" "${HOME}/.cargo/bin/dist"
       - name: Cache dist
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
@@ -126,9 +143,47 @@ jobs:
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           fi
-      - name: Install dist
-        run: ${{ matrix.install_dist.run }}
-      # Get the dist-manifest
+      - name: Install digest-pinned dist (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${RUNNER_OS}-${RUNNER_ARCH}" in
+            Linux-X64)
+              archive="cargo-dist-x86_64-unknown-linux-gnu.tar.xz"
+              expected="cd355dab0b4c02fb59038fef87655550021d07f45f1d82f947a34ef98560abb8"
+              ;;
+            macOS-X64)
+              archive="cargo-dist-x86_64-apple-darwin.tar.xz"
+              expected="fd4d8f9f07802359cbcdc52bac3abd7d5201c4b73a7cbcdd6faca2232a389f0c"
+              ;;
+            macOS-ARM64)
+              archive="cargo-dist-aarch64-apple-darwin.tar.xz"
+              expected="decb01c64c12501931c3cac3111b368a7f48adf8d9e65455c08e5757b9a1fd6f"
+              ;;
+            *) echo "unsupported cargo-dist runner: ${RUNNER_OS}-${RUNNER_ARCH}" >&2; exit 1 ;;
+          esac
+          url="https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/${archive}"
+          path="${RUNNER_TEMP}/${archive}"
+          curl --proto '=https' --tlsv1.2 -fsSL "${url}" -o "${path}"
+          actual="$(shasum -a 256 "${path}" | awk '{ print $1 }')"
+          test "${expected}" = "${actual}"
+          tar -xJf "${path}" -C "${RUNNER_TEMP}"
+          install -m 0755 "${RUNNER_TEMP}/${archive%.tar.xz}/dist" "${HOME}/.cargo/bin/dist"
+      - name: Install digest-pinned dist (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $archive = "cargo-dist-x86_64-pc-windows-msvc.zip"
+          $expected = "a14e17557b269b101405e0cc6b647581d56313c954a51c7fddd423bba21e17b2"
+          $url = "https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/$archive"
+          $path = Join-Path $env:RUNNER_TEMP $archive
+          Invoke-WebRequest -Uri $url -OutFile $path
+          $actual = (Get-FileHash -Algorithm SHA256 $path).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw "cargo-dist SHA-256 checksum mismatch" }
+          $destination = Join-Path $env:RUNNER_TEMP "cargo-dist"
+          Expand-Archive -Path $path -DestinationPath $destination
+          Copy-Item (Join-Path $destination "dist.exe") (Join-Path $env:USERPROFILE ".cargo\bin\dist.exe") -Force
       - name: Fetch local artifacts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
@@ -212,6 +267,10 @@ jobs:
             ${{ env.BUILD_MANIFEST_NAME }}
   # Determines if we should publish/announce
   host:
+    # Only the job that creates the GitHub Release receives write access.
+    # Build jobs execute downloaded tooling with a read-only token.
+    permissions:
+      "contents": "write"
     needs:
       - plan
       - build-local-artifacts
@@ -221,6 +280,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: "ubuntu-22.04"
+    environment: release
     outputs:
       val: ${{ steps.host.outputs.manifest }}
     steps:

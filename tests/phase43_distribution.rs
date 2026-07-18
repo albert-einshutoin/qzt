@@ -64,7 +64,27 @@ fn generated_release_workflow_has_no_branch_or_pull_request_trigger() {
     assert!(!RELEASE_WORKFLOW.contains("branches:"));
     assert!(!RELEASE_WORKFLOW.contains("pull_request:"));
     assert!(!RELEASE_WORKFLOW.contains("workflow_dispatch:"));
-    assert!(RELEASE_WORKFLOW.contains("\"contents\": \"write\""));
+    assert!(RELEASE_WORKFLOW.contains("permissions:\n  \"contents\": \"read\""));
+    assert!(RELEASE_WORKFLOW.contains(
+        "host:\n    # Only the job that creates the GitHub Release receives write access."
+    ));
+    assert!(RELEASE_WORKFLOW.contains("permissions:\n      \"contents\": \"write\"\n    needs:"));
+    assert!(RELEASE_WORKFLOW.contains("environment: release"));
+    assert!(RELEASE_WORKFLOW.contains("Validate release tag and main ancestry"));
+    assert!(RELEASE_WORKFLOW.contains("git merge-base --is-ancestor"));
+    assert!(!RELEASE_WORKFLOW.contains("cargo-dist-installer.sh | sh"));
+    assert!(!RELEASE_WORKFLOW.contains("matrix.install_dist.run"));
+    for digest in [
+        "decb01c64c12501931c3cac3111b368a7f48adf8d9e65455c08e5757b9a1fd6f",
+        "fd4d8f9f07802359cbcdc52bac3abd7d5201c4b73a7cbcdd6faca2232a389f0c",
+        "cd355dab0b4c02fb59038fef87655550021d07f45f1d82f947a34ef98560abb8",
+        "a14e17557b269b101405e0cc6b647581d56313c954a51c7fddd423bba21e17b2",
+    ] {
+        assert!(
+            RELEASE_WORKFLOW.contains(digest),
+            "cargo-dist archive must be digest-pinned: {digest}"
+        );
+    }
     for floating_action in [
         "actions/checkout@v",
         "actions/upload-artifact@v",
@@ -85,6 +105,7 @@ fn both_readmes_offer_installer_checksum_and_source_fallback_paths() {
             "qzt-installer.sh",
             "v0.1.0-pre.1",
             ".sha256",
+            "set -eu",
             "shasum -a 256",
             "Get-FileHash -Algorithm SHA256",
             "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.1 --locked",

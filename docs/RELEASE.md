@@ -86,8 +86,12 @@ owner-approved release pull request restores the stable `0.1.0` version only
 after this rehearsal and every other release prerequisite succeed.
 
 The generated `.github/workflows/release.yml` has a tag-push trigger and no
-branch or pull-request trigger. After the issue #43 pull request is reviewed
-and merged, tag that exact merge commit and push only the rehearsal tag:
+branch or pull-request trigger. `make dist-check` regenerates it and reapplies
+the repository's least-privilege and digest-pin hardening. The `release`
+environment accepts only `v0.1.0-pre.*` tags and requires release-owner review
+before the write-enabled host job can create a Release. After the issue #43
+pull request is reviewed and merged, tag that exact merge commit and push only
+the rehearsal tag:
 
 ```sh
 git switch main
@@ -98,6 +102,8 @@ git push origin v0.1.0-pre.1
 ```
 
 - [ ] The Release is marked as a prerelease.
+- [ ] `make dist-check` confirms the generated workflow plus hardening is current.
+- [ ] The release owner approves the protected `release` environment deployment.
 - [ ] All four target archives and their `.sha256` sidecars are present.
 - [ ] The extracted binary reports `qzt 0.1.0-pre.1` from `qzt --version`.
 - [ ] The Linux artifact links only to `libc.so.6` and Rust's GNU unwind

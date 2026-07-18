@@ -29,7 +29,9 @@ When publishing QZT externally, it should be positioned as a
 The first binary distribution will be the `v0.1.0-pre.1` technical preview.
 The commands below become available after the prerelease rehearsal in issue
 [#43](https://github.com/albert-einshutoin/qzt/issues/43) is marked complete.
-On macOS or Linux, the generated installer selects the archive for your host:
+For security-sensitive installation, use the checksum-verified manual path
+below. As a convenience path, the generated installer selects the archive for
+your macOS or Linux host:
 
 ```sh
 curl --proto '=https' --tlsv1.2 -LsSf \
@@ -44,6 +46,7 @@ For a verified manual install, choose one of
 extracting it. This example is for Apple silicon:
 
 ```sh
+set -eu
 release=v0.1.0-pre.1
 target=aarch64-apple-darwin
 archive="qzt-${target}.tar.xz"

@@ -1,0 +1,22 @@
+      - name: Validate release tag and main ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest_version="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)"
+          test "${GITHUB_REF_NAME}" = "v${manifest_version}"
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor "${GITHUB_SHA}" refs/remotes/origin/main
+      - name: Install digest-pinned dist
+        shell: bash
+        env:
+          DIST_ARCHIVE: cargo-dist-x86_64-unknown-linux-gnu.tar.xz
+          DIST_SHA256: cd355dab0b4c02fb59038fef87655550021d07f45f1d82f947a34ef98560abb8
+        run: |
+          set -euo pipefail
+          url="https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/${DIST_ARCHIVE}"
+          archive="${RUNNER_TEMP}/${DIST_ARCHIVE}"
+          curl --proto '=https' --tlsv1.2 -fsSL "${url}" -o "${archive}"
+          actual="$(shasum -a 256 "${archive}" | awk '{ print $1 }')"
+          test "${DIST_SHA256}" = "${actual}"
+          tar -xJf "${archive}" -C "${RUNNER_TEMP}"
+          install -m 0755 "${RUNNER_TEMP}/${DIST_ARCHIVE%.tar.xz}/dist" "${HOME}/.cargo/bin/dist"
