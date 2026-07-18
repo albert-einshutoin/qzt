@@ -7,10 +7,7 @@
 use std::fs;
 use std::process::Command;
 
-use qzt::{
-    Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterOptions,
-    pack_bytes_with_document_index,
-};
+use qzt::{Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterBuilder, WriterOptions};
 
 fn run(args: &[&str]) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_qzt"))
@@ -53,19 +50,18 @@ fn pack_with_document_index(base: &std::path::Path) -> std::path::PathBuf {
         container_id: [0xd5; 16],
         documents: vec![doc_one],
     };
-    let container = pack_bytes_with_document_index(
-        PAYLOAD,
-        [0xd5; 16],
-        WriterOptions {
+    let container = WriterBuilder::new()
+        .container_id([0xd5; 16])
+        .options(WriterOptions {
             chunker: ChunkerOptions {
                 target_chunk_size: 9,
                 max_chunk_size: 9,
             },
             zstd_level: 0,
-        },
-        &document_index,
-    )
-    .expect("pack with document index");
+        })
+        .document_index(document_index)
+        .pack(PAYLOAD)
+        .expect("pack with document index");
     let packed_path = base.join("indexed.qzt");
     fs::write(&packed_path, container).expect("write indexed container");
     packed_path

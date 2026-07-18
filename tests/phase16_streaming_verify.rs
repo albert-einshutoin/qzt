@@ -1,8 +1,6 @@
 use qzt::reader::{QztFileReader, QztReader, VerifyLevel};
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
-use qzt::writer::{
-    pack_bytes_with_document_index, pack_bytes_with_memory_profile, pack_bytes_with_profile,
-};
+use qzt::writer::WriterBuilder;
 mod support;
 use support::{CountingReadAt, document_with_checksum, writer_options};
 
@@ -28,9 +26,13 @@ fn file_backed_deep_verify_matches_in_memory_deep_verify() {
             Checksum::blake3(input),
         )],
     };
-    let container =
-        pack_bytes_with_memory_profile(input, [0x16; 16], writer_options(8, 8), &document_index)
-            .expect("memory profile should pack");
+    let container = WriterBuilder::new()
+        .container_id([0x16; 16])
+        .options(writer_options(8, 8))
+        .profile("memory")
+        .document_index(document_index)
+        .pack(input)
+        .expect("memory profile should pack");
     let memory = QztReader::open(&container).expect("memory reader should open");
     let file =
         QztFileReader::open_read_at(&container[..], container.len() as u64).expect("file open");
@@ -52,13 +54,12 @@ fn file_backed_normal_verify_hashes_compressed_chunks_with_bounded_reads() {
             b'a' + u8::try_from(state % 26).expect("modulo 26 fits u8")
         })
         .collect::<Vec<_>>();
-    let container = pack_bytes_with_profile(
-        &input,
-        writer_options(512 * 1024, 512 * 1024),
-        "core",
-        false,
-    )
-    .expect("container should pack");
+    let container = WriterBuilder::new()
+        .options(writer_options(512 * 1024, 512 * 1024))
+        .profile("core")
+        .dense_line_index(false)
+        .pack(&input)
+        .expect("container should pack");
     let source = CountingReadAt::new(container);
     let reader = QztFileReader::open_read_at(source.clone(), source.bytes.len() as u64)
         .expect("file reader should open");
@@ -95,9 +96,12 @@ fn deep_verify_rejects_stale_document_index_with_range_scoped_read() {
             },
         )],
     };
-    let container =
-        pack_bytes_with_document_index(input, [0x61; 16], writer_options(8, 8), &document_index)
-            .expect("document-index container should pack");
+    let container = WriterBuilder::new()
+        .container_id([0x61; 16])
+        .options(writer_options(8, 8))
+        .document_index(document_index)
+        .pack(input)
+        .expect("document-index container should pack");
     let file =
         QztFileReader::open_read_at(&container[..], container.len() as u64).expect("file open");
 
@@ -110,7 +114,11 @@ fn deep_verify_rejects_stale_document_index_with_range_scoped_read() {
 #[test]
 fn export_to_streams_chunk_order_without_materializing_api_requirement() {
     let input = b"chunk-a\nchunk-b\nchunk-c\nchunk-d\n";
-    let container = pack_bytes_with_profile(input, writer_options(8, 8), "core", false)
+    let container = WriterBuilder::new()
+        .options(writer_options(8, 8))
+        .profile("core")
+        .dense_line_index(false)
+        .pack(input)
         .expect("container should pack");
     let file =
         QztFileReader::open_read_at(&container[..], container.len() as u64).expect("file open");

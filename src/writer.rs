@@ -73,7 +73,22 @@ impl Default for WriterOptions {
     }
 }
 
-/// Builder for QZT container bytes.
+/// Recommended builder for QZT containers with optional indexes or profiles.
+///
+/// Use [`pack_bytes`] for the common Core-profile case. Use this builder when
+/// selecting a profile, deterministic container ID, Dense Line Index, or
+/// Document Index:
+///
+/// ```
+/// use qzt::{DocumentSpan, WriterBuilder};
+///
+/// let input = b"alpha\nbeta\n";
+/// let container = WriterBuilder::new()
+///     .document_spans(vec![DocumentSpan::new("log", 0, input.len() as u64)])
+///     .pack(input)?;
+/// # assert!(!container.is_empty());
+/// # Ok::<(), qzt::QztError>(())
+/// ```
 #[derive(Debug, Clone)]
 pub struct WriterBuilder {
     options: WriterOptions,
@@ -133,6 +148,10 @@ impl WriterBuilder {
     }
 
     /// Adds an optional Document Index block.
+    ///
+    /// If no container ID was configured, [`Self::pack`] adopts the index's
+    /// `container_id`. An explicitly configured ID that differs from the index
+    /// is rejected with [`QztError::ContainerIdMismatch`].
     #[must_use]
     pub fn document_index(mut self, document_index: DocumentIndex) -> Self {
         self.document_index = Some(document_index);
@@ -156,12 +175,17 @@ impl WriterBuilder {
     pub fn pack(self, input: &[u8]) -> Result<Vec<u8>> {
         let document_index = self.document_index;
         let document_spans = self.document_spans;
-        let container_id = self.container_id.unwrap_or_else(|| {
-            let hash = blake3::hash(input);
-            let mut container_id = [0_u8; 16];
-            container_id.copy_from_slice(&hash.as_bytes()[..16]);
-            container_id
-        });
+        // A caller-provided DocumentIndex is already bound to a container ID.
+        // Adopt that ID when none was configured, and reject conflicts here so
+        // packing cannot succeed with a container that every reader must reject.
+        let container_id = match (self.container_id, document_index.as_ref()) {
+            (Some(configured), Some(index)) if configured != index.container_id => {
+                return Err(QztError::ContainerIdMismatch);
+            }
+            (Some(configured), _) => configured,
+            (None, Some(index)) => index.container_id,
+            (None, None) => container_id_from_input(input),
+        };
 
         let dense_mode = match (self.dense_line_index, self.profile.as_str()) {
             (Some(true), _) => DenseLineIndexMode::Generate,
@@ -255,8 +279,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         }
 
         let input_hash = self.input_hasher.finalize();
-        let mut container_id = [0_u8; 16];
-        container_id.copy_from_slice(&input_hash.as_bytes()[..16]);
+        let container_id = container_id_from_hash(&input_hash);
         let original_checksum = Checksum::from_raw_bytes(*input_hash.as_bytes());
 
         let metadata_offset = self.physical_offset;
@@ -510,45 +533,19 @@ fn choose_non_final_chunk_end(input: &[u8], target_end: usize, max_end: usize) -
 
 /// Packs UTF-8 input into a no-dictionary QZT container.
 pub fn pack_bytes(input: &[u8], options: WriterOptions) -> Result<Vec<u8>> {
-    let hash = blake3::hash(input);
-    let mut container_id = [0_u8; 16];
-    container_id.copy_from_slice(&hash.as_bytes()[..16]);
+    let container_id = container_id_from_input(input);
     pack_bytes_with_container_id(input, container_id, options)
 }
 
-/// Packs UTF-8 input with profile and optional Dense Line Index metadata.
-pub fn pack_bytes_with_profile(
-    input: &[u8],
-    options: WriterOptions,
-    profile: &str,
-    dense_line_index: bool,
-) -> Result<Vec<u8>> {
+fn container_id_from_input(input: &[u8]) -> [u8; 16] {
     let hash = blake3::hash(input);
-    let mut container_id = [0_u8; 16];
-    container_id.copy_from_slice(&hash.as_bytes()[..16]);
-    pack_bytes_with_profile_and_container_id(
-        input,
-        container_id,
-        options,
-        profile,
-        dense_line_index,
-    )
+    container_id_from_hash(&hash)
 }
 
-/// Packs UTF-8 input with an explicit container id, profile, and optional Dense Line Index.
-pub fn pack_bytes_with_profile_and_container_id(
-    input: &[u8],
-    container_id: [u8; 16],
-    options: WriterOptions,
-    profile: &str,
-    dense_line_index: bool,
-) -> Result<Vec<u8>> {
-    let dense_mode = if dense_line_index {
-        DenseLineIndexMode::Generate
-    } else {
-        DenseLineIndexMode::Omit
-    };
-    pack_bytes_internal(input, container_id, options, dense_mode, None, None, profile)
+fn container_id_from_hash(hash: &blake3::Hash) -> [u8; 16] {
+    let mut container_id = [0_u8; 16];
+    container_id.copy_from_slice(&hash.as_bytes()[..16]);
+    container_id
 }
 
 /// Packs UTF-8 input with an explicit container id for deterministic tests.
@@ -562,23 +559,6 @@ pub fn pack_bytes_with_container_id(
         container_id,
         options,
         DenseLineIndexMode::Omit,
-        None,
-        None,
-        "core",
-    )
-}
-
-/// Packs UTF-8 input with an optional Dense Line Index block.
-pub fn pack_bytes_with_dense_line_index(
-    input: &[u8],
-    container_id: [u8; 16],
-    options: WriterOptions,
-) -> Result<Vec<u8>> {
-    pack_bytes_internal(
-        input,
-        container_id,
-        options,
-        DenseLineIndexMode::Generate,
         None,
         None,
         "core",
@@ -606,46 +586,10 @@ pub fn pack_bytes_with_dense_line_index_override(
     )
 }
 
-/// Packs UTF-8 input with an optional Document Index block.
-pub fn pack_bytes_with_document_index(
-    input: &[u8],
-    container_id: [u8; 16],
-    options: WriterOptions,
-    document_index: &DocumentIndex,
-) -> Result<Vec<u8>> {
-    pack_bytes_internal(
-        input,
-        container_id,
-        options,
-        DenseLineIndexMode::Omit,
-        Some(document_index),
-        None,
-        "core",
-    )
-}
-
 /// Memory-profile corpora below this line count use sparse line lookup only.
 ///
 /// Phase10 benchmark evidence showed Dense Line Index pays off at or above 2048 lines.
 const MEMORY_PROFILE_DENSE_LINE_INDEX_MIN_LINES: u64 = 2048;
-
-/// Packs UTF-8 input using the memory profile defaults implemented in Phase10.
-pub fn pack_bytes_with_memory_profile(
-    input: &[u8],
-    container_id: [u8; 16],
-    options: WriterOptions,
-    document_index: &DocumentIndex,
-) -> Result<Vec<u8>> {
-    pack_bytes_internal(
-        input,
-        container_id,
-        options,
-        DenseLineIndexMode::GenerateIfAtLeast(MEMORY_PROFILE_DENSE_LINE_INDEX_MIN_LINES),
-        Some(document_index),
-        None,
-        "memory",
-    )
-}
 
 enum DenseLineIndexMode {
     Omit,

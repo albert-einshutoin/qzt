@@ -1,6 +1,6 @@
 use qzt::{
     Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, QztError, QztFileReader, QztReader,
-    VerifyLevel, WriterOptions, pack_bytes_with_document_index,
+    VerifyLevel, WriterBuilder, WriterOptions,
 };
 
 const C1_DOC_ID: &str = "conversation_c1_validation_smoke";
@@ -99,13 +99,12 @@ fn c1_conversation_pack_export_document_index_and_utf8_boundary_smoke() {
         },
         zstd_level: 3,
     };
-    let container = pack_bytes_with_document_index(
-        &corpus,
-        document_index.container_id,
-        writer_options,
-        &document_index,
-    )
-    .expect("pack should succeed");
+    let container = WriterBuilder::new()
+        .container_id(document_index.container_id)
+        .options(writer_options)
+        .document_index(document_index)
+        .pack(&corpus)
+        .expect("pack should succeed");
 
     let reader = QztReader::open(&container).expect("reader should open");
     assert_eq!(

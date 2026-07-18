@@ -33,12 +33,7 @@ fn stdin_pack_rejects_non_streaming_paths() {
         StdinPackRejectionCase {
             name: "memory profile",
             extra_args: &["--profile", "memory"],
-            stderr_must_contain: &[
-                "stdin",
-                "memory",
-                "--profile core",
-                "pack_bytes_with_memory_profile",
-            ],
+            stderr_must_contain: &["stdin", "memory", "--profile core", "WriterBuilder"],
         },
         StdinPackRejectionCase {
             name: "dense line index on",

@@ -254,10 +254,7 @@ fn pack_memory_profile_error_explains_the_document_index_requirement() {
     assert_eq!(result.status.code(), Some(1));
     let stderr = String::from_utf8_lossy(&result.stderr);
     assert!(stderr.contains("DocumentIndex"), "{stderr}");
-    assert!(
-        stderr.contains("pack_bytes_with_memory_profile"),
-        "{stderr}"
-    );
+    assert!(stderr.contains("WriterBuilder"), "{stderr}");
     let _ = fs::remove_dir_all(base);
 }
 

@@ -5,11 +5,34 @@ use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{
-    pack_bytes_with_dense_line_index, pack_bytes_with_dense_line_index_override,
-    pack_bytes_with_memory_profile,
-};
+use qzt::writer::{WriterBuilder, pack_bytes_with_dense_line_index_override};
 mod support;
+
+fn pack_dense_fixture(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: qzt::WriterOptions,
+) -> qzt::Result<Vec<u8>> {
+    WriterBuilder::new()
+        .container_id(container_id)
+        .options(options)
+        .dense_line_index(true)
+        .pack(input)
+}
+
+fn pack_memory_fixture(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: qzt::WriterOptions,
+    document_index: DocumentIndex,
+) -> qzt::Result<Vec<u8>> {
+    WriterBuilder::new()
+        .container_id(container_id)
+        .options(options)
+        .profile("memory")
+        .document_index(document_index)
+        .pack(input)
+}
 
 fn newline_corpus(line_count: u64) -> Vec<u8> {
     let mut input = Vec::new();
@@ -42,9 +65,8 @@ fn single_document_memory_profile_index(
 #[test]
 fn dense_line_index_reads_final_line_without_newline() {
     let input = b"alpha\nbeta\ngamma";
-    let container =
-        pack_bytes_with_dense_line_index(input, [0xa0; 16], support::writer_options(8, 8))
-            .expect("dense container should pack");
+    let container = pack_dense_fixture(input, [0xa0; 16], support::writer_options(8, 8))
+        .expect("dense container should pack");
     let reader = QztReader::open(container).expect("dense container should open");
 
     assert_eq!(reader.read_line_raw(2), Ok(b"gamma".to_vec()));
@@ -60,9 +82,8 @@ fn dense_line_index_reads_final_line_without_newline() {
 #[test]
 fn dense_line_index_count_mismatch_is_rejected() {
     let input = b"alpha\nbeta\n";
-    let mut container =
-        pack_bytes_with_dense_line_index(input, [0xa1; 16], support::writer_options(32, 32))
-            .expect("dense container should pack");
+    let mut container = pack_dense_fixture(input, [0xa1; 16], support::writer_options(32, 32))
+        .expect("dense container should pack");
     let details = open_skeleton_details(&container).expect("container should open");
     let dense = details
         .dense_line_index
@@ -115,7 +136,7 @@ fn memory_profile_below_dense_threshold_omits_dense_line_index() {
     let document_index = single_document_memory_profile_index(&input, container_id, line_count);
     let options = support::writer_options(65_536, 65_536);
 
-    let container = pack_bytes_with_memory_profile(&input, container_id, options, &document_index)
+    let container = pack_memory_fixture(&input, container_id, options, document_index)
         .expect("memory profile should pack");
     let details = open_skeleton_details(&container).expect("memory profile should open");
 
@@ -142,7 +163,7 @@ fn memory_profile_at_dense_threshold_writes_dense_line_index() {
     let document_index = single_document_memory_profile_index(&input, container_id, line_count);
     let options = support::writer_options(65_536, 65_536);
 
-    let container = pack_bytes_with_memory_profile(&input, container_id, options, &document_index)
+    let container = pack_memory_fixture(&input, container_id, options, document_index)
         .expect("memory profile should pack");
     let details = open_skeleton_details(&container).expect("memory profile should open");
 
@@ -175,9 +196,8 @@ fn sparse_vs_dense_line_lookup_benchmark_records_threshold_evidence() {
         support::writer_options(128, 128),
     )
     .expect("sparse container should pack");
-    let dense_container =
-        pack_bytes_with_dense_line_index(&input, [0xa4; 16], support::writer_options(128, 128))
-            .expect("dense container should pack");
+    let dense_container = pack_dense_fixture(&input, [0xa4; 16], support::writer_options(128, 128))
+        .expect("dense container should pack");
     let sparse_reader = QztReader::open(sparse_container).expect("sparse should open");
     let dense_reader = QztReader::open(dense_container).expect("dense should open");
 
