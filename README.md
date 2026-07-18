@@ -165,6 +165,10 @@ No output from `diff` means the restored bytes match the source.
 
 ## Main CLI
 
+See [docs/CLI.md](docs/CLI.md) for every option, JSON schema, profile
+behavior, stdout/stderr rule, and the v0.1 automation stability contract. This
+section is only a quick command map.
+
 ```sh
 qzt pack input.txt -o output.qzt
 journalctl --since today | qzt pack - -o today.qzt

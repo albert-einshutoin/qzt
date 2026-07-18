@@ -157,6 +157,10 @@ diff input.txt restored.txt
 
 ## 主な CLI
 
+全option、JSON schema、profileの実挙動、stdout/stderr規則、v0.1自動化向け
+安定性契約は[docs/CLI.ja.md](docs/CLI.ja.md)を参照してください。この節は
+commandの早見表だけに留めます。
+
 ```sh
 qzt pack input.txt -o output.qzt
 journalctl --since today | qzt pack - -o today.qzt
