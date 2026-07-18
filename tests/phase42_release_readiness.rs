@@ -1,7 +1,11 @@
+use std::process::Command;
+
 const MANIFEST: &str = include_str!("../Cargo.toml");
 const RELEASE_GUIDE: &str = include_str!("../docs/RELEASE.md");
 const JAPANESE_RELEASE_GUIDE: &str = include_str!("../docs/RELEASE.ja.md");
 const CHANGELOG: &str = include_str!("../CHANGELOG.md");
+const README: &str = include_str!("../README.md");
+const JAPANESE_README: &str = include_str!("../README.ja.md");
 
 #[test]
 fn manifest_is_discoverable_but_cannot_be_published_from_this_change() {
@@ -19,9 +23,29 @@ fn manifest_is_discoverable_but_cannot_be_published_from_this_change() {
         );
     }
 
+    let metadata = Command::new(env!("CARGO"))
+        .args(["metadata", "--no-deps", "--format-version", "1"])
+        .output()
+        .expect("cargo metadata must run");
+    assert!(metadata.status.success(), "cargo metadata must succeed");
+    let metadata: serde_json::Value =
+        serde_json::from_slice(&metadata.stdout).expect("cargo metadata must be JSON");
+    assert_eq!(
+        metadata["packages"][0]["publish"],
+        serde_json::json!([]),
+        "effective Cargo metadata must keep publication disabled"
+    );
+}
+
+#[test]
+fn docs_rs_builds_the_public_default_feature_surface() {
+    let docs_rs = MANIFEST
+        .split_once("[package.metadata.docs.rs]")
+        .and_then(|(_, rest)| rest.split("\n[").next())
+        .expect("docs.rs metadata section must exist");
     assert!(
-        MANIFEST.contains("publish = false"),
-        "release-readiness work must not open the irreversible publish gate"
+        !docs_rs.contains("all-features"),
+        "docs.rs must not enable the internal-testing feature"
     );
 }
 
@@ -49,6 +73,7 @@ fn release_guide_preserves_owner_gate_and_dependency_checks() {
             "#30",
             "cargo publish --dry-run",
             "cargo package --list",
+            "cargo doc --no-deps\n",
             "cargo doc --no-deps --all-features",
             "publish = false",
             "release owner",
@@ -67,6 +92,12 @@ fn release_guide_preserves_owner_gate_and_dependency_checks() {
 
     assert!(RELEASE_GUIDE.contains("choosing a new name"));
     assert!(JAPANESE_RELEASE_GUIDE.contains("別名を選ばず"));
+    for guide in [RELEASE_GUIDE, JAPANESE_RELEASE_GUIDE] {
+        assert!(
+            guide.matches("git status --porcelain").count() >= 2,
+            "release evidence must prove the whole worktree is clean before and after dry-run"
+        );
+    }
 
     let publish = RELEASE_GUIDE
         .find("cargo publish` succeeds")
@@ -78,6 +109,25 @@ fn release_guide_preserves_owner_gate_and_dependency_checks() {
         publish < tag,
         "the immutable tag must identify the exact commit that was published"
     );
+}
+
+#[test]
+fn packaged_readmes_link_excluded_documents_to_the_repository() {
+    for (readme, excluded_path) in [
+        (README, "docs/QZT_v0.1_Core_Spec.md"),
+        (JAPANESE_README, "docs/QZT_v0.1_Core_Spec.ja.md"),
+        (README, "tasks/README.md"),
+        (README, "tasks/status.md"),
+        (JAPANESE_README, "tasks/README.ja.md"),
+        (JAPANESE_README, "tasks/status.ja.md"),
+    ] {
+        let absolute =
+            format!("https://github.com/albert-einshutoin/qzt/blob/main/{excluded_path}");
+        assert!(
+            readme.contains(&absolute),
+            "packaged README must not link relatively to excluded {excluded_path}"
+        );
+    }
 }
 
 #[test]

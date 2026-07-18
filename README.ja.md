@@ -274,13 +274,13 @@ query が sidecar の n-gram `n`（デフォルト 3）より短い場合、inde
 
 ## ドキュメント
 
-- 仕様要約: [docs/QZT_v0.1_Core_Spec.ja.md](docs/QZT_v0.1_Core_Spec.ja.md)
+- 仕様要約: [docs/QZT_v0.1_Core_Spec.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/docs/QZT_v0.1_Core_Spec.ja.md)
 - v0.1 byte-layout 互換性方針（英語正本）: [docs/QZT_v0.1_Format_Stability.md](docs/QZT_v0.1_Format_Stability.md)
 - QZI sidecar 仕様: [docs/QZI_v0.1_Sidecar_Spec.ja.md](docs/QZI_v0.1_Sidecar_Spec.ja.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.ja.md](docs/QZT_v0.1_Core_Readiness.ja.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.ja.md](docs/QZT_v0.1_Release_Hardening.ja.md)
-- 実装 Phase: [tasks/README.ja.md](tasks/README.ja.md)
-- 進捗: [tasks/status.ja.md](tasks/status.ja.md)
+- 実装 Phase: [tasks/README.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.ja.md)
+- 進捗: [tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)
 
 ## Phase 計画
 

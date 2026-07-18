@@ -21,7 +21,8 @@ exclude = [
 ]
 
 [package.metadata.docs.rs]
-all-features = true
+# `internal-testing` exposes hidden conformance internals and must never define
+# the public docs.rs surface.
 rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]

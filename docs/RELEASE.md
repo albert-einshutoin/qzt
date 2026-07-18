@@ -36,11 +36,18 @@ Stop if any prerequisite is unchecked.
 Run from a clean checkout of the intended release commit:
 
 ```sh
+git status --porcelain
 make check
+RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features
 cargo package --list
 cargo package --locked
 ```
+
+The first command must print nothing. The default-feature rustdoc command is
+the authoritative public API gate. The all-features command is an additional
+compile check for hidden conformance internals; it must never replace the
+default-feature gate.
 
 Review the complete `cargo package --list` output. It must include at least
 `Cargo.toml`, `Cargo.lock`, `README.md`, both license files, `CHANGELOG.md`,
@@ -60,8 +67,12 @@ an accidental gate change:
 
 ```sh
 git restore Cargo.toml
-git diff --exit-code -- Cargo.toml
+git status --porcelain
+git diff --exit-code HEAD --
 ```
+
+Both commands must print nothing. This proves that the temporary manifest edit
+did not alter any tracked or untracked release input, not only `Cargo.toml`.
 
 Attach the dry-run result, package file count, package size, and reviewed
 exclusions to issue #42. Do not include credentials or unrelated environment
