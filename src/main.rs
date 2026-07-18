@@ -1,14 +1,16 @@
 mod cli_json;
 
+use std::collections::HashSet;
 use std::fmt;
 use std::io::{Read, Write};
+use std::path::Path;
 use std::process::ExitCode;
 
 use qzt::{
-    Checksum, NgramIndexBuildOptions, QziFileSidecar, QztError, QztFileReader, QztFileWriter,
-    RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions, SearchReport, SidecarIndexKind,
-    TokenIndexBuildOptions, VerifyLevel, VerifyReport, WriterOptions,
-    build_search_sidecar_from_file, pack_bytes_with_profile,
+    Checksum, DocumentSpan, NgramIndexBuildOptions, QziFileSidecar, QztError, QztFileReader,
+    QztFileWriter, RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions, SearchReport,
+    SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel, VerifyReport, WriterBuilder,
+    WriterOptions, build_search_sidecar_from_file, pack_bytes_with_profile,
 };
 
 type CliResult<T> = std::result::Result<T, CliError>;
@@ -55,6 +57,7 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Some("pack") => run_pack(args),
+        Some("pack-docs") => run_pack_docs(args),
         Some("info") => run_info(args),
         Some("export") => run_export(args),
         Some("range") => run_range(args),
@@ -84,6 +87,7 @@ fn print_help() {
     println!("             journalctl --since today | qzt pack - -o today.qzt");
     println!("             (stdin requires --profile core without --dense-line-index;");
     println!("              stdout output is not supported; -o <path> is always required)");
+    println!("  pack-docs  Pack multiple files as verified documents in one QZT container");
     println!("  info       Print container summary (--format json for machine-readable output)");
     println!("  export     Restore original bytes (streams to -o file or stdout)");
     println!("  range      Print original bytes (--bytes A:B half-open) or lines");
@@ -109,8 +113,38 @@ fn print_help() {
     println!("  2  usage error (unknown option / missing argument)");
 }
 
+fn print_pack_docs_help() {
+    println!("qzt {}", qzt::version());
+    println!();
+    println!("Pack multiple UTF-8 files into one Document Index container.");
+    println!();
+    println!("Usage: qzt pack-docs [OPTIONS] <INPUT>...");
+    println!();
+    println!("Options:");
+    println!("  -o, --output <PATH>          Output .qzt path (required)");
+    println!("  --doc-id-prefix <PREFIX>     Prefix each basename document id");
+    println!("  --profile <PROFILE>           Pack profile (default: core)");
+    println!("  --chunk-size <BYTES>          Target chunk size");
+    println!("  --max-chunk-size <BYTES>      Maximum chunk size");
+    println!("  --zstd-level <LEVEL>          Zstd compression level");
+    println!("  --checksum blake3             Checksum algorithm (only blake3 is supported)");
+    println!("  --dict none                   Dictionary mode (CLI writing not implemented)");
+    println!("  --dense-line-index on|off     Dense line index (default: on for memory profile)");
+    println!("  -h, --help                    Show this help");
+    println!();
+    println!(
+        "Memory: this command reads all inputs before packing and uses memory proportional to their total input size."
+    );
+    println!(
+        "        With --profile memory, the default 256 KiB target / 2 MiB maximum chunks bound small reads but may reduce compression ratio;"
+    );
+    println!("        --chunk-size and --max-chunk-size override that trade-off.");
+}
+
 /// Exact profile list line; kept in sync with `tests/cli_help.rs` (issue #71).
 const PACK_PROFILES_LINE: &str = "Profiles: minimal, core, log, archive, memory";
+const PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE: usize = 256 * 1024;
+const PACK_DOCS_MEMORY_DEFAULT_MAX_CHUNK_SIZE: usize = 2 * 1024 * 1024;
 
 fn print_pack_help() {
     println!("qzt {}", qzt::version());
@@ -310,8 +344,312 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(()) => ExitCode::SUCCESS,
+        Err(CliError::Qzt(QztError::MetadataInvalid)) if profile == "memory" => {
+            eprintln!(
+                "qzt pack: --profile memory requires a DocumentIndex; use the writer API pack_bytes_with_memory_profile"
+            );
+            ExitCode::from(1)
+        }
         Err(error) => command_failed("pack", &error),
     }
+}
+
+struct PackDocsArgs {
+    input_paths: Vec<String>,
+    output_path: String,
+    doc_id_prefix: String,
+    options: WriterOptions,
+    profile: String,
+    dense_line_index: Option<bool>,
+}
+
+impl PackDocsArgs {
+    fn parse(args: impl Iterator<Item = String>) -> Result<Self, String> {
+        let mut input_paths = Vec::new();
+        let mut output_path = None;
+        let mut doc_id_prefix = String::new();
+        let mut options = WriterOptions::default();
+        let mut profile = String::from("core");
+        let mut dense_line_index = None;
+        let mut target_chunk_size_configured = false;
+        let mut max_chunk_size_configured = false;
+        let mut args = args;
+        while let Some(arg) = args.next() {
+            match arg.as_str() {
+                "-o" | "--output" => {
+                    let Some(path) = args.next() else {
+                        return Err("missing output path".to_owned());
+                    };
+                    output_path = Some(path);
+                }
+                "--doc-id-prefix" => {
+                    let Some(prefix) = args.next() else {
+                        return Err("missing --doc-id-prefix value".to_owned());
+                    };
+                    doc_id_prefix = prefix;
+                }
+                "--profile" => {
+                    let Some(value) = args.next() else {
+                        return Err("missing --profile value".to_owned());
+                    };
+                    if !matches!(
+                        value.as_str(),
+                        "minimal" | "core" | "log" | "archive" | "memory"
+                    ) {
+                        return Err("invalid --profile value".to_owned());
+                    }
+                    profile = value;
+                }
+                "--chunk-size" => {
+                    let Some(size) = args.next().and_then(|value| value.parse::<usize>().ok())
+                    else {
+                        return Err("invalid --chunk-size".to_owned());
+                    };
+                    options.chunker.target_chunk_size = size;
+                    target_chunk_size_configured = true;
+                }
+                "--max-chunk-size" => {
+                    let Some(size) = args.next().and_then(|value| value.parse::<usize>().ok())
+                    else {
+                        return Err("invalid --max-chunk-size".to_owned());
+                    };
+                    options.chunker.max_chunk_size = size;
+                    max_chunk_size_configured = true;
+                }
+                "--zstd-level" => {
+                    let Some(level) = args.next().and_then(|value| value.parse::<i32>().ok())
+                    else {
+                        return Err("invalid --zstd-level".to_owned());
+                    };
+                    options.zstd_level = level;
+                }
+                "--checksum" => {
+                    if args.next().as_deref() != Some("blake3") {
+                        return Err("only blake3 checksum is supported".to_owned());
+                    }
+                }
+                "--dict" => {
+                    if args.next().as_deref() != Some("none") {
+                        return Err("CLI dictionary writing is not implemented".to_owned());
+                    }
+                }
+                "--dense-line-index" => {
+                    let Some(value) = args.next() else {
+                        return Err("missing --dense-line-index value".to_owned());
+                    };
+                    if !matches!(value.as_str(), "on" | "off") {
+                        return Err("invalid --dense-line-index value".to_owned());
+                    }
+                    dense_line_index = Some(value == "on");
+                }
+                _ if arg.starts_with('-') => {
+                    return Err(format!("unknown option '{arg}'"));
+                }
+                _ => input_paths.push(arg),
+            }
+        }
+
+        if input_paths.is_empty() {
+            return Err("missing input file".to_owned());
+        }
+        let Some(output_path) = output_path else {
+            return Err("missing -o output.qzt".to_owned());
+        };
+
+        // Memory-profile document extraction decodes whole chunks. A conservative
+        // default keeps small document/range reads bounded without changing core's
+        // throughput-oriented 4 MiB defaults; explicit chunk sizes remain authoritative.
+        if profile == "memory" {
+            if !target_chunk_size_configured {
+                options.chunker.target_chunk_size = if max_chunk_size_configured {
+                    PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE.min(options.chunker.max_chunk_size)
+                } else {
+                    PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE
+                };
+            }
+            if !max_chunk_size_configured {
+                options.chunker.max_chunk_size =
+                    PACK_DOCS_MEMORY_DEFAULT_MAX_CHUNK_SIZE.max(options.chunker.target_chunk_size);
+            }
+        }
+
+        let parsed = Self {
+            input_paths,
+            output_path,
+            doc_id_prefix,
+            options,
+            profile,
+            dense_line_index,
+        };
+        parsed.validate()?;
+        Ok(parsed)
+    }
+
+    fn validate(&self) -> Result<(), String> {
+        self.options
+            .chunker
+            .validate()
+            .map_err(|error| error.to_string())?;
+        if self.input_paths.iter().any(|path| path == "-") {
+            return Err("stdin is not supported; provide input file paths".to_owned());
+        }
+
+        let mut doc_ids = HashSet::with_capacity(self.input_paths.len());
+        for input_path in &self.input_paths {
+            let Some(doc_id) = pack_docs_document_id(input_path, &self.doc_id_prefix) else {
+                return Err("input path has no UTF-8 basename".to_owned());
+            };
+            if !doc_ids.insert(doc_id.clone()) {
+                return Err(format!("duplicate doc_id: {doc_id}"));
+            }
+        }
+
+        Ok(())
+    }
+}
+
+fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
+    let args: Vec<String> = args.collect();
+    if args.iter().any(|arg| arg == "--help" || arg == "-h") {
+        print_pack_docs_help();
+        return ExitCode::SUCCESS;
+    }
+
+    let args = match PackDocsArgs::parse(args.into_iter()) {
+        Ok(args) => args,
+        Err(error) => {
+            eprintln!("qzt pack-docs: {error}");
+            return ExitCode::from(2);
+        }
+    };
+
+    match pack_docs(args) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(error) => command_failed("pack-docs", &error),
+    }
+}
+
+fn pack_docs_document_id(input_path: &str, doc_id_prefix: &str) -> Option<String> {
+    let basename = Path::new(input_path).file_name()?.to_str()?;
+    Some(format!("{doc_id_prefix}{basename}"))
+}
+
+fn pack_docs(args: PackDocsArgs) -> CliResult<()> {
+    let (input, spans) = load_pack_docs_input(&args)?;
+    let PackDocsArgs {
+        output_path,
+        options,
+        profile,
+        dense_line_index,
+        ..
+    } = args;
+    let container = build_pack_docs_container(options, &profile, dense_line_index, &input, spans)?;
+    write_container_atomically(&output_path, &container)
+}
+
+fn load_pack_docs_input(args: &PackDocsArgs) -> CliResult<(Vec<u8>, Vec<DocumentSpan>)> {
+    let mut input = Vec::new();
+    let mut spans = Vec::with_capacity(args.input_paths.len());
+    for input_path in &args.input_paths {
+        let doc_id = pack_docs_document_id(input_path, &args.doc_id_prefix).ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "input path has no UTF-8 basename",
+            )
+        })?;
+        let bytes = std::fs::read(input_path)?;
+        let offset = u64::try_from(input.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let byte_length =
+            u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        input.extend_from_slice(&bytes);
+        spans.push(DocumentSpan::new(doc_id, offset, byte_length));
+    }
+    Ok((input, spans))
+}
+
+fn build_pack_docs_container(
+    options: WriterOptions,
+    profile: &str,
+    dense_line_index: Option<bool>,
+    input: &[u8],
+    spans: Vec<DocumentSpan>,
+) -> CliResult<Vec<u8>> {
+    let mut builder = WriterBuilder::new()
+        .options(options)
+        .profile(profile)
+        .document_spans(spans);
+    if let Some(enabled) = dense_line_index {
+        builder = builder.dense_line_index(enabled);
+    }
+    Ok(builder.pack(input)?)
+}
+
+fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<()> {
+    let output_path = Path::new(output_path);
+    let file_name = output_path.file_name().ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "output path has no file name",
+        )
+    })?;
+    let parent = output_path.parent().unwrap_or_else(|| Path::new("."));
+    let inherited_permissions = match std::fs::symlink_metadata(output_path) {
+        Ok(metadata) if metadata.file_type().is_file() => Some(metadata.permissions()),
+        Ok(_) => None,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+        Err(error) => return Err(error.into()),
+    };
+    let mut temporary = None;
+    for attempt in 0_u16..128 {
+        let mut name = std::ffi::OsString::from(".");
+        name.push(file_name);
+        name.push(format!(".qzt-tmp-{}-{attempt}", std::process::id()));
+        let path = parent.join(name);
+        match std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&path)
+        {
+            Ok(file) => {
+                temporary = Some((path, file));
+                break;
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+            Err(error) => return Err(error.into()),
+        }
+    }
+    let (temp_output_path, mut file) = temporary.ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::AlreadyExists,
+            "could not allocate a unique temporary output file",
+        )
+    })?;
+    let write_result: std::io::Result<()> = (|| {
+        if let Some(permissions) = inherited_permissions {
+            file.set_permissions(permissions)?;
+        }
+        file.write_all(container)?;
+        file.sync_all()?;
+        drop(file);
+        std::fs::rename(&temp_output_path, output_path)?;
+        Ok(())
+    })();
+    if let Err(primary_error) = write_result {
+        return match std::fs::remove_file(&temp_output_path) {
+            Ok(()) => Err(primary_error.into()),
+            Err(cleanup_error) if cleanup_error.kind() == std::io::ErrorKind::NotFound => {
+                Err(primary_error.into())
+            }
+            Err(cleanup_error) => Err(std::io::Error::new(
+                primary_error.kind(),
+                format!(
+                    "{primary_error}; additionally failed to remove temporary output: {cleanup_error}"
+                ),
+            )
+            .into()),
+        };
+    }
+    Ok(())
 }
 
 /// Output format requested by the caller of `qzt info`.

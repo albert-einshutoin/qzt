@@ -76,7 +76,7 @@ pub use sidecar::{
 #[doc(hidden)]
 pub use skeleton::open_skeleton_details;
 pub use writer::{
-    QztFileWriter, WriterBuilder, WriterOptions, export_all, pack_bytes,
+    DocumentSpan, QztFileWriter, WriterBuilder, WriterOptions, export_all, pack_bytes,
     pack_bytes_with_container_id, pack_bytes_with_dense_line_index, pack_bytes_with_document_index,
     pack_bytes_with_memory_profile, pack_bytes_with_profile,
 };

@@ -39,6 +39,9 @@ production-ready):
 
 ```sh
 ./target/release/qzt pack input.txt -o output.qzt
+./target/release/qzt pack-docs server-a.log server-b.log report.txt -o bundle.qzt
+./target/release/qzt docs bundle.qzt
+./target/release/qzt doc bundle.qzt server-a.log -o restored.log
 ./target/release/qzt info output.qzt
 ./target/release/qzt range output.qzt --lines 1:10
 ./target/release/qzt sidecar-rebuild output.qzt -o output.qzt.qzi
@@ -154,6 +157,8 @@ No output from `diff` means the restored bytes match the source.
 ```sh
 qzt pack input.txt -o output.qzt
 journalctl --since today | qzt pack - -o today.qzt
+qzt pack-docs server-a.log server-b.log report.txt -o bundle.qzt
+qzt pack-docs server-a.log server-b.log -o logs.qzt --doc-id-prefix logs/ --profile memory
 qzt info output.qzt
 qzt info output.qzt --format json
 qzt export output.qzt -o restored.txt
@@ -169,6 +174,36 @@ qzt verify output.qzt --deep
 qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi
 qzt search output.qzt "error" --sidecar output.qzt.qzi --format json
+```
+
+### Multi-document evidence containers
+
+`qzt pack-docs` concatenates input files in the order given, with no inserted
+separator, and records each file as a separately verified document. Document
+IDs are the input basenames; use `--doc-id-prefix logs/` to make them
+`logs/server-a.log`. Duplicate IDs are rejected as a usage error rather than
+silently making `qzt doc` ambiguous.
+
+`pack-docs` reads the complete inputs before packing, so it uses memory
+proportional to their total size. Its `memory` profile defaults to a 256 KiB
+target and 2 MiB maximum chunk, keeping small document and range reads bounded;
+the smaller chunks can reduce compression ratio. Set `--chunk-size` and
+`--max-chunk-size` explicitly when a different retrieval/compression trade-off
+is appropriate.
+
+Library users can obtain the same generated metadata without calculating chunk
+or line fields themselves:
+
+```rust
+use qzt::{DocumentSpan, WriterBuilder};
+
+let input = b"first\nsecond\n";
+let container = WriterBuilder::new()
+    .document_spans(vec![
+        DocumentSpan::new("first.txt", 0, 6),
+        DocumentSpan::new("second.txt", 6, 7),
+    ])
+    .pack(input)?;
 ```
 
 Range semantics: `--bytes A:B` is a half-open byte range `[A, B)`, while
@@ -231,10 +266,11 @@ warning and sets `incomplete_reason=query_shorter_than_ngram_n`.
 
 ### Memory profile requires a Document Index
 
-The `memory` profile requires a Document Index at pack time. The `qzt pack`
-CLI cannot supply one, so `qzt pack --profile memory` fails with exit code
-**1**. Use the writer API with a `DocumentIndex`, or choose another profile
-such as `core`.
+The `memory` profile requires a Document Index at pack time. `qzt pack` cannot
+supply one, so `qzt pack --profile memory` fails with exit code **1** and
+points to `pack_bytes_with_memory_profile`. Use `qzt pack-docs --profile memory`
+for file inputs, the writer API with `DocumentSpan`/`DocumentIndex`, or choose
+another profile such as `core`.
 
 ## Documentation
 

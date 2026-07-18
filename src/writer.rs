@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::io::{Read, Seek, SeekFrom, Write};
 
 use crate::chunk_table::ChunkEntry;
@@ -7,11 +8,34 @@ use crate::dense_line_index::DenseLineIndex;
 use crate::error::{QztError, Result};
 use crate::fixed::{FooterTrailer, Header};
 use crate::format::HEADER_LEN;
-use crate::primitives::{u64_to_usize, usize_to_u64};
+use crate::primitives::{checked_logical_end, u64_to_usize, usize_to_u64};
 use crate::schema::{
-    BlockDescriptor, BlockRef, Checksum, DocumentIndex, IndexRoot, Metadata,
+    BlockDescriptor, BlockRef, Checksum, DocumentEntry, DocumentIndex, IndexRoot, Metadata,
     MetadataOptions,
 };
+
+/// Logical source range used to generate a [`DocumentIndex`] while packing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DocumentSpan {
+    /// Stable document identifier within the container.
+    pub doc_id: String,
+    /// Zero-based byte offset in the original input.
+    pub logical_offset: u64,
+    /// Number of original bytes belonging to this document.
+    pub byte_length: u64,
+}
+
+impl DocumentSpan {
+    /// Creates a document span from its identifier and logical byte range.
+    #[must_use]
+    pub fn new(doc_id: impl Into<String>, logical_offset: u64, byte_length: u64) -> Self {
+        Self {
+            doc_id: doc_id.into(),
+            logical_offset,
+            byte_length,
+        }
+    }
+}
 
 /// Streaming QZT writer over a readable, writable, seekable output.
 pub struct QztFileWriter<W: Read + Write + Seek> {
@@ -54,9 +78,10 @@ impl Default for WriterOptions {
 pub struct WriterBuilder {
     options: WriterOptions,
     profile: String,
-    dense_line_index: bool,
+    dense_line_index: Option<bool>,
     container_id: Option<[u8; 16]>,
     document_index: Option<DocumentIndex>,
+    document_spans: Option<Vec<DocumentSpan>>,
 }
 
 impl Default for WriterBuilder {
@@ -64,9 +89,10 @@ impl Default for WriterBuilder {
         Self {
             options: WriterOptions::default(),
             profile: "core".to_owned(),
-            dense_line_index: false,
+            dense_line_index: None,
             container_id: None,
             document_index: None,
+            document_spans: None,
         }
     }
 }
@@ -102,7 +128,7 @@ impl WriterBuilder {
     /// Enables or disables the optional Dense Line Index.
     #[must_use]
     pub fn dense_line_index(mut self, enabled: bool) -> Self {
-        self.dense_line_index = enabled;
+        self.dense_line_index = Some(enabled);
         self
     }
 
@@ -110,12 +136,26 @@ impl WriterBuilder {
     #[must_use]
     pub fn document_index(mut self, document_index: DocumentIndex) -> Self {
         self.document_index = Some(document_index);
+        self.document_spans = None;
+        self
+    }
+
+    /// Generates a Document Index from source ranges after chunk planning.
+    ///
+    /// Non-empty spans record the zero-based global line range they intersect;
+    /// an empty span records the number of preceding LF bytes, zero lines, and
+    /// no chunk range. Duplicate identifiers and out-of-input ranges fail pack.
+    #[must_use]
+    pub fn document_spans(mut self, spans: Vec<DocumentSpan>) -> Self {
+        self.document_spans = Some(spans);
+        self.document_index = None;
         self
     }
 
     /// Packs input bytes into a QZT container.
     pub fn pack(self, input: &[u8]) -> Result<Vec<u8>> {
         let document_index = self.document_index;
+        let document_spans = self.document_spans;
         let container_id = self.container_id.unwrap_or_else(|| {
             let hash = blake3::hash(input);
             let mut container_id = [0_u8; 16];
@@ -123,22 +163,12 @@ impl WriterBuilder {
             container_id
         });
 
-        let document_index = match (self.profile.as_str(), document_index) {
-            ("memory", Some(document_index)) => {
-                return pack_bytes_with_memory_profile(
-                    input,
-                    container_id,
-                    self.options,
-                    &document_index,
-                );
+        let dense_mode = match (self.dense_line_index, self.profile.as_str()) {
+            (Some(true), _) => DenseLineIndexMode::Generate,
+            (None, "memory") => {
+                DenseLineIndexMode::GenerateIfAtLeast(MEMORY_PROFILE_DENSE_LINE_INDEX_MIN_LINES)
             }
-            (_, document_index) => document_index,
-        };
-
-        let dense_mode = if self.dense_line_index {
-            DenseLineIndexMode::Generate
-        } else {
-            DenseLineIndexMode::Omit
+            (Some(false) | None, _) => DenseLineIndexMode::Omit,
         };
         pack_bytes_internal(
             input,
@@ -146,6 +176,7 @@ impl WriterBuilder {
             self.options,
             dense_mode,
             document_index.as_ref(),
+            document_spans.as_deref(),
             &self.profile,
         )
     }
@@ -517,7 +548,7 @@ pub fn pack_bytes_with_profile_and_container_id(
     } else {
         DenseLineIndexMode::Omit
     };
-    pack_bytes_internal(input, container_id, options, dense_mode, None, profile)
+    pack_bytes_internal(input, container_id, options, dense_mode, None, None, profile)
 }
 
 /// Packs UTF-8 input with an explicit container id for deterministic tests.
@@ -531,6 +562,7 @@ pub fn pack_bytes_with_container_id(
         container_id,
         options,
         DenseLineIndexMode::Omit,
+        None,
         None,
         "core",
     )
@@ -547,6 +579,7 @@ pub fn pack_bytes_with_dense_line_index(
         container_id,
         options,
         DenseLineIndexMode::Generate,
+        None,
         None,
         "core",
     )
@@ -568,6 +601,7 @@ pub fn pack_bytes_with_dense_line_index_override(
         options,
         DenseLineIndexMode::Override(dense_line_index),
         None,
+        None,
         "core",
     )
 }
@@ -585,6 +619,7 @@ pub fn pack_bytes_with_document_index(
         options,
         DenseLineIndexMode::Omit,
         Some(document_index),
+        None,
         "core",
     )
 }
@@ -607,6 +642,7 @@ pub fn pack_bytes_with_memory_profile(
         options,
         DenseLineIndexMode::GenerateIfAtLeast(MEMORY_PROFILE_DENSE_LINE_INDEX_MIN_LINES),
         Some(document_index),
+        None,
         "memory",
     )
 }
@@ -632,11 +668,15 @@ fn pack_bytes_internal(
     options: WriterOptions,
     dense_mode: DenseLineIndexMode,
     document_index: Option<&DocumentIndex>,
+    document_spans: Option<&[DocumentSpan]>,
     profile: &str,
 ) -> Result<Vec<u8>> {
     validate_profile(profile)?;
-    if profile == "memory" && document_index.is_none() {
+    if profile == "memory" && document_index.is_none() && document_spans.is_none() {
         return Err(QztError::MetadataInvalid);
+    }
+    if let Some(document_index) = document_index {
+        document_index.validate_unique_doc_ids()?;
     }
     let plan = plan_chunks(input, options.chunker)?;
     let mut compressed_chunks = Vec::with_capacity(plan.chunks.len());
@@ -690,6 +730,10 @@ fn pack_bytes_internal(
         }
         DenseLineIndexMode::Override(dense) => Some(dense),
     };
+    let generated_document_index = document_spans
+        .map(|spans| build_document_index(spans, input, container_id, &entries))
+        .transpose()?;
+    let document_index = generated_document_index.as_ref().or(document_index);
 
     assemble_container(
         input,
@@ -704,6 +748,122 @@ fn pack_bytes_internal(
             writer_options: options,
         },
     )
+}
+
+fn build_document_index(
+    spans: &[DocumentSpan],
+    input: &[u8],
+    container_id: [u8; 16],
+    entries: &[ChunkEntry],
+) -> Result<DocumentIndex> {
+    let input_len = usize_to_u64(input.len())?;
+    let mut seen = HashSet::with_capacity(spans.len());
+    let mut ranges = Vec::with_capacity(spans.len());
+    let mut line_events = Vec::with_capacity(spans.len().saturating_mul(2));
+    for (index, span) in spans.iter().enumerate() {
+        if !seen.insert(span.doc_id.as_str()) {
+            return Err(QztError::DuplicateDocumentId);
+        }
+        let end = checked_logical_end(span.logical_offset, span.byte_length)?;
+        if end > input_len {
+            return Err(QztError::LogicalRangeOutOfBounds);
+        }
+        let start = u64_to_usize(span.logical_offset)?;
+        let end = u64_to_usize(end)?;
+        ranges.push((start, end));
+        line_events.push((start, index, false));
+        line_events.push((end, index, true));
+    }
+
+    // Store only two prefix counts per span. Keeping every LF offset can use
+    // many times the source size for newline-dense evidence.
+    line_events.sort_unstable();
+    let mut line_prefixes = vec![(0_u64, 0_u64); spans.len()];
+    let mut input_cursor = 0_usize;
+    let mut newline_count = 0_u64;
+    for (offset, span_index, is_end) in line_events {
+        while input_cursor < offset {
+            if input[input_cursor] == b'\n' {
+                newline_count = newline_count
+                    .checked_add(1)
+                    .ok_or(QztError::ResourceLimitExceeded)?;
+            }
+            input_cursor += 1;
+        }
+        if is_end {
+            line_prefixes[span_index].1 = newline_count;
+        } else {
+            line_prefixes[span_index].0 = newline_count;
+        }
+    }
+
+    let mut documents = Vec::with_capacity(spans.len());
+    for (index, span) in spans.iter().enumerate() {
+        let (start, end) = ranges[index];
+        let bytes = input
+            .get(start..end)
+            .ok_or(QztError::LogicalRangeOutOfBounds)?;
+        // Spans can start inside a chunk, so chunk-level line totals cannot
+        // determine their exact first line or partial trailing line.
+        let (first_line, newline_end) = line_prefixes[index];
+        let span_newline_count = newline_end
+            .checked_sub(first_line)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        let line_count = if bytes.is_empty() {
+            0
+        } else if bytes.last() == Some(&b'\n') {
+            span_newline_count
+        } else {
+            span_newline_count
+                .checked_add(1)
+                .ok_or(QztError::ResourceLimitExceeded)?
+        };
+        let (chunk_start, chunk_end) = document_chunk_range(entries, span.logical_offset, span.byte_length)?;
+        documents.push(DocumentEntry::new(
+            &span.doc_id,
+            span.logical_offset,
+            span.byte_length,
+            first_line,
+            line_count,
+            chunk_start,
+            chunk_end,
+            Checksum::blake3(bytes),
+        ));
+    }
+    Ok(DocumentIndex { container_id, documents })
+}
+
+fn document_chunk_range(entries: &[ChunkEntry], offset: u64, length: u64) -> Result<(u64, u64)> {
+    if length == 0 {
+        return Ok((0, 0));
+    }
+    let end = checked_logical_end(offset, length)?;
+    let first = entries
+        .get(document_chunk_index(entries, offset)?)
+        .ok_or(QztError::ChunkTableInvalid)?;
+    let last_offset = end.checked_sub(1).ok_or(QztError::ChunkTableInvalid)?;
+    let last = entries
+        .get(document_chunk_index(entries, last_offset)?)
+        .ok_or(QztError::ChunkTableInvalid)?;
+    Ok((first.chunk_id, last.chunk_id.checked_add(1).ok_or(QztError::ChunkTableInvalid)?))
+}
+
+fn document_chunk_index(entries: &[ChunkEntry], offset: u64) -> Result<usize> {
+    let mut low = 0_usize;
+    let mut high = entries.len();
+    while low < high {
+        let mid = low + (high - low) / 2;
+        let chunk_end = checked_logical_end(
+            entries[mid].logical_offset,
+            entries[mid].uncompressed_size,
+        )?;
+        if chunk_end <= offset {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    Ok(low)
 }
 
 /// Exports all original bytes from a no-dictionary QZT container.

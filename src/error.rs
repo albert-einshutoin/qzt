@@ -16,6 +16,8 @@ pub enum QztError {
     ContainerIdMismatch,
     MetadataChecksumMismatch,
     MetadataInvalid,
+    /// A Document Index contains more than one entry with the same identifier.
+    DuplicateDocumentId,
     VersionMismatch,
     NewlineModeMismatch,
     IndexRootChecksumMismatch,
@@ -67,6 +69,7 @@ impl fmt::Display for QztError {
             Self::ContainerIdMismatch => "container id mismatch between header and footer",
             Self::MetadataChecksumMismatch => "metadata block checksum mismatch",
             Self::MetadataInvalid => "metadata block is invalid",
+            Self::DuplicateDocumentId => "document index contains a duplicate document id",
             Self::VersionMismatch => "version mismatch between blocks",
             Self::NewlineModeMismatch => "newline mode mismatch between metadata and content",
             Self::IndexRootChecksumMismatch => "index root checksum mismatch",
