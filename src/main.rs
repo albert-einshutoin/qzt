@@ -550,10 +550,12 @@ fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<
         )
     })?;
     let parent = output_path.parent().unwrap_or_else(|| Path::new("."));
-    let inherited_permissions = std::fs::symlink_metadata(output_path)
-        .ok()
-        .filter(|metadata| metadata.file_type().is_file())
-        .map(|metadata| metadata.permissions());
+    let inherited_permissions = match std::fs::symlink_metadata(output_path) {
+        Ok(metadata) if metadata.file_type().is_file() => Some(metadata.permissions()),
+        Ok(_) => None,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+        Err(error) => return Err(error.into()),
+    };
     let mut temporary = None;
     for attempt in 0_u16..128 {
         let mut name = std::ffi::OsString::from(".");
@@ -589,10 +591,22 @@ fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<
         std::fs::rename(&temp_output_path, output_path)?;
         Ok(())
     })();
-    if write_result.is_err() {
-        let _ = std::fs::remove_file(&temp_output_path);
+    if let Err(primary_error) = write_result {
+        return match std::fs::remove_file(&temp_output_path) {
+            Ok(()) => Err(primary_error.into()),
+            Err(cleanup_error) if cleanup_error.kind() == std::io::ErrorKind::NotFound => {
+                Err(primary_error.into())
+            }
+            Err(cleanup_error) => Err(std::io::Error::new(
+                primary_error.kind(),
+                format!(
+                    "{primary_error}; additionally failed to remove temporary output: {cleanup_error}"
+                ),
+            )
+            .into()),
+        };
     }
-    write_result.map_err(CliError::from)
+    Ok(())
 }
 
 /// Output format requested by the caller of `qzt info`.

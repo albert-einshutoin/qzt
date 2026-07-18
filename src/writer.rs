@@ -757,14 +757,10 @@ fn build_document_index(
     entries: &[ChunkEntry],
 ) -> Result<DocumentIndex> {
     let input_len = usize_to_u64(input.len())?;
-    let newline_offsets = input
-        .iter()
-        .enumerate()
-        .filter_map(|(offset, byte)| (*byte == b'\n').then_some(offset))
-        .collect::<Vec<_>>();
     let mut seen = HashSet::with_capacity(spans.len());
-    let mut documents = Vec::with_capacity(spans.len());
-    for span in spans {
+    let mut ranges = Vec::with_capacity(spans.len());
+    let mut line_events = Vec::with_capacity(spans.len().saturating_mul(2));
+    for (index, span) in spans.iter().enumerate() {
         if !seen.insert(span.doc_id.as_str()) {
             return Err(QztError::DuplicateDocumentId);
         }
@@ -774,24 +770,51 @@ fn build_document_index(
         }
         let start = u64_to_usize(span.logical_offset)?;
         let end = u64_to_usize(end)?;
+        ranges.push((start, end));
+        line_events.push((start, index, false));
+        line_events.push((end, index, true));
+    }
+
+    // Store only two prefix counts per span. Keeping every LF offset can use
+    // many times the source size for newline-dense evidence.
+    line_events.sort_unstable();
+    let mut line_prefixes = vec![(0_u64, 0_u64); spans.len()];
+    let mut input_cursor = 0_usize;
+    let mut newline_count = 0_u64;
+    for (offset, span_index, is_end) in line_events {
+        while input_cursor < offset {
+            if input[input_cursor] == b'\n' {
+                newline_count = newline_count
+                    .checked_add(1)
+                    .ok_or(QztError::ResourceLimitExceeded)?;
+            }
+            input_cursor += 1;
+        }
+        if is_end {
+            line_prefixes[span_index].1 = newline_count;
+        } else {
+            line_prefixes[span_index].0 = newline_count;
+        }
+    }
+
+    let mut documents = Vec::with_capacity(spans.len());
+    for (index, span) in spans.iter().enumerate() {
+        let (start, end) = ranges[index];
         let bytes = input
             .get(start..end)
             .ok_or(QztError::LogicalRangeOutOfBounds)?;
         // Spans can start inside a chunk, so chunk-level line totals cannot
         // determine their exact first line or partial trailing line.
-        // Newline positions are indexed once because large evidence bundles can
-        // contain many spans; rescanning every prefix would make pack quadratic.
-        let first_line = usize_to_u64(newline_offsets.partition_point(|offset| *offset < start))?;
-        let newline_end = newline_offsets.partition_point(|offset| *offset < end);
-        let newline_count = newline_end
-            .checked_sub(u64_to_usize(first_line)?)
+        let (first_line, newline_end) = line_prefixes[index];
+        let span_newline_count = newline_end
+            .checked_sub(first_line)
             .ok_or(QztError::ResourceLimitExceeded)?;
         let line_count = if bytes.is_empty() {
             0
         } else if bytes.last() == Some(&b'\n') {
-            usize_to_u64(newline_count)?
+            span_newline_count
         } else {
-            usize_to_u64(newline_count)?
+            span_newline_count
                 .checked_add(1)
                 .ok_or(QztError::ResourceLimitExceeded)?
         };
