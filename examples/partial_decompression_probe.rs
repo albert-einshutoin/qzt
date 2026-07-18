@@ -1,7 +1,8 @@
 use std::env;
+use std::ffi::OsString;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
-use std::path::Path;
+use std::path::PathBuf;
 use std::time::Instant;
 
 use qzt::QztFileReader;
@@ -9,9 +10,11 @@ use qzt::QztFileReader;
 const MAX_PROBE_RANGE_BYTES: u64 = 64 * 1024 * 1024;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut args = env::args().skip(1);
-    let source_path = args.next().ok_or("missing original source path")?;
-    let qzt_path = args.next().ok_or("missing QZT container path")?;
+    // Preserve filesystem arguments as OS strings: benchmark paths need not be
+    // UTF-8, and argv[0] is deliberately ignored rather than trusted.
+    let mut args = env::args_os().skip(1);
+    let source_path: PathBuf = args.next().ok_or("missing original source path")?.into();
+    let qzt_path: PathBuf = args.next().ok_or("missing QZT container path")?.into();
     let offset = parse_u64(args.next(), "offset")?;
     let length = parse_u64(args.next(), "length")?;
     if args.next().is_some() {
@@ -23,7 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let source_bytes = std::fs::metadata(&source_path)?.len();
     let qzt_bytes = std::fs::metadata(&qzt_path)?.len();
-    let reader = QztFileReader::open_path(Path::new(&qzt_path))?;
+    let reader = QztFileReader::open_path(&qzt_path)?;
 
     let started = Instant::now();
     let report = reader.read_range_with_metrics(offset, length)?;
@@ -51,9 +54,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn parse_u64(value: Option<String>, name: &str) -> Result<u64, Box<dyn std::error::Error>> {
+fn parse_u64(value: Option<OsString>, name: &str) -> Result<u64, Box<dyn std::error::Error>> {
     value
         .ok_or_else(|| format!("missing {name}"))?
+        .to_str()
+        .ok_or_else(|| format!("{name} must be UTF-8"))?
         .parse::<u64>()
         .map_err(Into::into)
 }
