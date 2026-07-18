@@ -1,5 +1,5 @@
 use qzt::{
-    CorpusKind, PartialDecompressionBenchmarkOptions, QztFileReader, QztReader,
+    CorpusKind, PartialDecompressionBenchmarkOptions, QztError, QztFileReader, QztReader,
     open_skeleton_details, pack_bytes_with_container_id, run_partial_decompression_benchmark,
 };
 
@@ -88,6 +88,22 @@ fn empty_range_reports_zero_work() {
     assert_eq!(report.metrics.decoded_chunks, 0);
     assert_eq!(report.metrics.decoded_bytes, 0);
     assert_eq!(report.metrics.compressed_bytes, 0);
+}
+
+#[test]
+fn range_metrics_preserve_overflow_and_out_of_bounds_errors() {
+    let container = pack_bytes_with_container_id(b"alpha\n", [0x49; 16], writer_options(8, 8))
+        .expect("pack should work");
+    let reader = QztReader::open(&container).expect("reader should open");
+
+    assert_eq!(
+        reader.read_range_with_metrics(u64::MAX, 1),
+        Err(QztError::LogicalRangeOutOfBounds)
+    );
+    assert_eq!(
+        reader.read_range_with_metrics(5, 2),
+        Err(QztError::LogicalRangeOutOfBounds)
+    );
 }
 
 #[test]
