@@ -48,6 +48,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       # The release path exercises platform-specific positioned file reads that
       # Linux CI cannot compile, so keep Windows portability in the normal gate.
+      - run: cargo test --release --locked --lib io::tests::windows_positioned_read
+      - run: cargo test --release --locked --features internal-testing --test phase21_evidence_retrieval windows_file_backed
       - run: cargo build --release --locked
 
   dist-workflow:

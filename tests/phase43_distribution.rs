@@ -86,6 +86,13 @@ fn generated_release_workflow_has_no_branch_or_pull_request_trigger() {
     assert!(CI_WORKFLOW.contains("run: make dist-check"));
     assert!(CI_WORKFLOW.contains("name: windows release build"));
     assert!(CI_WORKFLOW.contains("runs-on: windows-latest"));
+    assert!(
+        CI_WORKFLOW
+            .contains("cargo test --release --locked --lib io::tests::windows_positioned_read")
+    );
+    assert!(CI_WORKFLOW.contains(
+        "cargo test --release --locked --features internal-testing --test phase21_evidence_retrieval windows_file_backed"
+    ));
     assert!(CI_WORKFLOW.contains("cargo build --release --locked"));
     for digest in [
         "decb01c64c12501931c3cac3111b368a7f48adf8d9e65455c08e5757b9a1fd6f",

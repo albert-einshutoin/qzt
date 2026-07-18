@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::Path;
+#[cfg(windows)]
+use std::sync::Mutex;
 
 use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
 use crate::error::{QztError, Result};
@@ -473,6 +475,7 @@ impl<R: ReadAt> QztFileReader<R> {
     }
 }
 
+#[cfg(unix)]
 impl QztFileReader<File> {
     /// Opens a QZT file from a filesystem path.
     pub fn open_path(path: impl AsRef<Path>) -> Result<Self> {
@@ -482,6 +485,19 @@ impl QztFileReader<File> {
             .map_err(|error| QztError::Io(error.kind()))?
             .len();
         Self::open_read_at(file, len)
+    }
+}
+
+#[cfg(windows)]
+impl QztFileReader<Mutex<File>> {
+    /// Opens a QZT file from a filesystem path.
+    pub fn open_path(path: impl AsRef<Path>) -> Result<Self> {
+        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
+        let len = file
+            .metadata()
+            .map_err(|error| QztError::Io(error.kind()))?
+            .len();
+        Self::open_read_at(Mutex::new(file), len)
     }
 }
 

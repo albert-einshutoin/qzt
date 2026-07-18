@@ -1,6 +1,8 @@
 use std::fs::File;
 use std::path::Path;
 use std::time::Instant;
+#[cfg(windows)]
+use std::sync::Mutex;
 
 use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
@@ -790,6 +792,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
     }
 }
 
+#[cfg(unix)]
 impl QziFileSidecar<File> {
     /// Opens a sidecar file from a filesystem path and binds it to `container`.
     pub fn open_path<C: ReadAt>(
@@ -811,6 +814,31 @@ impl QziFileSidecar<File> {
             .map_err(|error| QztError::Io(error.kind()))?
             .len();
         Self::open_read_at_with_limits(file, len, container, limits)
+    }
+}
+
+#[cfg(windows)]
+impl QziFileSidecar<Mutex<File>> {
+    /// Opens a sidecar file from a filesystem path and binds it to `container`.
+    pub fn open_path<C: ReadAt>(
+        path: impl AsRef<Path>,
+        container: &QztFileReader<C>,
+    ) -> Result<Self> {
+        Self::open_path_with_limits(path, container, SidecarLimits::default())
+    }
+
+    /// Opens a sidecar path with explicit untrusted-input limits.
+    pub fn open_path_with_limits<C: ReadAt>(
+        path: impl AsRef<Path>,
+        container: &QztFileReader<C>,
+        limits: SidecarLimits,
+    ) -> Result<Self> {
+        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
+        let len = file
+            .metadata()
+            .map_err(|error| QztError::Io(error.kind()))?
+            .len();
+        Self::open_read_at_with_limits(Mutex::new(file), len, container, limits)
     }
 }
 
