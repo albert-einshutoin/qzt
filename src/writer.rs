@@ -757,11 +757,16 @@ fn build_document_index(
     entries: &[ChunkEntry],
 ) -> Result<DocumentIndex> {
     let input_len = usize_to_u64(input.len())?;
+    let newline_offsets = input
+        .iter()
+        .enumerate()
+        .filter_map(|(offset, byte)| (*byte == b'\n').then_some(offset))
+        .collect::<Vec<_>>();
     let mut seen = HashSet::with_capacity(spans.len());
     let mut documents = Vec::with_capacity(spans.len());
     for span in spans {
         if !seen.insert(span.doc_id.as_str()) {
-            return Err(QztError::MetadataInvalid);
+            return Err(QztError::DuplicateDocumentId);
         }
         let end = checked_logical_end(span.logical_offset, span.byte_length)?;
         if end > input_len {
@@ -774,8 +779,22 @@ fn build_document_index(
             .ok_or(QztError::LogicalRangeOutOfBounds)?;
         // Spans can start inside a chunk, so chunk-level line totals cannot
         // determine their exact first line or partial trailing line.
-        let first_line = count_newlines(&input[..start])?;
-        let line_count = document_line_count(bytes)?;
+        // Newline positions are indexed once because large evidence bundles can
+        // contain many spans; rescanning every prefix would make pack quadratic.
+        let first_line = usize_to_u64(newline_offsets.partition_point(|offset| *offset < start))?;
+        let newline_end = newline_offsets.partition_point(|offset| *offset < end);
+        let newline_count = newline_end
+            .checked_sub(u64_to_usize(first_line)?)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        let line_count = if bytes.is_empty() {
+            0
+        } else if bytes.last() == Some(&b'\n') {
+            usize_to_u64(newline_count)?
+        } else {
+            usize_to_u64(newline_count)?
+                .checked_add(1)
+                .ok_or(QztError::ResourceLimitExceeded)?
+        };
         let (chunk_start, chunk_end) = document_chunk_range(entries, span.logical_offset, span.byte_length)?;
         documents.push(DocumentEntry::new(
             &span.doc_id,
@@ -789,30 +808,6 @@ fn build_document_index(
         ));
     }
     Ok(DocumentIndex { container_id, documents })
-}
-
-fn count_newlines(bytes: &[u8]) -> Result<u64> {
-    let mut count = 0_u64;
-    for byte in bytes {
-        if *byte == b'\n' {
-            count = count.checked_add(1).ok_or(QztError::ResourceLimitExceeded)?;
-        }
-    }
-    Ok(count)
-}
-
-fn document_line_count(bytes: &[u8]) -> Result<u64> {
-    if bytes.is_empty() {
-        return Ok(0);
-    }
-    let newline_count = count_newlines(bytes)?;
-    if bytes.last() == Some(&b'\n') {
-        Ok(newline_count)
-    } else {
-        newline_count
-            .checked_add(1)
-            .ok_or(QztError::ResourceLimitExceeded)
-    }
 }
 
 fn document_chunk_range(entries: &[ChunkEntry], offset: u64, length: u64) -> Result<(u64, u64)> {

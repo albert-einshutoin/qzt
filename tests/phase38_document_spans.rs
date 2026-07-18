@@ -90,7 +90,13 @@ fn document_spans_reject_duplicate_doc_ids_and_out_of_range_spans() {
             DocumentSpan::new("same", 1, 1),
         ])
         .pack(b"ab");
-    assert_eq!(duplicate, Err(qzt::QztError::MetadataInvalid));
+    assert_eq!(duplicate, Err(qzt::QztError::DuplicateDocumentId));
+    assert!(
+        duplicate
+            .unwrap_err()
+            .to_string()
+            .contains("duplicate document id")
+    );
 
     let out_of_range = WriterBuilder::new()
         .document_spans(vec![DocumentSpan::new("bad", 1, 2)])
@@ -112,7 +118,7 @@ fn supplied_document_indexes_reject_duplicate_doc_ids() {
         .container_id([0x39; 16])
         .document_index(duplicate_index)
         .pack(b"a\nb\n");
-    assert_eq!(result, Err(qzt::QztError::MetadataInvalid));
+    assert_eq!(result, Err(qzt::QztError::DuplicateDocumentId));
 }
 
 #[test]

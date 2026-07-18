@@ -689,7 +689,7 @@ impl DocumentIndex {
     pub(crate) fn validate_unique_doc_ids(&self) -> Result<()> {
         let mut seen = std::collections::HashSet::with_capacity(self.documents.len());
         if self.documents.iter().any(|document| !seen.insert(&document.doc_id)) {
-            return Err(QztError::MetadataInvalid);
+            return Err(QztError::DuplicateDocumentId);
         }
         Ok(())
     }
