@@ -7,6 +7,14 @@ Container format for UTF-8 text.
 
 ### Added
 
+- `qzt attest [--level quick|normal|deep] <file.qzt>` verifies a container
+  (`deep` by default) before emitting one deterministic canonical JSON line for
+  external signing or RFC 3161 timestamping. The attestation records container
+  identity, original and container checksums, sizes, counts, and the exact
+  verification coverage. Corrupt inputs exit 1 with empty stdout so a failed
+  claim cannot be signed accidentally. The new signing and anchoring guide
+  documents minisign, OpenSSL, trust boundaries, and separate proof storage.
+
 - `qzt pack -` reads from stdin instead of a file when the input path is `-`
   (Unix pipeline convention). Example:
   `journalctl --since today | qzt pack - -o today.qzt`
