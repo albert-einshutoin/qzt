@@ -1,8 +1,39 @@
-partial_decompression_probe source_bytes=1073741824 qzt_bytes=43831 range_offset=805306368 returned_bytes=65536 decoded_chunks=1 decoded_bytes=16777216 compressed_bytes=530 range_micros=14287
-        0.16 real         0.01 user         0.00 sys
-            21184512  maximum resident set size
+QZT_PARTIAL_RSS_DIR="$(mktemp -d /private/tmp/qzt-partial-rss.XXXXXX)"
+dd if=/dev/zero of="$QZT_PARTIAL_RSS_DIR/source.bin" bs=1048576 count=1024
+1024+0 records in
+1024+0 records out
+1073741824 bytes transferred in 1.927679 secs (557012772 bytes/sec)
+
+cargo build --release --example partial_decompression_probe
+    Finished `release` profile [optimized] target(s) in 0.02s
+
+target/release/qzt pack "$QZT_PARTIAL_RSS_DIR/source.bin" -o "$QZT_PARTIAL_RSS_DIR/source.qzt" --chunk-size 16777216 --max-chunk-size 16777216
+
+target/release/qzt info "$QZT_PARTIAL_RSS_DIR/source.qzt" --format json
+{
+  "format": "qzt-0.1",
+  "container_id": "94b4ec39d8d42ebda685fbb5429e8ab0",
+  "profile": "core",
+  "original_size": 1073741824,
+  "compressed_size": 43831,
+  "original_checksum": {"algorithm": "blake3", "value": "94b4ec39d8d42ebda685fbb5429e8ab0086e65245e750142c1eea36a26abc24d"},
+  "newline_mode": "none",
+  "chunk_count": 64,
+  "line_count": 1,
+  "zstd_level": 0,
+  "target_chunk_size": 16777216,
+  "max_chunk_size": 16777216,
+  "dense_line_index": false,
+  "document_index": false,
+  "document_count": 0
+}
+
+/usr/bin/time -l target/release/examples/partial_decompression_probe "$QZT_PARTIAL_RSS_DIR/source.bin" "$QZT_PARTIAL_RSS_DIR/source.qzt" 805306368 65536
+partial_decompression_probe source_bytes=1073741824 qzt_bytes=43831 range_offset=805306368 returned_bytes=65536 decoded_chunks=1 decoded_bytes=16777216 compressed_bytes=530 range_micros=8421
+        0.01 real         0.00 user         0.00 sys
+            21168128  maximum resident set size
                    0  page faults
                    0  swaps
                    0  block input operations
                    0  block output operations
-            20447592  peak memory footprint
+            20431208  peak memory footprint

@@ -48,12 +48,13 @@ claim that every range is faster than every competing format.
 ### Isolated reader memory
 
 The RSS probe used a separately packed 1 GiB all-zero UTF-8 fixture so corpus
-generation and packing were outside the measured process. Default 16 MiB QZT
-chunks intentionally provide a conservative one-chunk decode case.
+generation and packing were outside the measured process. Target and maximum
+chunk sizes were both explicitly fixed at 16 MiB, providing a conservative
+one-chunk decode case rather than relying on the 4 MiB target default.
 
 | Source | Returned | Decoded | Compressed payload | maximum resident set size |
 | ---: | ---: | ---: | ---: | ---: |
-| 1,073,741,824 B | 65,536 B | 16,777,216 B | 530 B | 21,184,512 B (20.20 MiB) |
+| 1,073,741,824 B | 65,536 B | 16,777,216 B | 530 B | 21,168,128 B (20.19 MiB) |
 
 The authoritative process output is retained in
 [rss-probe-run-1.log](raw/2026-07-partial-decompression/rss-probe-run-1.log).
@@ -69,14 +70,25 @@ finished. On macOS, `/usr/bin/time -l` reports this as `maximum resident set siz
 make bench-partial-decompression
 ```
 
-For an isolated RSS measurement, first pack an existing 1 GiB UTF-8 source,
-then run:
+The retained fixture is deterministic: zero bytes are valid UTF-8 and the
+explicit chunk settings avoid depending on pack defaults. On macOS, reproduce
+the exact isolated RSS run with:
 
 ```sh
+QZT_PARTIAL_RSS_DIR="$(mktemp -d /private/tmp/qzt-partial-rss.XXXXXX)"
+dd if=/dev/zero of="$QZT_PARTIAL_RSS_DIR/source.bin" bs=1048576 count=1024
 cargo build --release --example partial_decompression_probe
+target/release/qzt pack "$QZT_PARTIAL_RSS_DIR/source.bin" \
+  -o "$QZT_PARTIAL_RSS_DIR/source.qzt" \
+  --chunk-size 16777216 --max-chunk-size 16777216
+target/release/qzt info "$QZT_PARTIAL_RSS_DIR/source.qzt" --format json
 /usr/bin/time -l target/release/examples/partial_decompression_probe \
-  source.log source.qzt 805306368 65536
+  "$QZT_PARTIAL_RSS_DIR/source.bin" "$QZT_PARTIAL_RSS_DIR/source.qzt" \
+  805306368 65536
 ```
+
+Delete the temporary directory after retaining the output. The complete
+commands, pack metadata, and process output are preserved in the raw log.
 
 Override `QZT_PARTIAL_BENCH_CORPUS_BYTES` for a smaller local smoke. The default
 is 1 GiB. Timing varies with hardware and system load, so the test gates exact

@@ -17,6 +17,8 @@ const PRODUCTION_RUNS: [&str; 3] = [
     include_str!("../docs/benchmarks/raw/2026-07-partial-decompression/production-run-2.log"),
     include_str!("../docs/benchmarks/raw/2026-07-partial-decompression/production-run-3.log"),
 ];
+const RSS_RUN: &str =
+    include_str!("../docs/benchmarks/raw/2026-07-partial-decompression/rss-probe-run-1.log");
 
 #[test]
 fn range_metrics_measure_only_the_single_intersecting_chunk() {
@@ -139,6 +141,20 @@ fn production_probe_has_a_reproducible_and_honest_publication_contract() {
     for readme in [README_EN, README_JA] {
         assert!(readme.contains("docs/benchmarks/2026-07-partial-decompression.md"));
     }
+    for evidence in [PRODUCTION_EVIDENCE, RSS_RUN] {
+        for command_fragment in [
+            "dd if=/dev/zero",
+            "--chunk-size 16777216",
+            "--max-chunk-size 16777216",
+            "qzt info",
+            "/usr/bin/time -l",
+        ] {
+            assert!(
+                evidence.contains(command_fragment),
+                "missing isolated-probe command: {command_fragment}"
+            );
+        }
+    }
 }
 
 #[test]
@@ -157,6 +173,23 @@ fn published_structural_metrics_are_derived_from_all_retained_runs() {
     }
 
     assert!(PRODUCTION_EVIDENCE.contains("65,536 B | 262,085 B | 14,339 B | 1"));
+    for metadata in [
+        "\"target_chunk_size\": 16777216",
+        "\"max_chunk_size\": 16777216",
+        "\"chunk_count\": 64",
+        "decoded_bytes=16777216",
+        "compressed_bytes=530",
+        "21168128  maximum resident set size",
+    ] {
+        assert!(
+            RSS_RUN.contains(metadata),
+            "missing RSS evidence: {metadata}"
+        );
+    }
+    assert!(
+        PRODUCTION_EVIDENCE.contains("21,168,128 B (20.19 MiB)"),
+        "RSS publication must match the retained process output"
+    );
 }
 
 fn record_field<'a>(record: &'a str, key: &str) -> &'a str {
