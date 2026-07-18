@@ -260,3 +260,45 @@ fn pack_memory_profile_error_explains_the_document_index_requirement() {
     );
     let _ = fs::remove_dir_all(base);
 }
+
+#[cfg(unix)]
+#[test]
+fn pack_docs_preserves_existing_output_permissions() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let base = std::env::temp_dir().join(format!(
+        "qzt-38-pack-docs-permissions-{}",
+        std::process::id()
+    ));
+    let _ = fs::remove_dir_all(&base);
+    fs::create_dir_all(&base).expect("fixture directory");
+    let input = base.join("input.txt");
+    let output = base.join("private.qzt");
+    fs::write(&input, b"private evidence\n").expect("write input");
+    fs::write(&output, b"old").expect("write existing output");
+    fs::set_permissions(&output, fs::Permissions::from_mode(0o600))
+        .expect("set private output mode");
+
+    let packed = run(&[
+        "pack-docs",
+        input.to_str().unwrap(),
+        "-o",
+        output.to_str().unwrap(),
+    ]);
+    assert!(
+        packed.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&packed.stderr)
+    );
+    let mode = fs::metadata(&output)
+        .expect("output metadata")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(
+        mode, 0o600,
+        "replacing a private output must keep it private"
+    );
+
+    let _ = fs::remove_dir_all(base);
+}

@@ -550,6 +550,10 @@ fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<
         )
     })?;
     let parent = output_path.parent().unwrap_or_else(|| Path::new("."));
+    let inherited_permissions = std::fs::symlink_metadata(output_path)
+        .ok()
+        .filter(|metadata| metadata.file_type().is_file())
+        .map(|metadata| metadata.permissions());
     let mut temporary = None;
     for attempt in 0_u16..128 {
         let mut name = std::ffi::OsString::from(".");
@@ -576,6 +580,9 @@ fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<
         )
     })?;
     let write_result: std::io::Result<()> = (|| {
+        if let Some(permissions) = inherited_permissions {
+            file.set_permissions(permissions)?;
+        }
         file.write_all(container)?;
         file.sync_all()?;
         drop(file);
