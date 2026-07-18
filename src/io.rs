@@ -61,14 +61,29 @@ impl ReadAt for std::sync::Mutex<File> {
             .lock()
             .map_err(|_| io::Error::other("positioned file read lock poisoned"))?;
         let original = file.stream_position()?;
-        file.seek(SeekFrom::Start(offset))?;
+        if let Err(error) = file.seek(SeekFrom::Start(offset)) {
+            return finish_windows_positioned_read(Err(error), file.seek(SeekFrom::Start(original)));
+        }
         let read_result = file.read_exact(buf);
         let restore_result = file.seek(SeekFrom::Start(original));
+        finish_windows_positioned_read(read_result, restore_result)
+    }
+}
 
-        match (read_result, restore_result) {
-            (Err(error), _) | (Ok(()), Err(error)) => Err(error),
-            (Ok(()), Ok(_)) => Ok(()),
-        }
+#[cfg(windows)]
+fn finish_windows_positioned_read(
+    operation: io::Result<()>,
+    restore: io::Result<u64>,
+) -> io::Result<()> {
+    match (operation, restore) {
+        (Ok(()), Ok(_)) => Ok(()),
+        (Err(error), Ok(_)) | (Ok(()), Err(error)) => Err(error),
+        (Err(operation_error), Err(restore_error)) => Err(io::Error::new(
+            restore_error.kind(),
+            format!(
+                "positioned read failed ({operation_error}); cursor restore also failed ({restore_error})"
+            ),
+        )),
     }
 }
 
@@ -92,7 +107,7 @@ mod tests {
         assert_eq!(&bytes, b"bcd");
         assert_eq!(
             source.lock().expect("lock fixture").stream_position().unwrap(),
-            4,
+            5,
             "positioned reads must not change the observable file cursor"
         );
 
@@ -109,7 +124,7 @@ mod tests {
         assert_eq!(error.kind(), std::io::ErrorKind::UnexpectedEof);
         assert_eq!(
             source.lock().expect("lock fixture").stream_position().unwrap(),
-            4,
+            5,
             "failed positioned reads must restore the observable file cursor"
         );
 
@@ -133,7 +148,9 @@ mod tests {
             .open(&path)
             .expect("create positioned-read fixture");
         file.write_all(b"abcdef").expect("write fixture");
-        file.seek(SeekFrom::Start(4)).expect("set sentinel cursor");
+        // Keep the sentinel distinct from the successful read end (1 + 3 = 4)
+        // so the cursor test fails if restoration is accidentally removed.
+        file.seek(SeekFrom::Start(5)).expect("set sentinel cursor");
         (path, Mutex::new(file))
     }
 }

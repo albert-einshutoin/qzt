@@ -99,6 +99,7 @@ fn concurrent_file_backed_verified_reads_match_serial_reads() {
 #[cfg(windows)]
 #[test]
 fn windows_file_backed_range_and_search_match_serial_under_concurrency() {
+    use std::sync::Barrier;
     use std::time::{SystemTime, UNIX_EPOCH};
 
     let input = b"alpha\nbeta needle\ngamma\ndelta needle\n";
@@ -124,27 +125,52 @@ fn windows_file_backed_range_and_search_match_serial_under_concurrency() {
     let reader = QztFileReader::open_path(&container_path).expect("open file-backed container");
     let sidecar =
         QziFileSidecar::open_path(&sidecar_path, &reader).expect("open file-backed sidecar");
-    let expected = Checksum::blake3(b"beta needle\n");
-    let serial_range = reader
-        .read_range_verified(6, 12, &expected)
-        .expect("serial verified range");
-    let serial_search = sidecar
-        .search(&reader, "needle", SearchOptions::default())
-        .expect("serial search");
+    let range_cases = [
+        (6, 12, Checksum::blake3(b"beta needle\n")),
+        (24, 13, Checksum::blake3(b"delta needle\n")),
+    ];
+    let serial_ranges = range_cases.map(|(offset, length, ref expected)| {
+        reader
+            .read_range_verified(offset, length, expected)
+            .expect("serial verified range")
+    });
+    let queries = ["needle", "alpha"];
+    let serial_searches = queries.map(|query| {
+        sidecar
+            .search(&reader, query, SearchOptions::default())
+            .expect("serial search")
+    });
+    let barrier = Barrier::new(3);
 
     thread::scope(|scope| {
-        let range = scope.spawn(|| reader.read_range_verified(6, 12, &expected));
-        let search = scope.spawn(|| sidecar.search(&reader, "needle", SearchOptions::default()));
-        assert_eq!(range.join().expect("range thread"), Ok(serial_range));
-        let concurrent_search = search
-            .join()
-            .expect("search thread")
-            .expect("concurrent search");
-        assert_semantic_report_eq(
-            &serial_search,
-            &concurrent_search,
-            "Windows concurrent search",
-        );
+        let range = scope.spawn(|| {
+            barrier.wait();
+            for iteration in 0..64 {
+                let case = iteration % range_cases.len();
+                let (offset, length, expected) = &range_cases[case];
+                assert_eq!(
+                    reader.read_range_verified(*offset, *length, expected),
+                    Ok(serial_ranges[case].clone())
+                );
+            }
+        });
+        let search = scope.spawn(|| {
+            barrier.wait();
+            for iteration in 0..32 {
+                let case = iteration % queries.len();
+                let concurrent = sidecar
+                    .search(&reader, queries[case], SearchOptions::default())
+                    .expect("concurrent search");
+                assert_semantic_report_eq(
+                    &serial_searches[case],
+                    &concurrent,
+                    "Windows concurrent search",
+                );
+            }
+        });
+        barrier.wait();
+        range.join().expect("range thread");
+        search.join().expect("search thread");
     });
 
     drop(sidecar);
