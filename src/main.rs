@@ -9,9 +9,9 @@ use std::process::ExitCode;
 
 use qzt::{
     Checksum, DocumentSpan, NgramIndexBuildOptions, QziFileSidecar, QztError, QztFileReader,
-    QztFileWriter, RawNgramIndex, RawTokenIndex, SearchIndexSource, SearchOptions, SearchReport,
-    SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel, VerifyReport, WriterBuilder,
-    WriterOptions, build_search_sidecar_from_file, pack_bytes_with_profile,
+    QztFileWriter, RawNgramIndex, RawTokenIndex, ReadAt, SearchIndexSource, SearchOptions,
+    SearchReport, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel, VerifyReport,
+    WriterBuilder, WriterOptions, build_search_sidecar_from_file, pack_bytes_with_profile,
 };
 
 type CliResult<T> = std::result::Result<T, CliError>;
@@ -1677,8 +1677,8 @@ fn parse_byte_limit(value: &str) -> Option<u64> {
     value.parse().ok()
 }
 
-fn read_line_range_file(
-    reader: &QztFileReader<std::fs::File>,
+fn read_line_range_file<R: ReadAt>(
+    reader: &QztFileReader<R>,
     start_one_based: u64,
     end_one_based: u64,
 ) -> qzt::Result<Vec<u8>> {
