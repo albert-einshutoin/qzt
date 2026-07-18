@@ -73,9 +73,11 @@ Known limitations before production use:
   not need to be adjacent.  This is not grep-compatible.
 - **Normalized search not implemented**: `SearchIndexSource::NormalizedUtf8`
   (Unicode normalization, case folding, width folding) is not yet implemented.
-- **Sidecar size**: the QZI token/n-gram sidecars are uncompressed MVP
-  structures. On a realistic 45 MB log corpus the token sidecar measured about
-  2.1x the original text; budget sidecar storage accordingly.
+- **Sidecar size**: current writers emit the compact QZI v2 layout. Existing
+  QZI v1 sidecars remain readable, but must be rebuilt to receive the v2 space
+  reduction. The release gate keeps token and n-gram sidecars at or below 1.7x
+  source size on the reproducible 10 MB high-cardinality log corpus; results on
+  a different vocabulary or line shape may vary.
 - **No production benchmark**: No comparison against SQLite FTS, Tantivy,
   Lucene, or seekable-zstd has been conducted for v0.1.
 

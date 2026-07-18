@@ -904,6 +904,7 @@ pub fn encode_delta_varint_u64(values: &[u64]) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
+#[cfg(feature = "internal-testing")]
 pub fn decode_delta_varint_u64(bytes: &[u8]) -> Result<Vec<u64>> {
     decode_delta_varint_u64_with_limit(bytes, u64::MAX)
 }

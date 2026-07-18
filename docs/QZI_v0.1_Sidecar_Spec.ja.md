@@ -48,12 +48,13 @@ Offset  Size  Type   Field
 
 ## Sidecar manifest
 
-トップレベル schema: `qzt.sidecar.v1`。
+トップレベル schema: `qzt.sidecar.v1`（旧形式）または
+`qzt.sidecar.v2`（現行の compact writer 形式）。
 
 必須フィールド（参照実装 `src/sidecar.rs` の encoder 名に一致）:
 
 ```yaml
-schema: "qzt.sidecar.v1"
+schema: "qzt.sidecar.v2"
 source_container_id: bstr16
 source_format_version: [0, 1]          # 紐づく QZT コンテナの major, minor
 source_original_checksum:
@@ -66,6 +67,8 @@ index_type: "token" | "ngram"
 ngram_n: null | u64                    # index_type = "ngram" のとき必須。token は null
 complete: bool
 high_df_per_million: u32
+granule_encoding: "legacy-v1" | "line-implied-v2"
+term_encoding: "legacy-v1" | "key-posting-varint-v2"
 index_manifest:
   schema: "qzt.search-index.v1"
   kind: string                         # index_type と同じ値
@@ -90,11 +93,17 @@ checksum:
 
 manifest CBOR は Core コンテナと同じ deterministic 規則（canonical map key order、integer width）を使います。
 
+現行 writer は両方の encoding field を持つ `qzt.sidecar.v2` を出力します。
+`qzt.sidecar.v1` は固定の旧レイアウトで両 field を省略し、現行 reader はその省略を
+`legacy-v1` と解釈します。既存 v1 file は引き続き読み込めますが、compact v2 の
+容量削減を得るには再構築が必要です。v1 専用 reader は v2 schema を拒否し、異なる
+record layout として誤って decode してはいけません。
+
 ### Source binding
 
 section を使う前に、reader は次を検証しなければなりません。
 
-1. `schema` が `qzt.sidecar.v1` であること。
+1. `schema` が `qzt.sidecar.v1` または `qzt.sidecar.v2` であること。
 2. `source_format_version` が `[0, 1]` であること。それ以外は拒否（`UnsupportedVersion`）。
 3. `source_container_id` が紐づくコンテナの `container_id` と一致すること。
 4. `source_original_checksum` が紐づくコンテナ metadata の `original_checksum` と一致すること。
@@ -124,6 +133,11 @@ reader は decode 前に、各 section の `offset`、`size`、`checksum` を si
 
 ```text
 u64le granule_count
+```
+
+`granule_encoding = "legacy-v1"` は従来の 56-byte record を使います。
+
+```text
 granule_count 回繰り返し（各 56 バイト）:
   u64le granule_id
   u64le logical_offset
@@ -134,13 +148,29 @@ granule_count 回繰り返し（各 56 バイト）:
   u64le line_count      # u64::MAX は欠落
 ```
 
-期待 section サイズ: `8 + granule_count * 56`。不一致は拒否します。
+`granule_encoding = "line-implied-v2"` は canonical line index に 20-byte の
+固定長 record を使います。
+
+```text
+granule_count 回繰り返し（各 20 バイト）:
+  u64le logical_offset
+  u32le byte_length
+  u32le chunk_start
+  u32le chunk_span                 # chunk_end - chunk_start
+```
+
+`line-implied-v2` では `granule_id` と `first_line` は 0 始まりの record index、
+`line_count` は 1 です。固定長のまま暗黙値を省略するため、file-backed random lookup
+の O(1) 性を維持できます。
+
+期待 section サイズは `8 + granule_count * record_size` です。`record_size` は
+`legacy-v1` が 56、`line-implied-v2` が 20 で、不一致は拒否します。
 
 各 granule record は、source コンテナ内の論理バイト範囲と chunk span への posting ターゲットを表します。
 
 ### `terms` section
 
-バイナリレイアウト:
+`term_encoding = "legacy-v1"` は従来の固定 field layout を使います。
 
 ```text
 u64le term_count
@@ -157,9 +187,28 @@ term_count 回繰り返し:
   u64le flags
 ```
 
-`posting_offset + posting_size` は postings section 境界内でなければなりません。
+`term_encoding = "key-posting-varint-v2"` は compact v2 layout を使います。
 
-`skip_offset` と `skip_size` は QZI v0.1 では予約済みの planner metadata です。
+```text
+u64le term_count
+term_count 回繰り返し:
+  varuint key_len
+  key_len bytes key
+  varuint granule_frequency
+  varuint posting_size
+```
+
+v2 では `key_hash` を `key` から再計算し、`posting_offset` はそれ以前の
+`posting_size` の累積値です。document / skip / flags field は 0 とします。
+これにより、unique log token ごとの 80-byte 固定 envelope を省きながら、
+sorted binary lookup と改ざん検査を維持します。
+
+term は `key` で厳密に昇順でなければなりません。`key_hash` は `key` から得た
+BLAKE3 hash と一致し、`flags` は 0 でなければなりません。posting range は 0 から
+連続し、末尾が postings section size と完全一致しなければなりません。これらを
+検証することで、reader は未検証の辞書順序を信頼せず binary search できます。
+
+`legacy-v1` の `skip_offset` と `skip_size` は QZI v0.1 では予約済みの planner metadata です。
 serialized skip-data section は存在せず、これらの値にfile offsetの基準点はありません。
 reader はこれらを使って seek してはいけません。参照in-memory readerはdecodeした
 posting listからskip pointを再構築し、file-backed readerはこれらのfieldを無視します。
