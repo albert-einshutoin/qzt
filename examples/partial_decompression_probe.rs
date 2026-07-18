@@ -12,6 +12,7 @@ const MAX_PROBE_RANGE_BYTES: u64 = 64 * 1024 * 1024;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Preserve filesystem arguments as OS strings: benchmark paths need not be
     // UTF-8, and argv[0] is deliberately ignored rather than trusted.
+    // nosemgrep: rust.lang.security.args-os.args-os -- skip(1) drops argv[0]; remaining values are explicit user input and length is capped before allocation.
     let mut args = env::args_os().skip(1);
     let source_path: PathBuf = args.next().ok_or("missing original source path")?.into();
     let qzt_path: PathBuf = args.next().ok_or("missing QZT container path")?.into();
