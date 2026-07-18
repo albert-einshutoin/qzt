@@ -7,6 +7,16 @@ Container format for UTF-8 text.
 
 ### Added
 
+- Published QZT v0.1 portable conformance vector set v1 with 14 deterministic
+  valid and corrupt fixtures covering newline modes, multibyte UTF-8,
+  multi-chunk layout, Dense Line and Document indexes, fixed structures,
+  checksums, truncation, and non-canonical CBOR. The extended manifest records
+  failure stages and language-independent error categories; a separate index
+  expectation manifest makes Dense Line and Document Index support observable.
+  An implementation guide, LF-stable checkout, isolated candidate generator,
+  and per-file BLAKE3 freeze test make the kit usable by independent readers
+  and prevent accidental mutation of the public byte contract.
+
 - `qzt attest [--level quick|normal|deep] <file.qzt>` verifies a container
   (`deep` by default) before emitting one deterministic canonical JSON line for
   external signing or RFC 3161 timestamping. The attestation records container

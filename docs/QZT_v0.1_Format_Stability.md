@@ -7,6 +7,23 @@ published. A reader that supports v0.1 must interpret the fixed header, footer
 trailer, deterministic CBOR footer payload, metadata, index root, Chunk Table,
 and chunk zstd frames according to `docs/QZT_v0.1_Core_Spec.md`.
 
+## Published Conformance Baseline
+
+Vector set v1 was published on 2026-07-19 with 14 portable fixtures in
+`tests/vectors/`. The set covers valid Core features and deterministic corrupt
+inputs, with expected structural-open, deep-verification, export, and error
+category outcomes recorded in `manifest.tsv`.
+
+The 14 published files and their expectations are immutable. New vectors may
+be appended for additional coverage, but an existing vector must not be edited
+or reinterpreted. The test suite freezes both regenerated container bytes and a
+BLAKE3 digest of every committed `.qzt.hex` file. It also requires exact set
+equality among manifest rows, vector files, and the frozen hash registry. LF
+checkout is fixed through `.gitattributes` so the raw-file hashes are portable.
+All published base and extension expectation rows must exactly match their
+frozen registries; additions become immutable in the same change that publishes
+them.
+
 ## Version Negotiation
 
 - `format_version = 0.1` is accepted by this reader.
