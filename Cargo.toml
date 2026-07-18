@@ -48,6 +48,7 @@ name = "qzt"
 path = "src/main.rs"
 
 [dev-dependencies]
+os_pipe = "1"
 proptest = "1"
 serde_json = "1"
 

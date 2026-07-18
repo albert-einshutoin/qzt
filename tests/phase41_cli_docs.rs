@@ -4,10 +4,6 @@ use std::process::{Command, Output};
 use std::sync::atomic::{AtomicU64, Ordering};
 
 #[cfg(unix)]
-use std::os::fd::OwnedFd;
-#[cfg(unix)]
-use std::os::unix::net::UnixStream;
-#[cfg(unix)]
 use std::process::Stdio;
 
 use qzt::{DocumentSpan, SearchOptions, WriterBuilder, WriterOptions, pack_bytes};
@@ -470,11 +466,10 @@ fn help_and_version_report_closed_stdout_as_runtime_failure() {
 
 #[cfg(unix)]
 fn run_with_closed_stdout(arguments: &[&str]) -> Output {
-    let (child_stdout, peer) = UnixStream::pair().expect("stdout socket pair");
-    // Drop the only peer before spawn. Every child write then fails with EPIPE,
-    // independent of scheduler order or whether the payload fits a pipe buffer.
-    drop(peer);
-    let child_stdout = OwnedFd::from(child_stdout);
+    let (reader, child_stdout) = os_pipe::pipe().expect("stdout pipe");
+    // Drop the only reader before spawn. A pipe write then fails EPIPE without
+    // depending on scheduler order or payload size.
+    drop(reader);
     Command::new(env!("CARGO_BIN_EXE_qzt"))
         .args(arguments)
         .stdout(Stdio::from(child_stdout))

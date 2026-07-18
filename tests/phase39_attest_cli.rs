@@ -3,10 +3,6 @@ use std::fs;
 use std::process::{Command, Output};
 
 #[cfg(unix)]
-use std::os::fd::OwnedFd;
-#[cfg(unix)]
-use std::os::unix::net::UnixStream;
-#[cfg(unix)]
 use std::process::Stdio;
 
 #[cfg(feature = "internal-testing")]
@@ -248,9 +244,10 @@ fn attest_help_documents_the_stable_output_contract() {
 #[cfg(unix)]
 fn attest_reports_stdout_delivery_failure() {
     let (path, _) = fixture("closed-stdout");
-    let (child_stdout, peer) = UnixStream::pair().expect("stdout socket pair");
-    drop(peer);
-    let child_stdout = OwnedFd::from(child_stdout);
+    let (reader, child_stdout) = os_pipe::pipe().expect("stdout pipe");
+    // Drop the only reader before spawn. A pipe write then fails EPIPE without
+    // depending on scheduler order or payload size.
+    drop(reader);
     let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
         .arg("attest")
         .arg(path)
