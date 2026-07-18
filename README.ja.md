@@ -333,9 +333,9 @@ query が sidecar の n-gram `n`（デフォルト 3）より短い場合、inde
 
 `memory` profile は pack 時に Document Index が必須です。`qzt pack`では
 `qzt pack --profile memory`がexit code **1**で失敗し、
-`pack_bytes_with_memory_profile`を案内します。ファイル入力には
-`qzt pack-docs --profile memory`、ライブラリでは`DocumentSpan`/`DocumentIndex`、
-または`core`など別のprofileを使ってください。
+`WriterBuilder`を案内します。ファイル入力には`qzt pack-docs --profile memory`、
+Rustからは`WriterBuilder::new().profile("memory").document_index(index)`を使います。
+Document Indexが不要なら`core`など別のprofileを選んでください。
 
 ## ドキュメント
 

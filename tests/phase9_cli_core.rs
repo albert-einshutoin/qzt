@@ -4,8 +4,8 @@ use std::process::{Command, Stdio};
 
 use qzt::skeleton::open_skeleton_details;
 use qzt::{
-    Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes,
-    pack_bytes_with_document_index,
+    Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterBuilder, WriterOptions,
+    pack_bytes,
 };
 mod support;
 use support::{assert_success, output_success};
@@ -369,7 +369,7 @@ fn stdin_pack_memory_profile_conflict_exits_2_with_clear_stderr() {
         "stderr must point to --profile core, got: {stderr}"
     );
     assert!(
-        stderr.contains("pack_bytes_with_memory_profile"),
+        stderr.contains("WriterBuilder"),
         "stderr must mention the writer API path, got: {stderr}"
     );
     assert!(
@@ -1067,13 +1067,12 @@ fn docs_doc_indexed_container() -> Vec<u8> {
         container_id: [0x95; 16],
         documents: vec![doc_one, doc_two],
     };
-    pack_bytes_with_document_index(
-        DOCS_DOC_TWO_LINES,
-        [0x95; 16],
-        docs_doc_writer_options(),
-        &document_index,
-    )
-    .expect("indexed container should pack")
+    WriterBuilder::new()
+        .container_id([0x95; 16])
+        .options(docs_doc_writer_options())
+        .document_index(document_index)
+        .pack(DOCS_DOC_TWO_LINES)
+        .expect("indexed container should pack")
 }
 
 fn docs_doc_no_index_container() -> Vec<u8> {
@@ -1161,13 +1160,12 @@ fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
         container_id: [0x96; 16],
         documents: vec![doc_entry],
     };
-    let container = pack_bytes_with_document_index(
-        DOCS_DOC_TWO_LINES,
-        [0x96; 16],
-        docs_doc_writer_options(),
-        &document_index,
-    )
-    .expect("tampered checksum container should pack");
+    let container = WriterBuilder::new()
+        .container_id([0x96; 16])
+        .options(docs_doc_writer_options())
+        .document_index(document_index)
+        .pack(DOCS_DOC_TWO_LINES)
+        .expect("tampered checksum container should pack");
 
     let qzt_path = base.join("tampered.qzt");
     fs::write(&qzt_path, &container).expect("write fixture");

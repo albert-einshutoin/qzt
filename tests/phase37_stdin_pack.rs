@@ -199,7 +199,7 @@ fn pack_stdin_rejects_non_streaming_profile() {
         "stderr must point to --profile core, got: {stderr}"
     );
     assert!(
-        stderr.contains("pack_bytes_with_memory_profile"),
+        stderr.contains("WriterBuilder"),
         "stderr must mention the writer API path, got: {stderr}"
     );
     // The container must NOT have been created.

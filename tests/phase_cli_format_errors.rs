@@ -6,7 +6,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
-use qzt::{Checksum, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes_with_document_index};
+use qzt::{Checksum, DocumentEntry, DocumentIndex, WriterBuilder, WriterOptions};
 
 struct UnknownFormatCase {
     command: &'static str,
@@ -56,13 +56,12 @@ fn pack_with_document_index(base: &Path) -> PathBuf {
         container_id: [0xab; 16],
         documents: vec![doc],
     };
-    let bytes = pack_bytes_with_document_index(
-        INPUT,
-        [0xab; 16],
-        WriterOptions::default(),
-        &document_index,
-    )
-    .expect("document index pack should work");
+    let bytes = WriterBuilder::new()
+        .container_id([0xab; 16])
+        .options(WriterOptions::default())
+        .document_index(document_index)
+        .pack(INPUT)
+        .expect("document index pack should work");
 
     let packed_path = base.join("docs.qzt");
     fs::write(&packed_path, bytes).expect("packed container write");

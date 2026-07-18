@@ -3,7 +3,7 @@ use std::thread;
 use qzt::error::QztError;
 use qzt::reader::{QztFileReader, QztReader};
 use qzt::schema::{Checksum, DocumentIndex};
-use qzt::writer::pack_bytes_with_document_index;
+use qzt::writer::WriterBuilder;
 mod support;
 use support::{document, writer_options};
 
@@ -62,9 +62,12 @@ fn verified_document_read_resolves_document_index() {
             }),
         ],
     };
-    let container =
-        pack_bytes_with_document_index(input, [0x21; 16], writer_options(8, 8), &document_index)
-            .expect("pack");
+    let container = WriterBuilder::new()
+        .container_id([0x21; 16])
+        .options(writer_options(8, 8))
+        .document_index(document_index)
+        .pack(input)
+        .expect("pack");
     let memory = QztReader::open(&container).expect("memory reader");
     let file =
         QztFileReader::open_read_at(&container[..], container.len() as u64).expect("file reader");

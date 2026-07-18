@@ -2,9 +2,36 @@ use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::{pack_bytes_with_document_index, pack_bytes_with_memory_profile};
+use qzt::writer::WriterBuilder;
 mod support;
 use support::{DocumentFixture, document, writer_options};
+
+fn pack_document_fixture(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: qzt::WriterOptions,
+    document_index: &DocumentIndex,
+) -> qzt::Result<Vec<u8>> {
+    WriterBuilder::new()
+        .container_id(container_id)
+        .options(options)
+        .document_index(document_index.clone())
+        .pack(input)
+}
+
+fn pack_memory_fixture(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: qzt::WriterOptions,
+    document_index: &DocumentIndex,
+) -> qzt::Result<Vec<u8>> {
+    WriterBuilder::new()
+        .container_id(container_id)
+        .options(options)
+        .profile("memory")
+        .document_index(document_index.clone())
+        .pack(input)
+}
 
 #[test]
 fn document_index_ranges_are_verified_by_deep_verify() {
@@ -23,7 +50,7 @@ fn document_index_ranges_are_verified_by_deep_verify() {
         })],
     };
     let container =
-        pack_bytes_with_document_index(input, [0xb0; 16], writer_options(64, 64), &document_index)
+        pack_document_fixture(input, [0xb0; 16], writer_options(64, 64), &document_index)
             .expect("document-index container should pack structurally");
     let reader = QztReader::open(container).expect("container should open structurally");
 
@@ -49,9 +76,8 @@ fn document_index_chunk_range_inconsistency_is_rejected_by_deep_verify() {
             chunk_end: 1,
         })],
     };
-    let container =
-        pack_bytes_with_document_index(input, [0xb1; 16], writer_options(8, 8), &document_index)
-            .expect("document-index container should pack structurally");
+    let container = pack_document_fixture(input, [0xb1; 16], writer_options(8, 8), &document_index)
+        .expect("document-index container should pack structurally");
     let reader = QztReader::open(container).expect("container should open structurally");
 
     assert_eq!(
@@ -88,9 +114,8 @@ fn memory_profile_writes_document_index_flags_and_deep_verifies() {
             }),
         ],
     };
-    let container =
-        pack_bytes_with_memory_profile(input, [0xb2; 16], writer_options(8, 8), &document_index)
-            .expect("memory profile should pack");
+    let container = pack_memory_fixture(input, [0xb2; 16], writer_options(8, 8), &document_index)
+        .expect("memory profile should pack");
     let details = open_skeleton_details(&container).expect("memory profile should open");
 
     assert_eq!(details.metadata.profile, "memory");
@@ -114,7 +139,7 @@ fn two_chunk_container(documents: Vec<DocumentEntry>) -> Vec<u8> {
         documents,
     };
     // target/max 9 -> two chunks [0,9) and [9,18)
-    pack_bytes_with_document_index(TWO_LINES, [0xc0; 16], writer_options(9, 9), &document_index)
+    pack_document_fixture(TWO_LINES, [0xc0; 16], writer_options(9, 9), &document_index)
         .expect("document-index container should pack structurally")
 }
 
@@ -256,7 +281,7 @@ fn info_json_identity_fields_survive_document_index_container() {
         })],
     };
     let container =
-        pack_bytes_with_document_index(input, container_id, writer_options(8, 8), &document_index)
+        pack_document_fixture(input, container_id, writer_options(8, 8), &document_index)
             .expect("document-index container should pack structurally");
 
     let base = std::env::temp_dir().join(format!("qzt-93-info-json-docidx-{}", std::process::id()));

@@ -11,7 +11,7 @@ use qzt::{
     Checksum, DocumentSpan, NgramIndexBuildOptions, QziFileSidecar, QztError, QztFileReader,
     QztFileWriter, RawNgramIndex, RawTokenIndex, ReadAt, SearchIndexSource, SearchOptions,
     SearchReport, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel, VerifyReport,
-    WriterBuilder, WriterOptions, build_search_sidecar_from_file, pack_bytes_with_profile,
+    WriterBuilder, WriterOptions, build_search_sidecar_from_file,
 };
 
 type CliResult<T> = std::result::Result<T, CliError>;
@@ -296,7 +296,7 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
         );
         if profile == "memory" {
             eprintln!(
-                "(for memory profile, use the writer API pack_bytes_with_memory_profile with file-backed input)"
+                "(for memory profile, use WriterBuilder::profile(\"memory\").document_index(...) with file-backed input)"
             );
         } else {
             eprintln!("(other profiles need the whole input in memory; write to a file first)");
@@ -342,7 +342,11 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
             }
         } else {
             let input = std::fs::read(input_path)?;
-            let container = pack_bytes_with_profile(&input, options, &profile, dense_line_index)?;
+            let container = WriterBuilder::new()
+                .options(options)
+                .profile(&profile)
+                .dense_line_index(dense_line_index)
+                .pack(&input)?;
             write_container_atomically(&output_path, &container)?;
         }
         Ok(())
@@ -352,7 +356,7 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
         Ok(()) => ExitCode::SUCCESS,
         Err(CliError::Qzt(QztError::MetadataInvalid)) if profile == "memory" => {
             eprintln!(
-                "qzt pack: --profile memory requires a DocumentIndex; use the writer API pack_bytes_with_memory_profile"
+                "qzt pack: --profile memory requires a DocumentIndex; use WriterBuilder::profile(\"memory\").document_index(...)"
             );
             ExitCode::from(1)
         }

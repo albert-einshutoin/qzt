@@ -7,8 +7,8 @@ use std::fs;
 use std::process::Command;
 
 use qzt::{
-    Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterOptions, pack_bytes,
-    pack_bytes_with_document_index,
+    Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterBuilder, WriterOptions,
+    pack_bytes,
 };
 
 // ---------------------------------------------------------------------------
@@ -23,6 +23,19 @@ fn writer_options() -> WriterOptions {
         },
         zstd_level: 0,
     }
+}
+
+fn pack_document_fixture(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: WriterOptions,
+    document_index: DocumentIndex,
+) -> qzt::Result<Vec<u8>> {
+    WriterBuilder::new()
+        .container_id(container_id)
+        .options(options)
+        .document_index(document_index)
+        .pack(input)
 }
 
 /// Two 9-byte lines split across two chunks.
@@ -57,7 +70,7 @@ fn two_doc_container() -> Vec<u8> {
         container_id: [0xd5; 16],
         documents: vec![doc_one, doc_two],
     };
-    pack_bytes_with_document_index(TWO_LINES, [0xd5; 16], writer_options(), &document_index)
+    pack_document_fixture(TWO_LINES, [0xd5; 16], writer_options(), document_index)
         .expect("two_doc_container should pack")
 }
 
@@ -445,7 +458,7 @@ fn doc_corrupt_chunk_payload_verified_fails_no_verify_returns_garbage() {
         container_id: [0xcc; 16],
         documents: vec![doc_entry],
     };
-    let container = pack_bytes_with_document_index(
+    let container = pack_document_fixture(
         &input,
         [0xcc; 16],
         WriterOptions {
@@ -455,7 +468,7 @@ fn doc_corrupt_chunk_payload_verified_fails_no_verify_returns_garbage() {
             },
             zstd_level: 0,
         },
-        &document_index,
+        document_index,
     )
     .expect("pack");
 
@@ -530,12 +543,11 @@ fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
         container_id: [0xab; 16],
         documents: vec![doc_entry],
     };
-    // `pack_bytes_with_document_index` stores the DocumentEntry as supplied.
+    // `WriterBuilder::document_index` stores the DocumentEntry as supplied.
     // It computes block-level integrity for the index block so the container
     // opens cleanly; only the per-document checksum inside the entry is wrong.
-    let container =
-        pack_bytes_with_document_index(TWO_LINES, [0xab; 16], writer_options(), &document_index)
-            .expect("pack with tampered document checksum");
+    let container = pack_document_fixture(TWO_LINES, [0xab; 16], writer_options(), document_index)
+        .expect("pack with tampered document checksum");
 
     let qzt_path = base.join("tampered.qzt");
     fs::write(&qzt_path, &container).expect("write tampered container");
@@ -632,7 +644,7 @@ fn docs_text_doc_id_tab_and_newline_are_escaped() {
         container_id: [0xee; 16],
         documents: vec![entry],
     };
-    let container = pack_bytes_with_document_index(
+    let container = pack_document_fixture(
         input,
         [0xee; 16],
         WriterOptions {
@@ -642,7 +654,7 @@ fn docs_text_doc_id_tab_and_newline_are_escaped() {
             },
             zstd_level: 0,
         },
-        &document_index,
+        document_index,
     )
     .expect("pack");
     let qzt_path = base.join("special.qzt");
@@ -702,7 +714,7 @@ fn eyeball_docs_and_doc_commands_manual_verify() {
         container_id: [0xfe; 16],
         documents: vec![report, log_entry],
     };
-    let container = pack_bytes_with_document_index(
+    let container = pack_document_fixture(
         input,
         [0xfe; 16],
         WriterOptions {
@@ -712,7 +724,7 @@ fn eyeball_docs_and_doc_commands_manual_verify() {
             },
             zstd_level: 0,
         },
-        &document_index,
+        document_index,
     )
     .expect("pack");
 
