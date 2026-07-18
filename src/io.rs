@@ -48,3 +48,109 @@ impl ReadAt for File {
         Ok(())
     }
 }
+
+#[cfg(windows)]
+impl ReadAt for std::sync::Mutex<File> {
+    fn read_exact_at(&self, offset: u64, buf: &mut [u8]) -> io::Result<()> {
+        use std::io::{Read, Seek, SeekFrom};
+
+        // Rust's Windows `seek_read` changes the shared file cursor. Serialize
+        // seek/read/restore as one critical section so concurrent partial
+        // decompression and search cannot observe or race that cursor.
+        let mut file = self
+            .lock()
+            .map_err(|_| io::Error::other("positioned file read lock poisoned"))?;
+        let original = file.stream_position()?;
+        if let Err(error) = file.seek(SeekFrom::Start(offset)) {
+            return finish_windows_positioned_read(Err(error), file.seek(SeekFrom::Start(original)));
+        }
+        let read_result = file.read_exact(buf);
+        let restore_result = file.seek(SeekFrom::Start(original));
+        finish_windows_positioned_read(read_result, restore_result)
+    }
+}
+
+#[cfg(windows)]
+fn finish_windows_positioned_read(
+    operation: io::Result<()>,
+    restore: io::Result<u64>,
+) -> io::Result<()> {
+    match (operation, restore) {
+        (Ok(()), Ok(_)) => Ok(()),
+        (Err(error), Ok(_)) | (Ok(()), Err(error)) => Err(error),
+        (Err(operation_error), Err(restore_error)) => Err(io::Error::new(
+            restore_error.kind(),
+            format!(
+                "positioned read failed ({operation_error}); cursor restore also failed ({restore_error})"
+            ),
+        )),
+    }
+}
+
+#[cfg(all(test, windows))]
+mod tests {
+    use super::ReadAt;
+    use std::fs::{OpenOptions, remove_file};
+    use std::io::{Seek, SeekFrom, Write};
+    use std::path::PathBuf;
+    use std::sync::Mutex;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    #[test]
+    fn windows_positioned_read_preserves_cursor() {
+        let (path, source) = fixture();
+
+        let mut bytes = [0_u8; 3];
+        source
+            .read_exact_at(1, &mut bytes)
+            .expect("positioned read");
+        assert_eq!(&bytes, b"bcd");
+        assert_eq!(
+            source.lock().expect("lock fixture").stream_position().unwrap(),
+            5,
+            "positioned reads must not change the observable file cursor"
+        );
+
+        drop(source);
+        remove_file(path).expect("remove positioned-read fixture");
+    }
+
+    #[test]
+    fn windows_positioned_read_reports_unexpected_eof() {
+        let (path, source) = fixture();
+        let error = source
+            .read_exact_at(4, &mut [0_u8; 3])
+            .expect_err("exact read beyond EOF must fail");
+        assert_eq!(error.kind(), std::io::ErrorKind::UnexpectedEof);
+        assert_eq!(
+            source.lock().expect("lock fixture").stream_position().unwrap(),
+            5,
+            "failed positioned reads must restore the observable file cursor"
+        );
+
+        drop(source);
+        remove_file(path).expect("remove positioned-read fixture");
+    }
+
+    fn fixture() -> (PathBuf, Mutex<std::fs::File>) {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("clock after epoch")
+            .as_nanos();
+        let path = std::env::current_dir()
+            .expect("test working directory")
+            .join("target")
+            .join(format!("qzt-read-at-{}-{nonce}", std::process::id()));
+        let mut file = OpenOptions::new()
+            .create_new(true)
+            .read(true)
+            .write(true)
+            .open(&path)
+            .expect("create positioned-read fixture");
+        file.write_all(b"abcdef").expect("write fixture");
+        // Keep the sentinel distinct from the successful read end (1 + 3 = 4)
+        // so the cursor test fails if restoration is accidentally removed.
+        file.seek(SeekFrom::Start(5)).expect("set sentinel cursor");
+        (path, Mutex::new(file))
+    }
+}

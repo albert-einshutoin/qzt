@@ -18,7 +18,13 @@ Container format for UTF-8 text.
   tag-only release automation, SHA-256 sidecars, shell and PowerShell
   installers, and four supported macOS/Linux/Windows targets. Both READMEs
   document a version-pinned installer, manual checksum verification, and a
-  source-build fallback for the `v0.1.0-pre.1` rehearsal.
+  source-build fallback for the `v0.1.0-pre.2` rehearsal.
+
+### Fixed
+
+- Added Windows positioned file reads and a required Windows release build in
+  normal CI after the immutable `v0.1.0-pre.1` rehearsal tag exposed that the
+  file-backed partial-decompression and search path compiled only on Unix.
 
 - Added complete English and Japanese CLI references covering every command and
   option, honest profile behavior, range/line conventions, JSON schemas,
