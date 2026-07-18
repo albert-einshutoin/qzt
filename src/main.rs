@@ -367,7 +367,8 @@ fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
     let mut options = WriterOptions::default();
     let mut profile = String::from("core");
     let mut dense_line_index = None;
-    let mut chunk_size_configured = false;
+    let mut target_chunk_size_configured = false;
+    let mut max_chunk_size_configured = false;
     let mut args = args.into_iter();
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -405,7 +406,7 @@ fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
                     return ExitCode::from(2);
                 };
                 options.chunker.target_chunk_size = size;
-                chunk_size_configured = true;
+                target_chunk_size_configured = true;
             }
             "--max-chunk-size" => {
                 let Some(size) = args.next().and_then(|value| value.parse::<usize>().ok()) else {
@@ -413,7 +414,7 @@ fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
                     return ExitCode::from(2);
                 };
                 options.chunker.max_chunk_size = size;
-                chunk_size_configured = true;
+                max_chunk_size_configured = true;
             }
             "--zstd-level" => {
                 let Some(level) = args.next().and_then(|value| value.parse::<i32>().ok()) else {
@@ -464,9 +465,18 @@ fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
     // Memory-profile document extraction decodes whole chunks. A conservative
     // default keeps small document/range reads bounded without changing core's
     // throughput-oriented 4 MiB defaults; explicit chunk sizes remain authoritative.
-    if profile == "memory" && !chunk_size_configured {
-        options.chunker.target_chunk_size = PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE;
-        options.chunker.max_chunk_size = PACK_DOCS_MEMORY_DEFAULT_MAX_CHUNK_SIZE;
+    if profile == "memory" {
+        if !target_chunk_size_configured {
+            options.chunker.target_chunk_size = if max_chunk_size_configured {
+                PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE.min(options.chunker.max_chunk_size)
+            } else {
+                PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE
+            };
+        }
+        if !max_chunk_size_configured {
+            options.chunker.max_chunk_size =
+                PACK_DOCS_MEMORY_DEFAULT_MAX_CHUNK_SIZE.max(options.chunker.target_chunk_size);
+        }
     }
     if let Err(error) = options.chunker.validate() {
         eprintln!("qzt pack-docs: {error}");
@@ -532,9 +542,43 @@ fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
 }
 
 fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<()> {
-    let temp_output_path = format!("{output_path}.tmp");
+    let output_path = Path::new(output_path);
+    let file_name = output_path.file_name().ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "output path has no file name",
+        )
+    })?;
+    let parent = output_path.parent().unwrap_or_else(|| Path::new("."));
+    let mut temporary = None;
+    for attempt in 0_u16..128 {
+        let mut name = std::ffi::OsString::from(".");
+        name.push(file_name);
+        name.push(format!(".qzt-tmp-{}-{attempt}", std::process::id()));
+        let path = parent.join(name);
+        match std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&path)
+        {
+            Ok(file) => {
+                temporary = Some((path, file));
+                break;
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+            Err(error) => return Err(error.into()),
+        }
+    }
+    let (temp_output_path, mut file) = temporary.ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::AlreadyExists,
+            "could not allocate a unique temporary output file",
+        )
+    })?;
     let write_result: std::io::Result<()> = (|| {
-        std::fs::write(&temp_output_path, container)?;
+        file.write_all(container)?;
+        file.sync_all()?;
+        drop(file);
         std::fs::rename(&temp_output_path, output_path)?;
         Ok(())
     })();

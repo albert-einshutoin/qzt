@@ -186,6 +186,51 @@ fn pack_docs_memory_uses_bounded_default_chunks_and_honors_explicit_sizes() {
     assert_eq!(explicit_details.metadata.target_chunk_size, 4096);
     assert_eq!(explicit_details.metadata.max_chunk_size, 8192);
 
+    let max_only_output = base.join("max-only.qzt");
+    let max_only = run(&[
+        "pack-docs",
+        small.to_str().unwrap(),
+        "--profile",
+        "memory",
+        "--max-chunk-size",
+        "131072",
+        "-o",
+        max_only_output.to_str().unwrap(),
+    ]);
+    assert!(
+        max_only.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&max_only.stderr)
+    );
+    let max_only_details =
+        qzt::open_skeleton_details(&fs::read(&max_only_output).expect("read max-only container"))
+            .expect("max-only container details");
+    assert_eq!(max_only_details.metadata.target_chunk_size, 131072);
+    assert_eq!(max_only_details.metadata.max_chunk_size, 131072);
+
+    let target_only_output = base.join("target-only.qzt");
+    let target_only = run(&[
+        "pack-docs",
+        small.to_str().unwrap(),
+        "--profile",
+        "memory",
+        "--chunk-size",
+        "4194304",
+        "-o",
+        target_only_output.to_str().unwrap(),
+    ]);
+    assert!(
+        target_only.status.success(),
+        "stderr: {}",
+        String::from_utf8_lossy(&target_only.stderr)
+    );
+    let target_only_details = qzt::open_skeleton_details(
+        &fs::read(&target_only_output).expect("read target-only container"),
+    )
+    .expect("target-only container details");
+    assert_eq!(target_only_details.metadata.target_chunk_size, 4194304);
+    assert_eq!(target_only_details.metadata.max_chunk_size, 4194304);
+
     let _ = fs::remove_dir_all(base);
 }
 

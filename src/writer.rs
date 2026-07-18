@@ -821,15 +821,31 @@ fn document_chunk_range(entries: &[ChunkEntry], offset: u64, length: u64) -> Res
     }
     let end = checked_logical_end(offset, length)?;
     let first = entries
-        .iter()
-        .find(|entry| entry.logical_offset <= offset && offset < entry.logical_offset + entry.uncompressed_size)
+        .get(document_chunk_index(entries, offset)?)
         .ok_or(QztError::ChunkTableInvalid)?;
     let last_offset = end.checked_sub(1).ok_or(QztError::ChunkTableInvalid)?;
     let last = entries
-        .iter()
-        .find(|entry| entry.logical_offset <= last_offset && last_offset < entry.logical_offset + entry.uncompressed_size)
+        .get(document_chunk_index(entries, last_offset)?)
         .ok_or(QztError::ChunkTableInvalid)?;
     Ok((first.chunk_id, last.chunk_id.checked_add(1).ok_or(QztError::ChunkTableInvalid)?))
+}
+
+fn document_chunk_index(entries: &[ChunkEntry], offset: u64) -> Result<usize> {
+    let mut low = 0_usize;
+    let mut high = entries.len();
+    while low < high {
+        let mid = low + (high - low) / 2;
+        let chunk_end = checked_logical_end(
+            entries[mid].logical_offset,
+            entries[mid].uncompressed_size,
+        )?;
+        if chunk_end <= offset {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    Ok(low)
 }
 
 /// Exports all original bytes from a no-dictionary QZT container.
