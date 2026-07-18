@@ -6,7 +6,7 @@ use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
 use crate::format::{FOOTER_TRAILER_LEN, MAJOR_VERSION, MINOR_VERSION};
 use crate::io::ReadAt;
-use crate::primitives::{read_u64_le, u64_to_usize, usize_to_u64};
+use crate::primitives::{read_u32_le, read_u64_le, u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
 use crate::schema::{
     as_map, checksum_value, field, required_bool, required_bstr16, required_checksum,
@@ -22,8 +22,61 @@ use crate::skeleton::open_skeleton_details;
 
 const SIDECAR_MAGIC: &[u8; 8] = b"QZISIDE1";
 const HEADER_LEN: usize = 16;
-const GRANULE_RECORD_LEN: u64 = 56;
+const LEGACY_GRANULE_RECORD_LEN: u64 = 56;
+const COMPACT_LINE_GRANULE_RECORD_LEN: u64 = 20;
 const SECTION_HASH_BUFFER: usize = 64 * 1024;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GranuleEncoding {
+    LegacyV1,
+    LineImpliedV2,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TermEncoding {
+    LegacyV1,
+    CompactV2,
+}
+
+impl TermEncoding {
+    fn manifest_name(self) -> &'static str {
+        match self {
+            Self::LegacyV1 => "legacy-v1",
+            Self::CompactV2 => "key-posting-varint-v2",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SidecarFormatVersion {
+    V1,
+    V2,
+}
+
+impl SidecarFormatVersion {
+    fn schema_name(self) -> &'static str {
+        match self {
+            Self::V1 => "qzt.sidecar.v1",
+            Self::V2 => "qzt.sidecar.v2",
+        }
+    }
+}
+
+impl GranuleEncoding {
+    fn record_len(self) -> u64 {
+        match self {
+            Self::LegacyV1 => LEGACY_GRANULE_RECORD_LEN,
+            Self::LineImpliedV2 => COMPACT_LINE_GRANULE_RECORD_LEN,
+        }
+    }
+
+    fn manifest_name(self) -> &'static str {
+        match self {
+            Self::LegacyV1 => "legacy-v1",
+            Self::LineImpliedV2 => "line-implied-v2",
+        }
+    }
+}
 
 /// Search sidecar index kind.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -59,6 +112,9 @@ pub struct SidecarManifest {
     pub high_df_per_million: u32,
     pub index_size_bytes: u64,
     pub source_size_bytes: u64,
+    format_version: SidecarFormatVersion,
+    granule_encoding: GranuleEncoding,
+    term_encoding: TermEncoding,
     granules: SectionRef,
     terms: SectionRef,
     postings: SectionRef,
@@ -124,9 +180,16 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
         }
     };
 
-    let granule_bytes = encode_granules(&granules)?;
+    let granule_encoding = if can_encode_compact_line_granules(&granules) {
+        GranuleEncoding::LineImpliedV2
+    } else {
+        GranuleEncoding::LegacyV1
+    };
+    let format_version = SidecarFormatVersion::V2;
+    let term_encoding = TermEncoding::CompactV2;
+    let granule_bytes = encode_granules(&granules, granule_encoding)?;
     let posting_bytes = encode_posting_section(&postings)?;
-    let term_bytes = encode_terms(&terms)?;
+    let term_bytes = encode_terms(&terms, term_encoding)?;
 
     let terms_offset = usize_to_u64(granule_bytes.len())?;
     let postings_offset = terms_offset
@@ -146,6 +209,9 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
         high_df_per_million,
         index_size_bytes,
         source_size_bytes: details.summary.original_size,
+        format_version,
+        granule_encoding,
+        term_encoding,
         granules: SectionRef {
             offset: 0,
             size: terms_offset,
@@ -213,8 +279,8 @@ impl QziSidecar {
         let granule_bytes = section_slice(sidecar_bytes, section_base, &manifest.granules)?;
         let term_bytes = section_slice(sidecar_bytes, section_base, &manifest.terms)?;
         let posting_bytes = section_slice(sidecar_bytes, section_base, &manifest.postings)?;
-        let granules = decode_granules(granule_bytes)?;
-        let terms = decode_terms(term_bytes)?;
+        let granules = decode_granules(granule_bytes, manifest.granule_encoding)?;
+        let terms = decode_terms(term_bytes, manifest.term_encoding)?;
         let postings = decode_posting_section(posting_bytes, &terms)?;
 
         let index = match manifest.index_type.as_str() {
@@ -342,7 +408,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
         let count_bytes = read_vec(&source, granule_section_offset, 8)?;
         let granule_count = read_u64_le(&count_bytes)?;
         let expected_granule_size = granule_count
-            .checked_mul(GRANULE_RECORD_LEN)
+            .checked_mul(manifest.granule_encoding.record_len())
             .and_then(|records| records.checked_add(8))
             .ok_or(QztError::ResourceLimitExceeded)?;
         if expected_granule_size != manifest.granules.size {
@@ -353,16 +419,8 @@ impl<R: ReadAt> QziFileSidecar<R> {
             .checked_add(manifest.terms.offset)
             .ok_or(QztError::ResourceLimitExceeded)?;
         let term_bytes = read_vec(&source, terms_offset, manifest.terms.size)?;
-        let terms = decode_terms(&term_bytes)?;
-        for term in &terms {
-            let posting_end = term
-                .posting_offset
-                .checked_add(term.posting_size)
-                .ok_or(QztError::ResourceLimitExceeded)?;
-            if posting_end > manifest.postings.size {
-                return Err(QztError::ContainerCorrupt);
-            }
-        }
+        let terms = decode_terms(&term_bytes, manifest.term_encoding)?;
+        validate_file_term_dictionary(&terms, manifest.postings.size, manifest.term_encoding)?;
 
         Ok(Self {
             manifest,
@@ -522,10 +580,9 @@ impl<R: ReadAt> QziFileSidecar<R> {
     }
 
     fn term_index_for_key(&self, key: &[u8]) -> Option<usize> {
-        let key_hash = key_hash(key);
         self.terms
-            .iter()
-            .position(|term| term.key_hash == key_hash && term.key == key)
+            .binary_search_by(|term| term.key.as_slice().cmp(key))
+            .ok()
     }
 
     fn is_high_df(&self, term_index: usize) -> bool {
@@ -547,6 +604,9 @@ impl<R: ReadAt> QziFileSidecar<R> {
             .ok_or(QztError::ResourceLimitExceeded)?;
         let bytes = read_vec(&self.source, offset, term.posting_size)?;
         let postings = decode_delta_varint_u64(&bytes)?;
+        if usize_to_u64(postings.len())? != term.granule_frequency {
+            return Err(QztError::ContainerCorrupt);
+        }
         for granule_id in &postings {
             if *granule_id >= self.granule_count {
                 return Err(QztError::ContainerCorrupt);
@@ -560,23 +620,17 @@ impl<R: ReadAt> QziFileSidecar<R> {
             return Err(QztError::ContainerCorrupt);
         }
         let record_offset = granule_id
-            .checked_mul(GRANULE_RECORD_LEN)
+            .checked_mul(self.manifest.granule_encoding.record_len())
             .and_then(|relative| relative.checked_add(8))
             .and_then(|relative| relative.checked_add(self.manifest.granules.offset))
             .and_then(|relative| relative.checked_add(self.section_base))
             .ok_or(QztError::ResourceLimitExceeded)?;
-        let bytes = read_vec(&self.source, record_offset, GRANULE_RECORD_LEN)?;
-
-        let mut cursor = 0_usize;
-        let granule = SearchGranule {
-            granule_id: read_u64_cursor(&bytes, &mut cursor)?,
-            logical_offset: read_u64_cursor(&bytes, &mut cursor)?,
-            byte_length: read_u64_cursor(&bytes, &mut cursor)?,
-            chunk_start: read_u64_cursor(&bytes, &mut cursor)?,
-            chunk_end: read_u64_cursor(&bytes, &mut cursor)?,
-            first_line: none_if_max(read_u64_cursor(&bytes, &mut cursor)?),
-            line_count: none_if_max(read_u64_cursor(&bytes, &mut cursor)?),
-        };
+        let bytes = read_vec(
+            &self.source,
+            record_offset,
+            self.manifest.granule_encoding.record_len(),
+        )?;
+        let granule = decode_granule_record(&bytes, granule_id, self.manifest.granule_encoding)?;
         if granule.granule_id != granule_id {
             return Err(QztError::ContainerCorrupt);
         }
@@ -700,7 +754,10 @@ fn verify_section_checksum<R: ReadAt>(
 
 fn encode_manifest(manifest: &SidecarManifest) -> Result<Vec<u8>> {
     encode_deterministic(&CborValue::Map(vec![
-        text_pair("schema", CborValue::Text("qzt.sidecar.v1".to_owned())),
+        text_pair(
+            "schema",
+            CborValue::Text(manifest.format_version.schema_name().to_owned()),
+        ),
         text_pair(
             "source_container_id",
             CborValue::Bytes(manifest.source_container_id.to_vec()),
@@ -728,6 +785,14 @@ fn encode_manifest(manifest: &SidecarManifest) -> Result<Vec<u8>> {
         text_pair(
             "high_df_per_million",
             CborValue::Integer(i128::from(manifest.high_df_per_million)),
+        ),
+        text_pair(
+            "granule_encoding",
+            CborValue::Text(manifest.granule_encoding.manifest_name().to_owned()),
+        ),
+        text_pair(
+            "term_encoding",
+            CborValue::Text(manifest.term_encoding.manifest_name().to_owned()),
         ),
         text_pair(
             "index_manifest",
@@ -759,9 +824,12 @@ fn encode_manifest(manifest: &SidecarManifest) -> Result<Vec<u8>> {
 fn decode_manifest(bytes: &[u8]) -> Result<SidecarManifest> {
     let value = validate_deterministic(bytes)?;
     let map = as_map(&value, QztError::ContainerCorrupt)?;
-    if required_text(map, "schema", QztError::ContainerCorrupt)? != "qzt.sidecar.v1" {
-        return Err(QztError::ContainerCorrupt);
-    }
+    let format_version = match required_text(map, "schema", QztError::ContainerCorrupt)?.as_str()
+    {
+        "qzt.sidecar.v1" => SidecarFormatVersion::V1,
+        "qzt.sidecar.v2" => SidecarFormatVersion::V2,
+        _ => return Err(QztError::ContainerCorrupt),
+    };
     // Sidecar format negotiation mirrors the core container rule: only the
     // supported major/minor pair is accepted; newer pairs are a version bump.
     expect_source_format_version(map)?;
@@ -789,6 +857,30 @@ fn decode_manifest(bytes: &[u8]) -> Result<SidecarManifest> {
         QztError::ResourceLimitExceeded,
     )?)
     .map_err(|_| QztError::ResourceLimitExceeded)?;
+    let encoding_field = |name: &str| {
+        map.iter().find_map(|(key, value)| match key {
+            CborValue::Text(text) if text == name => Some(value),
+            _ => None,
+        })
+    };
+    // v1 had fixed payload layouts. v2 makes both layouts explicit so an old
+    // reader cannot accidentally decode a compact payload as a v1 record.
+    let granule_encoding = match encoding_field("granule_encoding") {
+        None if format_version == SidecarFormatVersion::V1 => GranuleEncoding::LegacyV1,
+        Some(CborValue::Text(value)) if value == "legacy-v1" => GranuleEncoding::LegacyV1,
+        Some(CborValue::Text(value)) if value == "line-implied-v2" => {
+            GranuleEncoding::LineImpliedV2
+        }
+        _ => return Err(QztError::ContainerCorrupt),
+    };
+    let term_encoding = match encoding_field("term_encoding") {
+        None if format_version == SidecarFormatVersion::V1 => TermEncoding::LegacyV1,
+        Some(CborValue::Text(value)) if value == "legacy-v1" => TermEncoding::LegacyV1,
+        Some(CborValue::Text(value)) if value == "key-posting-varint-v2" => {
+            TermEncoding::CompactV2
+        }
+        _ => return Err(QztError::ContainerCorrupt),
+    };
     let index_manifest = as_map(
         field(map, "index_manifest", QztError::ContainerCorrupt)?,
         QztError::ContainerCorrupt,
@@ -820,6 +912,9 @@ fn decode_manifest(bytes: &[u8]) -> Result<SidecarManifest> {
         high_df_per_million,
         index_size_bytes,
         source_size_bytes,
+        format_version,
+        granule_encoding,
+        term_encoding,
         granules: section_ref_from(sections, "granules")?,
         terms: section_ref_from(sections, "terms")?,
         postings: section_ref_from(sections, "postings")?,
@@ -902,42 +997,66 @@ fn qzt_footer_checksum(qzt_bytes: &[u8], footer_payload_offset: u64) -> Result<C
     Ok(Checksum::blake3(footer))
 }
 
-fn encode_granules(granules: &[SearchGranule]) -> Result<Vec<u8>> {
+fn can_encode_compact_line_granules(granules: &[SearchGranule]) -> bool {
+    granules.iter().enumerate().all(|(index, granule)| {
+        granule.granule_id == index as u64
+            && granule.first_line == Some(index as u64)
+            && granule.line_count == Some(1)
+            && u32::try_from(granule.byte_length).is_ok()
+            && u32::try_from(granule.chunk_start).is_ok()
+            && u32::try_from(granule.chunk_end.saturating_sub(granule.chunk_start)).is_ok()
+    })
+}
+
+fn encode_granules(granules: &[SearchGranule], encoding: GranuleEncoding) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
     write_u64(usize_to_u64(granules.len())?, &mut bytes);
     for granule in granules {
-        write_u64(granule.granule_id, &mut bytes);
-        write_u64(granule.logical_offset, &mut bytes);
-        write_u64(granule.byte_length, &mut bytes);
-        write_u64(granule.chunk_start, &mut bytes);
-        write_u64(granule.chunk_end, &mut bytes);
-        write_u64(granule.first_line.unwrap_or(u64::MAX), &mut bytes);
-        write_u64(granule.line_count.unwrap_or(u64::MAX), &mut bytes);
+        match encoding {
+            GranuleEncoding::LegacyV1 => {
+                write_u64(granule.granule_id, &mut bytes);
+                write_u64(granule.logical_offset, &mut bytes);
+                write_u64(granule.byte_length, &mut bytes);
+                write_u64(granule.chunk_start, &mut bytes);
+                write_u64(granule.chunk_end, &mut bytes);
+                write_u64(granule.first_line.unwrap_or(u64::MAX), &mut bytes);
+                write_u64(granule.line_count.unwrap_or(u64::MAX), &mut bytes);
+            }
+            GranuleEncoding::LineImpliedV2 => {
+                // Fixed records retain O(1) file lookup; ids and line metadata
+                // are implicit in the sequential line-granule contract.
+                write_u64(granule.logical_offset, &mut bytes);
+                write_u32(
+                    u32::try_from(granule.byte_length)
+                        .map_err(|_| QztError::ResourceLimitExceeded)?,
+                    &mut bytes,
+                );
+                write_u32(
+                    u32::try_from(granule.chunk_start)
+                        .map_err(|_| QztError::ResourceLimitExceeded)?,
+                    &mut bytes,
+                );
+                let span = granule
+                    .chunk_end
+                    .checked_sub(granule.chunk_start)
+                    .ok_or(QztError::ChunkTableInvalid)?;
+                write_u32(
+                    u32::try_from(span).map_err(|_| QztError::ResourceLimitExceeded)?,
+                    &mut bytes,
+                );
+            }
+        }
     }
     Ok(bytes)
 }
 
-fn decode_granules(bytes: &[u8]) -> Result<Vec<SearchGranule>> {
+fn decode_granules(bytes: &[u8], encoding: GranuleEncoding) -> Result<Vec<SearchGranule>> {
     let mut cursor = 0_usize;
     let count = read_u64_cursor(bytes, &mut cursor)?;
     let mut granules = Vec::with_capacity(u64_to_usize(count)?);
-    for _ in 0..count {
-        let granule_id = read_u64_cursor(bytes, &mut cursor)?;
-        let logical_offset = read_u64_cursor(bytes, &mut cursor)?;
-        let byte_length = read_u64_cursor(bytes, &mut cursor)?;
-        let chunk_start = read_u64_cursor(bytes, &mut cursor)?;
-        let chunk_end = read_u64_cursor(bytes, &mut cursor)?;
-        let first_line = none_if_max(read_u64_cursor(bytes, &mut cursor)?);
-        let line_count = none_if_max(read_u64_cursor(bytes, &mut cursor)?);
-        granules.push(SearchGranule {
-            granule_id,
-            logical_offset,
-            byte_length,
-            chunk_start,
-            chunk_end,
-            first_line,
-            line_count,
-        });
+    for granule_id in 0..count {
+        let record = read_exact(bytes, &mut cursor, u64_to_usize(encoding.record_len())?)?;
+        granules.push(decode_granule_record(record, granule_id, encoding)?);
     }
     if cursor != bytes.len() {
         return Err(QztError::ContainerCorrupt);
@@ -945,44 +1064,124 @@ fn decode_granules(bytes: &[u8]) -> Result<Vec<SearchGranule>> {
     Ok(granules)
 }
 
-fn encode_terms(terms: &[TermDictionaryEntry]) -> Result<Vec<u8>> {
+fn decode_granule_record(
+    bytes: &[u8],
+    expected_granule_id: u64,
+    encoding: GranuleEncoding,
+) -> Result<SearchGranule> {
+    let mut cursor = 0_usize;
+    let granule = match encoding {
+        GranuleEncoding::LegacyV1 => SearchGranule {
+            granule_id: read_u64_cursor(bytes, &mut cursor)?,
+            logical_offset: read_u64_cursor(bytes, &mut cursor)?,
+            byte_length: read_u64_cursor(bytes, &mut cursor)?,
+            chunk_start: read_u64_cursor(bytes, &mut cursor)?,
+            chunk_end: read_u64_cursor(bytes, &mut cursor)?,
+            first_line: none_if_max(read_u64_cursor(bytes, &mut cursor)?),
+            line_count: none_if_max(read_u64_cursor(bytes, &mut cursor)?),
+        },
+        GranuleEncoding::LineImpliedV2 => {
+            let logical_offset = read_u64_cursor(bytes, &mut cursor)?;
+            let byte_length = u64::from(read_u32_cursor(bytes, &mut cursor)?);
+            let chunk_start = u64::from(read_u32_cursor(bytes, &mut cursor)?);
+            let chunk_span = u64::from(read_u32_cursor(bytes, &mut cursor)?);
+            SearchGranule {
+                granule_id: expected_granule_id,
+                logical_offset,
+                byte_length,
+                chunk_start,
+                chunk_end: chunk_start
+                    .checked_add(chunk_span)
+                    .ok_or(QztError::ResourceLimitExceeded)?,
+                first_line: Some(expected_granule_id),
+                line_count: Some(1),
+            }
+        }
+    };
+    if cursor != bytes.len() || granule.granule_id != expected_granule_id {
+        return Err(QztError::ContainerCorrupt);
+    }
+    Ok(granule)
+}
+
+fn encode_terms(terms: &[TermDictionaryEntry], encoding: TermEncoding) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
     write_u64(usize_to_u64(terms.len())?, &mut bytes);
     for term in terms {
-        write_u64(usize_to_u64(term.key.len())?, &mut bytes);
-        bytes.extend_from_slice(&term.key);
-        bytes.extend_from_slice(&term.key_hash);
-        write_u64(term.document_frequency, &mut bytes);
-        write_u64(term.granule_frequency, &mut bytes);
-        write_u64(term.posting_offset, &mut bytes);
-        write_u64(term.posting_size, &mut bytes);
-        write_u64(term.skip_offset, &mut bytes);
-        write_u64(term.skip_size, &mut bytes);
-        write_u64(term.flags, &mut bytes);
+        match encoding {
+            TermEncoding::LegacyV1 => {
+                write_u64(usize_to_u64(term.key.len())?, &mut bytes);
+                bytes.extend_from_slice(&term.key);
+                bytes.extend_from_slice(&term.key_hash);
+                write_u64(term.document_frequency, &mut bytes);
+                write_u64(term.granule_frequency, &mut bytes);
+                write_u64(term.posting_offset, &mut bytes);
+                write_u64(term.posting_size, &mut bytes);
+                write_u64(term.skip_offset, &mut bytes);
+                write_u64(term.skip_size, &mut bytes);
+                write_u64(term.flags, &mut bytes);
+            }
+            TermEncoding::CompactV2 => {
+                // v2 derives hashes, offsets, flags, and skip metadata at open.
+                // Keeping only query-planning frequency and posting extent avoids
+                // an 80-byte fixed envelope for high-cardinality log tokens.
+                write_varuint(usize_to_u64(term.key.len())?, &mut bytes);
+                bytes.extend_from_slice(&term.key);
+                write_varuint(term.granule_frequency, &mut bytes);
+                write_varuint(term.posting_size, &mut bytes);
+            }
+        }
     }
     Ok(bytes)
 }
 
-fn decode_terms(bytes: &[u8]) -> Result<Vec<TermDictionaryEntry>> {
+fn decode_terms(bytes: &[u8], encoding: TermEncoding) -> Result<Vec<TermDictionaryEntry>> {
     let mut cursor = 0_usize;
     let count = read_u64_cursor(bytes, &mut cursor)?;
     let mut terms = Vec::with_capacity(u64_to_usize(count)?);
+    let mut posting_offset = 0_u64;
     for _ in 0..count {
-        let key_len = u64_to_usize(read_u64_cursor(bytes, &mut cursor)?)?;
-        let key = read_exact(bytes, &mut cursor, key_len)?.to_vec();
-        let mut key_hash = [0_u8; 16];
-        key_hash.copy_from_slice(read_exact(bytes, &mut cursor, 16)?);
-        terms.push(TermDictionaryEntry {
-            key,
-            key_hash,
-            document_frequency: read_u64_cursor(bytes, &mut cursor)?,
-            granule_frequency: read_u64_cursor(bytes, &mut cursor)?,
-            posting_offset: read_u64_cursor(bytes, &mut cursor)?,
-            posting_size: read_u64_cursor(bytes, &mut cursor)?,
-            skip_offset: read_u64_cursor(bytes, &mut cursor)?,
-            skip_size: read_u64_cursor(bytes, &mut cursor)?,
-            flags: read_u64_cursor(bytes, &mut cursor)?,
-        });
+        let term = match encoding {
+            TermEncoding::LegacyV1 => {
+                let key_len = u64_to_usize(read_u64_cursor(bytes, &mut cursor)?)?;
+                let key = read_exact(bytes, &mut cursor, key_len)?.to_vec();
+                let mut key_hash = [0_u8; 16];
+                key_hash.copy_from_slice(read_exact(bytes, &mut cursor, 16)?);
+                TermDictionaryEntry {
+                    key,
+                    key_hash,
+                    document_frequency: read_u64_cursor(bytes, &mut cursor)?,
+                    granule_frequency: read_u64_cursor(bytes, &mut cursor)?,
+                    posting_offset: read_u64_cursor(bytes, &mut cursor)?,
+                    posting_size: read_u64_cursor(bytes, &mut cursor)?,
+                    skip_offset: read_u64_cursor(bytes, &mut cursor)?,
+                    skip_size: read_u64_cursor(bytes, &mut cursor)?,
+                    flags: read_u64_cursor(bytes, &mut cursor)?,
+                }
+            }
+            TermEncoding::CompactV2 => {
+                let key_len = u64_to_usize(read_varuint(bytes, &mut cursor)?)?;
+                let key = read_exact(bytes, &mut cursor, key_len)?.to_vec();
+                let granule_frequency = read_varuint(bytes, &mut cursor)?;
+                let posting_size = read_varuint(bytes, &mut cursor)?;
+                let term = TermDictionaryEntry {
+                    key_hash: key_hash(&key),
+                    key,
+                    document_frequency: 0,
+                    granule_frequency,
+                    posting_offset,
+                    posting_size,
+                    skip_offset: 0,
+                    skip_size: 0,
+                    flags: 0,
+                };
+                posting_offset = posting_offset
+                    .checked_add(posting_size)
+                    .ok_or(QztError::ResourceLimitExceeded)?;
+                term
+            }
+        };
+        terms.push(term);
     }
     if cursor != bytes.len() {
         return Err(QztError::ContainerCorrupt);
@@ -1011,13 +1210,101 @@ fn decode_posting_section(bytes: &[u8], terms: &[TermDictionaryEntry]) -> Result
     Ok(postings)
 }
 
+fn validate_file_term_dictionary(
+    terms: &[TermDictionaryEntry],
+    postings_size: u64,
+    encoding: TermEncoding,
+) -> Result<()> {
+    let mut expected_posting_offset = 0_u64;
+    let mut expected_skip_offset = 0_u64;
+    for term in terms {
+        if term.key.is_empty() || term.key_hash != key_hash(&term.key) {
+            return Err(QztError::ContainerCorrupt);
+        }
+        if term.flags != 0 {
+            return Err(QztError::InvalidFlags);
+        }
+        if term.document_frequency != 0 || term.granule_frequency == 0 || term.posting_size == 0 {
+            return Err(QztError::ContainerCorrupt);
+        }
+        if term.posting_offset != expected_posting_offset
+            || (encoding == TermEncoding::LegacyV1
+                && (term.skip_offset != expected_skip_offset || term.skip_size % 24 != 0))
+            || (encoding == TermEncoding::CompactV2
+                && (term.skip_offset != 0 || term.skip_size != 0))
+        {
+            return Err(QztError::ContainerCorrupt);
+        }
+        expected_posting_offset = expected_posting_offset
+            .checked_add(term.posting_size)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        expected_skip_offset = expected_skip_offset
+            .checked_add(term.skip_size)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+    }
+    if !terms.windows(2).all(|pair| pair[0].key < pair[1].key)
+        || expected_posting_offset != postings_size
+    {
+        return Err(QztError::ContainerCorrupt);
+    }
+    Ok(())
+}
+
 fn write_u64(value: u64, bytes: &mut Vec<u8>) {
     bytes.extend_from_slice(&value.to_le_bytes());
+}
+
+fn write_u32(value: u32, bytes: &mut Vec<u8>) {
+    bytes.extend_from_slice(&value.to_le_bytes());
+}
+
+fn write_varuint(mut value: u64, bytes: &mut Vec<u8>) {
+    loop {
+        let mut byte = (value & 0x7f) as u8;
+        value >>= 7;
+        if value != 0 {
+            byte |= 0x80;
+        }
+        bytes.push(byte);
+        if value == 0 {
+            return;
+        }
+    }
 }
 
 fn read_u64_cursor(bytes: &[u8], cursor: &mut usize) -> Result<u64> {
     let value = read_u64_le(read_exact(bytes, cursor, 8)?)?;
     Ok(value)
+}
+
+fn read_u32_cursor(bytes: &[u8], cursor: &mut usize) -> Result<u32> {
+    read_u32_le(read_exact(bytes, cursor, 4)?)
+}
+
+fn read_varuint(bytes: &[u8], cursor: &mut usize) -> Result<u64> {
+    let start = *cursor;
+    let mut value = 0_u64;
+    for shift in (0..64).step_by(7) {
+        let byte = *read_exact(bytes, cursor, 1)?
+            .first()
+            .ok_or(QztError::UnexpectedEof)?;
+        let payload = u64::from(byte & 0x7f);
+        if shift == 63 && payload > 1 {
+            return Err(QztError::ContainerCorrupt);
+        }
+        value |= payload
+            .checked_shl(shift)
+            .ok_or(QztError::ContainerCorrupt)?;
+        if byte & 0x80 == 0 {
+            let mut canonical = Vec::new();
+            write_varuint(value, &mut canonical);
+            if canonical.len() != *cursor - start {
+                return Err(QztError::ContainerCorrupt);
+            }
+            return Ok(value);
+        }
+    }
+    Err(QztError::ContainerCorrupt)
 }
 
 fn read_exact<'a>(bytes: &'a [u8], cursor: &mut usize, len: usize) -> Result<&'a [u8]> {
@@ -1103,5 +1390,146 @@ mod manifest_tests {
         let bytes = encode_deterministic(&fixture).expect("manifest encodes");
         let err = decode_manifest(&bytes).expect_err("newer minor is rejected");
         assert_eq!(err, QztError::UnsupportedVersion);
+    }
+
+    #[test]
+    fn legacy_granule_records_remain_decodable() {
+        let expected = vec![SearchGranule {
+            granule_id: 0,
+            logical_offset: 4,
+            byte_length: 9,
+            chunk_start: 2,
+            chunk_end: 4,
+            first_line: Some(7),
+            line_count: Some(3),
+        }];
+        let bytes = encode_granules(&expected, GranuleEncoding::LegacyV1)
+            .expect("legacy records should encode");
+        assert_eq!(
+            decode_granules(&bytes, GranuleEncoding::LegacyV1)
+                .expect("legacy records should decode"),
+            expected
+        );
+    }
+
+    #[test]
+    fn file_term_dictionary_rejects_unsorted_bad_hash_flags_and_ranges() {
+        let entry = |key: &[u8], offset: u64, size: u64| TermDictionaryEntry {
+            key: key.to_vec(),
+            key_hash: key_hash(key),
+            document_frequency: 0,
+            granule_frequency: 1,
+            posting_offset: offset,
+            posting_size: size,
+            skip_offset: 0,
+            skip_size: 0,
+            flags: 0,
+        };
+        let valid = vec![entry(b"alpha", 0, 1), entry(b"beta", 1, 1)];
+        assert!(validate_file_term_dictionary(&valid, 2, TermEncoding::LegacyV1).is_ok());
+
+        let mut bad_hash = valid.clone();
+        bad_hash[0].key_hash[0] ^= 1;
+        assert_eq!(
+            validate_file_term_dictionary(&bad_hash, 2, TermEncoding::LegacyV1),
+            Err(QztError::ContainerCorrupt)
+        );
+
+        let mut bad_flags = valid.clone();
+        bad_flags[0].flags = 1;
+        assert_eq!(
+            validate_file_term_dictionary(&bad_flags, 2, TermEncoding::LegacyV1),
+            Err(QztError::InvalidFlags)
+        );
+
+        let mut bad_range = valid.clone();
+        bad_range[1].posting_offset = 0;
+        assert_eq!(
+            validate_file_term_dictionary(&bad_range, 2, TermEncoding::LegacyV1),
+            Err(QztError::ContainerCorrupt)
+        );
+
+        let mut unsorted = valid;
+        unsorted.swap(0, 1);
+        assert_eq!(
+            validate_file_term_dictionary(&unsorted, 2, TermEncoding::LegacyV1),
+            Err(QztError::ContainerCorrupt)
+        );
+    }
+
+    #[test]
+    fn v1_sidecar_payload_remains_readable_after_v2_introduction() {
+        let container = crate::writer::pack_bytes_with_container_id(
+            b"alpha\nbeta\n",
+            [0x91; 16],
+            crate::writer::WriterOptions::default(),
+        )
+        .expect("container should pack");
+        let reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
+            .expect("file reader should open");
+        let index = RawTokenIndex::build_from_file(
+            &reader,
+            crate::search::TokenIndexBuildOptions::default(),
+        )
+        .expect("index should build");
+        let granules = encode_granules(&index.granules, GranuleEncoding::LegacyV1)
+            .expect("legacy granules should encode");
+        let terms = encode_terms(&index.terms, TermEncoding::LegacyV1)
+            .expect("legacy terms should encode");
+        let postings = encode_posting_section(&index.postings).expect("postings should encode");
+        let terms_offset = granules.len() as u64;
+        let postings_offset = terms_offset + terms.len() as u64;
+        let manifest = SidecarManifest {
+            source_container_id: index.container_id,
+            source_original_checksum: reader.skeleton_details().metadata.original_checksum.clone(),
+            source_qzt_footer_checksum: reader.footer_checksum().expect("footer checksum"),
+            index_type: "token".to_owned(),
+            ngram_n: None,
+            complete: true,
+            high_df_per_million: 200_000,
+            index_size_bytes: postings_offset + postings.len() as u64,
+            source_size_bytes: index.source_size_bytes,
+            format_version: SidecarFormatVersion::V1,
+            granule_encoding: GranuleEncoding::LegacyV1,
+            term_encoding: TermEncoding::LegacyV1,
+            granules: SectionRef {
+                offset: 0,
+                size: terms_offset,
+                checksum: Checksum::blake3(&granules),
+            },
+            terms: SectionRef {
+                offset: terms_offset,
+                size: terms.len() as u64,
+                checksum: Checksum::blake3(&terms),
+            },
+            postings: SectionRef {
+                offset: postings_offset,
+                size: postings.len() as u64,
+                checksum: Checksum::blake3(&postings),
+            },
+        };
+        let manifest_bytes = encode_manifest(&manifest).expect("v1 manifest should encode");
+        let mut manifest_value =
+            validate_deterministic(&manifest_bytes).expect("v1 manifest should decode");
+        let CborValue::Map(fields) = &mut manifest_value else {
+            panic!("manifest must be a map");
+        };
+        fields.retain(|(key, _)| {
+            key != &CborValue::Text("granule_encoding".to_owned())
+                && key != &CborValue::Text("term_encoding".to_owned())
+        });
+        let manifest_bytes =
+            encode_deterministic(&manifest_value).expect("legacy manifest should re-encode");
+        let mut sidecar = Vec::new();
+        sidecar.extend_from_slice(SIDECAR_MAGIC);
+        sidecar.extend_from_slice(&(manifest_bytes.len() as u64).to_le_bytes());
+        sidecar.extend_from_slice(&manifest_bytes);
+        sidecar.extend_from_slice(&granules);
+        sidecar.extend_from_slice(&terms);
+        sidecar.extend_from_slice(&postings);
+
+        assert!(QziSidecar::open(&container, &sidecar).is_ok());
+        assert!(QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &reader)
+            .is_ok());
     }
 }

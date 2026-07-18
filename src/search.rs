@@ -7,6 +7,10 @@ use crate::io::ReadAt;
 use crate::primitives::{checked_logical_end, u64_to_usize, usize_to_u64};
 use crate::reader::{ChunkDecodeCache, QztFileReader, QztReader};
 
+// Line indexes assign consecutive ids and represent exactly one line per
+// granule. QZI v2 omits those implied fields from its fixed-size records.
+const COMPACT_LINE_GRANULE_RECORD_LEN: usize = 20;
+
 /// Search index source text model.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
@@ -445,10 +449,9 @@ impl RawTokenIndex {
     }
 
     fn term_index_for_key(&self, key: &[u8]) -> Option<usize> {
-        let key_hash = key_hash(key);
         self.terms
-            .iter()
-            .position(|term| term.key_hash == key_hash && term.key == key)
+            .binary_search_by(|term| term.key.as_slice().cmp(key))
+            .ok()
     }
 
     fn empty_metrics(&self, query: &str) -> SearchMetrics {
@@ -478,12 +481,24 @@ impl RawTokenIndex {
     }
 
     fn index_size_bytes(&self) -> u64 {
-        let granule_bytes = self.granules.len().saturating_mul(56);
-        let term_bytes = self
+        let granule_bytes = 8usize.saturating_add(
+            self.granules
+                .len()
+                .saturating_mul(COMPACT_LINE_GRANULE_RECORD_LEN),
+        );
+        let term_bytes = 8usize.saturating_add(
+            self
             .terms
             .iter()
-            .map(|term| term.key.len().saturating_add(80))
-            .sum::<usize>();
+            .map(|term| {
+                term.key
+                    .len()
+                    .saturating_add(varuint_len(term.key.len() as u64))
+                    .saturating_add(varuint_len(term.granule_frequency))
+                    .saturating_add(varuint_len(term.posting_size))
+            })
+            .sum::<usize>(),
+        );
         let posting_bytes = self.encoded_postings.iter().map(Vec::len).sum::<usize>();
         u64::try_from(
             granule_bytes
@@ -769,10 +784,9 @@ impl RawNgramIndex {
     }
 
     fn term_index_for_key(&self, key: &[u8]) -> Option<usize> {
-        let key_hash = key_hash(key);
         self.terms
-            .iter()
-            .position(|term| term.key_hash == key_hash && term.key == key)
+            .binary_search_by(|term| term.key.as_slice().cmp(key))
+            .ok()
     }
 
     fn is_high_df(&self, term_index: usize) -> bool {
@@ -820,22 +834,41 @@ impl RawNgramIndex {
     }
 
     fn index_size_bytes(&self) -> u64 {
-        let granule_bytes = self.granules.len().saturating_mul(56);
-        let term_bytes = self
+        let granule_bytes = 8usize.saturating_add(
+            self.granules
+                .len()
+                .saturating_mul(COMPACT_LINE_GRANULE_RECORD_LEN),
+        );
+        let term_bytes = 8usize.saturating_add(
+            self
             .terms
             .iter()
-            .map(|term| term.key.len().saturating_add(80))
-            .sum::<usize>();
+            .map(|term| {
+                term.key
+                    .len()
+                    .saturating_add(varuint_len(term.key.len() as u64))
+                    .saturating_add(varuint_len(term.granule_frequency))
+                    .saturating_add(varuint_len(term.posting_size))
+            })
+            .sum::<usize>(),
+        );
         let posting_bytes = self.encoded_postings.iter().map(Vec::len).sum::<usize>();
-        let skip_bytes = self.skip_data.iter().flatten().count().saturating_mul(24);
         u64::try_from(
             granule_bytes
                 .saturating_add(term_bytes)
-                .saturating_add(posting_bytes)
-                .saturating_add(skip_bytes),
+                .saturating_add(posting_bytes),
         )
         .unwrap_or(u64::MAX)
     }
+}
+
+fn varuint_len(mut value: u64) -> usize {
+    let mut len = 1;
+    while value >= 0x80 {
+        value >>= 7;
+        len += 1;
+    }
+    len
 }
 
 pub fn encode_delta_varint_u64(values: &[u64]) -> Result<Vec<u8>> {

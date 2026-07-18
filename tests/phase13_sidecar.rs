@@ -4,8 +4,8 @@ use std::process::Command;
 
 use qzt::{
     Checksum, NgramIndexBuildOptions, QziFileSidecar, QziSidecar, QztError, QztFileReader,
-    QztReader, RawNgramIndex, SearchOptions, SidecarIndexKind, VerifyLevel, build_search_sidecar,
-    pack_bytes_with_container_id,
+    QztReader, RawNgramIndex, RawTokenIndex, SearchOptions, SidecarIndexKind,
+    TokenIndexBuildOptions, VerifyLevel, build_search_sidecar, pack_bytes_with_container_id,
 };
 mod support;
 use support::{
@@ -723,9 +723,9 @@ fn file_sidecar_index_size_bytes_follows_serialized_manifest_model() {
         .expect("file sidecar search should run");
 
     assert_eq!(
-        non_skip_memory_report.metrics.index_size_bytes + 16,
+        non_skip_memory_report.metrics.index_size_bytes,
         non_skip_file_report.metrics.index_size_bytes,
-        "non-skip query should keep the +16 serialized header delta"
+        "compact serialized granule and section headers are included in both metrics"
     );
 
     let mut skip_input = String::new();
@@ -757,9 +757,9 @@ fn file_sidecar_index_size_bytes_follows_serialized_manifest_model() {
         .search(&skip_file_reader, "aaa", SearchOptions::default())
         .expect("file sidecar search should run");
 
-    assert!(
-        skip_file_report.metrics.index_size_bytes < skip_memory_report.metrics.index_size_bytes,
-        "skip-list encoding causes in-memory estimate to exceed serialized manifest size"
+    assert_eq!(
+        skip_file_report.metrics.index_size_bytes, skip_memory_report.metrics.index_size_bytes,
+        "v2 excludes regenerated skip planning metadata from both serialized-size metrics"
     );
 }
 
@@ -802,6 +802,52 @@ fn file_sidecar_search_reads_lazily_from_sidecar() {
 }
 
 #[test]
+fn file_sidecar_cold_open_verifies_sections_then_query_reads_only_needed_records() {
+    let mut input = String::new();
+    for index in 0..512 {
+        writeln!(input, "event{index:04} acknowledged").expect("string writes cannot fail");
+    }
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xef; 16], writer_options(256, 256))
+            .expect("container should pack");
+    let sidecar_bytes =
+        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
+    let file_reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
+        .expect("file reader should open");
+    let counting = CountingReadAt::new(sidecar_bytes.clone());
+    let reads = counting.reads.clone();
+    let sidecar = QziFileSidecar::open_read_at(counting, sidecar_bytes.len() as u64, &file_reader)
+        .expect("cold open should validate sidecar");
+    let cold_open_bytes: u64 = reads
+        .lock()
+        .expect("reads lock")
+        .iter()
+        .map(|(_, size)| *size)
+        .sum();
+    assert!(
+        cold_open_bytes >= sidecar_bytes.len() as u64,
+        "cold open must stream every checksummed section rather than skipping validation"
+    );
+
+    reads.lock().expect("reads lock").clear();
+    let report = sidecar
+        .search(&file_reader, "event0511", SearchOptions::default())
+        .expect("query should run");
+    let query_bytes: u64 = reads
+        .lock()
+        .expect("reads lock")
+        .iter()
+        .map(|(_, size)| *size)
+        .sum();
+    assert_eq!(report.metrics.term_lookups, 1);
+    assert_eq!(report.metrics.verified_matches, 1);
+    assert!(
+        query_bytes < 512,
+        "query should fetch one posting and one compact granule, got {query_bytes} bytes"
+    );
+}
+
+#[test]
 fn file_sidecar_open_rejects_wrong_source_container() {
     let container_a = pack_bytes_with_container_id(b"alpha\n", [0xe9; 16], writer_options(64, 64))
         .expect("container a should pack");
@@ -819,4 +865,89 @@ fn file_sidecar_open_rejects_wrong_source_container() {
     )
     .err();
     assert_eq!(error, Some(QztError::ContainerIdMismatch));
+}
+
+#[test]
+fn token_sidecar_for_ten_mib_conversation_corpus_stays_compact() {
+    // Short chat turns are the adverse case for a line index: a legacy 56-byte
+    // granule entry can be larger than the source turn it describes.
+    let line = "user: acknowledged\n";
+    let repeats = (10 * 1024 * 1024) / line.len() + 1;
+    let input = line.repeat(repeats);
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xf0; 16], writer_options(1024, 1024))
+            .expect("container should pack");
+    let sidecar =
+        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
+
+    let ratio = sidecar.len() as f64 / input.len() as f64;
+    eprintln!(
+        "qzi_10m_conversation token_bytes={} source_bytes={} ratio={ratio:.6}",
+        sidecar.len(),
+        input.len()
+    );
+    assert!(
+        ratio <= 1.7,
+        "compact sidecar must stay within the product size budget, got {ratio:.3}"
+    );
+}
+
+#[test]
+fn token_sidecar_for_ten_mib_high_cardinality_log_stays_within_value_budget() {
+    let mut input = Vec::with_capacity(10_000_000);
+    let mut line = 0_usize;
+    while input.len() < 10_000_000 {
+        input.extend_from_slice(
+            format!(
+                "aaa ts={line:07} level=info service=qzt component=release message=repeated benchmark corpus line={line}\n"
+            )
+            .as_bytes(),
+        );
+        line += 1;
+    }
+    let container = pack_bytes_with_container_id(&input, [0xf2; 16], writer_options(1024, 1024))
+        .expect("container should pack");
+    let sidecar =
+        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
+
+    let ratio = sidecar.len() as f64 / input.len() as f64;
+    eprintln!(
+        "qzi_10m_high_cardinality token_bytes={} source_bytes={} ratio={ratio:.6}",
+        sidecar.len(),
+        input.len()
+    );
+    assert!(
+        ratio <= 1.7,
+        "high-cardinality log token sidecar must meet the value budget, got {ratio:.3}"
+    );
+}
+
+#[test]
+fn large_sorted_dictionary_looks_up_high_key_for_raw_and_file_sidecar() {
+    let mut input = String::new();
+    for index in 0..8_192 {
+        writeln!(input, "word{index:05} payload").expect("string writes cannot fail");
+    }
+    let container =
+        pack_bytes_with_container_id(input.as_bytes(), [0xf1; 16], writer_options(512, 512))
+            .expect("container should pack");
+    let reader = QztReader::open(&container).expect("reader should open");
+    let raw = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
+        .expect("raw index should build");
+    let raw_report = raw
+        .search(&reader, "word08191", SearchOptions::default())
+        .expect("high dictionary key should resolve");
+    assert_eq!(raw_report.metrics.verified_matches, 1);
+
+    let bytes =
+        build_search_sidecar(&container, SidecarIndexKind::Token).expect("sidecar should build");
+    let file_reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
+        .expect("file reader should open");
+    let file = QziFileSidecar::open_read_at(bytes.as_slice(), bytes.len() as u64, &file_reader)
+        .expect("file sidecar should open");
+    let file_report = file
+        .search(&file_reader, "word08191", SearchOptions::default())
+        .expect("high dictionary key should resolve");
+    assert_eq!(file_report.metrics.term_lookups, 1);
+    assert_eq!(file_report.metrics.verified_matches, 1);
 }
