@@ -121,6 +121,15 @@ Any mismatch MUST reject the sidecar (`ContainerIdMismatch` or `ContainerCorrupt
 Any other `index_type`, a malformed `ngram_n`, or a missing `ngram_n` on the
 n-gram path rejects the sidecar.
 
+### High-document-frequency threshold
+
+`high_df_per_million` is the inclusive planner threshold
+`granule_frequency * 1_000_000 / granule_count`. The reference writer records
+the build option in the manifest; its default is `200_000` (20%). The CLI does
+not currently expose an override. During n-gram search, keys at or above the
+threshold are marked high-DF and cause an early capped result when every
+required key is high-DF, avoiding an unbounded common-term candidate decode.
+
 ## Section payloads
 
 Readers MUST validate each section's `offset`, `size`, and `checksum` against the sidecar file bounds before decoding. Checksum mismatch or out-of-bounds access MUST reject the sidecar.
@@ -202,8 +211,9 @@ cumulative prior `posting_size`, and document/skip/flag fields are zero. This
 preserves sorted binary lookup and tamper checks without an 80-byte fixed
 envelope for each unique log token.
 
-Terms MUST be strictly sorted by `key`; `key_hash` MUST equal the BLAKE3-derived
-hash of `key`; and `flags` MUST be zero. Posting ranges MUST be contiguous from
+Terms MUST be strictly sorted by `key`; `key_hash` MUST equal the first 16
+bytes of BLAKE3-256 over the exact raw `key` bytes; and `flags` MUST be zero.
+Posting ranges MUST be contiguous from
 zero and end exactly at the postings-section size. These checks let readers use
 binary search without trusting an unverified dictionary ordering.
 
@@ -224,6 +234,10 @@ Concatenated posting lists. Each term's slice `[posting_offset, posting_offset +
 first granule_id as unsigned varint
 then (granule_id - previous_granule_id) as unsigned varints
 ```
+
+For example, granule IDs `[1, 2, 100]` encode the first absolute value `1`,
+then deltas `1` and `98`, producing bytes `0x01 0x01 0x62`. The decoded IDs
+must remain strictly increasing.
 
 Posting lists MUST be strictly increasing by `granule_id`. Every referenced `granule_id` MUST be less than `granule_count`.
 

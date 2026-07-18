@@ -206,6 +206,16 @@ Exit codes:
 QZT は引き続き `v0.1 technical preview` です。以下は production-ready な挙動ではなく、
 参照実装の制約として扱ってください。
 
+### Sidecar が古い、または別の container に属している
+
+QZI は1つの正確な QZT container に binding されます。古い、または不一致の `.qzi` は
+sidecar 経路だけで fail-closed になり、source `.qzt` の Core read / export / range /
+verify は sidecar なしで継続できます。現在の container から再構築してください。
+
+```sh
+qzt sidecar-rebuild file.qzt -o file.qzt.qzi
+```
+
 ### `qzt sidecar-rebuild` で高 RSS または OOM
 
 `qzt sidecar-rebuild` はsourceをchunk単位でdecodeしますが、v0.1 builderは

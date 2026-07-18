@@ -230,6 +230,17 @@ Exit codes:
 QZT remains a `v0.1 technical preview`; treat the following as constraints of
 the reference implementation rather than production-ready behavior.
 
+### Sidecar is stale or belongs to another container
+
+QZI is bound to one exact QZT container. A stale or mismatched `.qzi` fails
+closed on the sidecar path; the source `.qzt` still supports Core read, export,
+range access, and verify without that sidecar. Rebuild it from the current
+container:
+
+```sh
+qzt sidecar-rebuild file.qzt -o file.qzt.qzi
+```
+
 ### High RSS or OOM during `qzt sidecar-rebuild`
 
 `qzt sidecar-rebuild` decodes the source a chunk at a time, but the v0.1
