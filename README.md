@@ -360,9 +360,10 @@ warning and sets `incomplete_reason=query_shorter_than_ngram_n`.
 
 The `memory` profile requires a Document Index at pack time. `qzt pack` cannot
 supply one, so `qzt pack --profile memory` fails with exit code **1** and
-points to `pack_bytes_with_memory_profile`. Use `qzt pack-docs --profile memory`
-for file inputs, the writer API with `DocumentSpan`/`DocumentIndex`, or choose
-another profile such as `core`.
+points to `WriterBuilder`. Use `qzt pack-docs --profile memory` for file inputs,
+or call `WriterBuilder::new().profile("memory").document_index(index)` from
+Rust. Choose another profile such as `core` when a Document Index is not
+required.
 
 ## Documentation
 

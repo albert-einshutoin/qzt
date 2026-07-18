@@ -163,6 +163,14 @@ Container format for UTF-8 text.
 
 ### Changed
 
+- Consolidated optional writer profiles and indexes behind `WriterBuilder`.
+  Removed the overlapping public helpers `pack_bytes_with_profile`,
+  `pack_bytes_with_dense_line_index`, `pack_bytes_with_document_index`, and
+  `pack_bytes_with_memory_profile` before the first crates.io publication.
+  `pack_bytes` and `pack_bytes_with_container_id` remain for the common Core
+  and deterministic-fixture cases; equivalent builder configurations preserve
+  container bytes.
+
 - Migrated the crate and fuzz manifests to Rust 2024 edition.
 
 - `QztError::Display` now emits human-readable messages for all variants instead
