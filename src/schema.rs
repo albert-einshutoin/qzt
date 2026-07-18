@@ -12,7 +12,11 @@ const SCHEMA_DOCUMENT_INDEX: &str = "qzt.document-index.v1";
 pub(crate) const CHECKSUM_ALGORITHM_BLAKE3: &str = "blake3";
 const CHUNK_TABLE_TYPE: &str = "chunk_table";
 const CHUNK_TABLE_CODEC: &str = "qzt-ctbl-fixed-v1";
+// Dictionary writing is retained only for internal-testing compatibility
+// fixtures; the curated v0.1 writer does not emit dictionary blocks.
+#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
 const DICTIONARY_TYPE: &str = "dictionary";
+#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
 const DICTIONARY_CODEC: &str = "qzt-dict-cbor-v1";
 const DENSE_LINE_INDEX_TYPE: &str = "dense_line_index";
 const DENSE_LINE_INDEX_CODEC: &str = "qzt-line-delta-varint-v1";
@@ -22,7 +26,9 @@ const DOCUMENT_INDEX_CODEC: &str = "qzt-doc-index-cbor-v1";
 /// BLAKE3 checksum value used by QZT Core structures.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Checksum {
+    /// Lowercase checksum algorithm identifier; QZT v0.1 requires `"blake3"`.
     pub algorithm: String,
+    /// Raw 32-byte digest value.
     pub value: [u8; 32],
 }
 
@@ -588,6 +594,8 @@ impl BlockDescriptor {
     }
 
     #[must_use]
+    // Internal-testing constructor for legacy dictionary-container fixtures.
+    #[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
     pub fn dictionary(offset: u64, size: u64, checksum: Checksum) -> Self {
         Self::new(DICTIONARY_TYPE, false, DICTIONARY_CODEC, offset, size, checksum)
     }
@@ -625,6 +633,9 @@ pub struct DictionaryBlock {
 }
 
 impl DictionaryBlock {
+    // Encoding remains available to internal conformance fixtures even though
+    // the curated writer no longer creates dictionary blocks.
+    #[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
     pub fn encode(&self) -> Result<Vec<u8>> {
         encode_deterministic(&CborValue::Map(vec![
             text_pair("schema", CborValue::Text(SCHEMA_DICTIONARY.to_owned())),
@@ -681,7 +692,9 @@ pub struct DictionaryEntry {
 /// Optional Document Index block.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DocumentIndex {
+    /// Container identifier to which every document range belongs.
     pub container_id: [u8; 16],
+    /// Document ranges in logical source order with unique identifiers.
     pub documents: Vec<DocumentEntry>,
 }
 
@@ -694,6 +707,12 @@ impl DocumentIndex {
         Ok(())
     }
 
+    /// Encodes this index as deterministic canonical CBOR.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::DuplicateDocumentId`] for repeated document IDs, or
+    /// a resource-limit error when the deterministic representation overflows.
     pub fn encode(&self) -> Result<Vec<u8>> {
         self.validate_unique_doc_ids()?;
         encode_deterministic(&CborValue::Map(vec![
@@ -707,6 +726,12 @@ impl DocumentIndex {
         ]))
     }
 
+    /// Decodes and validates a deterministic Document Index CBOR block.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::ContainerCorrupt`] when the CBOR, schema, version,
+    /// document fields, or unique-ID invariant is invalid.
     pub fn decode(bytes: &[u8]) -> Result<Self> {
         let value = decode_prologue(
             bytes,
@@ -735,14 +760,23 @@ impl DocumentIndex {
 /// One document range over original bytes.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DocumentEntry {
+    /// Stable caller-defined identifier unique within the Document Index.
     pub doc_id: String,
+    /// First 16 bytes of the BLAKE3 digest of `doc_id`.
     pub doc_id_hash: [u8; 16],
+    /// Zero-based byte offset in the original logical content.
     pub logical_offset: u64,
+    /// Exact document length in original bytes.
     pub byte_length: u64,
+    /// Zero-based first logical line intersecting the document.
     pub first_line: u64,
+    /// Number of logical lines covered by the document.
     pub line_count: u64,
+    /// Inclusive index of the first compressed chunk intersecting the document.
     pub chunk_start: u64,
+    /// Exclusive index of the last compressed chunk intersecting the document.
     pub chunk_end: u64,
+    /// BLAKE3 checksum of the exact original document bytes.
     pub checksum: Checksum,
 }
 
@@ -929,6 +963,8 @@ fn decode_block_descriptor(value: &CborValue) -> Result<BlockDescriptor> {
     })
 }
 
+// Called only by the internal-testing dictionary encoder above.
+#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
 fn dictionary_entry_value(entry: &DictionaryEntry) -> CborValue {
     CborValue::Map(vec![
         text_pair(

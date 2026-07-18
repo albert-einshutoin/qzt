@@ -31,6 +31,9 @@ pub enum CborValue {
 
 /// Closed-schema rules for text-keyed CBOR maps.
 #[derive(Debug, Clone, Copy)]
+// Exposed only by `internal-testing` so conformance tests can exercise the
+// reusable schema validator without making it part of the stable API.
+#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
 pub struct TextKeySchema<'a> {
     pub required: &'a [&'a str],
     pub optional: &'a [&'a str],
@@ -66,11 +69,16 @@ pub fn encode_deterministic(value: &CborValue) -> Result<Vec<u8>> {
 }
 
 /// Validates a deterministic text-keyed map against a closed schema.
+// Internal-testing facade for deterministic schema-validation fixtures.
+#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
 pub fn validate_text_key_schema(input: &[u8], schema: TextKeySchema<'_>) -> Result<CborValue> {
     validate_text_key_schema_with_limits(input, schema, CborLimits::default())
 }
 
 /// Validates a deterministic text-keyed map with explicit CBOR limits.
+// Kept beside the facade above so limit-focused conformance tests can call the
+// same implementation while the curated build has no public entry point.
+#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
 pub fn validate_text_key_schema_with_limits(
     input: &[u8],
     schema: TextKeySchema<'_>,

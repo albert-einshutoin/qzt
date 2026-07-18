@@ -53,6 +53,8 @@ fn build_document_lookup(document_index: Option<&DocumentIndex>) -> HashMap<Stri
 }
 
 /// Writes an empty, structurally valid QZT Core container skeleton.
+// Internal-testing fixture builder for structural header/footer conformance.
+#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
 pub fn write_empty_container(container_id: [u8; 16]) -> Result<Vec<u8>> {
     let metadata = Metadata::empty(container_id);
     let metadata_bytes = metadata.encode()?;
@@ -130,6 +132,9 @@ pub fn write_empty_container(container_id: [u8; 16]) -> Result<Vec<u8>> {
 }
 
 /// Opens a QZT skeleton through Footer Payload, Metadata, Index Root, and Chunk Table validation.
+// Internal-testing compatibility facade; production readers retain the richer
+// validated details needed for bounded random access.
+#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
 pub fn open_skeleton(bytes: &[u8]) -> Result<SkeletonSummary> {
     Ok(open_skeleton_details(bytes)?.summary)
 }

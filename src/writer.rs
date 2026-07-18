@@ -57,7 +57,9 @@ pub struct QztFileWriter<W: Read + Write + Seek> {
 /// Writer options for the no-dictionary Phase5 writer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct WriterOptions {
+    /// Deterministic UTF-8-safe chunk planning limits.
     pub chunker: ChunkerOptions,
+    /// zstd compression level passed to the encoder (`0` selects zstd's default).
     pub zstd_level: i32,
 }
 
@@ -569,6 +571,9 @@ pub fn pack_bytes_with_container_id(
 ///
 /// This is primarily useful for conformance fixtures where the optional index
 /// must be stale while the authoritative Chunk Table remains valid.
+// Internal-testing fixture hook for deliberately stale/corrupt dense indexes;
+// production callers must use `WriterBuilder`, which always derives the index.
+#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
 pub fn pack_bytes_with_dense_line_index_override(
     input: &[u8],
     container_id: [u8; 16],
@@ -596,6 +601,8 @@ enum DenseLineIndexMode {
     Generate,
     /// Dense Line Index is written only when `plan.line_count` meets the threshold.
     GenerateIfAtLeast(u64),
+    // Constructed only through the internal-testing fixture hook above.
+    #[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
     Override(DenseLineIndex),
 }
 

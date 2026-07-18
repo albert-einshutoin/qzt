@@ -36,7 +36,13 @@ fn serialized_granule_bytes(granules: &[SearchGranule]) -> usize {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum SearchIndexSource {
+    /// Indexes the container's original UTF-8 bytes without Unicode
+    /// normalization. Token indexes still apply their ASCII-only case fold.
     RawUtf8,
+    /// Reserved for indexes built from normalized UTF-8 text.
+    ///
+    /// The current transient index builders reject this mode rather than
+    /// silently changing byte-offset semantics.
     NormalizedUtf8,
 }
 
@@ -49,7 +55,9 @@ pub enum PostingGranularity {
 /// Build options for the transient raw token index.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct TokenIndexBuildOptions {
+    /// Text representation whose byte offsets the index refers to.
     pub source: SearchIndexSource,
+    /// Unit represented by each posting; currently one original-text line.
     pub posting_granularity: PostingGranularity,
 }
 
@@ -71,10 +79,18 @@ pub enum NgramUnit {
 /// Build options for the transient raw n-gram index.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NgramIndexBuildOptions {
+    /// Text representation whose byte offsets the index refers to.
     pub source: SearchIndexSource,
+    /// Unit represented by each posting; currently one original-text line.
     pub posting_granularity: PostingGranularity,
+    /// Number of Unicode scalar values in each indexed n-gram; must be nonzero.
     pub n: usize,
+    /// Whether the dictionary contains every n-gram from the source.
+    ///
+    /// A missing required key is conclusive only when this is `true`.
     pub complete: bool,
+    /// Granule-frequency threshold, per million granules, at which a term is
+    /// classified as high document frequency by the query planner.
     pub high_df_per_million: u32,
 }
 
@@ -157,8 +173,14 @@ impl PlannerDecision {
 /// Runtime search limits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SearchOptions {
+    /// Maximum number of posting-intersection candidates allowed before any
+    /// candidate is decoded. Exceeding it returns a capped report with no hits.
     pub max_candidate_granules: u64,
+    /// Maximum sum of logical candidate-granule bytes verified for one query.
+    /// Verification stops before the first granule that would exceed the cap.
     pub max_decoded_bytes: u64,
+    /// Maximum number of verified hits returned; zero disables verification
+    /// and produces a capped report.
     pub max_search_results: u64,
 }
 
@@ -201,61 +223,108 @@ pub struct TermDictionaryEntry {
 /// One verified search hit.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SearchHit {
+    /// Byte offset of the match in the original logical text.
     pub logical_offset: u64,
+    /// Length of the matched span in UTF-8 bytes, not Unicode scalar values.
     pub byte_length: u64,
+    /// First container chunk needed to decode the containing granule.
     pub chunk_start: u64,
+    /// Exclusive end of the container-chunk range for the containing granule.
     pub chunk_end: u64,
+    /// Optional relevance score; exact raw token and n-gram searches leave it unset.
     pub score: Option<f64>,
+    /// Provenance of the hit; current searches report verification against the
+    /// original decoded bytes.
     pub source: &'static str,
 }
 
 /// Search metrics required for benchmark and debug output.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SearchMetrics {
+    /// Query text supplied by the caller.
     pub query: String,
+    /// Index implementation used, such as `"token"` or `"ngram"`.
     pub index_kind: &'static str,
+    /// Posting unit used by the index; currently `"line"`.
     pub posting_granularity: &'static str,
+    /// Estimated serialized bytes for granules, terms, and postings, excluding
+    /// the surrounding QZI file header and manifest.
     pub index_size_bytes: u64,
+    /// Original logical source size in bytes.
     pub source_size_bytes: u64,
+    /// `index_size_bytes / source_size_bytes`, or zero for an empty source.
     pub index_size_ratio: f64,
+    /// Number of distinct index keys derived from the query.
     pub term_lookups: u64,
+    /// Estimated encoded posting bytes consulted by the planner.
     pub posting_bytes_read: u64,
+    /// Number of granules remaining after intersecting required postings.
     pub candidate_granules: u64,
+    /// Number of distinct container chunks overlapping those candidates.
     pub candidate_chunks: u64,
+    /// Logical candidate-granule bytes read for match verification.
     pub decoded_bytes: u64,
     /// Total uncompressed bytes physically decompressed during hit
     /// verification (chunk-level work, as opposed to the logical granule
     /// bytes counted by `decoded_bytes`).
     pub physical_decoded_bytes: u64,
+    /// Number of byte spans confirmed against decoded original text.
     pub verified_matches: u64,
+    /// End-to-end query execution time in milliseconds.
     pub query_time_ms: f64,
 }
 
 /// Search result plus metrics. `capped` means limits stopped verification.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SearchReport {
+    /// Verified matches, truncated when a runtime limit is reached.
     pub hits: Vec<SearchHit>,
+    /// Planner, I/O, verification, and timing measurements for this query.
     pub metrics: SearchMetrics,
+    /// Whether a runtime limit prevented complete candidate verification.
     pub capped: bool,
+    /// Inspectable key selection and posting-planner decisions.
     pub planner: PlannerDecision,
+    /// Semantic reason a complete answer was unavailable, independent of
+    /// runtime capping. Known values describe an unindexable token query, a
+    /// query shorter than `n`, or a required key absent from an incomplete index.
     pub incomplete_reason: Option<&'static str>,
 }
 
 /// Transient raw token index over line granules.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RawTokenIndex {
+    /// Identifier of the QZT container from which this index was built.
     pub container_id: [u8; 16],
+    /// Original logical source size in bytes.
     pub source_size_bytes: u64,
+    /// Source text model used to derive keys and logical byte offsets.
     pub source: SearchIndexSource,
+    /// Posting unit represented by each granule.
     pub posting_granularity: PostingGranularity,
+    /// Whether the dictionary covers every token emitted by the tokenizer.
     pub complete: bool,
+    /// Ordered line granules addressed by posting-list identifiers.
     pub granules: Vec<SearchGranule>,
+    /// Lexicographically sorted token dictionary.
     pub terms: Vec<TermDictionaryEntry>,
+    /// Strictly increasing granule identifiers, parallel to `terms`.
     pub postings: Vec<Vec<u64>>,
     encoded_postings: Vec<Vec<u8>>,
 }
 
 impl RawTokenIndex {
+    /// Builds a transient token index from an in-memory QZT container.
+    ///
+    /// Tokens consist of ASCII alphanumerics, `_`, and `-`, with ASCII letters
+    /// folded to lowercase. Postings identify lines, while returned offsets are
+    /// verified against the original bytes.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the container is malformed or fails integrity
+    /// checks, decoded text is not UTF-8, the requested source mode is
+    /// unsupported, or sizes cannot be represented within resource limits.
     pub fn build_from_container(bytes: &[u8], options: TokenIndexBuildOptions) -> Result<Self> {
         let len = usize_to_u64(bytes.len())?;
         let reader = QztFileReader::open_read_at(bytes, len)?;
@@ -264,6 +333,12 @@ impl RawTokenIndex {
 
     /// Builds the index by decoding the container one chunk at a time, so the
     /// full original text is never held in memory.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when chunk metadata or decoded content is invalid,
+    /// chunk decoding or integrity verification fails, the decoded source is
+    /// not UTF-8, `NormalizedUtf8` is requested, or index sizes overflow.
     pub fn build_from_file<R: ReadAt>(
         reader: &QztFileReader<R>,
         options: TokenIndexBuildOptions,
@@ -297,6 +372,16 @@ impl RawTokenIndex {
         )
     }
 
+    /// Constructs an index from already materialized line granules and postings.
+    ///
+    /// Term statistics and encoded-posting offsets are recomputed. Terms must
+    /// be strictly sorted, posting lists strictly increasing and in range, and
+    /// granules ordered with consecutive identifiers inside the source bounds.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if those invariants are violated or if encoded sizes or
+    /// offsets exceed representable resource limits.
     pub fn from_parts(
         container_id: [u8; 16],
         source_size_bytes: u64,
@@ -337,11 +422,23 @@ impl RawTokenIndex {
     }
 
     #[cfg(feature = "internal-testing")]
+    /// Returns the posting list for an exact already-normalized token key.
     pub fn posting_list_for_key(&self, key: &[u8]) -> Option<&[u64]> {
         self.term_index_for_key(key)
             .and_then(|index| self.postings.get(index).map(Vec::as_slice))
     }
 
+    /// Searches an in-memory container reader and verifies candidates against
+    /// original bytes.
+    ///
+    /// Multiple query tokens use line-level AND semantics; matching tokens need
+    /// not form a phrase. Runtime caps yield `Ok` with `SearchReport::capped`.
+    /// The reader must refer to the container described by this index.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if index metadata is inconsistent, candidate ranges
+    /// cannot be decoded or verified, or metric/range arithmetic overflows.
     pub fn search(
         &self,
         reader: &QztReader,
@@ -354,6 +451,16 @@ impl RawTokenIndex {
     }
 
     /// Search over a file-backed container, decoding only candidate chunks.
+    ///
+    /// Multiple query tokens use line-level AND semantics. Runtime caps are
+    /// reported through `SearchReport::capped`; they are not errors. The reader
+    /// must refer to the container described by this index.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if file reads, chunk decoding, or integrity checks fail,
+    /// if index metadata and candidate ranges are inconsistent, or if checked
+    /// size arithmetic exceeds supported limits.
     pub fn search_file<R: ReadAt>(
         &self,
         reader: &QztFileReader<R>,
@@ -504,17 +611,16 @@ impl RawTokenIndex {
     fn index_size_bytes(&self) -> u64 {
         let granule_bytes = serialized_granule_bytes(&self.granules);
         let term_bytes = 8usize.saturating_add(
-            self
-            .terms
-            .iter()
-            .map(|term| {
-                term.key
-                    .len()
-                    .saturating_add(varuint_len(term.key.len() as u64))
-                    .saturating_add(varuint_len(term.granule_frequency))
-                    .saturating_add(varuint_len(term.posting_size))
-            })
-            .sum::<usize>(),
+            self.terms
+                .iter()
+                .map(|term| {
+                    term.key
+                        .len()
+                        .saturating_add(varuint_len(term.key.len() as u64))
+                        .saturating_add(varuint_len(term.granule_frequency))
+                        .saturating_add(varuint_len(term.posting_size))
+                })
+                .sum::<usize>(),
         );
         let posting_bytes = self.encoded_postings.iter().map(Vec::len).sum::<usize>();
         u64::try_from(
@@ -529,21 +635,44 @@ impl RawTokenIndex {
 /// Transient raw Unicode-scalar n-gram index over line granules.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RawNgramIndex {
+    /// Identifier of the QZT container from which this index was built.
     pub container_id: [u8; 16],
+    /// Original logical source size in bytes.
     pub source_size_bytes: u64,
+    /// Source text model used to derive keys and logical byte offsets.
     pub source: SearchIndexSource,
+    /// Posting unit represented by each granule.
     pub posting_granularity: PostingGranularity,
+    /// Whether the dictionary contains every n-gram from the source.
     pub complete: bool,
+    /// Exact n-gram interpretation required to query this index.
     pub declaration: NgramDeclaration,
+    /// Frequency threshold and default resource limits recorded for planning.
     pub planner_config: PlannerConfig,
+    /// Ordered line granules addressed by posting-list identifiers.
     pub granules: Vec<SearchGranule>,
+    /// Lexicographically sorted raw UTF-8 n-gram dictionary.
     pub terms: Vec<TermDictionaryEntry>,
+    /// Strictly increasing granule identifiers, parallel to `terms`.
     pub postings: Vec<Vec<u64>>,
+    /// Periodic seek metadata for long posting lists, parallel to `terms`.
     pub skip_data: Vec<Vec<SkipPoint>>,
     encoded_postings: Vec<Vec<u8>>,
 }
 
 impl RawNgramIndex {
+    /// Builds a transient Unicode-scalar n-gram index from an in-memory QZT
+    /// container.
+    ///
+    /// Keys retain the source's original UTF-8 spelling and case. Postings
+    /// identify lines, and final substring matches are verified against the
+    /// original bytes.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the container is malformed or fails integrity
+    /// checks, decoded text is not UTF-8, `n` is zero, the requested source
+    /// mode is unsupported, or sizes exceed representable resource limits.
     pub fn build_from_container(bytes: &[u8], options: NgramIndexBuildOptions) -> Result<Self> {
         let len = usize_to_u64(bytes.len())?;
         let reader = QztFileReader::open_read_at(bytes, len)?;
@@ -552,6 +681,13 @@ impl RawNgramIndex {
 
     /// Builds the index by decoding the container one chunk at a time, so the
     /// full original text is never held in memory.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when chunk metadata or decoded content is invalid,
+    /// chunk decoding or integrity verification fails, the source is not
+    /// UTF-8, `n` is zero, `NormalizedUtf8` is requested, or index sizes
+    /// overflow.
     pub fn build_from_file<R: ReadAt>(
         reader: &QztFileReader<R>,
         options: NgramIndexBuildOptions,
@@ -587,6 +723,17 @@ impl RawNgramIndex {
         )
     }
 
+    /// Constructs an n-gram index from materialized line granules and postings.
+    ///
+    /// Term statistics, encoded offsets, and skip points are recomputed. Terms
+    /// must be strictly sorted, posting lists strictly increasing and in range,
+    /// and granules ordered with consecutive identifiers inside source bounds.
+    /// `options.complete` records whether missing keys are conclusive.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if those invariants are violated or if encoded sizes,
+    /// offsets, or skip metadata exceed supported resource limits.
     pub fn from_parts(
         container_id: [u8; 16],
         source_size_bytes: u64,
@@ -648,11 +795,23 @@ impl RawNgramIndex {
     }
 
     #[cfg(feature = "internal-testing")]
+    /// Returns dictionary metadata for an exact raw UTF-8 n-gram key.
     pub fn term_for_key(&self, key: &[u8]) -> Option<&TermDictionaryEntry> {
         self.term_index_for_key(key)
             .and_then(|index| self.terms.get(index))
     }
 
+    /// Searches an in-memory container reader for an exact substring.
+    ///
+    /// All query n-grams are intersected at line granularity before original
+    /// bytes are verified. Runtime caps yield `Ok` with
+    /// `SearchReport::capped`. The reader must refer to the indexed container.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the declaration or index metadata is inconsistent,
+    /// candidate ranges cannot be decoded or verified, or checked size/range
+    /// arithmetic overflows.
     pub fn search(
         &self,
         reader: &QztReader,
@@ -665,6 +824,16 @@ impl RawNgramIndex {
     }
 
     /// Search over a file-backed container, decoding only candidate chunks.
+    ///
+    /// All query n-grams are intersected before exact byte verification.
+    /// Runtime caps are reported through `SearchReport::capped`; they are not
+    /// errors. The reader must refer to the indexed container.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if file reads, chunk decoding, or integrity checks fail,
+    /// if the declaration, metadata, or candidate ranges are inconsistent, or
+    /// if checked size arithmetic exceeds supported limits.
     pub fn search_file<R: ReadAt>(
         &self,
         reader: &QztFileReader<R>,
@@ -853,17 +1022,16 @@ impl RawNgramIndex {
     fn index_size_bytes(&self) -> u64 {
         let granule_bytes = serialized_granule_bytes(&self.granules);
         let term_bytes = 8usize.saturating_add(
-            self
-            .terms
-            .iter()
-            .map(|term| {
-                term.key
-                    .len()
-                    .saturating_add(varuint_len(term.key.len() as u64))
-                    .saturating_add(varuint_len(term.granule_frequency))
-                    .saturating_add(varuint_len(term.posting_size))
-            })
-            .sum::<usize>(),
+            self.terms
+                .iter()
+                .map(|term| {
+                    term.key
+                        .len()
+                        .saturating_add(varuint_len(term.key.len() as u64))
+                        .saturating_add(varuint_len(term.granule_frequency))
+                        .saturating_add(varuint_len(term.posting_size))
+                })
+                .sum::<usize>(),
         );
         let posting_bytes = self.encoded_postings.iter().map(Vec::len).sum::<usize>();
         u64::try_from(
@@ -884,6 +1052,15 @@ fn varuint_len(mut value: u64) -> usize {
     len
 }
 
+/// Encodes an ordered sequence as unsigned delta varints.
+///
+/// The first value is stored directly; every subsequent value is represented
+/// by its positive difference from the previous value.
+///
+/// # Errors
+///
+/// Returns [`QztError::ContainerCorrupt`] when values after the first are not
+/// strictly increasing.
 pub fn encode_delta_varint_u64(values: &[u64]) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
     let mut previous = 0_u64;
@@ -905,6 +1082,13 @@ pub fn encode_delta_varint_u64(values: &[u64]) -> Result<Vec<u8>> {
 }
 
 #[cfg(feature = "internal-testing")]
+/// Decodes unsigned delta varints into a strictly increasing sequence.
+///
+/// # Errors
+///
+/// Returns an error for truncated, non-minimal, overflowing, or non-increasing
+/// encodings, or when decoded storage cannot be allocated within resource
+/// limits.
 pub fn decode_delta_varint_u64(bytes: &[u8]) -> Result<Vec<u64>> {
     decode_delta_varint_u64_with_limit(bytes, u64::MAX)
 }

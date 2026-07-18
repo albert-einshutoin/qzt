@@ -11,9 +11,8 @@ fmt:
 clippy:
 	cargo clippy --all-targets --all-features -- -D warnings
 
-# Compile the crate exactly as a default-features consumer sees it.
-# (missing_docs warnings are a known deferred backlog; this catches
-# compile errors and new non-doc warnings in the curated surface.)
+# Compile the crate exactly as a default-features consumer sees it. The crate
+# root denies missing public documentation for this curated surface.
 check-default:
 	cargo check --lib --bins
 

@@ -3,11 +3,21 @@
 pub struct ResourceLimits {
     /// Maximum compressed bytes read into memory for one chunk decode.
     pub max_compressed_chunk_size: u64,
+    /// Maximum decoded bytes accepted for one chunk.
     pub max_uncompressed_chunk_size: u64,
+    /// Maximum bytes accepted for one embedded zstd dictionary.
     pub max_dictionary_size: u64,
+    /// Maximum bytes accepted for one index block.
     pub max_index_block_size: u64,
+    /// Maximum bytes exposed by preview-oriented operations.
     pub max_preview_bytes: u64,
+    /// Maximum bytes accepted for each individual CBOR byte or text string.
+    ///
+    /// This is not an aggregate allocation or nesting-depth budget.
     pub max_cbor_allocation: u64,
+    /// Maximum entries accepted in each individual CBOR array or map.
+    ///
+    /// This is not an aggregate item or nesting-depth budget.
     pub max_cbor_items: u64,
 }
 
