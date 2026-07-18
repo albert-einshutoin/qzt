@@ -26,7 +26,7 @@ When publishing QZT externally, it should be positioned as a
 
 ## Install
 
-The first binary distribution will be the `v0.1.0-pre.1` technical preview.
+The first binary distribution will be the `v0.1.0-pre.2` technical preview.
 The commands below become available after the prerelease rehearsal in issue
 [#43](https://github.com/albert-einshutoin/qzt/issues/43) is marked complete.
 For security-sensitive installation, use the checksum-verified manual path
@@ -35,7 +35,7 @@ your macOS or Linux host:
 
 ```sh
 curl --proto '=https' --tlsv1.2 -LsSf \
-  https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.1/qzt-installer.sh \
+  https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.2/qzt-installer.sh \
   | sh
 qzt --version
 ```
@@ -47,7 +47,7 @@ extracting it. This example is for Apple silicon:
 
 ```sh
 set -eu
-release=v0.1.0-pre.1
+release=v0.1.0-pre.2
 target=aarch64-apple-darwin
 archive="qzt-${target}.tar.xz"
 base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
@@ -74,7 +74,7 @@ Alternatively, run `qzt-installer.ps1` from the same Release. To build from
 the reviewed tag instead of downloading a prebuilt binary:
 
 ```sh
-cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.1 --locked
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked
 ```
 
 ## Build / Quick Start

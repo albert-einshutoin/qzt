@@ -16,7 +16,7 @@ const RELEASE_TARGETS: [&str; 4] = [
 fn distribution_is_reproducibly_pinned_for_the_prerelease() {
     // Cargo publication remains owner-gated, so dist must be explicitly
     // opted in instead of inferring eligibility from `publish`.
-    for requirement in ["version = \"0.1.0-pre.1\"", "dist = true"] {
+    for requirement in ["version = \"0.1.0-pre.2\"", "dist = true"] {
         assert!(
             MANIFEST.contains(requirement),
             "missing package distribution contract: {requirement}"
@@ -116,12 +116,12 @@ fn both_readmes_offer_installer_checksum_and_source_fallback_paths() {
         for requirement in [
             "## Install",
             "qzt-installer.sh",
-            "v0.1.0-pre.1",
+            "v0.1.0-pre.2",
             ".sha256",
             "set -eu",
             "shasum -a 256",
             "Get-FileHash -Algorithm SHA256",
-            "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.1 --locked",
+            "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked",
         ] {
             assert!(
                 readme.contains(requirement),

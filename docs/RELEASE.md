@@ -81,7 +81,7 @@ data in that evidence.
 ## GitHub binary prerelease rehearsal
 
 Issue #43 is a reversible GitHub-only rehearsal and does not authorize a
-crates.io upload. Its manifest version is `0.1.0-pre.1`. A separate,
+crates.io upload. Its manifest version is `0.1.0-pre.2`. A separate,
 owner-approved release pull request restores the stable `0.1.0` version only
 after this rehearsal and every other release prerequisite succeed.
 
@@ -97,15 +97,15 @@ the rehearsal tag:
 git switch main
 git pull --ff-only origin main
 git status --short
-git tag --annotate v0.1.0-pre.1 -m "qzt v0.1.0-pre.1"
-git push origin v0.1.0-pre.1
+git tag --annotate v0.1.0-pre.2 -m "qzt v0.1.0-pre.2"
+git push origin v0.1.0-pre.2
 ```
 
 - [ ] The Release is marked as a prerelease.
 - [ ] `make dist-check` confirms the generated workflow plus hardening is current.
 - [ ] The release owner approves the protected `release` environment deployment.
 - [ ] All four target archives and their `.sha256` sidecars are present.
-- [ ] The extracted binary reports `qzt 0.1.0-pre.1` from `qzt --version`.
+- [ ] The extracted binary reports `qzt 0.1.0-pre.2` from `qzt --version`.
 - [ ] The Linux artifact links only to `libc.so.6` and Rust's GNU unwind
       runtime `libgcc_s.so.1`; zstd is statically linked into the binary.
 

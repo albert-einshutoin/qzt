@@ -69,7 +69,7 @@ Issue #42にはdry-run結果、ファイル数、packageサイズ、除外確認
 ## GitHub binary prerelease rehearsal
 
 Issue #43はGitHubだけを使う可逆な予行であり、crates.ioへの公開を許可しません。
-manifest versionは`0.1.0-pre.1`とし、この予行と他の全release前提が成功した後、
+manifest versionは`0.1.0-pre.2`とし、この予行と他の全release前提が成功した後、
 release ownerが承認する専用PRでのみstable版`0.1.0`へ戻します。
 
 生成された`.github/workflows/release.yml`はtag pushだけをtriggerにし、branchや
@@ -83,15 +83,15 @@ commitへ予行tagだけを付けます。
 git switch main
 git pull --ff-only origin main
 git status --short
-git tag --annotate v0.1.0-pre.1 -m "qzt v0.1.0-pre.1"
-git push origin v0.1.0-pre.1
+git tag --annotate v0.1.0-pre.2 -m "qzt v0.1.0-pre.2"
+git push origin v0.1.0-pre.2
 ```
 
 - [ ] Releaseがprereleaseとして表示される
 - [ ] `make dist-check`で生成workflowとhardeningが最新である
 - [ ] release ownerが保護された`release` environmentへのdeploymentを承認する
 - [ ] 4 targetのarchiveと各`.sha256` sidecarがある
-- [ ] 展開したbinaryの`qzt --version`が`qzt 0.1.0-pre.1`を返す
+- [ ] 展開したbinaryの`qzt --version`が`qzt 0.1.0-pre.2`を返す
 - [ ] Linux artifactの動的依存が`libc.so.6`とRustのGNU unwind runtime
       `libgcc_s.so.1`だけで、zstdはbinaryへ静的linkされている
 
