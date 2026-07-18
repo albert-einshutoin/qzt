@@ -10,6 +10,27 @@ use crate::reader::{ChunkDecodeCache, QztFileReader, QztReader};
 // Line indexes assign consecutive ids and represent exactly one line per
 // granule. QZI v2 omits those implied fields from its fixed-size records.
 const COMPACT_LINE_GRANULE_RECORD_LEN: usize = 20;
+const LEGACY_LINE_GRANULE_RECORD_LEN: usize = 56;
+
+pub(crate) fn compact_line_granules_supported(granules: &[SearchGranule]) -> bool {
+    granules.iter().enumerate().all(|(index, granule)| {
+        granule.granule_id == index as u64
+            && granule.first_line == Some(index as u64)
+            && granule.line_count == Some(1)
+            && u32::try_from(granule.byte_length).is_ok()
+            && u32::try_from(granule.chunk_start).is_ok()
+            && u32::try_from(granule.chunk_end.saturating_sub(granule.chunk_start)).is_ok()
+    })
+}
+
+fn serialized_granule_bytes(granules: &[SearchGranule]) -> usize {
+    let record_len = if compact_line_granules_supported(granules) {
+        COMPACT_LINE_GRANULE_RECORD_LEN
+    } else {
+        LEGACY_LINE_GRANULE_RECORD_LEN
+    };
+    8usize.saturating_add(granules.len().saturating_mul(record_len))
+}
 
 /// Search index source text model.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -481,11 +502,7 @@ impl RawTokenIndex {
     }
 
     fn index_size_bytes(&self) -> u64 {
-        let granule_bytes = 8usize.saturating_add(
-            self.granules
-                .len()
-                .saturating_mul(COMPACT_LINE_GRANULE_RECORD_LEN),
-        );
+        let granule_bytes = serialized_granule_bytes(&self.granules);
         let term_bytes = 8usize.saturating_add(
             self
             .terms
@@ -834,11 +851,7 @@ impl RawNgramIndex {
     }
 
     fn index_size_bytes(&self) -> u64 {
-        let granule_bytes = 8usize.saturating_add(
-            self.granules
-                .len()
-                .saturating_mul(COMPACT_LINE_GRANULE_RECORD_LEN),
-        );
+        let granule_bytes = serialized_granule_bytes(&self.granules);
         let term_bytes = 8usize.saturating_add(
             self
             .terms
@@ -892,10 +905,20 @@ pub fn encode_delta_varint_u64(values: &[u64]) -> Result<Vec<u8>> {
 }
 
 pub fn decode_delta_varint_u64(bytes: &[u8]) -> Result<Vec<u64>> {
+    decode_delta_varint_u64_with_limit(bytes, u64::MAX)
+}
+
+pub(crate) fn decode_delta_varint_u64_with_limit(
+    bytes: &[u8],
+    max_values: u64,
+) -> Result<Vec<u64>> {
     let mut cursor = 0_usize;
     let mut values = Vec::new();
     let mut previous = 0_u64;
     while cursor < bytes.len() {
+        if usize_to_u64(values.len())? >= max_values {
+            return Err(QztError::ResourceLimitExceeded);
+        }
         let delta = read_varuint(bytes, &mut cursor)?;
         let value = if values.is_empty() {
             delta
@@ -906,6 +929,12 @@ pub fn decode_delta_varint_u64(bytes: &[u8]) -> Result<Vec<u64>> {
         };
         if !values.is_empty() && value <= previous {
             return Err(QztError::ContainerCorrupt);
+        }
+        if values.len() == values.capacity() {
+            let remaining = max_values.saturating_sub(usize_to_u64(values.len())?);
+            values
+                .try_reserve(u64_to_usize(remaining.min(4096))?)
+                .map_err(|_| QztError::ResourceLimitExceeded)?;
         }
         values.push(value);
         previous = value;
@@ -1370,6 +1399,45 @@ pub(crate) fn key_hash(key: &[u8]) -> [u8; 16] {
     let mut output = [0_u8; 16];
     output.copy_from_slice(&hash.as_bytes()[..16]);
     output
+}
+
+#[cfg(test)]
+mod serialized_metrics_tests {
+    use super::*;
+
+    #[test]
+    fn oversized_line_uses_legacy_granule_size_in_metrics() {
+        let granule = SearchGranule {
+            granule_id: 0,
+            logical_offset: 0,
+            byte_length: u64::from(u32::MAX) + 1,
+            chunk_start: 0,
+            chunk_end: 1,
+            first_line: Some(0),
+            line_count: Some(1),
+        };
+        let term = TermDictionaryEntry {
+            key: b"a".to_vec(),
+            key_hash: key_hash(b"a"),
+            document_frequency: 0,
+            granule_frequency: 0,
+            posting_offset: 0,
+            posting_size: 0,
+            skip_offset: 0,
+            skip_size: 0,
+            flags: 0,
+        };
+        let index = RawTokenIndex::from_parts(
+            [0; 16],
+            granule.byte_length,
+            vec![granule],
+            vec![term],
+            vec![vec![0]],
+        )
+        .expect("legacy fallback fixture should build");
+
+        assert_eq!(index.index_size_bytes(), 77);
+    }
 }
 
 #[allow(clippy::cast_possible_truncation)] // value ranges guaranteed by the loop invariants
