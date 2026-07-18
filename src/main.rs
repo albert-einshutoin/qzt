@@ -354,6 +354,160 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
     }
 }
 
+struct PackDocsArgs {
+    input_paths: Vec<String>,
+    output_path: String,
+    doc_id_prefix: String,
+    options: WriterOptions,
+    profile: String,
+    dense_line_index: Option<bool>,
+}
+
+impl PackDocsArgs {
+    fn parse(args: impl Iterator<Item = String>) -> Result<Self, String> {
+        let mut input_paths = Vec::new();
+        let mut output_path = None;
+        let mut doc_id_prefix = String::new();
+        let mut options = WriterOptions::default();
+        let mut profile = String::from("core");
+        let mut dense_line_index = None;
+        let mut target_chunk_size_configured = false;
+        let mut max_chunk_size_configured = false;
+        let mut args = args;
+        while let Some(arg) = args.next() {
+            match arg.as_str() {
+                "-o" | "--output" => {
+                    let Some(path) = args.next() else {
+                        return Err("missing output path".to_owned());
+                    };
+                    output_path = Some(path);
+                }
+                "--doc-id-prefix" => {
+                    let Some(prefix) = args.next() else {
+                        return Err("missing --doc-id-prefix value".to_owned());
+                    };
+                    doc_id_prefix = prefix;
+                }
+                "--profile" => {
+                    let Some(value) = args.next() else {
+                        return Err("missing --profile value".to_owned());
+                    };
+                    if !matches!(
+                        value.as_str(),
+                        "minimal" | "core" | "log" | "archive" | "memory"
+                    ) {
+                        return Err("invalid --profile value".to_owned());
+                    }
+                    profile = value;
+                }
+                "--chunk-size" => {
+                    let Some(size) = args.next().and_then(|value| value.parse::<usize>().ok())
+                    else {
+                        return Err("invalid --chunk-size".to_owned());
+                    };
+                    options.chunker.target_chunk_size = size;
+                    target_chunk_size_configured = true;
+                }
+                "--max-chunk-size" => {
+                    let Some(size) = args.next().and_then(|value| value.parse::<usize>().ok())
+                    else {
+                        return Err("invalid --max-chunk-size".to_owned());
+                    };
+                    options.chunker.max_chunk_size = size;
+                    max_chunk_size_configured = true;
+                }
+                "--zstd-level" => {
+                    let Some(level) = args.next().and_then(|value| value.parse::<i32>().ok())
+                    else {
+                        return Err("invalid --zstd-level".to_owned());
+                    };
+                    options.zstd_level = level;
+                }
+                "--checksum" => {
+                    if args.next().as_deref() != Some("blake3") {
+                        return Err("only blake3 checksum is supported".to_owned());
+                    }
+                }
+                "--dict" => {
+                    if args.next().as_deref() != Some("none") {
+                        return Err("CLI dictionary writing is not implemented".to_owned());
+                    }
+                }
+                "--dense-line-index" => {
+                    let Some(value) = args.next() else {
+                        return Err("missing --dense-line-index value".to_owned());
+                    };
+                    if !matches!(value.as_str(), "on" | "off") {
+                        return Err("invalid --dense-line-index value".to_owned());
+                    }
+                    dense_line_index = Some(value == "on");
+                }
+                _ if arg.starts_with('-') => {
+                    return Err(format!("unknown option '{arg}'"));
+                }
+                _ => input_paths.push(arg),
+            }
+        }
+
+        if input_paths.is_empty() {
+            return Err("missing input file".to_owned());
+        }
+        let Some(output_path) = output_path else {
+            return Err("missing -o output.qzt".to_owned());
+        };
+
+        // Memory-profile document extraction decodes whole chunks. A conservative
+        // default keeps small document/range reads bounded without changing core's
+        // throughput-oriented 4 MiB defaults; explicit chunk sizes remain authoritative.
+        if profile == "memory" {
+            if !target_chunk_size_configured {
+                options.chunker.target_chunk_size = if max_chunk_size_configured {
+                    PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE.min(options.chunker.max_chunk_size)
+                } else {
+                    PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE
+                };
+            }
+            if !max_chunk_size_configured {
+                options.chunker.max_chunk_size =
+                    PACK_DOCS_MEMORY_DEFAULT_MAX_CHUNK_SIZE.max(options.chunker.target_chunk_size);
+            }
+        }
+
+        let parsed = Self {
+            input_paths,
+            output_path,
+            doc_id_prefix,
+            options,
+            profile,
+            dense_line_index,
+        };
+        parsed.validate()?;
+        Ok(parsed)
+    }
+
+    fn validate(&self) -> Result<(), String> {
+        self.options
+            .chunker
+            .validate()
+            .map_err(|error| error.to_string())?;
+        if self.input_paths.iter().any(|path| path == "-") {
+            return Err("stdin is not supported; provide input file paths".to_owned());
+        }
+
+        let mut doc_ids = HashSet::with_capacity(self.input_paths.len());
+        for input_path in &self.input_paths {
+            let Some(doc_id) = pack_docs_document_id(input_path, &self.doc_id_prefix) else {
+                return Err("input path has no UTF-8 basename".to_owned());
+            };
+            if !doc_ids.insert(doc_id.clone()) {
+                return Err(format!("duplicate doc_id: {doc_id}"));
+            }
+        }
+
+        Ok(())
+    }
+}
+
 fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
     let args: Vec<String> = args.collect();
     if args.iter().any(|arg| arg == "--help" || arg == "-h") {
@@ -361,184 +515,73 @@ fn run_pack_docs(args: impl Iterator<Item = String>) -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
-    let mut input_paths = Vec::new();
-    let mut output_path = None;
-    let mut doc_id_prefix = String::new();
-    let mut options = WriterOptions::default();
-    let mut profile = String::from("core");
-    let mut dense_line_index = None;
-    let mut target_chunk_size_configured = false;
-    let mut max_chunk_size_configured = false;
-    let mut args = args.into_iter();
-    while let Some(arg) = args.next() {
-        match arg.as_str() {
-            "-o" | "--output" => {
-                let Some(path) = args.next() else {
-                    eprintln!("qzt pack-docs: missing output path");
-                    return ExitCode::from(2);
-                };
-                output_path = Some(path);
-            }
-            "--doc-id-prefix" => {
-                let Some(prefix) = args.next() else {
-                    eprintln!("qzt pack-docs: missing --doc-id-prefix value");
-                    return ExitCode::from(2);
-                };
-                doc_id_prefix = prefix;
-            }
-            "--profile" => {
-                let Some(value) = args.next() else {
-                    eprintln!("qzt pack-docs: missing --profile value");
-                    return ExitCode::from(2);
-                };
-                if !matches!(
-                    value.as_str(),
-                    "minimal" | "core" | "log" | "archive" | "memory"
-                ) {
-                    eprintln!("qzt pack-docs: invalid --profile value");
-                    return ExitCode::from(2);
-                }
-                profile = value;
-            }
-            "--chunk-size" => {
-                let Some(size) = args.next().and_then(|value| value.parse::<usize>().ok()) else {
-                    eprintln!("qzt pack-docs: invalid --chunk-size");
-                    return ExitCode::from(2);
-                };
-                options.chunker.target_chunk_size = size;
-                target_chunk_size_configured = true;
-            }
-            "--max-chunk-size" => {
-                let Some(size) = args.next().and_then(|value| value.parse::<usize>().ok()) else {
-                    eprintln!("qzt pack-docs: invalid --max-chunk-size");
-                    return ExitCode::from(2);
-                };
-                options.chunker.max_chunk_size = size;
-                max_chunk_size_configured = true;
-            }
-            "--zstd-level" => {
-                let Some(level) = args.next().and_then(|value| value.parse::<i32>().ok()) else {
-                    eprintln!("qzt pack-docs: invalid --zstd-level");
-                    return ExitCode::from(2);
-                };
-                options.zstd_level = level;
-            }
-            "--checksum" => {
-                if args.next().as_deref() != Some("blake3") {
-                    eprintln!("qzt pack-docs: only blake3 checksum is supported");
-                    return ExitCode::from(2);
-                }
-            }
-            "--dict" => {
-                if args.next().as_deref() != Some("none") {
-                    eprintln!("qzt pack-docs: CLI dictionary writing is not implemented");
-                    return ExitCode::from(2);
-                }
-            }
-            "--dense-line-index" => {
-                let Some(value) = args.next() else {
-                    eprintln!("qzt pack-docs: missing --dense-line-index value");
-                    return ExitCode::from(2);
-                };
-                if !matches!(value.as_str(), "on" | "off") {
-                    eprintln!("qzt pack-docs: invalid --dense-line-index value");
-                    return ExitCode::from(2);
-                }
-                dense_line_index = Some(value == "on");
-            }
-            _ if arg.starts_with('-') => {
-                eprintln!("qzt pack-docs: unknown option '{arg}'");
-                return ExitCode::from(2);
-            }
-            _ => input_paths.push(arg),
+    let args = match PackDocsArgs::parse(args.into_iter()) {
+        Ok(args) => args,
+        Err(error) => {
+            eprintln!("qzt pack-docs: {error}");
+            return ExitCode::from(2);
         }
-    }
-
-    if input_paths.is_empty() {
-        eprintln!("qzt pack-docs: missing input file");
-        return ExitCode::from(2);
-    }
-    let Some(output_path) = output_path else {
-        eprintln!("qzt pack-docs: missing -o output.qzt");
-        return ExitCode::from(2);
     };
-    // Memory-profile document extraction decodes whole chunks. A conservative
-    // default keeps small document/range reads bounded without changing core's
-    // throughput-oriented 4 MiB defaults; explicit chunk sizes remain authoritative.
-    if profile == "memory" {
-        if !target_chunk_size_configured {
-            options.chunker.target_chunk_size = if max_chunk_size_configured {
-                PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE.min(options.chunker.max_chunk_size)
-            } else {
-                PACK_DOCS_MEMORY_DEFAULT_TARGET_CHUNK_SIZE
-            };
-        }
-        if !max_chunk_size_configured {
-            options.chunker.max_chunk_size =
-                PACK_DOCS_MEMORY_DEFAULT_MAX_CHUNK_SIZE.max(options.chunker.target_chunk_size);
-        }
-    }
-    if let Err(error) = options.chunker.validate() {
-        eprintln!("qzt pack-docs: {error}");
-        return ExitCode::from(2);
-    }
-    if input_paths.iter().any(|path| path == "-") {
-        eprintln!("qzt pack-docs: stdin is not supported; provide input file paths");
-        return ExitCode::from(2);
-    }
-    let mut doc_ids = HashSet::with_capacity(input_paths.len());
-    for input_path in &input_paths {
-        let Some(basename) = Path::new(input_path)
-            .file_name()
-            .and_then(|name| name.to_str())
-        else {
-            eprintln!("qzt pack-docs: input path has no UTF-8 basename");
-            return ExitCode::from(2);
-        };
-        let doc_id = format!("{doc_id_prefix}{basename}");
-        if !doc_ids.insert(doc_id.clone()) {
-            eprintln!("qzt pack-docs: duplicate doc_id: {doc_id}");
-            return ExitCode::from(2);
-        }
-    }
 
-    let result: CliResult<()> = (|| {
-        let mut input = Vec::new();
-        let mut spans = Vec::with_capacity(input_paths.len());
-        for input_path in &input_paths {
-            let basename = Path::new(input_path)
-                .file_name()
-                .and_then(|name| name.to_str())
-                .ok_or_else(|| {
-                    std::io::Error::new(
-                        std::io::ErrorKind::InvalidInput,
-                        "input path has no UTF-8 basename",
-                    )
-                })?;
-            let doc_id = format!("{doc_id_prefix}{basename}");
-            let bytes = std::fs::read(input_path)?;
-            let offset = u64::try_from(input.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
-            let byte_length =
-                u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
-            input.extend_from_slice(&bytes);
-            spans.push(DocumentSpan::new(doc_id, offset, byte_length));
-        }
-        let mut builder = WriterBuilder::new()
-            .options(options)
-            .profile(profile.as_str())
-            .document_spans(spans);
-        if let Some(enabled) = dense_line_index {
-            builder = builder.dense_line_index(enabled);
-        }
-        let container = builder.pack(&input)?;
-        write_container_atomically(&output_path, &container)?;
-        Ok(())
-    })();
-
-    match result {
+    match pack_docs(args) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => command_failed("pack-docs", &error),
     }
+}
+
+fn pack_docs_document_id(input_path: &str, doc_id_prefix: &str) -> Option<String> {
+    let basename = Path::new(input_path).file_name()?.to_str()?;
+    Some(format!("{doc_id_prefix}{basename}"))
+}
+
+fn pack_docs(args: PackDocsArgs) -> CliResult<()> {
+    let (input, spans) = load_pack_docs_input(&args)?;
+    let PackDocsArgs {
+        output_path,
+        options,
+        profile,
+        dense_line_index,
+        ..
+    } = args;
+    let container = build_pack_docs_container(options, &profile, dense_line_index, &input, spans)?;
+    write_container_atomically(&output_path, &container)
+}
+
+fn load_pack_docs_input(args: &PackDocsArgs) -> CliResult<(Vec<u8>, Vec<DocumentSpan>)> {
+    let mut input = Vec::new();
+    let mut spans = Vec::with_capacity(args.input_paths.len());
+    for input_path in &args.input_paths {
+        let doc_id = pack_docs_document_id(input_path, &args.doc_id_prefix).ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "input path has no UTF-8 basename",
+            )
+        })?;
+        let bytes = std::fs::read(input_path)?;
+        let offset = u64::try_from(input.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        let byte_length =
+            u64::try_from(bytes.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+        input.extend_from_slice(&bytes);
+        spans.push(DocumentSpan::new(doc_id, offset, byte_length));
+    }
+    Ok((input, spans))
+}
+
+fn build_pack_docs_container(
+    options: WriterOptions,
+    profile: &str,
+    dense_line_index: Option<bool>,
+    input: &[u8],
+    spans: Vec<DocumentSpan>,
+) -> CliResult<Vec<u8>> {
+    let mut builder = WriterBuilder::new()
+        .options(options)
+        .profile(profile)
+        .document_spans(spans);
+    if let Some(enabled) = dense_line_index {
+        builder = builder.dense_line_index(enabled);
+    }
+    Ok(builder.pack(input)?)
 }
 
 fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<()> {
