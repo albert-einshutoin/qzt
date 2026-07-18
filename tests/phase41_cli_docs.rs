@@ -94,7 +94,7 @@ fn documented_command_set_matches_the_cli_dispatch_and_outlines_match() {
         .filter_map(|line| {
             let line = line.trim();
             let rest = line.strip_prefix("Some(\"")?;
-            let (command, suffix) = rest.split_once("\"")?;
+            let (command, suffix) = rest.split_once('"')?;
             suffix.contains("=> run_").then_some(command)
         })
         .collect::<Vec<_>>();
