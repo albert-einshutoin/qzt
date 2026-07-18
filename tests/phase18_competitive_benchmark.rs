@@ -19,6 +19,9 @@ fn competitive_benchmark_records_qzt_vs_raw_zstd_range_metrics() {
     assert!(report.qzt_bytes > 0);
     assert!(report.raw_zstd_bytes > 0);
     assert_eq!(report.qzt_range_bytes, 1024);
+    assert!(report.qzt_range_decoded_chunks > 0);
+    assert!(report.qzt_range_decoded_bytes < report.corpus_bytes);
+    assert!(report.qzt_range_compressed_bytes < report.qzt_bytes);
     assert_eq!(report.raw_zstd_decoded_bytes, report.corpus_bytes);
     assert!(report.token_hit_count > 0);
     assert!(report.reference_hit_count >= report.token_hit_count);
@@ -41,6 +44,18 @@ fn competitive_benchmark_records_qzt_vs_raw_zstd_range_metrics() {
         ("qzt_bytes", report.qzt_bytes.to_string()),
         ("raw_zstd_bytes", report.raw_zstd_bytes.to_string()),
         ("qzt_range_bytes", report.qzt_range_bytes.to_string()),
+        (
+            "qzt_range_decoded_chunks",
+            report.qzt_range_decoded_chunks.to_string(),
+        ),
+        (
+            "qzt_range_decoded_bytes",
+            report.qzt_range_decoded_bytes.to_string(),
+        ),
+        (
+            "qzt_range_compressed_bytes",
+            report.qzt_range_compressed_bytes.to_string(),
+        ),
         (
             "raw_zstd_decoded_bytes",
             report.raw_zstd_decoded_bytes.to_string(),

@@ -107,6 +107,62 @@ pub struct CompetitiveBenchmarkOptions {
     pub range_size: u64,
 }
 
+/// Scalable partial-decompression benchmark configuration.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PartialDecompressionBenchmarkOptions {
+    /// Deterministic validation-corpus family to generate.
+    pub corpus_kind: CorpusKind,
+    /// Requested original corpus size in bytes.
+    pub corpus_bytes: usize,
+    /// Target uncompressed QZT chunk size in bytes.
+    pub chunk_size: usize,
+    /// Zero-based logical byte offset to restore.
+    pub range_offset: u64,
+    /// Logical byte length to restore.
+    pub range_size: u64,
+}
+
+/// Machine-readable evidence from a partial-decompression benchmark run.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PartialDecompressionBenchmarkReport {
+    /// Stable identifier of the generated validation corpus.
+    pub corpus_id: &'static str,
+    /// Actual original corpus size in bytes.
+    pub corpus_bytes: u64,
+    /// Encoded QZT container size in bytes.
+    pub qzt_bytes: u64,
+    /// Logical offset selected after clamping to the corpus boundary.
+    pub range_offset: u64,
+    /// Exact original bytes returned to the caller.
+    pub returned_bytes: u64,
+    /// Number of independently compressed chunks decoded.
+    pub decoded_chunks: u64,
+    /// Total original bytes decoded from intersecting chunks.
+    pub decoded_bytes: u64,
+    /// Total compressed chunk payload bytes consumed.
+    pub compressed_bytes: u64,
+    /// Observed range restoration duration in microseconds.
+    pub range_micros: u128,
+}
+
+impl fmt::Display for PartialDecompressionBenchmarkReport {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "partial_decompression_benchmark corpus_id={} corpus_bytes={} qzt_bytes={} range_offset={} returned_bytes={} decoded_chunks={} decoded_bytes={} compressed_bytes={} range_micros={}",
+            self.corpus_id,
+            self.corpus_bytes,
+            self.qzt_bytes,
+            self.range_offset,
+            self.returned_bytes,
+            self.decoded_chunks,
+            self.decoded_bytes,
+            self.compressed_bytes,
+            self.range_micros
+        )
+    }
+}
+
 impl Default for CompetitiveBenchmarkOptions {
     fn default() -> Self {
         Self {
@@ -132,6 +188,12 @@ pub struct CompetitiveBenchmarkReport {
     pub raw_zstd_bytes: u64,
     /// Number of original bytes returned by the QZT range read.
     pub qzt_range_bytes: u64,
+    /// Number of independently compressed QZT chunks decoded for the range.
+    pub qzt_range_decoded_chunks: u64,
+    /// Number of original QZT bytes decoded to restore the range.
+    pub qzt_range_decoded_bytes: u64,
+    /// Number of compressed QZT chunk payload bytes consumed for the range.
+    pub qzt_range_compressed_bytes: u64,
     /// Original bytes whole-stream zstd decoded to restore the same range.
     pub raw_zstd_decoded_bytes: u64,
     /// Observed QZT range-read duration in microseconds.
@@ -406,9 +468,9 @@ pub fn run_competitive_benchmark(
 
     let qzt_reader = QztFileReader::open_read_at(&qzt[..], qzt.len() as u64)?;
     let started = Instant::now();
-    let qzt_range = qzt_reader.read_range(offset, length)?;
+    let qzt_range = qzt_reader.read_range_with_metrics(offset, length)?;
     let qzt_range_elapsed = started.elapsed();
-    if qzt_range != expected {
+    if qzt_range.bytes != expected {
         return Err(QztError::ContainerCorrupt);
     }
 
@@ -433,7 +495,10 @@ pub fn run_competitive_benchmark(
         corpus_bytes,
         qzt_bytes: usize_to_u64(qzt.len())?,
         raw_zstd_bytes: usize_to_u64(raw_zstd.len())?,
-        qzt_range_bytes: usize_to_u64(qzt_range.len())?,
+        qzt_range_bytes: usize_to_u64(qzt_range.bytes.len())?,
+        qzt_range_decoded_chunks: qzt_range.metrics.decoded_chunks,
+        qzt_range_decoded_bytes: qzt_range.metrics.decoded_bytes,
+        qzt_range_compressed_bytes: qzt_range.metrics.compressed_bytes,
         raw_zstd_decoded_bytes: usize_to_u64(raw_decoded.len())?,
         qzt_range_micros: qzt_range_elapsed.as_micros(),
         raw_zstd_range_micros: raw_elapsed.as_micros(),
@@ -442,6 +507,66 @@ pub fn run_competitive_benchmark(
         external_search_tools_enabled: cfg!(feature = "bench-compete"),
         ripgrep_hit_count: external_report.ripgrep_hit_count,
         sqlite_fts5_hit_count: external_report.sqlite_fts5_hit_count,
+    })
+}
+
+/// Runs a deterministic range-read benchmark without whole-file decode or search work.
+///
+/// # Errors
+///
+/// Returns [`QztError::ResourceLimitExceeded`] for a zero corpus, chunk, or
+/// range size, plus generation, packing, opening, and range-read errors.
+pub fn run_partial_decompression_benchmark(
+    options: PartialDecompressionBenchmarkOptions,
+) -> Result<PartialDecompressionBenchmarkReport> {
+    if options.corpus_bytes == 0 || options.chunk_size == 0 || options.range_size == 0 {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+
+    let corpus = generate_validation_corpus(
+        options.corpus_kind,
+        ValidationCorpusOptions {
+            seed: 0x46,
+            target_bytes: options.corpus_bytes,
+        },
+    )?;
+    let corpus_bytes = usize_to_u64(corpus.len())?;
+    if options.range_size > corpus_bytes {
+        return Err(QztError::LogicalRangeOutOfBounds);
+    }
+    let offset = options
+        .range_offset
+        .min(corpus_bytes.saturating_sub(options.range_size));
+    let writer_options = WriterOptions {
+        chunker: ChunkerOptions {
+            target_chunk_size: options.chunk_size,
+            max_chunk_size: options.chunk_size,
+        },
+        zstd_level: 0,
+    };
+    let qzt = pack_bytes_with_container_id(&corpus, [0x46; 16], writer_options)?;
+    let qzt_bytes = usize_to_u64(qzt.len())?;
+    let reader = QztFileReader::open_read_at(qzt.as_slice(), qzt_bytes)?;
+
+    let started = Instant::now();
+    let range = reader.read_range_with_metrics(offset, options.range_size)?;
+    let elapsed = started.elapsed();
+    let start = u64_to_usize(offset)?;
+    let end = u64_to_usize(offset + options.range_size)?;
+    if range.bytes != corpus[start..end] {
+        return Err(QztError::ContainerCorrupt);
+    }
+
+    Ok(PartialDecompressionBenchmarkReport {
+        corpus_id: options.corpus_kind.id(),
+        corpus_bytes,
+        qzt_bytes,
+        range_offset: offset,
+        returned_bytes: usize_to_u64(range.bytes.len())?,
+        decoded_chunks: range.metrics.decoded_chunks,
+        decoded_bytes: range.metrics.decoded_bytes,
+        compressed_bytes: range.metrics.compressed_bytes,
+        range_micros: elapsed.as_micros(),
     })
 }
 

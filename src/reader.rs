@@ -45,6 +45,31 @@ pub struct QztInfo {
     pub line_count: u64,
 }
 
+/// Work performed while restoring one logical byte range.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RangeReadMetrics {
+    /// Number of independently compressed chunks decoded for the range.
+    pub decoded_chunks: u64,
+    /// Total original bytes decoded from all intersecting chunks.
+    ///
+    /// This can exceed the number of returned bytes because QZT verifies each
+    /// whole chunk before disclosing a slice from it.
+    pub decoded_bytes: u64,
+    /// Total compressed chunk payload bytes consumed for the range.
+    ///
+    /// Container metadata read while opening a file-backed reader is excluded.
+    pub compressed_bytes: u64,
+}
+
+/// Restored bytes together with the bounded work needed to produce them.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RangeReadReport {
+    /// Exact logical bytes requested by the caller.
+    pub bytes: Vec<u8>,
+    /// Chunk-level decode and compressed-payload metrics.
+    pub metrics: RangeReadMetrics,
+}
+
 /// Verification level.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[non_exhaustive]
@@ -130,6 +155,21 @@ impl QztReader {
     /// integrity, decompression, or resource-limit error while decoding it.
     pub fn read_range(&self, offset: u64, length: u64) -> Result<Vec<u8>> {
         read_range_from_entries(
+            &self.details.chunk_entries,
+            self.details.summary.original_size,
+            offset,
+            length,
+            |entry| self.decode_entry(entry),
+        )
+    }
+
+    /// Restores an exact logical byte range and reports the chunk work performed.
+    ///
+    /// # Errors
+    ///
+    /// Returns the same errors as [`Self::read_range`].
+    pub fn read_range_with_metrics(&self, offset: u64, length: u64) -> Result<RangeReadReport> {
+        read_range_with_metrics_from_entries(
             &self.details.chunk_entries,
             self.details.summary.original_size,
             offset,
@@ -398,6 +438,24 @@ impl<R: ReadAt> QztFileReader<R> {
         )
     }
 
+    /// Restores an exact logical byte range and reports the chunk work performed.
+    ///
+    /// The compressed-byte metric covers positioned reads of intersecting chunk
+    /// payloads and intentionally excludes metadata consumed by [`Self::open_read_at`].
+    ///
+    /// # Errors
+    ///
+    /// Returns the same errors as [`Self::read_range`].
+    pub fn read_range_with_metrics(&self, offset: u64, length: u64) -> Result<RangeReadReport> {
+        read_range_with_metrics_from_entries(
+            &self.details.chunk_entries,
+            self.details.summary.original_size,
+            offset,
+            length,
+            |entry| self.decode_entry(entry),
+        )
+    }
+
     /// Restores a logical byte range and requires valid UTF-8 text boundaries.
     ///
     /// # Errors
@@ -646,6 +704,8 @@ pub(crate) struct ChunkDecodeCache {
     chunk_id: Option<u64>,
     decoded: Vec<u8>,
     physical_decoded_bytes: u64,
+    decoded_chunks: u64,
+    compressed_bytes: u64,
 }
 
 impl ChunkDecodeCache {
@@ -654,6 +714,8 @@ impl ChunkDecodeCache {
             chunk_id: None,
             decoded: Vec::new(),
             physical_decoded_bytes: 0,
+            decoded_chunks: 0,
+            compressed_bytes: 0,
         }
     }
 
@@ -670,9 +732,19 @@ impl ChunkDecodeCache {
         if self.chunk_id != Some(entry.chunk_id) {
             self.decoded = decode_entry(entry)?;
             self.chunk_id = Some(entry.chunk_id);
+            // Integrity is defined over complete chunks, so these metrics count
+            // the full verified unit rather than only the caller-visible slice.
             self.physical_decoded_bytes = self
                 .physical_decoded_bytes
                 .checked_add(entry.uncompressed_size)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            self.decoded_chunks = self
+                .decoded_chunks
+                .checked_add(1)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            self.compressed_bytes = self
+                .compressed_bytes
+                .checked_add(entry.compressed_size)
                 .ok_or(QztError::ResourceLimitExceeded)?;
         }
         Ok(&self.decoded)
@@ -686,15 +758,40 @@ fn read_range_from_entries(
     length: u64,
     decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
 ) -> Result<Vec<u8>> {
+    Ok(read_range_with_metrics_from_entries(
+        entries,
+        original_size,
+        offset,
+        length,
+        decode_entry,
+    )?
+    .bytes)
+}
+
+fn read_range_with_metrics_from_entries(
+    entries: &[ChunkEntry],
+    original_size: u64,
+    offset: u64,
+    length: u64,
+    decode_entry: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
+) -> Result<RangeReadReport> {
     let mut cache = ChunkDecodeCache::new();
-    read_range_from_entries_cached(
+    let bytes = read_range_from_entries_cached(
         entries,
         original_size,
         offset,
         length,
         &mut cache,
         decode_entry,
-    )
+    )?;
+    Ok(RangeReadReport {
+        bytes,
+        metrics: RangeReadMetrics {
+            decoded_chunks: cache.decoded_chunks,
+            decoded_bytes: cache.physical_decoded_bytes,
+            compressed_bytes: cache.compressed_bytes,
+        },
+    })
 }
 
 fn read_range_from_entries_cached(
