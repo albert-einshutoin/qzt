@@ -255,6 +255,7 @@ repository rootから実行してください。掲載出力は次のLF入力と
 実行しました。
 
 ```sh
+set -eu
 cargo build --all-features --bin qzt
 QZT_BIN="$(pwd)/target/debug/qzt"
 QZT_EXAMPLE_DIR="$(mktemp -d)"

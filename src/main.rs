@@ -733,31 +733,39 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
             };
             // Text output: existing lines unchanged, then three new lines appended.
             if format == InfoFormat::Text {
-                println!("Format: QZT 0.1");
-                println!("Profile: {}", metadata.profile);
-                println!("Original size: {}", info.original_size);
-                println!("Compressed size: {compressed_size}");
-                println!("Chunks: {}", info.chunk_count);
-                println!("Lines: {}", info.line_count);
-                println!("Compression: zstd");
-                println!("Zstd level: {}", metadata.zstd_level);
-                println!("Target chunk size: {}", metadata.target_chunk_size);
-                println!("Max chunk size: {}", metadata.max_chunk_size);
-                println!("Line index: {line_index}");
-                println!(
-                    "Document index: {}",
-                    if metadata.document_index { "yes" } else { "no" }
-                );
-                println!("Checksum: blake3");
-                println!("Zstd stream compatible: no");
-                // New lines for container identity and original checksum.
-                println!("Container ID: {}", cli_json::hex(&info.container_id));
-                println!(
-                    "Original checksum: {}:{}",
-                    metadata.original_checksum.algorithm,
-                    cli_json::hex(&metadata.original_checksum.value),
-                );
-                println!("Newline mode: {}", metadata.newline_mode);
+                write_stdout_with(|output| {
+                    writeln!(output, "Format: QZT 0.1")?;
+                    writeln!(output, "Profile: {}", metadata.profile)?;
+                    writeln!(output, "Original size: {}", info.original_size)?;
+                    writeln!(output, "Compressed size: {compressed_size}")?;
+                    writeln!(output, "Chunks: {}", info.chunk_count)?;
+                    writeln!(output, "Lines: {}", info.line_count)?;
+                    writeln!(output, "Compression: zstd")?;
+                    writeln!(output, "Zstd level: {}", metadata.zstd_level)?;
+                    writeln!(output, "Target chunk size: {}", metadata.target_chunk_size)?;
+                    writeln!(output, "Max chunk size: {}", metadata.max_chunk_size)?;
+                    writeln!(output, "Line index: {line_index}")?;
+                    writeln!(
+                        output,
+                        "Document index: {}",
+                        if metadata.document_index { "yes" } else { "no" }
+                    )?;
+                    writeln!(output, "Checksum: blake3")?;
+                    writeln!(output, "Zstd stream compatible: no")?;
+                    // New lines for container identity and original checksum.
+                    writeln!(
+                        output,
+                        "Container ID: {}",
+                        cli_json::hex(&info.container_id)
+                    )?;
+                    writeln!(
+                        output,
+                        "Original checksum: {}:{}",
+                        metadata.original_checksum.algorithm,
+                        cli_json::hex(&metadata.original_checksum.value),
+                    )?;
+                    writeln!(output, "Newline mode: {}", metadata.newline_mode)
+                })
             } else {
                 // JSON output: single object on stdout.
                 let container_id_hex = cli_json::hex(&info.container_id);
@@ -765,7 +773,7 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
                 let checksum_value = cli_json::hex(&metadata.original_checksum.value);
                 let profile = cli_json::escape(&metadata.profile);
                 let newline_mode = cli_json::escape(&metadata.newline_mode);
-                println!(
+                let output = format!(
                     concat!(
                         "{{\n",
                         "  \"format\": \"qzt-0.1\",\n",
@@ -783,7 +791,7 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
                         "  \"dense_line_index\": {dense_line_index},\n",
                         "  \"document_index\": {document_index},\n",
                         "  \"document_count\": {document_count}\n",
-                        "}}"
+                        "}}\n"
                     ),
                     container_id = container_id_hex,
                     profile = profile,
@@ -801,8 +809,8 @@ fn run_info(mut args: impl Iterator<Item = String>) -> ExitCode {
                     document_index = metadata.document_index,
                     document_count = document_count,
                 );
+                write_stdout(output.as_bytes())
             }
-            ExitCode::SUCCESS
         }
         Err(error) => command_failed("info", &error),
     }
@@ -913,16 +921,18 @@ enum SearchFormat {
 /// The output is byte-identical to the pre-existing format. Each hit is on its
 /// own line followed by a single `metrics` line and an optional stderr warning
 /// when `incomplete_reason` is set.
-fn print_search_report_text(report: &SearchReport) {
+fn write_search_report_text(report: &SearchReport, output: &mut dyn Write) -> std::io::Result<()> {
     for hit in &report.hits {
-        println!(
+        writeln!(
+            output,
             "hit logical_offset={} byte_length={} chunk_start={} chunk_end={} source={}",
             hit.logical_offset, hit.byte_length, hit.chunk_start, hit.chunk_end, hit.source
-        );
+        )?;
     }
     // Escape query so LF/CR/quotes cannot break the single-line metrics contract.
     let query_escaped = cli_json::escape(&report.metrics.query);
-    println!(
+    writeln!(
+        output,
         "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
         query_escaped,
         report.metrics.index_kind,
@@ -940,10 +950,11 @@ fn print_search_report_text(report: &SearchReport) {
         report.metrics.query_time_ms,
         report.capped,
         report.incomplete_reason.unwrap_or("none")
-    );
+    )?;
     if let Some(reason) = report.incomplete_reason {
         eprintln!("qzt search: warning: result may be incomplete ({reason})");
     }
+    Ok(())
 }
 
 /// Prints the JSON-mode search report to stdout.
@@ -959,18 +970,19 @@ fn print_search_report_text(report: &SearchReport) {
 /// Note: the `score` field from [`SearchHit`] is intentionally omitted from
 /// JSON output — it is always `None` in the current implementation and is also
 /// absent from text output.
-fn print_search_report_json(report: &SearchReport) {
+fn write_search_report_json(report: &SearchReport, output: &mut dyn Write) -> std::io::Result<()> {
     let query_escaped = cli_json::escape(&report.metrics.query);
     let index_kind_escaped = cli_json::escape(report.metrics.index_kind);
     let granularity_escaped = cli_json::escape(report.metrics.posting_granularity);
 
-    print!("{{\"hits\":[");
+    write!(output, "{{\"hits\":[")?;
     for (i, hit) in report.hits.iter().enumerate() {
         if i > 0 {
-            print!(",");
+            write!(output, ",")?;
         }
         let source_escaped = cli_json::escape(hit.source);
-        print!(
+        write!(
+            output,
             concat!(
                 "{{",
                 "\"logical_offset\":{logical_offset},",
@@ -985,7 +997,7 @@ fn print_search_report_json(report: &SearchReport) {
             chunk_start = hit.chunk_start,
             chunk_end = hit.chunk_end,
             source = source_escaped,
-        );
+        )?;
     }
     let incomplete_json = match report.incomplete_reason {
         None => "null".to_owned(),
@@ -994,7 +1006,8 @@ fn print_search_report_json(report: &SearchReport) {
     // Guard against NaN/inf producing invalid JSON for the f64 metric fields.
     debug_assert!(report.metrics.index_size_ratio.is_finite());
     debug_assert!(report.metrics.query_time_ms.is_finite());
-    println!(
+    writeln!(
+        output,
         concat!(
             "],",
             "\"metrics\":{{",
@@ -1033,10 +1046,11 @@ fn print_search_report_json(report: &SearchReport) {
         query_time_ms = report.metrics.query_time_ms,
         capped = report.capped,
         incomplete_reason = incomplete_json,
-    );
+    )?;
     if let Some(reason) = report.incomplete_reason {
         eprintln!("qzt search: warning: result may be incomplete ({reason})");
     }
+    Ok(())
 }
 
 /// Output format requested by the caller of `qzt verify`.
@@ -1173,25 +1187,32 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
             if format == VerifyFormat::Text {
                 // First line is byte-identical to the pre-existing output for script
                 // compatibility; report lines are appended below it.
-                println!("Verify: {:?} ok", report.level);
-                println!("Checked chunks: {}", report.checked_chunks);
-                println!("Decoded bytes: {}", report.decoded_bytes);
+                write_stdout_with(|output| {
+                    writeln!(output, "Verify: {:?} ok", report.level)?;
+                    writeln!(output, "Checked chunks: {}", report.checked_chunks)?;
+                    writeln!(output, "Decoded bytes: {}", report.decoded_bytes)
+                })
             } else {
                 let chunks = report.checked_chunks;
                 let bytes = report.decoded_bytes;
-                println!(
+                let output = format!(
                     "{{\"ok\":true,\"level\":\"{level_str}\",\"checked_chunks\":{chunks},\"decoded_bytes\":{bytes}}}"
                 );
+                write_stdout(format!("{output}\n").as_bytes())
             }
-            ExitCode::SUCCESS
         }
         Err(ref error) => {
             if format == VerifyFormat::Json {
                 // JSON consumers read stdout only; no stderr output in JSON mode.
                 let error_msg = cli_json::escape(&error.to_string());
                 let level_str = verify_level_as_str(level);
-                println!("{{\"ok\":false,\"level\":\"{level_str}\",\"error\":\"{error_msg}\"}}");
-                ExitCode::from(1)
+                let output = format!(
+                    "{{\"ok\":false,\"level\":\"{level_str}\",\"error\":\"{error_msg}\"}}\n"
+                );
+                match write_stdout(output.as_bytes()) {
+                    code if code == ExitCode::SUCCESS => ExitCode::from(1),
+                    code => code,
+                }
             } else {
                 command_failed("verify", error)
             }
@@ -1304,57 +1325,61 @@ fn run_docs(mut args: impl Iterator<Item = String>) -> ExitCode {
 
     match result {
         Ok(documents) => {
-            if format == DocsFormat::Text {
-                println!("doc_id\toffset\tbytes\tfirst_line\tlines\tchecksum");
-                for doc in &documents {
-                    let doc_id_escaped = escape_doc_id_text(&doc.doc_id);
-                    let checksum_hex = cli_json::hex(&doc.checksum.value);
-                    let first_line_one_based = doc.first_line.saturating_add(1);
-                    println!(
-                        "{}\t{}\t{}\t{}\t{}\t{}:{}",
-                        doc_id_escaped,
-                        doc.logical_offset,
-                        doc.byte_length,
-                        first_line_one_based,
-                        doc.line_count,
-                        cli_json::escape(&doc.checksum.algorithm),
-                        checksum_hex,
-                    );
-                }
-            } else {
-                // JSON output: {"documents":[...]}
-                print!("{{\"documents\":[");
-                for (i, doc) in documents.iter().enumerate() {
-                    if i > 0 {
-                        print!(",");
+            write_stdout_with(|output| {
+                if format == DocsFormat::Text {
+                    writeln!(output, "doc_id\toffset\tbytes\tfirst_line\tlines\tchecksum")?;
+                    for doc in &documents {
+                        let doc_id_escaped = escape_doc_id_text(&doc.doc_id);
+                        let checksum_hex = cli_json::hex(&doc.checksum.value);
+                        let first_line_one_based = doc.first_line.saturating_add(1);
+                        writeln!(
+                            output,
+                            "{}\t{}\t{}\t{}\t{}\t{}:{}",
+                            doc_id_escaped,
+                            doc.logical_offset,
+                            doc.byte_length,
+                            first_line_one_based,
+                            doc.line_count,
+                            cli_json::escape(&doc.checksum.algorithm),
+                            checksum_hex,
+                        )?;
                     }
-                    let doc_id_json = cli_json::escape(&doc.doc_id);
-                    let alg_json = cli_json::escape(&doc.checksum.algorithm);
-                    let checksum_hex = cli_json::hex(&doc.checksum.value);
-                    let first_line_one_based = doc.first_line.saturating_add(1);
-                    print!(
-                        concat!(
-                            "{{",
-                            "\"doc_id\":\"{doc_id}\",",
-                            "\"logical_offset\":{offset},",
-                            "\"byte_length\":{length},",
-                            "\"first_line\":{first_line},",
-                            "\"line_count\":{line_count},",
-                            "\"checksum\":{{\"algorithm\":\"{alg}\",\"value\":\"{chk}\"}}",
-                            "}}"
-                        ),
-                        doc_id = doc_id_json,
-                        offset = doc.logical_offset,
-                        length = doc.byte_length,
-                        first_line = first_line_one_based,
-                        line_count = doc.line_count,
-                        alg = alg_json,
-                        chk = checksum_hex,
-                    );
+                    Ok(())
+                } else {
+                    // JSON output: {"documents":[...]}
+                    write!(output, "{{\"documents\":[")?;
+                    for (i, doc) in documents.iter().enumerate() {
+                        if i > 0 {
+                            write!(output, ",")?;
+                        }
+                        let doc_id_json = cli_json::escape(&doc.doc_id);
+                        let alg_json = cli_json::escape(&doc.checksum.algorithm);
+                        let checksum_hex = cli_json::hex(&doc.checksum.value);
+                        let first_line_one_based = doc.first_line.saturating_add(1);
+                        write!(
+                            output,
+                            concat!(
+                                "{{",
+                                "\"doc_id\":\"{doc_id}\",",
+                                "\"logical_offset\":{offset},",
+                                "\"byte_length\":{length},",
+                                "\"first_line\":{first_line},",
+                                "\"line_count\":{line_count},",
+                                "\"checksum\":{{\"algorithm\":\"{alg}\",\"value\":\"{chk}\"}}",
+                                "}}"
+                            ),
+                            doc_id = doc_id_json,
+                            offset = doc.logical_offset,
+                            length = doc.byte_length,
+                            first_line = first_line_one_based,
+                            line_count = doc.line_count,
+                            alg = alg_json,
+                            chk = checksum_hex,
+                        )?;
+                    }
+                    writeln!(output, "]}}")
                 }
-                println!("]}}");
-            }
-            ExitCode::SUCCESS
+            })
         }
         Err(ref error) => {
             eprintln!("qzt docs: {error}");
@@ -1561,13 +1586,10 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     })();
 
     match result {
-        Ok(report) => {
-            match format {
-                SearchFormat::Text => print_search_report_text(&report),
-                SearchFormat::Json => print_search_report_json(&report),
-            }
-            ExitCode::SUCCESS
-        }
+        Ok(report) => write_stdout_with(|output| match format {
+            SearchFormat::Text => write_search_report_text(&report, output),
+            SearchFormat::Json => write_search_report_json(&report, output),
+        }),
         Err(error) => command_failed("search", &error),
     }
 }
@@ -1680,9 +1702,13 @@ fn read_line_range_file(
 }
 
 fn write_stdout(bytes: &[u8]) -> ExitCode {
+    write_stdout_with(|output| output.write_all(bytes))
+}
+
+fn write_stdout_with(write: impl FnOnce(&mut dyn Write) -> std::io::Result<()>) -> ExitCode {
     let stdout = std::io::stdout();
     let mut output = stdout.lock();
-    match output.write_all(bytes).and_then(|()| output.flush()) {
+    match write(&mut output).and_then(|()| output.flush()) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("qzt: failed to write stdout: {error}");

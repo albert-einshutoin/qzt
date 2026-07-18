@@ -1,12 +1,14 @@
 use std::collections::BTreeSet;
 use std::fs;
-use std::process::{Command, Output};
+use std::process::{Command, Output, Stdio};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use qzt::{DocumentSpan, SearchOptions, WriterBuilder, WriterOptions, pack_bytes};
 
 const ENGLISH: &str = include_str!("../docs/CLI.md");
 const JAPANESE: &str = include_str!("../docs/CLI.ja.md");
 const MAIN_SOURCE: &str = include_str!("../src/main.rs");
+static FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[test]
 fn english_and_japanese_references_cover_every_command_and_option() {
@@ -296,6 +298,120 @@ fn machine_readable_schemas_and_defaults_match_the_documented_contract() {
     assert_eq!(SearchOptions::default().max_search_results, u64::MAX);
 }
 
+#[test]
+fn documented_search_defaults_and_schema_are_scoped_to_the_runtime_command() {
+    let defaults = SearchOptions::default();
+    let candidate_default = defaults.max_candidate_granules.to_string();
+    let decoded_mib = defaults.max_decoded_bytes / (1024 * 1024);
+
+    for document in [ENGLISH, JAPANESE] {
+        let search = command_section(document, "qzt search");
+        assert!(search.contains(&candidate_default));
+        assert!(search.contains(&format!("{decoded_mib} MiB")));
+        assert!(search.contains("u64::MAX"));
+        for field in [
+            "hits",
+            "metrics",
+            "capped",
+            "incomplete_reason",
+            "logical_offset",
+            "byte_length",
+            "chunk_start",
+            "chunk_end",
+            "source",
+            "candidate_granules",
+            "candidate_chunks",
+            "decoded_bytes",
+            "query_time_ms",
+        ] {
+            assert!(search.contains(field), "search docs miss {field}");
+        }
+
+        let verify = command_section(document, "qzt verify");
+        for field in ["ok", "level", "checked_chunks", "decoded_bytes", "error"] {
+            assert!(verify.contains(field), "verify docs miss {field}");
+        }
+
+        let docs = command_section(document, "qzt docs");
+        for field in [
+            "documents",
+            "doc_id",
+            "logical_offset",
+            "byte_length",
+            "first_line",
+            "line_count",
+            "algorithm",
+            "value",
+        ] {
+            assert!(docs.contains(field), "docs JSON contract misses {field}");
+        }
+
+        let attest = command_section(document, "qzt attest");
+        for field in [
+            "chunk_count",
+            "container_checksum",
+            "container_id",
+            "final_file_size",
+            "format",
+            "line_count",
+            "original_checksum",
+            "original_size",
+            "verify",
+        ] {
+            assert!(attest.contains(field), "attest docs miss {field}");
+        }
+    }
+}
+
+#[test]
+fn machine_readable_commands_report_closed_stdout_as_runtime_failure() {
+    let fixture = CliFixture::new();
+    let packed = fixture.packed.to_str().unwrap();
+    let documents = fixture.documents.to_str().unwrap();
+    let missing = fixture.base.join("missing.qzt");
+    let missing = missing.to_str().unwrap();
+
+    for arguments in [
+        vec!["info", packed, "--format", "json"],
+        vec!["verify", packed, "--format", "json"],
+        vec!["verify", missing, "--format", "json"],
+        vec!["docs", documents, "--format", "json"],
+        vec!["search", packed, "alpha", "--format", "json"],
+    ] {
+        let mut child = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .args(&arguments)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("qzt command should start");
+        drop(child.stdout.take());
+        let output = child.wait_with_output().expect("qzt command should finish");
+        assert_eq!(
+            output.status.code(),
+            Some(1),
+            "arguments: {arguments:?}; stderr: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains("failed to write stdout"),
+            "arguments: {arguments:?}; stderr: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+}
+
+fn command_section<'a>(document: &'a str, command: &str) -> &'a str {
+    let marker = format!("### `{command}");
+    let start = document
+        .find(&marker)
+        .expect("command heading should exist");
+    let tail = &document[start..];
+    let end = tail[marker.len()..]
+        .find("\n### ")
+        .map_or(tail.len(), |offset| marker.len() + offset);
+    &tail[..end]
+}
+
 fn assert_usage_error(arguments: &[&str], expected_stderr: &str) {
     let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
         .args(arguments)
@@ -346,7 +462,9 @@ struct CliFixture {
 
 impl CliFixture {
     fn new() -> Self {
-        let base = std::env::temp_dir().join(format!("qzt-phase41-{}", std::process::id()));
+        let sequence = FIXTURE_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+        let base =
+            std::env::temp_dir().join(format!("qzt-phase41-{}-{sequence}", std::process::id()));
         fs::create_dir_all(&base).expect("create fixture directory");
         let packed = base.join("plain.qzt");
         let documents = base.join("documents.qzt");

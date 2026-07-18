@@ -281,6 +281,7 @@ Run this block from the repository root. All displayed output was executed with
 the repository binary and these exact inputs (LF endings):
 
 ```sh
+set -eu
 cargo build --all-features --bin qzt
 QZT_BIN="$(pwd)/target/debug/qzt"
 QZT_EXAMPLE_DIR="$(mktemp -d)"
