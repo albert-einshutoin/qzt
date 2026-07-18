@@ -129,11 +129,14 @@ fn windows_file_backed_range_and_search_match_serial_under_concurrency() {
         (6, 12, Checksum::blake3(b"beta needle\n")),
         (24, 13, Checksum::blake3(b"delta needle\n")),
     ];
-    let serial_ranges = range_cases.map(|(offset, length, ref expected)| {
-        reader
-            .read_range_verified(offset, length, expected)
-            .expect("serial verified range")
-    });
+    let serial_ranges: Vec<Vec<u8>> = range_cases
+        .iter()
+        .map(|(offset, length, expected)| {
+            reader
+                .read_range_verified(*offset, *length, expected)
+                .expect("serial verified range")
+        })
+        .collect();
     let queries = ["needle", "alpha"];
     let serial_searches = queries.map(|query| {
         sidecar
