@@ -1,6 +1,8 @@
 /// Reader resource limits for untrusted QZT containers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ResourceLimits {
+    /// Maximum compressed bytes read into memory for one chunk decode.
+    pub max_compressed_chunk_size: u64,
     pub max_uncompressed_chunk_size: u64,
     pub max_dictionary_size: u64,
     pub max_index_block_size: u64,
@@ -12,6 +14,11 @@ pub struct ResourceLimits {
 impl Default for ResourceLimits {
     fn default() -> Self {
         Self {
+            // Why 72 MiB: the default 64 MiB decoded limit needs modest room for
+            // zstd framing and worst-case incompressible overhead, while still
+            // preventing attacker-controlled chunk tables from requesting an
+            // effectively unbounded allocation.
+            max_compressed_chunk_size: 72 * 1024 * 1024,
             max_uncompressed_chunk_size: 64 * 1024 * 1024,
             max_dictionary_size: 16 * 1024 * 1024,
             max_index_block_size: 64 * 1024 * 1024,

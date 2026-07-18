@@ -20,4 +20,7 @@ search: bounded by SearchOptions max_candidate_granules, max_decoded_bytes,
 
 CBOR allocation and item budgets are sourced from `ResourceLimits`, including
 `max_cbor_allocation` and `max_cbor_items`, before decoded values drive heap
-allocation.
+allocation. Chunk Table entries are also rejected at open when compressed or
+uncompressed size exceeds the configured per-chunk limit. Normal verification
+hashes compressed bytes through a 64 KiB buffer; deep verification holds at
+most one bounded compressed chunk and its bounded decoded output at a time.

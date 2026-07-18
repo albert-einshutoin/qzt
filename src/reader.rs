@@ -355,11 +355,11 @@ impl<R: ReadAt> QztFileReader<R> {
 
     fn verify_normal(&self) -> Result<VerifyReport> {
         for entry in &self.details.chunk_entries {
-            let compressed = self.read_physical(PhysicalRange::new(
-                entry.physical_offset,
-                entry.compressed_size,
-            ))?;
-            if Checksum::blake3(&compressed).value != entry.compressed_checksum_blake3 {
+            // Normal verification needs only the compressed checksum. Stream it
+            // so large but valid chunks do not require a second chunk-sized Vec.
+            let end = checked_physical_end(entry.physical_offset, entry.compressed_size)?;
+            let actual = self.hash_physical_range(entry.physical_offset, end)?;
+            if actual.value != entry.compressed_checksum_blake3 {
                 return Err(QztError::CompressedChunkChecksumMismatch);
             }
         }

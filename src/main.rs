@@ -1,3 +1,4 @@
+mod cli_attest;
 mod cli_json;
 
 use std::collections::HashSet;
@@ -58,6 +59,7 @@ fn main() -> ExitCode {
         }
         Some("pack") => run_pack(args),
         Some("pack-docs") => run_pack_docs(args),
+        Some("attest") => run_attest(args),
         Some("info") => run_info(args),
         Some("export") => run_export(args),
         Some("range") => run_range(args),
@@ -88,6 +90,7 @@ fn print_help() {
     println!("             (stdin requires --profile core without --dense-line-index;");
     println!("              stdout output is not supported; -o <path> is always required)");
     println!("  pack-docs  Pack multiple files as verified documents in one QZT container");
+    println!("  attest     Emit a verified canonical JSON attestation for signing");
     println!("  info       Print container summary (--format json for machine-readable output)");
     println!("  export     Restore original bytes (streams to -o file or stdout)");
     println!("  range      Print original bytes (--bytes A:B half-open) or lines");
@@ -111,6 +114,20 @@ fn print_help() {
     println!("  0  success (verify: container is valid)");
     println!("  1  command failed (verify: container is corrupt or unreadable)");
     println!("  2  usage error (unknown option / missing argument)");
+}
+
+fn print_attest_help() {
+    println!("qzt {}", qzt::version());
+    println!();
+    println!("Verify a QZT container and emit canonical JSON for external signing.");
+    println!();
+    println!("Usage: qzt attest [OPTIONS] <FILE>");
+    println!();
+    println!("Options:");
+    println!("  --level <LEVEL>  Verification level: quick, normal, or deep (default: deep)");
+    println!("  -h, --help       Show this help");
+    println!();
+    println!("Output is one deterministic canonical JSON line followed by one newline.");
 }
 
 fn print_pack_docs_help() {
@@ -1027,6 +1044,72 @@ fn verify_level_as_str(level: VerifyLevel) -> &'static str {
         VerifyLevel::Normal => "normal",
         VerifyLevel::Deep => "deep",
         _ => "unknown",
+    }
+}
+
+fn run_attest(args: impl Iterator<Item = String>) -> ExitCode {
+    let args: Vec<String> = args.collect();
+    if args.iter().any(|arg| arg == "--help" || arg == "-h") {
+        print_attest_help();
+        return ExitCode::SUCCESS;
+    }
+
+    let mut args = args.into_iter();
+    let mut path = None;
+    let mut level = VerifyLevel::Deep;
+    while let Some(arg) = args.next() {
+        if arg.as_str() == "--level" {
+            let Some(value) = args.next() else {
+                eprintln!("qzt attest: missing --level value");
+                return ExitCode::from(2);
+            };
+            level = match value.as_str() {
+                "quick" => VerifyLevel::Quick,
+                "normal" => VerifyLevel::Normal,
+                "deep" => VerifyLevel::Deep,
+                _ => {
+                    eprintln!(
+                        "qzt attest: invalid --level value '{value}' (expected quick, normal, or deep)"
+                    );
+                    return ExitCode::from(2);
+                }
+            };
+        } else if arg.starts_with('-') {
+            eprintln!("qzt attest: unknown option '{arg}'");
+            return ExitCode::from(2);
+        } else {
+            if path.is_some() {
+                eprintln!("qzt attest: unexpected extra file argument");
+                return ExitCode::from(2);
+            }
+            path = Some(arg);
+        }
+    }
+    let Some(path) = path else {
+        eprintln!("qzt attest: missing file");
+        return ExitCode::from(2);
+    };
+
+    let result: CliResult<String> = (|| {
+        let reader = QztFileReader::open_path(path)?;
+        // Verification must finish before any stdout write. This prevents a
+        // corrupt container from yielding a partial claim that could be signed.
+        let verify_report = reader.verify(level)?;
+        let info = reader.info();
+        let details = reader.skeleton_details();
+        Ok(cli_attest::Attestation {
+            info: &info,
+            original_checksum: &details.metadata.original_checksum,
+            container_checksum: details.footer_payload.container_checksum.as_ref(),
+            final_file_size: details.footer_payload.final_file_size,
+            verify_report: &verify_report,
+        }
+        .render())
+    })();
+
+    match result {
+        Ok(attestation) => write_stdout(attestation.as_bytes()),
+        Err(error) => command_failed("attest", &error),
     }
 }
 

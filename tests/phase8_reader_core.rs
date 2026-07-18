@@ -6,11 +6,12 @@ use qzt::error::QztError;
 use qzt::fixed::{FooterTrailer, Header};
 use qzt::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
 use qzt::limits::ResourceLimits;
-use qzt::reader::QztReader;
+use qzt::reader::{QztFileReader, QztReader};
 use qzt::schema::{
     BlockDescriptor, BlockRef, Checksum, DictionaryBlock, DictionaryEntry, FooterPayload,
     IndexRoot, Metadata, MetadataOptions,
 };
+use qzt::skeleton::open_skeleton_details;
 
 const CONTAINER_ID: [u8; 16] = [0x88; 16];
 const DICTIONARY_ID: u32 = 7;
@@ -128,6 +129,30 @@ fn resource_limits_are_enforced_before_decode() {
 
     assert_eq!(
         QztReader::open_with_limits(chunk_limited, limits).map(|_| ()),
+        Err(QztError::ResourceLimitExceeded)
+    );
+
+    let compressed_limited = build_container(b"abcd", None, 0, &[]);
+    let compressed_size = open_skeleton_details(&compressed_limited)
+        .expect("fixture should open")
+        .chunk_entries[0]
+        .compressed_size;
+    let limits = ResourceLimits {
+        max_compressed_chunk_size: compressed_size - 1,
+        ..ResourceLimits::default()
+    };
+
+    assert_eq!(
+        QztReader::open_with_limits(&compressed_limited, limits).map(|_| ()),
+        Err(QztError::ResourceLimitExceeded)
+    );
+    assert_eq!(
+        QztFileReader::open_read_at_with_limits(
+            &compressed_limited[..],
+            compressed_limited.len() as u64,
+            limits,
+        )
+        .map(|_| ()),
         Err(QztError::ResourceLimitExceeded)
     );
 

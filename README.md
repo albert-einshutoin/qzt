@@ -5,6 +5,9 @@
 QZT is a binary format for storing large text as a cold evidence container.
 This repository contains the Rust reference implementation.
 
+It can also emit a deterministic, verified attestation for external signing or
+trusted timestamping, so container integrity can be anchored outside QZT.
+
 QZT does not try to build a better compression algorithm than zstd. It splits
 source text into independent zstd chunks and combines them with verifiable
 metadata, a Chunk Table, a Footer, and a search sidecar so callers can restore
@@ -43,14 +46,16 @@ production-ready):
 ./target/release/qzt docs bundle.qzt
 ./target/release/qzt doc bundle.qzt server-a.log -o restored.log
 ./target/release/qzt info output.qzt
+./target/release/qzt attest output.qzt > output.attest.json
 ./target/release/qzt range output.qzt --lines 1:10
 ./target/release/qzt sidecar-rebuild output.qzt -o output.qzt.qzi
 ./target/release/qzt search output.qzt "error" --sidecar output.qzt.qzi
 ```
 
 `pack` creates the container; `info` and `range` inspect and read slices
-without full decode; `sidecar-rebuild` builds a search index;
-`search --sidecar` queries it.
+without full decode; `attest` deep-verifies it and emits canonical JSON for
+external signing; `sidecar-rebuild` builds a search index; `search --sidecar`
+queries it. See the [attestation signing and anchoring guide](docs/guides/attestation.md).
 
 QZI (`.qzi`) is a derived, rebuildable, untrusted search sidecar—not part of
 the Core container format. Review its fail-closed boundary and on-disk layout
@@ -167,6 +172,7 @@ qzt pack-docs server-a.log server-b.log report.txt -o bundle.qzt
 qzt pack-docs server-a.log server-b.log -o logs.qzt --doc-id-prefix logs/ --profile memory
 qzt info output.qzt
 qzt info output.qzt --format json
+qzt attest output.qzt > output.attest.json
 qzt export output.qzt -o restored.txt
 qzt range output.qzt --bytes 0:1024
 qzt range output.qzt --lines 1:10
