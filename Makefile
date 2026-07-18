@@ -31,9 +31,9 @@ bench-release:
 bench-profile:
 	QZT_RELEASE_BENCH_QUERY_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_REPETITIONS) \
 	QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS) \
-	cargo test --release --all-features --test release_hardening release_benchmark_profile -- --ignored --nocapture
+	cargo test --release --all-features --test release_hardening release_benchmark_profile -- --ignored --exact --nocapture
 
 bench-profile-matrix:
 	QZT_RELEASE_BENCH_QUERY_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_REPETITIONS) \
 	QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS) \
-	cargo test --release --all-features --test release_hardening release_benchmark_profile_matrix -- --ignored --nocapture
+	cargo test --release --all-features --test release_hardening release_benchmark_profile_matrix -- --ignored --exact --nocapture
