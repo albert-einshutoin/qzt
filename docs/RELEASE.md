@@ -78,6 +78,41 @@ Attach the dry-run result, package file count, package size, and reviewed
 exclusions to issue #42. Do not include credentials or unrelated environment
 data in that evidence.
 
+## GitHub binary prerelease rehearsal
+
+Issue #43 is a reversible GitHub-only rehearsal and does not authorize a
+crates.io upload. Its manifest version is `0.1.0-pre.1`. A separate,
+owner-approved release pull request restores the stable `0.1.0` version only
+after this rehearsal and every other release prerequisite succeed.
+
+The generated `.github/workflows/release.yml` has a tag-push trigger and no
+branch or pull-request trigger. `make dist-check` regenerates it and reapplies
+the repository's least-privilege and digest-pin hardening. The `release`
+environment accepts only `v0.1.0-pre.*` tags and requires release-owner review
+before the write-enabled host job can create a Release. After the issue #43
+pull request is reviewed and merged, tag that exact merge commit and push only
+the rehearsal tag:
+
+```sh
+git switch main
+git pull --ff-only origin main
+git status --short
+git tag --annotate v0.1.0-pre.1 -m "qzt v0.1.0-pre.1"
+git push origin v0.1.0-pre.1
+```
+
+- [ ] The Release is marked as a prerelease.
+- [ ] `make dist-check` confirms the generated workflow plus hardening is current.
+- [ ] The release owner approves the protected `release` environment deployment.
+- [ ] All four target archives and their `.sha256` sidecars are present.
+- [ ] The extracted binary reports `qzt 0.1.0-pre.1` from `qzt --version`.
+- [ ] The Linux artifact links only to `libc.so.6` and Rust's GNU unwind
+      runtime `libgcc_s.so.1`; zstd is statically linked into the binary.
+
+Delete neither the rehearsal tag nor its Release after publishing: they are
+immutable evidence for the distribution path. A failed rehearsal is fixed by
+a new commit and a new prerelease version, never by moving the published tag.
+
 ## Owner-approved release pull request
 
 After every prerequisite is satisfied, prepare a dedicated release pull

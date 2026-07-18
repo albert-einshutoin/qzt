@@ -52,16 +52,31 @@ fn docs_rs_builds_the_public_default_feature_surface() {
 
 #[test]
 fn package_excludes_repository_only_material() {
+    let package = Command::new(env!("CARGO"))
+        .args(["package", "--allow-dirty", "--list"])
+        .output()
+        .expect("cargo package --list must run");
+    assert!(
+        package.status.success(),
+        "cargo package --list must succeed"
+    );
+    let packaged_files = String::from_utf8(package.stdout).expect("package list must be UTF-8");
+
+    // Test Cargo's effective package, not just matching strings in Cargo.toml:
+    // opening a metadata table above `exclude` silently changes its ownership.
     for excluded in [
-        "\".github/\"",
-        "\"fuzz/\"",
-        "\"tasks/\"",
-        "\"docs/QZT_v0.1_Core_Spec.md\"",
-        "\"docs/QZT_v0.1_Core_Spec.ja.md\"",
+        ".github/",
+        "fuzz/",
+        "scripts/",
+        "tasks/",
+        "docs/QZT_v0.1_Core_Spec.md",
+        "docs/QZT_v0.1_Core_Spec.ja.md",
     ] {
         assert!(
-            MANIFEST.contains(excluded),
-            "missing package exclusion: {excluded}"
+            !packaged_files
+                .lines()
+                .any(|path| path.starts_with(excluded)),
+            "repository-only material leaked into the package: {excluded}"
         );
     }
 }

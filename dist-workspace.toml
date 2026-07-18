@@ -1,0 +1,31 @@
+[workspace]
+members = ["cargo:."]
+
+# Config for 'dist'
+[dist]
+# The preferred dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.31.0"
+# CI backends to support
+ci = "github"
+# The installers to generate for each app
+installers = ["shell", "powershell"]
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = ["aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
+# Keep release automation tag-only. Pull requests are covered by the normal CI
+# and by `dist generate --check`, avoiding an expensive duplicate release plan.
+pr-run-mode = "skip"
+# SHA-256 sidecars let users verify every downloaded archive before execution.
+checksum = "sha256"
+# Path that installers should place binaries in
+install-path = "CARGO_HOME"
+# Where to host releases
+hosting = "github"
+# Whether to install an updater program
+install-updater = false
+
+# Pin every generated Action to the commit behind its reviewed major tag so a
+# moved tag cannot silently change the release supply chain.
+[dist.github-action-commits]
+"actions/checkout" = "df4cb1c069e1874edd31b4311f1884172cec0e10"
+"actions/upload-artifact" = "b7c566a772e6b6bfb58ed0dc250532a479d7789f"
+"actions/download-artifact" = "37930b1c2abaa49bbe596cd826c3c89aef350131"

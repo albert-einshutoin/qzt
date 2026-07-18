@@ -14,6 +14,12 @@ Container format for UTF-8 text.
 
 ### Added
 
+- Added reproducible GitHub binary distribution with `cargo-dist 0.31.0`,
+  tag-only release automation, SHA-256 sidecars, shell and PowerShell
+  installers, and four supported macOS/Linux/Windows targets. Both READMEs
+  document a version-pinned installer, manual checksum verification, and a
+  source-build fallback for the `v0.1.0-pre.1` rehearsal.
+
 - Added complete English and Japanese CLI references covering every command and
   option, honest profile behavior, range/line conventions, JSON schemas,
   canonical attestation bytes, exit codes, and stdout/stderr compatibility

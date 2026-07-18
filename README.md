@@ -24,6 +24,59 @@ only the required range and return to the original evidence position.
 When publishing QZT externally, it should be positioned as a
 `v0.1 technical preview`, not as production-ready software.
 
+## Install
+
+The first binary distribution will be the `v0.1.0-pre.1` technical preview.
+The commands below become available after the prerelease rehearsal in issue
+[#43](https://github.com/albert-einshutoin/qzt/issues/43) is marked complete.
+For security-sensitive installation, use the checksum-verified manual path
+below. As a convenience path, the generated installer selects the archive for
+your macOS or Linux host:
+
+```sh
+curl --proto '=https' --tlsv1.2 -LsSf \
+  https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.1/qzt-installer.sh \
+  | sh
+qzt --version
+```
+
+For a verified manual install, choose one of
+`aarch64-apple-darwin`, `x86_64-apple-darwin`, or
+`x86_64-unknown-linux-gnu`, then verify the downloaded archive before
+extracting it. This example is for Apple silicon:
+
+```sh
+set -eu
+release=v0.1.0-pre.1
+target=aarch64-apple-darwin
+archive="qzt-${target}.tar.xz"
+base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
+curl --proto '=https' --tlsv1.2 -fLO "${base}/${archive}"
+curl --proto '=https' --tlsv1.2 -fLO "${base}/${archive}.sha256"
+expected="$(awk 'NF { print $1; exit }' "${archive}.sha256")"
+actual="$(shasum -a 256 "${archive}" | awk '{ print $1 }')"
+test "${expected}" = "${actual}"
+tar -xJf "${archive}"
+./"qzt-${target}"/qzt --version
+```
+
+Windows users can download the matching `.zip` and `.zip.sha256` assets and
+verify them before extraction:
+
+```powershell
+$archive = "qzt-x86_64-pc-windows-msvc.zip"
+$expected = (Get-Content "$archive.sha256" | Select-String -Pattern '\S').Line.Split()[0]
+$actual = (Get-FileHash -Algorithm SHA256 $archive).Hash
+if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
+```
+
+Alternatively, run `qzt-installer.ps1` from the same Release. To build from
+the reviewed tag instead of downloading a prebuilt binary:
+
+```sh
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.1 --locked
+```
+
 ## Build / Quick Start
 
 Build the release binary from the repository root:

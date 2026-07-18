@@ -1,0 +1,41 @@
+      - name: Install digest-pinned dist (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${RUNNER_OS}-${RUNNER_ARCH}" in
+            Linux-X64)
+              archive="cargo-dist-x86_64-unknown-linux-gnu.tar.xz"
+              expected="cd355dab0b4c02fb59038fef87655550021d07f45f1d82f947a34ef98560abb8"
+              ;;
+            macOS-X64)
+              archive="cargo-dist-x86_64-apple-darwin.tar.xz"
+              expected="fd4d8f9f07802359cbcdc52bac3abd7d5201c4b73a7cbcdd6faca2232a389f0c"
+              ;;
+            macOS-ARM64)
+              archive="cargo-dist-aarch64-apple-darwin.tar.xz"
+              expected="decb01c64c12501931c3cac3111b368a7f48adf8d9e65455c08e5757b9a1fd6f"
+              ;;
+            *) echo "unsupported cargo-dist runner: ${RUNNER_OS}-${RUNNER_ARCH}" >&2; exit 1 ;;
+          esac
+          url="https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/${archive}"
+          path="${RUNNER_TEMP}/${archive}"
+          curl --proto '=https' --tlsv1.2 -fsSL "${url}" -o "${path}"
+          actual="$(shasum -a 256 "${path}" | awk '{ print $1 }')"
+          test "${expected}" = "${actual}"
+          tar -xJf "${path}" -C "${RUNNER_TEMP}"
+          install -m 0755 "${RUNNER_TEMP}/${archive%.tar.xz}/dist" "${HOME}/.cargo/bin/dist"
+      - name: Install digest-pinned dist (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $archive = "cargo-dist-x86_64-pc-windows-msvc.zip"
+          $expected = "a14e17557b269b101405e0cc6b647581d56313c954a51c7fddd423bba21e17b2"
+          $url = "https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/$archive"
+          $path = Join-Path $env:RUNNER_TEMP $archive
+          Invoke-WebRequest -Uri $url -OutFile $path
+          $actual = (Get-FileHash -Algorithm SHA256 $path).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw "cargo-dist SHA-256 checksum mismatch" }
+          $destination = Join-Path $env:RUNNER_TEMP "cargo-dist"
+          Expand-Archive -Path $path -DestinationPath $destination
+          Copy-Item (Join-Path $destination "dist.exe") (Join-Path $env:USERPROFILE ".cargo\bin\dist.exe") -Force

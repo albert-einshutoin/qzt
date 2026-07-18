@@ -66,6 +66,38 @@ git diff --exit-code HEAD --
 Issue #42にはdry-run結果、ファイル数、packageサイズ、除外確認を記録し、
 認証情報や無関係な環境情報は載せません。
 
+## GitHub binary prerelease rehearsal
+
+Issue #43はGitHubだけを使う可逆な予行であり、crates.ioへの公開を許可しません。
+manifest versionは`0.1.0-pre.1`とし、この予行と他の全release前提が成功した後、
+release ownerが承認する専用PRでのみstable版`0.1.0`へ戻します。
+
+生成された`.github/workflows/release.yml`はtag pushだけをtriggerにし、branchや
+pull requestでは起動しません。`make dist-check`はworkflowを再生成し、リポジトリの
+最小権限化とdigest固定を再適用します。`release` environmentは
+`v0.1.0-pre.*` tagだけを許可し、write権限を持つhost jobの前にrelease ownerの
+reviewを要求します。Issue #43のPRをreviewしてmergeした後、その正確なmerge
+commitへ予行tagだけを付けます。
+
+```sh
+git switch main
+git pull --ff-only origin main
+git status --short
+git tag --annotate v0.1.0-pre.1 -m "qzt v0.1.0-pre.1"
+git push origin v0.1.0-pre.1
+```
+
+- [ ] Releaseがprereleaseとして表示される
+- [ ] `make dist-check`で生成workflowとhardeningが最新である
+- [ ] release ownerが保護された`release` environmentへのdeploymentを承認する
+- [ ] 4 targetのarchiveと各`.sha256` sidecarがある
+- [ ] 展開したbinaryの`qzt --version`が`qzt 0.1.0-pre.1`を返す
+- [ ] Linux artifactの動的依存が`libc.so.6`とRustのGNU unwind runtime
+      `libgcc_s.so.1`だけで、zstdはbinaryへ静的linkされている
+
+公開後は予行tagとReleaseを削除しません。これらは配布経路のimmutableな証跡です。
+失敗時は公開済みtagを動かさず、新しいcommitとprerelease versionで修正します。
+
 ## オーナー承認制リリースPR
 
 - [ ] CHANGELOGの`Unreleased`を`0.1.0 - YYYY-MM-DD`へ確定
