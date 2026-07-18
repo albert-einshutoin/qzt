@@ -84,6 +84,9 @@ fn generated_release_workflow_has_no_branch_or_pull_request_trigger() {
     );
     assert!(CI_WORKFLOW.contains("name: dist workflow"));
     assert!(CI_WORKFLOW.contains("run: make dist-check"));
+    assert!(CI_WORKFLOW.contains("name: windows release build"));
+    assert!(CI_WORKFLOW.contains("runs-on: windows-latest"));
+    assert!(CI_WORKFLOW.contains("cargo build --release --locked"));
     for digest in [
         "decb01c64c12501931c3cac3111b368a7f48adf8d9e65455c08e5757b9a1fd6f",
         "fd4d8f9f07802359cbcdc52bac3abd7d5201c4b73a7cbcdd6faca2232a389f0c",

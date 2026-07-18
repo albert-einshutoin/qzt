@@ -48,3 +48,28 @@ impl ReadAt for File {
         Ok(())
     }
 }
+
+#[cfg(windows)]
+impl ReadAt for File {
+    fn read_exact_at(&self, offset: u64, mut buf: &mut [u8]) -> io::Result<()> {
+        use std::os::windows::fs::FileExt;
+
+        // `seek_read` is Windows' positioned-read primitive. Keep the same
+        // exact-read loop as Unix because filesystem reads may legally return
+        // fewer bytes than requested, and moving the shared file cursor would
+        // make concurrent partial decompression and search nondeterministic.
+        let mut current = offset;
+        while !buf.is_empty() {
+            let read = FileExt::seek_read(self, buf, current)?;
+            if read == 0 {
+                return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "short read"));
+            }
+            current = current
+                .checked_add(read as u64)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "range overflow"))?;
+            let (_, rest) = buf.split_at_mut(read);
+            buf = rest;
+        }
+        Ok(())
+    }
+}
