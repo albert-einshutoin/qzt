@@ -274,13 +274,13 @@ query が sidecar の n-gram `n`（デフォルト 3）より短い場合、inde
 
 ## ドキュメント
 
-- 仕様要約: [docs/QZT_v0.1_Core_Spec.ja.md](docs/QZT_v0.1_Core_Spec.ja.md)
+- 仕様要約: [docs/QZT_v0.1_Core_Spec.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/docs/QZT_v0.1_Core_Spec.ja.md)
 - v0.1 byte-layout 互換性方針（英語正本）: [docs/QZT_v0.1_Format_Stability.md](docs/QZT_v0.1_Format_Stability.md)
 - QZI sidecar 仕様: [docs/QZI_v0.1_Sidecar_Spec.ja.md](docs/QZI_v0.1_Sidecar_Spec.ja.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.ja.md](docs/QZT_v0.1_Core_Readiness.ja.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.ja.md](docs/QZT_v0.1_Release_Hardening.ja.md)
-- 実装 Phase: [tasks/README.ja.md](tasks/README.ja.md)
-- 進捗: [tasks/status.ja.md](tasks/status.ja.md)
+- 実装 Phase: [tasks/README.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.ja.md)
+- 進捗: [tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)
 
 ## Phase 計画
 
@@ -295,5 +295,6 @@ query が sidecar の n-gram `n`（デフォルト 3）より短い場合、inde
   resource governance、curated public API、verified evidence retrieval、portable
   conformance vectors と frozen format-stability statement。
 
-Phase ドキュメントは [tasks/](tasks/) にあり、日本語版は同じディレクトリの `*.ja.md` です。
-進捗は [tasks/status.md](tasks/status.md) と [tasks/status.ja.md](tasks/status.ja.md) で管理します。
+Phase ドキュメントは [tasks/](https://github.com/albert-einshutoin/qzt/tree/main/tasks) にあり、日本語版は同じディレクトリの `*.ja.md` です。
+進捗は [tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md) と
+[tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md) で管理します。

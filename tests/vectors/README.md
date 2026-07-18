@@ -1,6 +1,6 @@
 # QZT v0.1 Portable Conformance Vector Kit
 
-This directory and the [QZT v0.1 Core specification](../../docs/QZT_v0.1_Core_Spec.md)
+This directory and the [QZT v0.1 Core specification](https://github.com/albert-einshutoin/qzt/blob/main/docs/QZT_v0.1_Core_Spec.md)
 are sufficient to test an independent QZT reader. The kit covers empty and
 multi-chunk containers, newline modes, multibyte UTF-8, optional Dense Line and
 Document indexes, and corruption detected during structural open or deep

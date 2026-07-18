@@ -39,5 +39,7 @@ also re-exported at crate root.
   version bump while pre-1.0.
 - Internal module changes may happen in patch releases during the technical
   preview.
-- crates.io publish dry-run remains deferred until the public API has completed
-  Phase20 verification and the release owner explicitly opens the publish gate.
+- The crate is package- and publish-dry-run ready, but `publish = false` remains
+  enforced. Actual crates.io publication requires issues #22 and #30 to be
+  merged and the release owner to explicitly open the irreversible publish
+  gate; see [RELEASE.md](RELEASE.md).

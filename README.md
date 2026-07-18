@@ -301,13 +301,13 @@ another profile such as `core`.
 
 ## Documentation
 
-- Core spec summary: [docs/QZT_v0.1_Core_Spec.md](docs/QZT_v0.1_Core_Spec.md)
+- Core spec summary: [docs/QZT_v0.1_Core_Spec.md](https://github.com/albert-einshutoin/qzt/blob/main/docs/QZT_v0.1_Core_Spec.md)
 - Format stability: [docs/QZT_v0.1_Format_Stability.md](docs/QZT_v0.1_Format_Stability.md)
 - QZI sidecar spec: [docs/QZI_v0.1_Sidecar_Spec.md](docs/QZI_v0.1_Sidecar_Spec.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.md](docs/QZT_v0.1_Core_Readiness.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md)
-- Implementation phases: [tasks/README.md](tasks/README.md)
-- Progress: [tasks/status.md](tasks/status.md)
+- Implementation phases: [tasks/README.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.md)
+- Progress: [tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)
 
 ## Phase Plan
 
@@ -323,6 +323,7 @@ Implementation proceeded in two tracks, all phases complete:
   retrieval, and portable conformance vectors with a frozen format-stability
   statement.
 
-Phase docs live in [tasks/](tasks/); Japanese versions are available as
+Phase docs live in [tasks/](https://github.com/albert-einshutoin/qzt/tree/main/tasks); Japanese versions are available as
 `*.ja.md` files in the same directory. Current progress is tracked in
-[tasks/status.md](tasks/status.md) and [tasks/status.ja.md](tasks/status.ja.md).
+[tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md) and
+[tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md).
