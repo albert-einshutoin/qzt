@@ -182,6 +182,164 @@ fn cli_rebuilds_sidecar_and_searches_with_it() {
 }
 
 #[test]
+fn cli_inspects_validated_token_and_ngram_sidecars_as_text_and_json() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase13-inspect-sidecar-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    fs::write(&input, "東京 alpha\n京都 beta\n").expect("input should be written");
+
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+
+    for (kind, ngram_n) in [("token", None), ("ngram", Some(2_u64))] {
+        let sidecar = base.join(format!("input.{kind}.qzi"));
+        let mut rebuild = Command::new(env!("CARGO_BIN_EXE_qzt"));
+        rebuild
+            .arg("sidecar-rebuild")
+            .arg(&packed)
+            .arg("-o")
+            .arg(&sidecar)
+            .arg("--index")
+            .arg(kind);
+        if let Some(n) = ngram_n {
+            rebuild.arg("--ngram").arg(n.to_string());
+        }
+        assert_success(&mut rebuild);
+
+        let text = output_success(
+            Command::new(env!("CARGO_BIN_EXE_qzt"))
+                .arg("inspect-sidecar")
+                .arg(&packed)
+                .arg("--sidecar")
+                .arg(&sidecar),
+        );
+        let text = String::from_utf8(text).expect("text output should be UTF-8");
+        for field in [
+            format!("index_type={kind}"),
+            format!(
+                "ngram_n={}",
+                ngram_n.map_or_else(|| "none".to_owned(), |n| n.to_string())
+            ),
+            "complete=true".to_owned(),
+            "high_df_per_million=".to_owned(),
+            "source_size_bytes=".to_owned(),
+            "index_size_bytes=".to_owned(),
+            "granule_count=".to_owned(),
+            "term_count=".to_owned(),
+            "postings_size_bytes=".to_owned(),
+        ] {
+            assert!(text.contains(&field), "missing {field:?} in:\n{text}");
+        }
+
+        let json = output_success(
+            Command::new(env!("CARGO_BIN_EXE_qzt"))
+                .arg("inspect-sidecar")
+                .arg(&packed)
+                .arg("--sidecar")
+                .arg(&sidecar)
+                .args(["--format", "json"]),
+        );
+        let json: serde_json::Value =
+            serde_json::from_slice(&json).expect("inspect JSON should parse");
+        assert_eq!(json["index_type"], serde_json::json!(kind));
+        assert_eq!(json["ngram_n"], serde_json::json!(ngram_n));
+        assert_eq!(json["complete"], serde_json::json!(true));
+        for field in [
+            "high_df_per_million",
+            "source_size_bytes",
+            "index_size_bytes",
+            "granule_count",
+            "term_count",
+            "postings_size_bytes",
+        ] {
+            assert!(json[field].is_u64(), "{field} should be an integer: {json}");
+        }
+    }
+
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn cli_inspect_sidecar_rejects_corruption_without_affecting_core_verify() {
+    let base = std::env::temp_dir().join(format!(
+        "qzt-phase13-inspect-corrupt-{}",
+        std::process::id()
+    ));
+    let _ = fs::create_dir_all(&base);
+    let input = base.join("input.txt");
+    let packed = base.join("input.qzt");
+    let sidecar = base.join("input.qzi");
+    fs::write(&input, b"alpha\nbeta\n").expect("input should be written");
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&input)
+            .arg("-o")
+            .arg(&packed),
+    );
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("sidecar-rebuild")
+            .arg(&packed)
+            .arg("-o")
+            .arg(&sidecar),
+    );
+
+    let other_input = base.join("other.txt");
+    let other_packed = base.join("other.qzt");
+    fs::write(&other_input, b"different\n").expect("other input should be written");
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("pack")
+            .arg(&other_input)
+            .arg("-o")
+            .arg(&other_packed),
+    );
+    let mismatch = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("inspect-sidecar")
+        .arg(&other_packed)
+        .arg("--sidecar")
+        .arg(&sidecar)
+        .output()
+        .expect("mismatched inspect command should run");
+    assert_eq!(mismatch.status.code(), Some(1));
+    assert!(mismatch.stdout.is_empty());
+
+    let mut bytes = fs::read(&sidecar).expect("sidecar should be readable");
+    flip_first_sidecar_payload_byte(&mut bytes);
+    fs::write(&sidecar, bytes).expect("corrupt sidecar should be writable");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("inspect-sidecar")
+        .arg(&packed)
+        .arg("--sidecar")
+        .arg(&sidecar)
+        .args(["--format", "json"])
+        .output()
+        .expect("inspect command should run");
+    assert_eq!(output.status.code(), Some(1));
+    assert!(output.stdout.is_empty(), "failure must not print a summary");
+    assert!(!String::from_utf8_lossy(&output.stderr).contains("panicked"));
+    assert_success(
+        Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("verify")
+            .arg(&packed)
+            .arg("--deep"),
+    );
+
+    let _ = fs::remove_dir_all(base);
+}
+
+#[test]
 fn unsupported_source_format_version_sidecar_is_rejected() {
     let input = b"alpha\n";
     let container = pack_bytes_with_container_id(input, [0xec; 16], writer_options(64, 64))
@@ -326,6 +484,29 @@ fn truncated_section_sidecar_cli_exits_without_panic() {
 fn section_checksum_bit_flip_sidecar_cli_exits_without_panic() {
     run_corrupted_sidecar_cli_test("checksum-bit-flip", |sidecar| {
         flip_first_sidecar_payload_byte(sidecar);
+    });
+}
+
+#[test]
+fn manifest_byte_flip_sidecar_cli_exits_without_panic() {
+    run_corrupted_sidecar_cli_test("manifest-byte-flip", |sidecar| {
+        sidecar[16] ^= 0xff;
+    });
+}
+
+#[test]
+fn terms_byte_flip_sidecar_cli_exits_without_panic() {
+    run_corrupted_sidecar_cli_test("terms-byte-flip", |sidecar| {
+        let offset = compact_v2_terms_offset(sidecar);
+        sidecar[offset] ^= 0xff;
+    });
+}
+
+#[test]
+fn postings_byte_flip_sidecar_cli_exits_without_panic() {
+    run_corrupted_sidecar_cli_test("postings-byte-flip", |sidecar| {
+        let offset = compact_v2_postings_offset(sidecar);
+        sidecar[offset] ^= 0xff;
     });
 }
 
@@ -584,6 +765,60 @@ fn flip_first_sidecar_payload_byte(sidecar: &mut [u8]) {
         "sidecar must have at least one payload byte"
     );
     sidecar[payload_offset] ^= 0xff;
+}
+
+fn compact_v2_terms_offset(sidecar: &[u8]) -> usize {
+    const SIDECAR_HEADER_LEN: usize = 16;
+    const COMPACT_LINE_GRANULE_RECORD_LEN: usize = 20;
+    let manifest_size = usize::try_from(u64::from_le_bytes(
+        sidecar[8..SIDECAR_HEADER_LEN]
+            .try_into()
+            .expect("manifest size bytes"),
+    ))
+    .expect("manifest size should fit usize");
+    let payload_offset = SIDECAR_HEADER_LEN + manifest_size;
+    let granule_count = usize::try_from(u64::from_le_bytes(
+        sidecar[payload_offset..payload_offset + 8]
+            .try_into()
+            .expect("granule count bytes"),
+    ))
+    .expect("granule count should fit usize");
+    payload_offset + 8 + granule_count * COMPACT_LINE_GRANULE_RECORD_LEN
+}
+
+fn compact_v2_postings_offset(sidecar: &[u8]) -> usize {
+    // v2 writes postings immediately after the compact term dictionary. Walk
+    // its length-prefixed records so each corruption test targets one section.
+    let terms_offset = compact_v2_terms_offset(sidecar);
+    let mut cursor = terms_offset;
+    let term_count = usize::try_from(u64::from_le_bytes(
+        sidecar[cursor..cursor + 8]
+            .try_into()
+            .expect("term count bytes"),
+    ))
+    .expect("term count should fit usize");
+    cursor += 8;
+    for _ in 0..term_count {
+        let key_len = read_test_varuint(sidecar, &mut cursor);
+        cursor += usize::try_from(key_len).expect("key length should fit usize");
+        let _granule_frequency = read_test_varuint(sidecar, &mut cursor);
+        let _posting_size = read_test_varuint(sidecar, &mut cursor);
+    }
+    cursor
+}
+
+fn read_test_varuint(bytes: &[u8], cursor: &mut usize) -> u64 {
+    let mut value = 0_u64;
+    let mut shift = 0_u32;
+    loop {
+        let byte = bytes[*cursor];
+        *cursor += 1;
+        value |= u64::from(byte & 0x7f) << shift;
+        if byte & 0x80 == 0 {
+            return value;
+        }
+        shift += 7;
+    }
 }
 
 fn patch_sidecar_source_format_version(sidecar: &mut [u8], major: u8, minor: u8) {

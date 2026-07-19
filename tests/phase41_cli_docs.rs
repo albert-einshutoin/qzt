@@ -111,7 +111,7 @@ fn documented_command_set_matches_the_cli_dispatch_and_outlines_match() {
             suffix.contains("=> run_").then_some(command)
         })
         .collect::<Vec<_>>();
-    assert_eq!(dispatched.len(), 12, "new dispatch arms require CLI docs");
+    assert_eq!(dispatched.len(), 13, "new dispatch arms require CLI docs");
     for command in dispatched {
         let signature = format!("`qzt {command}");
         assert!(ENGLISH.contains(&signature), "English docs miss {command}");
