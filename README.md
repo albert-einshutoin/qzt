@@ -14,7 +14,14 @@
 
 ## Install
 
-Install the live [`v0.1.0-pre.2` technical preview](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
+Install the stable crate after `v0.1.0` is published on crates.io:
+
+```sh
+cargo install qzt --version 0.1.0 --locked
+```
+
+Until the crates.io package is available, install the live
+[`v0.1.0-pre.2` technical preview](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
 on macOS or Linux:
 
 ```sh

@@ -61,7 +61,7 @@ Run a focused test for the file you touched first, then the repository gate:
 
 ```sh
 # replace phase9_hardening with your integration test binary name
-cargo test --test phase9_hardening -- --nocapture
+cargo test --all-features --test phase9_hardening -- --nocapture
 
 make check
 ```
