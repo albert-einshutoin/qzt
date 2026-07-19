@@ -55,7 +55,7 @@ These meanings are frozen for v0.1:
 
 ### `qzt pack <INPUT|-> -o <OUTPUT> [OPTIONS]`
 
-Pack one UTF-8 byte stream. `INPUT` must be the first command argument.
+Pack one UTF-8 byte stream. Options may appear before or after `INPUT`.
 
 | Option | Meaning and default |
 |---|---|

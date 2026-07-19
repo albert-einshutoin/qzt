@@ -7,6 +7,7 @@ const CHANGELOG: &str = include_str!("../CHANGELOG.md");
 const README: &str = include_str!("../README.md");
 const JAPANESE_README: &str = include_str!("../README.ja.md");
 const VECTOR_README: &str = include_str!("vectors/README.md");
+const CONTRIBUTING: &str = include_str!("../CONTRIBUTING.md");
 
 #[test]
 fn owner_approved_release_manifest_is_stable_and_publishable() {
@@ -187,5 +188,13 @@ fn changelog_points_release_owners_to_the_new_gate() {
     assert!(CHANGELOG.contains("[release checklist](docs/RELEASE.md)"));
     assert!(
         !CHANGELOG.contains("crates.io publication and publish dry-run until Phase20 stabilizes")
+    );
+}
+
+#[test]
+fn contributing_focused_internal_test_enables_the_required_feature() {
+    assert!(
+        CONTRIBUTING.contains("cargo test --all-features --test phase9_hardening -- --nocapture"),
+        "the documented focused hardening command must compile internal-testing imports"
     );
 }

@@ -122,6 +122,7 @@ fn both_readmes_offer_installer_checksum_and_source_fallback_paths() {
     for readme in [README, JAPANESE_README] {
         for requirement in [
             "## Install",
+            "cargo install qzt --version 0.1.0 --locked",
             "qzt-installer.sh",
             "v0.1.0-pre.2",
             ".sha256",

@@ -48,7 +48,7 @@ v0.1では次の意味を固定します。
 
 ### `qzt pack <INPUT|-> -o <OUTPUT> [OPTIONS]`
 
-1つのUTF-8 byte streamを固定します。`INPUT`は必ず最初のcommand引数です。
+1つのUTF-8 byte streamを固定します。optionは`INPUT`の前後どちらにも指定できます。
 
 | option | 意味と既定値 |
 |---|---|
