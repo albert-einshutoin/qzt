@@ -41,10 +41,10 @@ v0.1では次の意味を固定します。
 
 ## コマンド
 
-### `qzt help`, `qzt --help`, `qzt --version`
+### `qzt help`, `qzt --help`, `qzt version`, `qzt --version`
 
 `help`, `-h`, `--help`はtop-level helpを表示して終了`0`です。`-V`と
-`--version`は`qzt <version>`を表示して終了`0`です。
+`--version`、および`version` commandは`qzt <version>`を表示して終了`0`です。
 
 ### `qzt pack <INPUT|-> -o <OUTPUT> [OPTIONS]`
 

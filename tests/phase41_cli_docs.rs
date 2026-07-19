@@ -18,6 +18,7 @@ fn english_and_japanese_references_cover_every_command_and_option() {
     for document in [ENGLISH, JAPANESE] {
         for command in [
             "qzt help",
+            "qzt version",
             "qzt pack <INPUT|->",
             "qzt pack-docs <INPUT>...",
             "qzt info <FILE>",
@@ -450,6 +451,7 @@ fn help_and_version_report_closed_stdout_as_runtime_failure() {
     for arguments in [
         vec!["--help"],
         vec!["--version"],
+        vec!["version"],
         vec!["pack", "--help"],
         vec!["pack-docs", "--help"],
         vec!["attest", "--help"],
@@ -480,9 +482,9 @@ fn run_with_closed_stdout(arguments: &[&str]) -> Output {
 
 #[test]
 fn version_stdout_matches_the_documented_stable_form() {
-    for flag in ["--version", "-V"] {
+    for argument in ["--version", "-V", "version"] {
         let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
-            .arg(flag)
+            .arg(argument)
             .output()
             .expect("qzt version should run");
         assert!(output.status.success());
