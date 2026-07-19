@@ -35,6 +35,57 @@ fn cbor_decoder_uses_caller_supplied_allocation_budget() {
 }
 
 #[test]
+fn cbor_decoder_rejects_excessive_nesting_before_recursing_unboundedly() {
+    let mut encoded = vec![0x81; 65];
+    encoded.push(0xf6);
+
+    assert_eq!(
+        validate_deterministic_with_limits(&encoded, CborLimits::default()),
+        Err(QztError::ResourceLimitExceeded)
+    );
+}
+
+#[test]
+fn cbor_decoder_applies_allocation_budget_to_the_complete_value() {
+    let encoded = encode_deterministic(&CborValue::Array(vec![
+        CborValue::Bytes(vec![0_u8; 8]),
+        CborValue::Bytes(vec![1_u8; 8]),
+    ]))
+    .expect("cbor should encode");
+
+    assert_eq!(
+        validate_deterministic_with_limits(
+            &encoded,
+            CborLimits {
+                max_allocation: 8,
+                max_items: 1024,
+            },
+        ),
+        Err(QztError::ResourceLimitExceeded)
+    );
+}
+
+#[test]
+fn cbor_decoder_applies_item_budget_across_nested_containers() {
+    let encoded = encode_deterministic(&CborValue::Array(vec![
+        CborValue::Array(vec![CborValue::Null, CborValue::Null]),
+        CborValue::Array(vec![CborValue::Null, CborValue::Null]),
+    ]))
+    .expect("cbor should encode");
+
+    assert_eq!(
+        validate_deterministic_with_limits(
+            &encoded,
+            CborLimits {
+                max_allocation: 1024,
+                max_items: 2,
+            },
+        ),
+        Err(QztError::ResourceLimitExceeded)
+    );
+}
+
+#[test]
 fn open_with_limits_threads_cbor_budget_into_metadata_decode() {
     let input = b"alpha\nbeta\n";
     let container = pack_bytes(input, writer_options(64, 64)).expect("pack");
