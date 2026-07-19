@@ -14,6 +14,12 @@ Container format for UTF-8 text.
 
 ### Added
 
+- Added `QztReader::read_range_with_metrics` and
+  `QztFileReader::read_range_with_metrics`, returning the exact requested bytes
+  with decoded-chunk, decoded-byte, and compressed-payload work metrics. A
+  reproducible 1 GiB benchmark and isolated RSS probe retain evidence that a
+  64 KiB range restores one bounded chunk without whole-container decoding.
+
 - Added `qzt inspect-sidecar <file.qzt> --sidecar <file.qzi>` with text and JSON
   summaries. It validates all QZI section checksums and the QZT source binding
   before exposing index type, completeness, sizing, granule, term, and postings

@@ -1,0 +1,8 @@
+QZT_PARTIAL_BENCH_CORPUS_BYTES=1073741824 \
+  cargo test --release --all-features --test phase46_partial_decompression partial_decompression_probe_records_bounded_work_on_a_scalable_corpus -- --exact --nocapture
+   Compiling qzt v0.1.0
+    Finished `release` profile [optimized] target(s) in 0.30s
+running 1 test
+partial_decompression_benchmark corpus_id=C2 corpus_bytes=1073741824 qzt_bytes=59015504 range_offset=805306368 returned_bytes=65536 decoded_chunks=1 decoded_bytes=262085 compressed_bytes=14339 range_micros=213
+test partial_decompression_probe_records_bounded_work_on_a_scalable_corpus ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 2.86s

@@ -40,15 +40,18 @@ internal_module!(skeleton);
 internal_module!(writer);
 
 pub use benchmark::{
-    CompetitiveBenchmarkOptions, CompetitiveBenchmarkReport, ReleaseBenchmarkOptions,
-    ReleaseBenchmarkReport, run_competitive_benchmark, run_release_benchmark,
+    CompetitiveBenchmarkOptions, CompetitiveBenchmarkReport, PartialDecompressionBenchmarkOptions,
+    PartialDecompressionBenchmarkReport, ReleaseBenchmarkOptions, ReleaseBenchmarkReport,
+    run_competitive_benchmark, run_partial_decompression_benchmark, run_release_benchmark,
 };
 pub use chunker::ChunkerOptions;
 pub use corpus::{CorpusKind, ValidationCorpusOptions, generate_validation_corpus};
 pub use error::{QztError, Result};
 pub use io::ReadAt;
 pub use limits::ResourceLimits;
-pub use reader::{QztFileReader, QztInfo, QztReader, VerifyLevel, VerifyReport};
+pub use reader::{
+    QztFileReader, QztInfo, QztReader, RangeReadMetrics, RangeReadReport, VerifyLevel, VerifyReport,
+};
 pub use schema::{Checksum, DocumentEntry, DocumentIndex};
 pub use search::{
     NgramIndexBuildOptions, PlannerDecision, RawNgramIndex, RawTokenIndex, SearchHit,

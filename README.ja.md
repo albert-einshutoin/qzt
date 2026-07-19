@@ -188,6 +188,11 @@ cargo test --release --all-features --test phase18_competitive_benchmark -- --no
 [competitive benchmark methodology](docs/QZT_v0.1_Competitive_Benchmarks.md)
 を参照してください。
 
+実際に解凍したbyte数、圧縮payload読込量、独立processのpeak RSSを含む
+production-scale range access結果は
+[1 GiB partial-decompression evidence](docs/benchmarks/2026-07-partial-decompression.md)
+を参照してください。
+
 ## ローカル品質ゲート
 
 ```sh

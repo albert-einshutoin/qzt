@@ -194,6 +194,10 @@ cargo test --release --all-features --test phase18_competitive_benchmark -- --no
 See [the competitive benchmark methodology](docs/QZT_v0.1_Competitive_Benchmarks.md)
 for details and guidance on when to use QZT.
 
+For the production-scale range-access result, including decoded bytes,
+compressed payload reads, and an isolated peak-RSS probe, see the
+[1 GiB partial-decompression evidence](docs/benchmarks/2026-07-partial-decompression.md).
+
 ## Local Quality Gate
 
 ```sh
