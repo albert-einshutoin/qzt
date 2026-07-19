@@ -71,6 +71,10 @@ focused command even if the new evidence test lives in another phase file.
 
 ## Security Scans
 
+Report suspected vulnerabilities privately through the
+[Security Policy](SECURITY.md). Do not include exploit details or secrets in a
+public issue or pull request.
+
 CI runs Semgrep CE, OSV Scanner, and Gitleaks on pull requests, pushes,
 scheduled scans, and manual dispatches.
 
