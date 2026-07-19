@@ -14,6 +14,12 @@ Container format for UTF-8 text.
 
 ### Added
 
+- Added `QztReader::read_range_with_metrics` and
+  `QztFileReader::read_range_with_metrics`, returning the exact requested bytes
+  with decoded-chunk, decoded-byte, and compressed-payload work metrics. A
+  reproducible 1 GiB benchmark and isolated RSS probe retain evidence that a
+  64 KiB range restores one bounded chunk without whole-container decoding.
+
 - Added reproducible GitHub binary distribution with `cargo-dist 0.31.0`,
   tag-only release automation, SHA-256 sidecars, shell and PowerShell
   installers, and four supported macOS/Linux/Windows targets. Both READMEs
