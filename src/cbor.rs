@@ -4,9 +4,15 @@ use crate::primitives::{u64_to_usize, usize_to_u64};
 /// Resource budget for deterministic CBOR decoding.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CborLimits {
+    /// Maximum aggregate bytes allocated for byte/text payloads and map-key copies.
     pub max_allocation: u64,
+    /// Maximum aggregate number of decoded CBOR values, including the root value.
     pub max_items: u64,
 }
+
+// QZT schemas are deliberately shallow. A fixed ceiling prevents hostile CBOR
+// from exhausting the native stack before byte and item budgets can intervene.
+const MAX_NESTING_DEPTH: u64 = 64;
 
 impl Default for CborLimits {
     fn default() -> Self {
@@ -50,9 +56,10 @@ pub fn validate_deterministic_with_limits(input: &[u8], limits: CborLimits) -> R
     let mut parser = Parser {
         input,
         offset: 0,
-        limits,
+        remaining_allocation: limits.max_allocation,
+        remaining_items: limits.max_items,
     };
-    let value = parser.parse_value()?;
+    let value = parser.parse_value(0)?;
 
     if parser.offset != input.len() {
         return Err(QztError::NonCanonicalCbor);
@@ -204,11 +211,20 @@ fn encode_type_and_argument(major: u8, value: u64, out: &mut Vec<u8>) {
 struct Parser<'a> {
     input: &'a [u8],
     offset: usize,
-    limits: CborLimits,
+    remaining_allocation: u64,
+    remaining_items: u64,
 }
 
 impl Parser<'_> {
-    fn parse_value(&mut self) -> Result<CborValue> {
+    fn parse_value(&mut self, depth: u64) -> Result<CborValue> {
+        if depth > MAX_NESTING_DEPTH {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+        self.remaining_items = self
+            .remaining_items
+            .checked_sub(1)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+
         let initial = self.read_u8()?;
         let major = initial >> 5;
         let additional = initial & 0x1f;
@@ -223,8 +239,8 @@ impl Parser<'_> {
             }
             2 => self.parse_bytes(additional),
             3 => self.parse_text(additional),
-            4 => self.parse_array(additional),
-            5 => self.parse_map(additional),
+            4 => self.parse_array(additional, depth),
+            5 => self.parse_map(additional, depth),
             6 => Err(QztError::NonCanonicalCbor),
             7 => Self::parse_simple(additional),
             _ => unreachable!("CBOR major type is three bits"),
@@ -232,35 +248,46 @@ impl Parser<'_> {
     }
 
     fn parse_bytes(&mut self, additional: u8) -> Result<CborValue> {
-        let len = self.read_len(additional, self.limits.max_allocation)?;
+        let len = self.read_len(additional, self.remaining_allocation)?;
+        self.consume_allocation(len)?;
         let bytes = self.read_exact(len)?.to_vec();
         Ok(CborValue::Bytes(bytes))
     }
 
     fn parse_text(&mut self, additional: u8) -> Result<CborValue> {
-        let len = self.read_len(additional, self.limits.max_allocation)?;
+        let len = self.read_len(additional, self.remaining_allocation)?;
+        self.consume_allocation(len)?;
         let bytes = self.read_exact(len)?;
         let text = std::str::from_utf8(bytes).map_err(|_| QztError::InvalidUtf8)?;
         Ok(CborValue::Text(text.to_owned()))
     }
 
-    fn parse_array(&mut self, additional: u8) -> Result<CborValue> {
-        let len = self.read_len(additional, self.limits.max_items)?;
-        let mut values = Vec::with_capacity(len);
+    fn parse_array(&mut self, additional: u8, depth: u64) -> Result<CborValue> {
+        let len = self.read_len(additional, self.remaining_items)?;
+        let mut values = Vec::new();
+        values
+            .try_reserve_exact(len)
+            .map_err(|_| QztError::ResourceLimitExceeded)?;
         for _ in 0..len {
-            values.push(self.parse_value()?);
+            values.push(self.parse_value(depth_next(depth)?)?);
         }
         Ok(CborValue::Array(values))
     }
 
-    fn parse_map(&mut self, additional: u8) -> Result<CborValue> {
-        let len = self.read_len(additional, self.limits.max_items)?;
-        let mut entries = Vec::with_capacity(len);
+    fn parse_map(&mut self, additional: u8, depth: u64) -> Result<CborValue> {
+        let max_entries = self.remaining_items / 2;
+        let len = self.read_len(additional, max_entries)?;
+        let mut entries = Vec::new();
+        entries
+            .try_reserve_exact(len)
+            .map_err(|_| QztError::ResourceLimitExceeded)?;
         let mut previous_key_bytes: Option<Vec<u8>> = None;
 
         for _ in 0..len {
             let key_start = self.offset;
-            let key = self.parse_value()?;
+            let child_depth = depth_next(depth)?;
+            let key = self.parse_value(child_depth)?;
+            self.consume_allocation(self.offset - key_start)?;
             let key_bytes = self.input[key_start..self.offset].to_vec();
 
             if let Some(previous) = &previous_key_bytes {
@@ -272,7 +299,7 @@ impl Parser<'_> {
             }
 
             previous_key_bytes = Some(key_bytes);
-            let value = self.parse_value()?;
+            let value = self.parse_value(child_depth)?;
             entries.push((key, value));
         }
 
@@ -359,4 +386,19 @@ impl Parser<'_> {
         self.offset = end;
         Ok(bytes)
     }
+
+    fn consume_allocation(&mut self, len: usize) -> Result<()> {
+        let len = usize_to_u64(len)?;
+        self.remaining_allocation = self
+            .remaining_allocation
+            .checked_sub(len)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        Ok(())
+    }
+}
+
+fn depth_next(depth: u64) -> Result<u64> {
+    depth
+        .checked_add(1)
+        .ok_or(QztError::ResourceLimitExceeded)
 }
