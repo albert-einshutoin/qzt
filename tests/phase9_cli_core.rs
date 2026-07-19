@@ -188,7 +188,7 @@ fn help_links_the_full_cli_stability_contract() {
 
     let stdout = String::from_utf8(output.stdout).expect("help output should be UTF-8");
     assert!(
-        stdout.contains("See docs/CLI.md for the full reference and stability contract."),
+        stdout.contains("https://github.com/albert-einshutoin/qzt/blob/main/docs/CLI.md"),
         "help must link the stable CLI contract:\n{stdout}"
     );
 }

@@ -20,6 +20,12 @@ Container format for UTF-8 text.
   reproducible 1 GiB benchmark and isolated RSS probe retain evidence that a
   64 KiB range restores one bounded chunk without whole-container decoding.
 
+- Added `qzt inspect-sidecar <file.qzt> --sidecar <file.qzi>` with text and JSON
+  summaries. It validates all QZI section checksums and the QZT source binding
+  before exposing index type, completeness, sizing, granule, term, and postings
+  metadata. Targeted manifest, terms, and postings corruption tests prove each
+  failure remains isolated from QZT Core deep verification.
+
 - Added reproducible GitHub binary distribution with `cargo-dist 0.31.0`,
   tag-only release automation, SHA-256 sidecars, shell and PowerShell
   installers, and four supported macOS/Linux/Windows targets. Both READMEs
@@ -27,6 +33,15 @@ Container format for UTF-8 text.
   source-build fallback for the `v0.1.0-pre.2` rehearsal.
 
 ### Fixed
+
+- CBOR decoding now enforces its allocation and item limits across the complete
+  decoded value and rejects nesting beyond 64 levels before untrusted input can
+  exhaust the native stack.
+- Every operational CLI command now supports command-specific `--help`; `pack`
+  accepts options before or after its input path. Packaged help links to the
+  repository-hosted CLI contract, both READMEs include the stable crates.io
+  install command, and the focused contributor test command enables the
+  internal test surface it imports.
 
 - Added Windows positioned file reads and a required Windows release build in
   normal CI after the immutable `v0.1.0-pre.1` rehearsal tag exposed that the

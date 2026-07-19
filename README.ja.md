@@ -14,7 +14,14 @@
 
 ## Install / インストール
 
-macOS / Linuxに公開済みの[`v0.1.0-pre.2` technical preview](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
+`v0.1.0`がcrates.ioへ公開された後は、安定版crateを導入できます。
+
+```sh
+cargo install qzt --version 0.1.0 --locked
+```
+
+crates.ioで利用可能になるまでは、macOS / Linuxに公開済みの
+[`v0.1.0-pre.2` technical preview](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
 をinstallします。
 
 ```sh
@@ -77,6 +84,7 @@ qzt pack app.log -o app.qzt
 qzt info app.qzt --format json
 qzt range app.qzt --lines 2:2
 qzt sidecar-rebuild app.qzt -o app.qzt.qzi
+qzt inspect-sidecar app.qzt --sidecar app.qzt.qzi --format json
 qzt search app.qzt "error" --sidecar app.qzt.qzi
 qzt verify app.qzt --deep
 qzt attest app.qzt > app.attest.json

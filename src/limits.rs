@@ -11,13 +11,14 @@ pub struct ResourceLimits {
     pub max_index_block_size: u64,
     /// Maximum bytes exposed by preview-oriented operations.
     pub max_preview_bytes: u64,
-    /// Maximum bytes accepted for each individual CBOR byte or text string.
+    /// Maximum aggregate bytes allocated while decoding one CBOR value.
     ///
-    /// This is not an aggregate allocation or nesting-depth budget.
+    /// This covers byte/text payloads and canonical map-key copies. CBOR nesting
+    /// is independently capped at 64 levels to protect the native stack.
     pub max_cbor_allocation: u64,
-    /// Maximum entries accepted in each individual CBOR array or map.
+    /// Maximum aggregate CBOR values decoded from one CBOR item.
     ///
-    /// This is not an aggregate item or nesting-depth budget.
+    /// The root value, container values, map keys, and map values all count.
     pub max_cbor_items: u64,
 }
 

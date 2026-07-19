@@ -47,28 +47,133 @@ fn main() -> ExitCode {
     // nosemgrep: rust.lang.security.args.args -- CLI dispatch is not a security boundary.
     let mut args = std::env::args();
     let _program = args.next();
+    let command = args.next();
+    let remaining: Vec<String> = args.collect();
 
-    match args.next().as_deref() {
+    if let Some(command) = command.as_deref() {
+        if remaining.iter().any(|arg| arg == "--help" || arg == "-h") {
+            return print_command_help(command);
+        }
+    }
+
+    match command.as_deref() {
+        Some("help") if remaining.len() == 1 => print_command_help(&remaining[0]),
         Some("help" | "--help" | "-h") | None => print_help(),
         Some("--version" | "-V") => write_stdout(format!("qzt {}\n", qzt::version()).as_bytes()),
-        Some("pack") => run_pack(args),
-        Some("pack-docs") => run_pack_docs(args),
-        Some("attest") => run_attest(args),
-        Some("info") => run_info(args),
-        Some("export") => run_export(args),
-        Some("range") => run_range(args),
-        Some("line") => run_line(args),
-        Some("docs") => run_docs(args),
-        Some("doc") => run_doc(args),
-        Some("search") => run_search(args),
-        Some("sidecar-rebuild") => run_sidecar_rebuild(args),
-        Some("verify") => run_verify(args),
+        Some("pack") => run_pack(remaining.into_iter()),
+        Some("pack-docs") => run_pack_docs(remaining.into_iter()),
+        Some("attest") => run_attest(remaining.into_iter()),
+        Some("info") => run_info(remaining.into_iter()),
+        Some("export") => run_export(remaining.into_iter()),
+        Some("range") => run_range(remaining.into_iter()),
+        Some("line") => run_line(remaining.into_iter()),
+        Some("docs") => run_docs(remaining.into_iter()),
+        Some("doc") => run_doc(remaining.into_iter()),
+        Some("search") => run_search(remaining.into_iter()),
+        Some("inspect-sidecar") => run_inspect_sidecar(remaining.into_iter()),
+        Some("sidecar-rebuild") => run_sidecar_rebuild(remaining.into_iter()),
+        Some("verify") => run_verify(remaining.into_iter()),
         Some(command) => {
             eprintln!("qzt: unknown command '{command}'");
             eprintln!("try 'qzt --help'");
             ExitCode::from(2)
         }
     }
+}
+
+fn print_command_help(command: &str) -> ExitCode {
+    match command {
+        "pack" => print_pack_help(),
+        "pack-docs" => print_pack_docs_help(),
+        "attest" => print_attest_help(),
+        "info" => print_simple_command_help(
+            "Print structural metadata.",
+            "qzt info <FILE> [--format text|json]",
+            "  --format <FORMAT>  Output format: text or json (default: text)",
+        ),
+        "export" => print_simple_command_help(
+            "Restore all verified chunk bytes.",
+            "qzt export <FILE> [-o <OUTPUT>]",
+            "  -o, --output <PATH>  Write to a file instead of stdout",
+        ),
+        "range" => print_simple_command_help(
+            "Restore an original byte or line range.",
+            "qzt range <FILE> --bytes A:B|--lines A:B",
+            concat!(
+                "  --bytes <A:B>  Zero-based half-open byte interval\n",
+                "  --lines <A:B>  One-based inclusive line interval"
+            ),
+        ),
+        "line" => print_simple_command_help(
+            "Restore one original line.",
+            "qzt line <FILE> <LINE> [--zero-based]",
+            "  --zero-based  Interpret LINE as zero-based (default: one-based)",
+        ),
+        "docs" => print_simple_command_help(
+            "List verified Document Index entries.",
+            "qzt docs <FILE> [--format text|json]",
+            "  --format <FORMAT>  Output format: text or json (default: text)",
+        ),
+        "doc" => print_simple_command_help(
+            "Restore one indexed document.",
+            "qzt doc <FILE> <DOC_ID> [-o <OUTPUT>] [--no-verify]",
+            concat!(
+                "  -o, --output <PATH>  Write to a file instead of stdout\n",
+                "  --no-verify          Skip the document checksum (diagnostic use only)"
+            ),
+        ),
+        "search" => print_simple_command_help(
+            "Search original UTF-8 bytes and verify every reported hit.",
+            "qzt search <FILE> <QUERY> [OPTIONS]",
+            concat!(
+                "  --index token|ngram       In-memory index kind (default: token)\n",
+                "  --ngram <N>               N-gram width (default: 3)\n",
+                "  --sidecar <PATH>          Use an existing QZI sidecar\n",
+                "  --max-candidates <N>      Candidate-granule budget\n",
+                "  --max-decoded-bytes <N>   Decode budget; KiB/MiB/GiB suffixes accepted\n",
+                "  --max-results <N>         Result cap\n",
+                "  --format text|json        Output format (default: text)"
+            ),
+        ),
+        "inspect-sidecar" => print_simple_command_help(
+            "Inspect metadata from a validated, source-bound QZI sidecar.",
+            "qzt inspect-sidecar <FILE.qzt> --sidecar <FILE.qzi> [--format text|json]",
+            concat!(
+                "  --sidecar <PATH>     QZI sidecar path (required)\n",
+                "  --format text|json  Output format (default: text)"
+            ),
+        ),
+        "sidecar-rebuild" => print_simple_command_help(
+            "Build a rebuildable QZI search sidecar.",
+            "qzt sidecar-rebuild <FILE> -o <OUTPUT.qzi> [OPTIONS]",
+            concat!(
+                "  -o, --output <PATH>  Output .qzi path (required)\n",
+                "  --index token|ngram  Index kind (default: token)\n",
+                "  --ngram <N>          N-gram width (default: 3)"
+            ),
+        ),
+        "verify" => print_simple_command_help(
+            "Verify container integrity.",
+            "qzt verify <FILE> [--quick|--normal|--deep] [--format text|json]",
+            concat!(
+                "  --quick|--normal|--deep  Verification level (default: normal)\n",
+                "  --format text|json       Output format (default: text)"
+            ),
+        ),
+        _ => {
+            eprintln!("qzt: unknown command '{command}'");
+            eprintln!("try 'qzt --help'");
+            ExitCode::from(2)
+        }
+    }
+}
+
+fn print_simple_command_help(description: &str, usage: &str, options: &str) -> ExitCode {
+    let output = format!(
+        "qzt {}\n\n{description}\n\nUsage: {usage}\n\nOptions:\n{options}\n  -h, --help  Show this help\n",
+        qzt::version()
+    );
+    write_stdout(output.as_bytes())
 }
 
 fn print_help() -> ExitCode {
@@ -93,6 +198,7 @@ fn print_help() -> ExitCode {
             "  docs       List documents in a Document Index (--format json for machine-readable)\n",
             "  doc        Extract one document (verified by default; --no-verify to skip)\n",
             "  search     Search raw UTF-8 tokens with verified original-byte hits (--format json)\n",
+            "  inspect-sidecar  Inspect a validated QZI sidecar (--format json available)\n",
             "  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)\n",
             "  verify     Verify container integrity (--format json for machine-readable output)\n\n",
             "Options:\n",
@@ -102,7 +208,8 @@ fn print_help() -> ExitCode {
             "  0  success (verify: container is valid)\n",
             "  1  command failed (verify: container is corrupt or unreadable)\n",
             "  2  usage error (unknown option / missing argument)\n\n",
-            "See docs/CLI.md for the full reference and stability contract.\n"
+            "Full reference and stability contract:\n",
+            "https://github.com/albert-einshutoin/qzt/blob/main/docs/CLI.md\n"
         ),
         qzt::version()
     );
@@ -192,11 +299,7 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let mut args = args.into_iter();
-    let Some(input_path) = args.next() else {
-        eprintln!("qzt pack: missing input file");
-        return ExitCode::from(2);
-    };
-
+    let mut input_path = None;
     let mut output_path = None;
     let mut options = WriterOptions::default();
     let mut profile = String::from("core");
@@ -268,12 +371,22 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
                 }
                 dense_line_index = Some(value == "on");
             }
-            _ => {
+            _ if arg.starts_with('-') && arg != "-" => {
                 eprintln!("qzt pack: unknown option '{arg}'");
                 return ExitCode::from(2);
             }
+            _ if input_path.is_some() => {
+                eprintln!("qzt pack: unexpected additional input '{arg}'");
+                return ExitCode::from(2);
+            }
+            _ => input_path = Some(arg),
         }
     }
+
+    let Some(input_path) = input_path else {
+        eprintln!("qzt pack: missing input file");
+        return ExitCode::from(2);
+    };
 
     let Some(output_path) = output_path else {
         eprintln!("qzt pack: missing -o output.qzt");
@@ -1653,6 +1766,126 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
     match result {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => command_failed("sidecar-rebuild", &error),
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+enum InspectSidecarFormat {
+    Text,
+    Json,
+}
+
+fn run_inspect_sidecar(mut args: impl Iterator<Item = String>) -> ExitCode {
+    let Some(path) = args.next() else {
+        eprintln!("qzt inspect-sidecar: missing QZT file");
+        return ExitCode::from(2);
+    };
+
+    let mut sidecar_path = None;
+    let mut format = InspectSidecarFormat::Text;
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "--sidecar" => {
+                let Some(path) = args.next() else {
+                    eprintln!("qzt inspect-sidecar: missing --sidecar path");
+                    return ExitCode::from(2);
+                };
+                sidecar_path = Some(path);
+            }
+            "--format" => {
+                let Some(value) = args.next() else {
+                    eprintln!("qzt inspect-sidecar: missing --format value");
+                    return ExitCode::from(2);
+                };
+                format = match value.as_str() {
+                    "text" => InspectSidecarFormat::Text,
+                    "json" => InspectSidecarFormat::Json,
+                    _ => {
+                        eprintln!(
+                            "qzt inspect-sidecar: unknown --format value '{value}' (expected text or json)"
+                        );
+                        return ExitCode::from(2);
+                    }
+                };
+            }
+            _ => {
+                eprintln!("qzt inspect-sidecar: unknown option '{arg}'");
+                return ExitCode::from(2);
+            }
+        }
+    }
+    let Some(sidecar_path) = sidecar_path else {
+        eprintln!("qzt inspect-sidecar: missing --sidecar file.qzi");
+        return ExitCode::from(2);
+    };
+
+    let result: CliResult<_> = (|| {
+        let reader = QztFileReader::open_path(&path)?;
+        let sidecar = QziFileSidecar::open_path(sidecar_path, &reader)?;
+        Ok(sidecar)
+    })();
+
+    match result {
+        Ok(sidecar) => {
+            let manifest = sidecar.manifest();
+            let ngram_text = manifest
+                .ngram_n
+                .map_or_else(|| "none".to_owned(), |n| n.to_string());
+            write_stdout_with(|output| match format {
+                InspectSidecarFormat::Text => writeln!(
+                    output,
+                    concat!(
+                        "index_type={}\n",
+                        "ngram_n={}\n",
+                        "complete={}\n",
+                        "high_df_per_million={}\n",
+                        "source_size_bytes={}\n",
+                        "index_size_bytes={}\n",
+                        "granule_count={}\n",
+                        "term_count={}\n",
+                        "postings_size_bytes={}"
+                    ),
+                    manifest.index_type,
+                    ngram_text,
+                    manifest.complete,
+                    manifest.high_df_per_million,
+                    manifest.source_size_bytes,
+                    manifest.index_size_bytes,
+                    sidecar.granule_count(),
+                    sidecar.term_count(),
+                    sidecar.postings_size_bytes(),
+                ),
+                InspectSidecarFormat::Json => {
+                    let ngram_json = manifest
+                        .ngram_n
+                        .map_or_else(|| "null".to_owned(), |n| n.to_string());
+                    writeln!(
+                        output,
+                        concat!(
+                            "{{\"index_type\":\"{}\",",
+                            "\"ngram_n\":{},",
+                            "\"complete\":{},",
+                            "\"high_df_per_million\":{},",
+                            "\"source_size_bytes\":{},",
+                            "\"index_size_bytes\":{},",
+                            "\"granule_count\":{},",
+                            "\"term_count\":{},",
+                            "\"postings_size_bytes\":{}}}"
+                        ),
+                        cli_json::escape(&manifest.index_type),
+                        ngram_json,
+                        manifest.complete,
+                        manifest.high_df_per_million,
+                        manifest.source_size_bytes,
+                        manifest.index_size_bytes,
+                        sidecar.granule_count(),
+                        sidecar.term_count(),
+                        sidecar.postings_size_bytes(),
+                    )
+                }
+            })
+        }
+        Err(error) => command_failed("inspect-sidecar", &error),
     }
 }
 

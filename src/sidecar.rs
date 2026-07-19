@@ -607,6 +607,24 @@ impl<R: ReadAt> QziFileSidecar<R> {
         &self.manifest
     }
 
+    /// Number of validated search granules declared by the sidecar.
+    #[must_use]
+    pub fn granule_count(&self) -> u64 {
+        self.granule_count
+    }
+
+    /// Number of validated term-dictionary entries loaded from the sidecar.
+    #[must_use]
+    pub fn term_count(&self) -> usize {
+        self.terms.len()
+    }
+
+    /// Serialized byte length of the validated postings section.
+    #[must_use]
+    pub fn postings_size_bytes(&self) -> u64 {
+        self.manifest.postings.size
+    }
+
     /// Search over a file-backed container. Fetches only the queried terms'
     /// posting lists and the candidate granule records from the sidecar, and
     /// decodes only candidate chunks from the container.
