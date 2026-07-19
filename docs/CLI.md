@@ -48,10 +48,11 @@ These meanings are frozen for v0.1:
 
 ## Commands
 
-### `qzt help`, `qzt --help`, `qzt --version`
+### `qzt help`, `qzt --help`, `qzt version`, `qzt --version`
 
 `help`, `-h`, and `--help` print top-level help and exit `0`. `-V` and
-`--version` print `qzt <version>` and exit `0`.
+`--version`, as well as the `version` command, print `qzt <version>` and exit
+`0`.
 
 ### `qzt pack <INPUT|-> -o <OUTPUT> [OPTIONS]`
 

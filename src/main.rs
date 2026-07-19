@@ -59,7 +59,9 @@ fn main() -> ExitCode {
     match command.as_deref() {
         Some("help") if remaining.len() == 1 => print_command_help(&remaining[0]),
         Some("help" | "--help" | "-h") | None => print_help(),
-        Some("--version" | "-V") => write_stdout(format!("qzt {}\n", qzt::version()).as_bytes()),
+        Some("version" | "--version" | "-V") => {
+            write_stdout(format!("qzt {}\n", qzt::version()).as_bytes())
+        }
         Some("pack") => run_pack(remaining.into_iter()),
         Some("pack-docs") => run_pack_docs(remaining.into_iter()),
         Some("attest") => run_attest(remaining.into_iter()),
@@ -183,6 +185,7 @@ fn print_help() -> ExitCode {
             "Usage: qzt <COMMAND>\n\n",
             "Commands:\n",
             "  help       Show this help\n",
+            "  version    Show version\n",
             "  pack       Pack a UTF-8 text file into QZT\n",
             "             Use '-' as the input path to read from stdin:\n",
             "             journalctl --since today | qzt pack - -o today.qzt\n",
