@@ -167,6 +167,15 @@ metricsは`query`, `index_kind`, `posting_granularity`, `index_size_bytes`,
 `query_has_no_indexable_tokens`, `missing_required_key_in_incomplete_index`です。
 null以外なら、空/部分結果を完全な否定結果として解釈してはいけません。
 
+### `qzt inspect-sidecar <FILE.qzt> --sidecar <FILE.qzi> [--format text|json]`
+
+QZTを`QztFileReader`で開き、全QZI sectionのchecksumとsource bindingを検証してから
+metadataを表示します。既定のtext出力とJSON出力は`index_type`、`ngram_n`、
+`complete`、`high_df_per_million`、`source_size_bytes`、`index_size_bytes`、
+`granule_count`、`term_count`、`postings_size_bytes`を含みます。破損または別QZTに
+紐づくsidecarは成功summaryを出さずexit `1`になります。inspectionが行うQZT検証は
+quick構造検証までです。Core全体の検証には`qzt verify <FILE.qzt> --deep`を使います。
+
 ### `qzt sidecar-rebuild <FILE> -o <OUTPUT.qzi> [OPTIONS]`
 
 QZIを作ります。`--index token|ngram`（既定token）、`--ngram <N>`（既定3）、

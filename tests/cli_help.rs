@@ -93,6 +93,10 @@ fn every_subcommand_exposes_command_specific_help() {
         ),
         ("search", "Usage: qzt search <FILE> <QUERY> [OPTIONS]"),
         (
+            "inspect-sidecar",
+            "Usage: qzt inspect-sidecar <FILE.qzt> --sidecar <FILE.qzi> [--format text|json]",
+        ),
+        (
             "sidecar-rebuild",
             "Usage: qzt sidecar-rebuild <FILE> -o <OUTPUT.qzi> [OPTIONS]",
         ),

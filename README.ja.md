@@ -84,6 +84,7 @@ qzt pack app.log -o app.qzt
 qzt info app.qzt --format json
 qzt range app.qzt --lines 2:2
 qzt sidecar-rebuild app.qzt -o app.qzt.qzi
+qzt inspect-sidecar app.qzt --sidecar app.qzt.qzi --format json
 qzt search app.qzt "error" --sidecar app.qzt.qzi
 qzt verify app.qzt --deep
 qzt attest app.qzt > app.attest.json

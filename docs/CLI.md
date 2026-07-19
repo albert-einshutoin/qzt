@@ -186,6 +186,17 @@ JSON top-level fields are `hits` (array), `metrics` (object), `capped`
 `missing_required_key_in_incomplete_index`. A non-null reason means the
 empty/partial result must not be interpreted as a complete negative finding.
 
+### `qzt inspect-sidecar <FILE.qzt> --sidecar <FILE.qzi> [--format text|json]`
+
+Open the QZT through `QztFileReader`, validate every QZI section checksum, and
+verify the sidecar's source binding before printing metadata. The default text
+output and JSON output contain `index_type`, `ngram_n`, `complete`,
+`high_df_per_million`, `source_size_bytes`, `index_size_bytes`,
+`granule_count`, `term_count`, and `postings_size_bytes`. A corrupt or
+mismatched sidecar exits `1` without printing a successful summary. Inspection
+does not upgrade the QZT from quick structural validation; use
+`qzt verify <FILE.qzt> --deep` for complete Core verification.
+
 ### `qzt sidecar-rebuild <FILE> -o <OUTPUT.qzi> [OPTIONS]`
 
 Build a QZI sidecar. Options are `--index token|ngram` (default token),
