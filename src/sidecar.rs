@@ -15,11 +15,11 @@ use crate::schema::{
     required_text, required_u64_with_overflow, text_pair, Checksum,
 };
 use crate::search::{
-    compact_line_granules_supported, decode_delta_varint_u64_with_limit, elapsed_ms,
-    encode_delta_varint_u64, intersect_postings, key_hash, ngram_keys_for_query, substring_spans,
-    unique_query_keys, verified_spans, verify_candidates, NgramIndexBuildOptions, PlannerDecision,
-    RawNgramIndex, RawTokenIndex, SearchGranule, SearchMetrics, SearchOptions, SearchReport,
-    TermDictionaryEntry,
+    compact_line_granules_supported, decode_delta_varint_u64_with_limit, early_exit_report,
+    elapsed_ms, empty_search_metrics, encode_delta_varint_u64, intersect_postings, key_hash,
+    ngram_keys_for_query, substring_spans, term_index_for_key, unique_query_keys, verified_spans,
+    verify_candidates, NgramIndexBuildOptions, PlannerDecision, RawNgramIndex, RawTokenIndex,
+    SearchGranule, SearchOptions, SearchReport, TermDictionaryEntry,
 };
 use crate::skeleton::open_skeleton_details;
 
@@ -655,37 +655,40 @@ impl<R: ReadAt> QziFileSidecar<R> {
         };
 
         let mut planner = PlannerDecision::new(query_keys.clone());
-        let mut metrics = self.empty_metrics(query, index_kind);
+        let mut metrics = empty_search_metrics(
+            query,
+            index_kind,
+            self.manifest.index_size_bytes,
+            self.manifest.source_size_bytes,
+        );
         metrics.term_lookups = usize_to_u64(query_keys.len())?;
 
         if query_keys.is_empty() {
-            metrics.query_time_ms = elapsed_ms(started);
-            return Ok(SearchReport {
-                hits: Vec::new(),
+            return Ok(early_exit_report(
                 metrics,
-                capped: false,
                 planner,
-                incomplete_reason: Some(if is_ngram {
+                started,
+                false,
+                Some(if is_ngram {
                     "query_shorter_than_ngram_n"
                 } else {
                     "query_has_no_indexable_tokens"
                 }),
-            });
+            ));
         }
 
         let mut term_indexes = Vec::with_capacity(query_keys.len());
         for key in &query_keys {
-            let Some(term_index) = self.term_index_for_key(key) else {
+            let Some(term_index) = term_index_for_key(&self.terms, key) else {
                 planner.missing_keys.push(key.clone());
-                metrics.query_time_ms = elapsed_ms(started);
-                return Ok(SearchReport {
-                    hits: Vec::new(),
+                return Ok(early_exit_report(
                     metrics,
-                    capped: false,
                     planner,
-                    incomplete_reason: (is_ngram && !self.manifest.complete)
+                    started,
+                    false,
+                    (is_ngram && !self.manifest.complete)
                         .then_some("missing_required_key_in_incomplete_index"),
-                });
+                ));
             };
             metrics.posting_bytes_read = metrics
                 .posting_bytes_read
@@ -738,14 +741,13 @@ impl<R: ReadAt> QziFileSidecar<R> {
         if metrics.candidate_granules > options.max_candidate_granules
             || options.max_search_results == 0
         {
-            metrics.query_time_ms = elapsed_ms(started);
-            return Ok(SearchReport {
-                hits: Vec::new(),
+            return Ok(early_exit_report(
                 metrics,
-                capped: true,
                 planner,
-                incomplete_reason: None,
-            });
+                started,
+                true,
+                None,
+            ));
         }
 
         let granules = candidates
@@ -787,12 +789,6 @@ impl<R: ReadAt> QziFileSidecar<R> {
             planner,
             incomplete_reason: None,
         })
-    }
-
-    fn term_index_for_key(&self, key: &[u8]) -> Option<usize> {
-        self.terms
-            .binary_search_by(|term| term.key.as_slice().cmp(key))
-            .ok()
     }
 
     fn is_high_df(&self, term_index: usize) -> bool {
@@ -860,31 +856,6 @@ impl<R: ReadAt> QziFileSidecar<R> {
         Ok(granule)
     }
 
-    fn empty_metrics(&self, query: &str, index_kind: &'static str) -> SearchMetrics {
-        let index_size_bytes = self.manifest.index_size_bytes;
-        let index_size_ratio = if self.manifest.source_size_bytes == 0 {
-            0.0
-        } else {
-            index_size_bytes as f64 / self.manifest.source_size_bytes as f64
-        };
-
-        SearchMetrics {
-            query: query.to_owned(),
-            index_kind,
-            posting_granularity: "line",
-            index_size_bytes,
-            source_size_bytes: self.manifest.source_size_bytes,
-            index_size_ratio,
-            term_lookups: 0,
-            posting_bytes_read: 0,
-            candidate_granules: 0,
-            candidate_chunks: 0,
-            decoded_bytes: 0,
-            physical_decoded_bytes: 0,
-            verified_matches: 0,
-            query_time_ms: 0.0,
-        }
-    }
 }
 
 #[cfg(unix)]

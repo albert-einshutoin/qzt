@@ -291,6 +291,61 @@ pub struct SearchReport {
     pub incomplete_reason: Option<&'static str>,
 }
 
+pub(crate) fn term_index_for_key(terms: &[TermDictionaryEntry], key: &[u8]) -> Option<usize> {
+    terms
+        .binary_search_by(|term| term.key.as_slice().cmp(key))
+        .ok()
+}
+
+pub(crate) fn empty_search_metrics(
+    query: &str,
+    index_kind: &'static str,
+    index_size_bytes: u64,
+    source_size_bytes: u64,
+) -> SearchMetrics {
+    let index_size_ratio = if source_size_bytes == 0 {
+        0.0
+    } else {
+        index_size_bytes as f64 / source_size_bytes as f64
+    };
+
+    SearchMetrics {
+        query: query.to_owned(),
+        index_kind,
+        posting_granularity: "line",
+        index_size_bytes,
+        source_size_bytes,
+        index_size_ratio,
+        term_lookups: 0,
+        posting_bytes_read: 0,
+        candidate_granules: 0,
+        candidate_chunks: 0,
+        decoded_bytes: 0,
+        physical_decoded_bytes: 0,
+        verified_matches: 0,
+        query_time_ms: 0.0,
+    }
+}
+
+pub(crate) fn early_exit_report(
+    mut metrics: SearchMetrics,
+    planner: PlannerDecision,
+    started: Instant,
+    capped: bool,
+    incomplete_reason: Option<&'static str>,
+) -> SearchReport {
+    // Capture elapsed time at the same decision boundary as the former inline
+    // returns so benchmark metrics keep their existing meaning.
+    metrics.query_time_ms = elapsed_ms(started);
+    SearchReport {
+        hits: Vec::new(),
+        metrics,
+        capped,
+        planner,
+        incomplete_reason,
+    }
+}
+
 /// Transient raw token index over line granules.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RawTokenIndex {
@@ -392,21 +447,7 @@ impl RawTokenIndex {
         validate_granules(source_size_bytes, &granules)?;
         validate_term_dictionary_shape(&terms, &postings, granules.len())?;
 
-        let mut encoded_postings = Vec::with_capacity(postings.len());
-        let mut posting_offset = 0_u64;
-        for (term, posting_list) in terms.iter_mut().zip(&postings) {
-            let encoded = encode_delta_varint_u64(posting_list)?;
-            term.document_frequency = 0;
-            term.granule_frequency = usize_to_u64(posting_list.len())?;
-            term.posting_offset = posting_offset;
-            term.posting_size = usize_to_u64(encoded.len())?;
-            term.skip_offset = 0;
-            term.skip_size = 0;
-            posting_offset = posting_offset
-                .checked_add(term.posting_size)
-                .ok_or(QztError::ResourceLimitExceeded)?;
-            encoded_postings.push(encoded);
-        }
+        let encoded = encode_posting_lists(&mut terms, &postings, false)?;
 
         Ok(Self {
             container_id,
@@ -417,14 +458,14 @@ impl RawTokenIndex {
             granules,
             terms,
             postings,
-            encoded_postings,
+            encoded_postings: encoded.postings,
         })
     }
 
     #[cfg(feature = "internal-testing")]
     /// Returns the posting list for an exact already-normalized token key.
     pub fn posting_list_for_key(&self, key: &[u8]) -> Option<&[u64]> {
-        self.term_index_for_key(key)
+        term_index_for_key(&self.terms, key)
             .and_then(|index| self.postings.get(index).map(Vec::as_slice))
     }
 
@@ -481,32 +522,35 @@ impl RawTokenIndex {
         let started = Instant::now();
         let query_keys = unique_query_keys(query.as_bytes());
         let mut planner = PlannerDecision::new(query_keys.clone());
-        let mut metrics = self.empty_metrics(query);
+        let mut metrics = empty_search_metrics(
+            query,
+            "token",
+            index_size_bytes(&self.granules, &self.terms, &self.encoded_postings),
+            self.source_size_bytes,
+        );
         metrics.term_lookups = usize_to_u64(query_keys.len())?;
 
         if query_keys.is_empty() {
-            metrics.query_time_ms = elapsed_ms(started);
-            return Ok(SearchReport {
-                hits: Vec::new(),
+            return Ok(early_exit_report(
                 metrics,
-                capped: false,
                 planner,
-                incomplete_reason: Some("query_has_no_indexable_tokens"),
-            });
+                started,
+                false,
+                Some("query_has_no_indexable_tokens"),
+            ));
         }
 
         let mut posting_indexes = Vec::with_capacity(query_keys.len());
         for key in &query_keys {
-            let Some(term_index) = self.term_index_for_key(key) else {
+            let Some(term_index) = term_index_for_key(&self.terms, key) else {
                 planner.missing_keys.push(key.clone());
-                metrics.query_time_ms = elapsed_ms(started);
-                return Ok(SearchReport {
-                    hits: Vec::new(),
+                return Ok(early_exit_report(
                     metrics,
-                    capped: false,
                     planner,
-                    incomplete_reason: None,
-                });
+                    started,
+                    false,
+                    None,
+                ));
             };
             metrics.posting_bytes_read = metrics
                 .posting_bytes_read
@@ -529,24 +573,22 @@ impl RawTokenIndex {
         metrics.candidate_chunks = count_candidate_chunks(&self.granules, &candidates)?;
 
         if metrics.candidate_granules > options.max_candidate_granules {
-            metrics.query_time_ms = elapsed_ms(started);
-            return Ok(SearchReport {
-                hits: Vec::new(),
+            return Ok(early_exit_report(
                 metrics,
-                capped: true,
                 planner,
-                incomplete_reason: None,
-            });
+                started,
+                true,
+                None,
+            ));
         }
         if options.max_search_results == 0 {
-            metrics.query_time_ms = elapsed_ms(started);
-            return Ok(SearchReport {
-                hits: Vec::new(),
+            return Ok(early_exit_report(
                 metrics,
-                capped: true,
                 planner,
-                incomplete_reason: None,
-            });
+                started,
+                true,
+                None,
+            ));
         }
 
         let verification = verify_candidates(
@@ -576,60 +618,6 @@ impl RawTokenIndex {
         })
     }
 
-    fn term_index_for_key(&self, key: &[u8]) -> Option<usize> {
-        self.terms
-            .binary_search_by(|term| term.key.as_slice().cmp(key))
-            .ok()
-    }
-
-    fn empty_metrics(&self, query: &str) -> SearchMetrics {
-        let index_size_bytes = self.index_size_bytes();
-        let index_size_ratio = if self.source_size_bytes == 0 {
-            0.0
-        } else {
-            index_size_bytes as f64 / self.source_size_bytes as f64
-        };
-
-        SearchMetrics {
-            query: query.to_owned(),
-            index_kind: "token",
-            posting_granularity: "line",
-            index_size_bytes,
-            source_size_bytes: self.source_size_bytes,
-            index_size_ratio,
-            term_lookups: 0,
-            posting_bytes_read: 0,
-            candidate_granules: 0,
-            candidate_chunks: 0,
-            decoded_bytes: 0,
-            physical_decoded_bytes: 0,
-            verified_matches: 0,
-            query_time_ms: 0.0,
-        }
-    }
-
-    fn index_size_bytes(&self) -> u64 {
-        let granule_bytes = serialized_granule_bytes(&self.granules);
-        let term_bytes = 8usize.saturating_add(
-            self.terms
-                .iter()
-                .map(|term| {
-                    term.key
-                        .len()
-                        .saturating_add(varuint_len(term.key.len() as u64))
-                        .saturating_add(varuint_len(term.granule_frequency))
-                        .saturating_add(varuint_len(term.posting_size))
-                })
-                .sum::<usize>(),
-        );
-        let posting_bytes = self.encoded_postings.iter().map(Vec::len).sum::<usize>();
-        u64::try_from(
-            granule_bytes
-                .saturating_add(term_bytes)
-                .saturating_add(posting_bytes),
-        )
-        .unwrap_or(u64::MAX)
-    }
 }
 
 /// Transient raw Unicode-scalar n-gram index over line granules.
@@ -745,28 +733,7 @@ impl RawNgramIndex {
         validate_granules(source_size_bytes, &granules)?;
         validate_term_dictionary_shape(&terms, &postings, granules.len())?;
 
-        let mut encoded_postings = Vec::with_capacity(postings.len());
-        let mut skip_data = Vec::with_capacity(postings.len());
-        let mut posting_offset = 0_u64;
-        let mut skip_offset = 0_u64;
-        for (term, posting_list) in terms.iter_mut().zip(&postings) {
-            let encoded = encode_delta_varint_u64(posting_list)?;
-            let skips = build_skip_points(posting_list)?;
-            term.document_frequency = 0;
-            term.granule_frequency = usize_to_u64(posting_list.len())?;
-            term.posting_offset = posting_offset;
-            term.posting_size = usize_to_u64(encoded.len())?;
-            term.skip_offset = skip_offset;
-            term.skip_size = usize_to_u64(skips.len().saturating_mul(24))?;
-            posting_offset = posting_offset
-                .checked_add(term.posting_size)
-                .ok_or(QztError::ResourceLimitExceeded)?;
-            skip_offset = skip_offset
-                .checked_add(term.skip_size)
-                .ok_or(QztError::ResourceLimitExceeded)?;
-            encoded_postings.push(encoded);
-            skip_data.push(skips);
-        }
+        let encoded = encode_posting_lists(&mut terms, &postings, true)?;
 
         Ok(Self {
             container_id,
@@ -789,15 +756,15 @@ impl RawNgramIndex {
             granules,
             terms,
             postings,
-            skip_data,
-            encoded_postings,
+            skip_data: encoded.skips,
+            encoded_postings: encoded.postings,
         })
     }
 
     #[cfg(feature = "internal-testing")]
     /// Returns dictionary metadata for an exact raw UTF-8 n-gram key.
     pub fn term_for_key(&self, key: &[u8]) -> Option<&TermDictionaryEntry> {
-        self.term_index_for_key(key)
+        term_index_for_key(&self.terms, key)
             .and_then(|index| self.terms.get(index))
     }
 
@@ -854,33 +821,35 @@ impl RawNgramIndex {
         let started = Instant::now();
         let query_keys = ngram_keys_for_query(query, self.declaration.n)?;
         let mut planner = PlannerDecision::new(query_keys.clone());
-        let mut metrics = self.empty_metrics(query);
+        let mut metrics = empty_search_metrics(
+            query,
+            "ngram",
+            index_size_bytes(&self.granules, &self.terms, &self.encoded_postings),
+            self.source_size_bytes,
+        );
         metrics.term_lookups = usize_to_u64(query_keys.len())?;
 
         if query_keys.is_empty() {
-            metrics.query_time_ms = elapsed_ms(started);
-            return Ok(SearchReport {
-                hits: Vec::new(),
+            return Ok(early_exit_report(
                 metrics,
-                capped: false,
                 planner,
-                incomplete_reason: Some("query_shorter_than_ngram_n"),
-            });
+                started,
+                false,
+                Some("query_shorter_than_ngram_n"),
+            ));
         }
 
         let mut term_indexes = Vec::with_capacity(query_keys.len());
         for key in &query_keys {
-            let Some(term_index) = self.term_index_for_key(key) else {
+            let Some(term_index) = term_index_for_key(&self.terms, key) else {
                 planner.missing_keys.push(key.clone());
-                metrics.query_time_ms = elapsed_ms(started);
-                return Ok(SearchReport {
-                    hits: Vec::new(),
+                return Ok(early_exit_report(
                     metrics,
-                    capped: false,
                     planner,
-                    incomplete_reason: (!self.complete)
-                        .then_some("missing_required_key_in_incomplete_index"),
-                });
+                    started,
+                    false,
+                    (!self.complete).then_some("missing_required_key_in_incomplete_index"),
+                ));
             };
             term_indexes.push(term_index);
         }
@@ -922,24 +891,22 @@ impl RawNgramIndex {
         metrics.candidate_chunks = count_candidate_chunks(&self.granules, &candidates)?;
 
         if metrics.candidate_granules > options.max_candidate_granules {
-            metrics.query_time_ms = elapsed_ms(started);
-            return Ok(SearchReport {
-                hits: Vec::new(),
+            return Ok(early_exit_report(
                 metrics,
-                capped: true,
                 planner,
-                incomplete_reason: None,
-            });
+                started,
+                true,
+                None,
+            ));
         }
         if options.max_search_results == 0 {
-            metrics.query_time_ms = elapsed_ms(started);
-            return Ok(SearchReport {
-                hits: Vec::new(),
+            return Ok(early_exit_report(
                 metrics,
-                capped: true,
                 planner,
-                incomplete_reason: None,
-            });
+                started,
+                true,
+                None,
+            ));
         }
 
         let verification = verify_candidates(
@@ -969,12 +936,6 @@ impl RawNgramIndex {
         })
     }
 
-    fn term_index_for_key(&self, key: &[u8]) -> Option<usize> {
-        self.terms
-            .binary_search_by(|term| term.key.as_slice().cmp(key))
-            .ok()
-    }
-
     fn is_high_df(&self, term_index: usize) -> bool {
         let granule_count = self.granules.len().max(1) as u128;
         let frequency = u128::from(self.terms[term_index].granule_frequency);
@@ -993,54 +954,33 @@ impl RawNgramIndex {
         Ok(skip_probe_bytes.min(term.posting_size))
     }
 
-    fn empty_metrics(&self, query: &str) -> SearchMetrics {
-        let index_size_bytes = self.index_size_bytes();
-        let index_size_ratio = if self.source_size_bytes == 0 {
-            0.0
-        } else {
-            index_size_bytes as f64 / self.source_size_bytes as f64
-        };
+}
 
-        SearchMetrics {
-            query: query.to_owned(),
-            index_kind: "ngram",
-            posting_granularity: "line",
-            index_size_bytes,
-            source_size_bytes: self.source_size_bytes,
-            index_size_ratio,
-            term_lookups: 0,
-            posting_bytes_read: 0,
-            candidate_granules: 0,
-            candidate_chunks: 0,
-            decoded_bytes: 0,
-            physical_decoded_bytes: 0,
-            verified_matches: 0,
-            query_time_ms: 0.0,
-        }
-    }
-
-    fn index_size_bytes(&self) -> u64 {
-        let granule_bytes = serialized_granule_bytes(&self.granules);
-        let term_bytes = 8usize.saturating_add(
-            self.terms
-                .iter()
-                .map(|term| {
-                    term.key
-                        .len()
-                        .saturating_add(varuint_len(term.key.len() as u64))
-                        .saturating_add(varuint_len(term.granule_frequency))
-                        .saturating_add(varuint_len(term.posting_size))
-                })
-                .sum::<usize>(),
-        );
-        let posting_bytes = self.encoded_postings.iter().map(Vec::len).sum::<usize>();
-        u64::try_from(
-            granule_bytes
-                .saturating_add(term_bytes)
-                .saturating_add(posting_bytes),
-        )
-        .unwrap_or(u64::MAX)
-    }
+fn index_size_bytes(
+    granules: &[SearchGranule],
+    terms: &[TermDictionaryEntry],
+    encoded_postings: &[Vec<u8>],
+) -> u64 {
+    let granule_bytes = serialized_granule_bytes(granules);
+    let term_bytes = 8usize.saturating_add(
+        terms
+            .iter()
+            .map(|term| {
+                term.key
+                    .len()
+                    .saturating_add(varuint_len(term.key.len() as u64))
+                    .saturating_add(varuint_len(term.granule_frequency))
+                    .saturating_add(varuint_len(term.posting_size))
+            })
+            .sum::<usize>(),
+    );
+    let posting_bytes = encoded_postings.iter().map(Vec::len).sum::<usize>();
+    u64::try_from(
+        granule_bytes
+            .saturating_add(term_bytes)
+            .saturating_add(posting_bytes),
+    )
+    .unwrap_or(u64::MAX)
 }
 
 fn varuint_len(mut value: u64) -> usize {
@@ -1274,16 +1214,66 @@ fn chunk_index_for_offset(entries: &[ChunkEntry], offset: u64) -> Result<usize> 
     Ok(low)
 }
 
-fn build_skip_points(posting_list: &[u64]) -> Result<Vec<SkipPoint>> {
+struct EncodedPostingLists {
+    postings: Vec<Vec<u8>>,
+    skips: Vec<Vec<SkipPoint>>,
+}
+
+fn encode_posting_lists(
+    terms: &mut [TermDictionaryEntry],
+    postings: &[Vec<u64>],
+    with_skips: bool,
+) -> Result<EncodedPostingLists> {
+    let mut encoded_postings = Vec::with_capacity(postings.len());
+    let mut skip_data = if with_skips {
+        Vec::with_capacity(postings.len())
+    } else {
+        Vec::new()
+    };
+    let mut posting_offset = 0_u64;
+    let mut skip_offset = 0_u64;
+
+    for (term, posting_list) in terms.iter_mut().zip(postings) {
+        let encoded = encode_delta_varint_u64(posting_list)?;
+        let skips = if with_skips {
+            build_skip_points(posting_list, &encoded)?
+        } else {
+            Vec::new()
+        };
+        term.document_frequency = 0;
+        term.granule_frequency = usize_to_u64(posting_list.len())?;
+        term.posting_offset = posting_offset;
+        term.posting_size = usize_to_u64(encoded.len())?;
+        term.skip_offset = skip_offset;
+        term.skip_size = usize_to_u64(skips.len().saturating_mul(24))?;
+        posting_offset = posting_offset
+            .checked_add(term.posting_size)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        skip_offset = skip_offset
+            .checked_add(term.skip_size)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        encoded_postings.push(encoded);
+        if with_skips {
+            skip_data.push(skips);
+        }
+    }
+
+    Ok(EncodedPostingLists {
+        postings: encoded_postings,
+        skips: skip_data,
+    })
+}
+
+fn build_skip_points(posting_list: &[u64], encoded: &[u8]) -> Result<Vec<SkipPoint>> {
     if posting_list.len() < 1024 {
         return Ok(Vec::new());
     }
 
     let mut points = Vec::new();
-    let mut encoded = Vec::new();
+    let mut cursor = 0_usize;
     let mut previous = 0_u64;
     for (index, granule_id) in posting_list.iter().enumerate() {
-        let byte_offset = usize_to_u64(encoded.len())?;
+        let byte_offset = usize_to_u64(cursor)?;
         if index > 0 && index % 128 == 0 {
             points.push(SkipPoint {
                 entry_index: usize_to_u64(index)?,
@@ -1291,18 +1281,21 @@ fn build_skip_points(posting_list: &[u64]) -> Result<Vec<SkipPoint>> {
                 posting_byte_offset: byte_offset,
             });
         }
-        let delta = if index == 0 {
-            *granule_id
+        let delta = read_varuint(encoded, &mut cursor)?;
+        let decoded = if index == 0 {
+            delta
         } else {
-            if *granule_id <= previous {
-                return Err(QztError::ContainerCorrupt);
-            }
-            granule_id
-                .checked_sub(previous)
+            previous
+                .checked_add(delta)
                 .ok_or(QztError::ContainerCorrupt)?
         };
-        write_varuint(delta, &mut encoded);
-        previous = *granule_id;
+        if decoded != *granule_id {
+            return Err(QztError::ContainerCorrupt);
+        }
+        previous = decoded;
+    }
+    if cursor != encoded.len() {
+        return Err(QztError::ContainerCorrupt);
     }
     Ok(points)
 }
@@ -1591,6 +1584,40 @@ mod serialized_metrics_tests {
     use super::*;
 
     #[test]
+    fn shared_search_helpers_preserve_empty_report_contract() {
+        let terms = vec![TermDictionaryEntry {
+            key: b"needle".to_vec(),
+            key_hash: key_hash(b"needle"),
+            document_frequency: 0,
+            granule_frequency: 0,
+            posting_offset: 0,
+            posting_size: 0,
+            skip_offset: 0,
+            skip_size: 0,
+            flags: 0,
+        }];
+        assert_eq!(term_index_for_key(&terms, b"needle"), Some(0));
+        assert_eq!(term_index_for_key(&terms, b"missing"), None);
+
+        let metrics = empty_search_metrics("needle", "token", 25, 100);
+        let planner = PlannerDecision::new(vec![b"needle".to_vec()]);
+        let report = early_exit_report(
+            metrics,
+            planner.clone(),
+            Instant::now(),
+            true,
+            Some("test_reason"),
+        );
+
+        assert!(report.hits.is_empty());
+        assert!(report.capped);
+        assert_eq!(report.planner, planner);
+        assert_eq!(report.incomplete_reason, Some("test_reason"));
+        assert!((report.metrics.index_size_ratio - 0.25).abs() < f64::EPSILON);
+        assert!(report.metrics.query_time_ms >= 0.0);
+    }
+
+    #[test]
     fn oversized_line_uses_legacy_granule_size_in_metrics() {
         let granule = SearchGranule {
             granule_id: 0,
@@ -1621,7 +1648,10 @@ mod serialized_metrics_tests {
         )
         .expect("legacy fallback fixture should build");
 
-        assert_eq!(index.index_size_bytes(), 77);
+        assert_eq!(
+            index_size_bytes(&index.granules, &index.terms, &index.encoded_postings),
+            77
+        );
     }
 }
 
