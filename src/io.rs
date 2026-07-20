@@ -7,6 +7,31 @@ pub trait ReadAt {
     fn read_exact_at(&self, offset: u64, buf: &mut [u8]) -> io::Result<()>;
 }
 
+pub(crate) fn hash_read_at_range<R: ReadAt + ?Sized>(
+    source: &R,
+    offset: u64,
+    size: u64,
+) -> io::Result<blake3::Hasher> {
+    const BUFFER_SIZE: usize = 64 * 1024;
+    let mut hasher = blake3::Hasher::new();
+    let mut buffer = vec![0_u8; BUFFER_SIZE];
+    let mut remaining = size;
+    let mut position = offset;
+
+    while remaining > 0 {
+        let read_len = usize::try_from(remaining.min(BUFFER_SIZE as u64))
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "range too large"))?;
+        source.read_exact_at(position, &mut buffer[..read_len])?;
+        hasher.update(&buffer[..read_len]);
+        position = position
+            .checked_add(read_len as u64)
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "range overflow"))?;
+        remaining -= read_len as u64;
+    }
+
+    Ok(hasher)
+}
+
 impl ReadAt for &[u8] {
     fn read_exact_at(&self, offset: u64, buf: &mut [u8]) -> io::Result<()> {
         let start = usize::try_from(offset)
@@ -84,6 +109,28 @@ fn finish_windows_positioned_read(
                 "positioned read failed ({operation_error}); cursor restore also failed ({restore_error})"
             ),
         )),
+    }
+}
+
+#[cfg(test)]
+mod shared_tests {
+    use super::*;
+
+    #[test]
+    fn range_hash_matches_the_exact_selected_bytes_across_buffer_boundaries() {
+        let bytes = (0..(70 * 1024 + 17))
+            .map(|index| (index % 251) as u8)
+            .collect::<Vec<_>>();
+        let offset = 113_u64;
+        let size = 66 * 1024 + 7_usize;
+
+        let actual = hash_read_at_range(&bytes, offset, size as u64)
+            .expect("in-memory positioned hash should succeed")
+            .finalize();
+        let start = usize::try_from(offset).unwrap();
+        let expected = blake3::hash(&bytes[start..start + size]);
+
+        assert_eq!(actual, expected);
     }
 }
 

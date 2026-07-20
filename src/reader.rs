@@ -10,7 +10,7 @@ use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
 use crate::chunker::NewlineMode;
 use crate::format::FOOTER_TRAILER_LEN;
-use crate::io::ReadAt;
+use crate::io::{ReadAt, hash_read_at_range};
 use crate::limits::ResourceLimits;
 use crate::primitives::{checked_logical_end, checked_physical_end, u64_to_usize, usize_to_u64};
 use crate::schema::{Checksum, DictionaryEntry, DocumentEntry};
@@ -646,23 +646,12 @@ impl<R: ReadAt> QztFileReader<R> {
         if end > self.len || start > end {
             return Err(QztError::PhysicalRangeOutOfBounds);
         }
-        let mut hasher = blake3::Hasher::new();
-        let mut offset = start;
-        let mut buffer = vec![0_u8; 64 * 1024];
-        while offset < end {
-            let remaining = end - offset;
-            let read_len = u64_to_usize(remaining.min(buffer.len() as u64))?;
-            self.source
-                .read_exact_at(offset, &mut buffer[..read_len])
-                .map_err(|error| match error.kind() {
-                    std::io::ErrorKind::UnexpectedEof => QztError::UnexpectedEof,
-                    _ => QztError::ContainerCorrupt,
-                })?;
-            hasher.update(&buffer[..read_len]);
-            offset = offset
-                .checked_add(read_len as u64)
-                .ok_or(QztError::PhysicalRangeOutOfBounds)?;
-        }
+        let hasher = hash_read_at_range(&self.source, start, end - start).map_err(|error| {
+            match error.kind() {
+                std::io::ErrorKind::UnexpectedEof => QztError::UnexpectedEof,
+                _ => QztError::ContainerCorrupt,
+            }
+        })?;
         Ok(Checksum::from_hasher(&hasher))
     }
 }
