@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io;
+use std::path::Path;
 
 /// Positioned read abstraction used by file-backed QZT readers.
 pub trait ReadAt {
@@ -30,6 +31,12 @@ pub(crate) fn hash_read_at_range<R: ReadAt + ?Sized>(
     }
 
     Ok(hasher)
+}
+
+pub(crate) fn open_file_with_len(path: impl AsRef<Path>) -> io::Result<(File, u64)> {
+    let file = File::open(path)?;
+    let len = file.metadata()?.len();
+    Ok((file, len))
 }
 
 impl ReadAt for &[u8] {
@@ -115,6 +122,7 @@ fn finish_windows_positioned_read(
 #[cfg(test)]
 mod shared_tests {
     use super::*;
+    use std::io::Write;
 
     #[test]
     fn range_hash_matches_the_exact_selected_bytes_across_buffer_boundaries() {
@@ -131,6 +139,16 @@ mod shared_tests {
         let expected = blake3::hash(&bytes[start..start + size]);
 
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn open_file_with_len_returns_the_same_handle_length() {
+        let mut fixture = tempfile::NamedTempFile::new().expect("temporary file");
+        fixture.write_all(b"qzt").expect("write fixture");
+
+        let (_file, len) = open_file_with_len(fixture.path()).expect("open fixture");
+
+        assert_eq!(len, 3);
     }
 }
 

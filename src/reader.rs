@@ -10,7 +10,7 @@ use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
 use crate::chunker::NewlineMode;
 use crate::format::FOOTER_TRAILER_LEN;
-use crate::io::{ReadAt, hash_read_at_range};
+use crate::io::{ReadAt, hash_read_at_range, open_file_with_len};
 use crate::limits::ResourceLimits;
 use crate::primitives::{checked_logical_end, checked_physical_end, u64_to_usize, usize_to_u64};
 use crate::schema::{Checksum, DictionaryEntry, DocumentEntry};
@@ -660,11 +660,8 @@ impl<R: ReadAt> QztFileReader<R> {
 impl QztFileReader<File> {
     /// Opens a QZT file from a filesystem path.
     pub fn open_path(path: impl AsRef<Path>) -> Result<Self> {
-        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
-        let len = file
-            .metadata()
-            .map_err(|error| QztError::Io(error.kind()))?
-            .len();
+        let (file, len) =
+            open_file_with_len(path).map_err(|error| QztError::Io(error.kind()))?;
         Self::open_read_at(file, len)
     }
 }
@@ -673,11 +670,8 @@ impl QztFileReader<File> {
 impl QztFileReader<Mutex<File>> {
     /// Opens a QZT file from a filesystem path.
     pub fn open_path(path: impl AsRef<Path>) -> Result<Self> {
-        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
-        let len = file
-            .metadata()
-            .map_err(|error| QztError::Io(error.kind()))?
-            .len();
+        let (file, len) =
+            open_file_with_len(path).map_err(|error| QztError::Io(error.kind()))?;
         Self::open_read_at(Mutex::new(file), len)
     }
 }

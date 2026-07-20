@@ -7,7 +7,7 @@ use std::sync::Mutex;
 use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
 use crate::format::{FOOTER_TRAILER_LEN, MAJOR_VERSION, MINOR_VERSION};
-use crate::io::{ReadAt, hash_read_at_range};
+use crate::io::{ReadAt, hash_read_at_range, open_file_with_len};
 use crate::primitives::{read_u32_le, read_u64_le, u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
 use crate::schema::{
@@ -889,11 +889,8 @@ impl QziFileSidecar<File> {
         container: &QztFileReader<C>,
         limits: SidecarLimits,
     ) -> Result<Self> {
-        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
-        let len = file
-            .metadata()
-            .map_err(|error| QztError::Io(error.kind()))?
-            .len();
+        let (file, len) =
+            open_file_with_len(path).map_err(|error| QztError::Io(error.kind()))?;
         Self::open_read_at_with_limits(file, len, container, limits)
     }
 }
@@ -930,11 +927,8 @@ impl QziFileSidecar<Mutex<File>> {
         container: &QztFileReader<C>,
         limits: SidecarLimits,
     ) -> Result<Self> {
-        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
-        let len = file
-            .metadata()
-            .map_err(|error| QztError::Io(error.kind()))?
-            .len();
+        let (file, len) =
+            open_file_with_len(path).map_err(|error| QztError::Io(error.kind()))?;
         Self::open_read_at_with_limits(Mutex::new(file), len, container, limits)
     }
 }
