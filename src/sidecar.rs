@@ -7,7 +7,7 @@ use std::sync::Mutex;
 use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
 use crate::error::{QztError, Result};
 use crate::format::{FOOTER_TRAILER_LEN, MAJOR_VERSION, MINOR_VERSION};
-use crate::io::ReadAt;
+use crate::io::{ReadAt, hash_read_at_range, open_file_with_len};
 use crate::primitives::{read_u32_le, read_u64_le, u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
 use crate::schema::{
@@ -15,11 +15,11 @@ use crate::schema::{
     required_text, required_u64_with_overflow, text_pair, Checksum,
 };
 use crate::search::{
-    compact_line_granules_supported, decode_delta_varint_u64_with_limit, early_exit_report,
-    elapsed_ms, empty_search_metrics, encode_delta_varint_u64, intersect_postings, key_hash,
-    ngram_keys_for_query, substring_spans, term_index_for_key, unique_query_keys, verified_spans,
-    verify_candidates, NgramIndexBuildOptions, PlannerDecision, RawNgramIndex, RawTokenIndex,
-    SearchGranule, SearchOptions, SearchReport, TermDictionaryEntry,
+    compact_line_granules_supported, count_chunks, decode_delta_varint_u64_with_limit,
+    early_exit_report, elapsed_ms, empty_search_metrics, encode_delta_varint_u64,
+    intersect_postings, key_hash, ngram_keys_for_query, substring_spans, term_index_for_key,
+    unique_query_keys, verified_spans, verify_candidates, NgramIndexBuildOptions, PlannerDecision,
+    RawNgramIndex, RawTokenIndex, SearchGranule, SearchOptions, SearchReport, TermDictionaryEntry,
 };
 use crate::skeleton::open_skeleton_details;
 
@@ -27,7 +27,6 @@ const SIDECAR_MAGIC: &[u8; 8] = b"QZISIDE1";
 const HEADER_LEN: usize = 16;
 const LEGACY_GRANULE_RECORD_LEN: u64 = 56;
 const COMPACT_LINE_GRANULE_RECORD_LEN: u64 = 20;
-const SECTION_HASH_BUFFER: usize = 64 * 1024;
 
 /// Resource limits applied while opening and querying untrusted QZI data.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -890,11 +889,8 @@ impl QziFileSidecar<File> {
         container: &QztFileReader<C>,
         limits: SidecarLimits,
     ) -> Result<Self> {
-        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
-        let len = file
-            .metadata()
-            .map_err(|error| QztError::Io(error.kind()))?
-            .len();
+        let (file, len) =
+            open_file_with_len(path).map_err(|error| QztError::Io(error.kind()))?;
         Self::open_read_at_with_limits(file, len, container, limits)
     }
 }
@@ -931,23 +927,10 @@ impl QziFileSidecar<Mutex<File>> {
         container: &QztFileReader<C>,
         limits: SidecarLimits,
     ) -> Result<Self> {
-        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
-        let len = file
-            .metadata()
-            .map_err(|error| QztError::Io(error.kind()))?
-            .len();
+        let (file, len) =
+            open_file_with_len(path).map_err(|error| QztError::Io(error.kind()))?;
         Self::open_read_at_with_limits(Mutex::new(file), len, container, limits)
     }
-}
-
-fn count_chunks(granules: &[SearchGranule]) -> Result<u64> {
-    let mut chunks = std::collections::BTreeSet::new();
-    for granule in granules {
-        for chunk_id in granule.chunk_start..granule.chunk_end {
-            chunks.insert(chunk_id);
-        }
-    }
-    usize_to_u64(chunks.len())
 }
 
 fn map_read_error(error: &std::io::Error) -> QztError {
@@ -999,20 +982,9 @@ fn verify_section_checksum<R: ReadAt>(
         return Err(QztError::UnexpectedEof);
     }
 
-    let mut hasher = blake3::Hasher::new();
-    let mut buffer = vec![0_u8; SECTION_HASH_BUFFER];
-    let mut offset = start;
-    while offset < end {
-        let remaining = end - offset;
-        let read_len = u64_to_usize(remaining.min(buffer.len() as u64))?;
-        source
-            .read_exact_at(offset, &mut buffer[..read_len])
-            .map_err(|e| map_read_error(&e))?;
-        hasher.update(&buffer[..read_len]);
-        offset = offset
-            .checked_add(read_len as u64)
-            .ok_or(QztError::ResourceLimitExceeded)?;
-    }
+    // Keep the explicit section bounds check above so malformed metadata still
+    // produces the same fail-closed error before any I/O is attempted.
+    let hasher = hash_read_at_range(source, start, section.size).map_err(|e| map_read_error(&e))?;
     let actual = Checksum::from_hasher(&hasher);
     if actual != section.checksum {
         return Err(QztError::ContainerCorrupt);

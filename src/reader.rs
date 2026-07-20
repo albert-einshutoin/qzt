@@ -5,12 +5,14 @@ use std::path::Path;
 #[cfg(windows)]
 use std::sync::Mutex;
 
-use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
+use crate::chunk_table::{
+    ChunkEntry, STARTS_WITH_LINE_CONTINUATION, chunk_index_for_logical_offset, partition_by_end,
+};
 use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
 use crate::chunker::NewlineMode;
 use crate::format::FOOTER_TRAILER_LEN;
-use crate::io::ReadAt;
+use crate::io::{ReadAt, hash_read_at_range, open_file_with_len};
 use crate::limits::ResourceLimits;
 use crate::primitives::{checked_logical_end, checked_physical_end, u64_to_usize, usize_to_u64};
 use crate::schema::{Checksum, DictionaryEntry, DocumentEntry};
@@ -646,23 +648,12 @@ impl<R: ReadAt> QztFileReader<R> {
         if end > self.len || start > end {
             return Err(QztError::PhysicalRangeOutOfBounds);
         }
-        let mut hasher = blake3::Hasher::new();
-        let mut offset = start;
-        let mut buffer = vec![0_u8; 64 * 1024];
-        while offset < end {
-            let remaining = end - offset;
-            let read_len = u64_to_usize(remaining.min(buffer.len() as u64))?;
-            self.source
-                .read_exact_at(offset, &mut buffer[..read_len])
-                .map_err(|error| match error.kind() {
-                    std::io::ErrorKind::UnexpectedEof => QztError::UnexpectedEof,
-                    _ => QztError::ContainerCorrupt,
-                })?;
-            hasher.update(&buffer[..read_len]);
-            offset = offset
-                .checked_add(read_len as u64)
-                .ok_or(QztError::PhysicalRangeOutOfBounds)?;
-        }
+        let hasher = hash_read_at_range(&self.source, start, end - start).map_err(|error| {
+            match error.kind() {
+                std::io::ErrorKind::UnexpectedEof => QztError::UnexpectedEof,
+                _ => QztError::ContainerCorrupt,
+            }
+        })?;
         Ok(Checksum::from_hasher(&hasher))
     }
 }
@@ -671,11 +662,8 @@ impl<R: ReadAt> QztFileReader<R> {
 impl QztFileReader<File> {
     /// Opens a QZT file from a filesystem path.
     pub fn open_path(path: impl AsRef<Path>) -> Result<Self> {
-        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
-        let len = file
-            .metadata()
-            .map_err(|error| QztError::Io(error.kind()))?
-            .len();
+        let (file, len) =
+            open_file_with_len(path).map_err(|error| QztError::Io(error.kind()))?;
         Self::open_read_at(file, len)
     }
 }
@@ -684,11 +672,8 @@ impl QztFileReader<File> {
 impl QztFileReader<Mutex<File>> {
     /// Opens a QZT file from a filesystem path.
     pub fn open_path(path: impl AsRef<Path>) -> Result<Self> {
-        let file = File::open(path).map_err(|error| QztError::Io(error.kind()))?;
-        let len = file
-            .metadata()
-            .map_err(|error| QztError::Io(error.kind()))?
-            .len();
+        let (file, len) =
+            open_file_with_len(path).map_err(|error| QztError::Io(error.kind()))?;
         Self::open_read_at(Mutex::new(file), len)
     }
 }
@@ -811,7 +796,7 @@ fn read_range_from_entries_cached(
     }
 
     let mut output = Vec::new();
-    let mut index = range_start_chunk_index(entries, offset)?;
+    let mut index = chunk_index_for_logical_offset(entries, offset)?;
     while let Some(entry) = entries.get(index) {
         let chunk_end = checked_logical_end(entry.logical_offset, entry.uncompressed_size)?;
         if entry.logical_offset >= end {
@@ -1060,37 +1045,10 @@ impl StreamingTextAnalysis {
     }
 }
 
-fn range_start_chunk_index(entries: &[ChunkEntry], offset: u64) -> Result<usize> {
-    let mut low = 0_usize;
-    let mut high = entries.len();
-
-    while low < high {
-        let mid = low + (high - low) / 2;
-        let chunk_end =
-            checked_logical_end(entries[mid].logical_offset, entries[mid].uncompressed_size)?;
-        if chunk_end <= offset {
-            low = mid + 1;
-        } else {
-            high = mid;
-        }
-    }
-
-    Ok(low)
-}
-
 fn line_start_chunk_index(entries: &[ChunkEntry], line_zero_based: u64) -> Result<usize> {
-    let mut low = 0_usize;
-    let mut high = entries.len();
-
-    while low < high {
-        let mid = low + (high - low) / 2;
-        let line_end = checked_logical_end(entries[mid].first_line, entries[mid].line_count)?;
-        if line_end <= line_zero_based {
-            low = mid + 1;
-        } else {
-            high = mid;
-        }
-    }
+    let low = partition_by_end(entries, line_zero_based, |entry| {
+        checked_logical_end(entry.first_line, entry.line_count)
+    })?;
 
     let entry = entries.get(low).ok_or(QztError::LineOutOfRange)?;
     let line_end = checked_logical_end(entry.first_line, entry.line_count)?;
@@ -1210,8 +1168,8 @@ fn document_chunk_range(
     }
     let end = checked_logical_end(offset, length)?;
 
-    let first_index = range_start_chunk_index(chunk_entries, offset)?;
-    let last_index = range_start_chunk_index(chunk_entries, end - 1)?;
+    let first_index = chunk_index_for_logical_offset(chunk_entries, offset)?;
+    let last_index = chunk_index_for_logical_offset(chunk_entries, end - 1)?;
     let first = chunk_entries
         .get(first_index)
         .ok_or(QztError::ChunkTableInvalid)?

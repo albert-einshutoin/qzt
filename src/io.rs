@@ -1,10 +1,42 @@
 use std::fs::File;
 use std::io;
+use std::path::Path;
 
 /// Positioned read abstraction used by file-backed QZT readers.
 pub trait ReadAt {
     /// Reads exactly `buf.len()` bytes starting at `offset`.
     fn read_exact_at(&self, offset: u64, buf: &mut [u8]) -> io::Result<()>;
+}
+
+pub(crate) fn hash_read_at_range<R: ReadAt + ?Sized>(
+    source: &R,
+    offset: u64,
+    size: u64,
+) -> io::Result<blake3::Hasher> {
+    const BUFFER_SIZE: usize = 64 * 1024;
+    let mut hasher = blake3::Hasher::new();
+    let mut buffer = vec![0_u8; BUFFER_SIZE];
+    let mut remaining = size;
+    let mut position = offset;
+
+    while remaining > 0 {
+        let read_len = usize::try_from(remaining.min(BUFFER_SIZE as u64))
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "range too large"))?;
+        source.read_exact_at(position, &mut buffer[..read_len])?;
+        hasher.update(&buffer[..read_len]);
+        position = position
+            .checked_add(read_len as u64)
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "range overflow"))?;
+        remaining -= read_len as u64;
+    }
+
+    Ok(hasher)
+}
+
+pub(crate) fn open_file_with_len(path: impl AsRef<Path>) -> io::Result<(File, u64)> {
+    let file = File::open(path)?;
+    let len = file.metadata()?.len();
+    Ok((file, len))
 }
 
 impl ReadAt for &[u8] {
@@ -84,6 +116,39 @@ fn finish_windows_positioned_read(
                 "positioned read failed ({operation_error}); cursor restore also failed ({restore_error})"
             ),
         )),
+    }
+}
+
+#[cfg(test)]
+mod shared_tests {
+    use super::*;
+    use std::io::Write;
+
+    #[test]
+    fn range_hash_matches_the_exact_selected_bytes_across_buffer_boundaries() {
+        let bytes = (0..(70 * 1024 + 17))
+            .map(|index| u8::try_from(index % 251).expect("fixture byte fits u8"))
+            .collect::<Vec<_>>();
+        let offset = 113_u64;
+        let size = 66 * 1024 + 7_usize;
+
+        let actual = hash_read_at_range(&bytes, offset, size as u64)
+            .expect("in-memory positioned hash should succeed")
+            .finalize();
+        let start = usize::try_from(offset).unwrap();
+        let expected = blake3::hash(&bytes[start..start + size]);
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn open_file_with_len_returns_the_same_handle_length() {
+        let mut fixture = tempfile::NamedTempFile::new().expect("temporary file");
+        fixture.write_all(b"qzt").expect("write fixture");
+
+        let (_file, len) = open_file_with_len(fixture.path()).expect("open fixture");
+
+        assert_eq!(len, 3);
     }
 }
 

@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::time::Instant;
 
-use crate::chunk_table::ChunkEntry;
+use crate::chunk_table::{ChunkEntry, chunk_index_for_logical_offset};
 use crate::error::{QztError, Result};
 use crate::io::ReadAt;
 use crate::primitives::{checked_logical_end, u64_to_usize, usize_to_u64};
@@ -1184,8 +1184,8 @@ fn emit_line_granule(
 /// Chunk-id span `[chunk_start, chunk_end)` covering a non-empty logical
 /// range, found with two binary searches over the contiguous chunk table.
 fn chunk_span_for_range(entries: &[ChunkEntry], start: u64, end: u64) -> Result<(u64, u64)> {
-    let first_index = chunk_index_for_offset(entries, start)?;
-    let last_index = chunk_index_for_offset(entries, end.saturating_sub(1))?;
+    let first_index = chunk_index_for_logical_offset(entries, start)?;
+    let last_index = chunk_index_for_logical_offset(entries, end.saturating_sub(1))?;
     let first = entries
         .get(first_index)
         .ok_or(QztError::ChunkTableInvalid)?
@@ -1196,22 +1196,6 @@ fn chunk_span_for_range(entries: &[ChunkEntry], start: u64, end: u64) -> Result<
         .chunk_id;
     let last_exclusive = last.checked_add(1).ok_or(QztError::ChunkTableInvalid)?;
     Ok((first, last_exclusive))
-}
-
-fn chunk_index_for_offset(entries: &[ChunkEntry], offset: u64) -> Result<usize> {
-    let mut low = 0_usize;
-    let mut high = entries.len();
-    while low < high {
-        let mid = low + (high - low) / 2;
-        let chunk_end =
-            checked_logical_end(entries[mid].logical_offset, entries[mid].uncompressed_size)?;
-        if chunk_end <= offset {
-            low = mid + 1;
-        } else {
-            high = mid;
-        }
-    }
-    Ok(low)
 }
 
 struct EncodedPostingLists {
@@ -1423,12 +1407,24 @@ pub(crate) fn verify_candidates(
 }
 
 fn count_candidate_chunks(granules: &[SearchGranule], candidates: &[u64]) -> Result<u64> {
-    let mut chunks = BTreeSet::new();
-    for granule_id in candidates {
+    count_chunk_spans(candidates.iter().map(|granule_id| {
         let granule_index = u64_to_usize(*granule_id)?;
-        let granule = granules
+        granules
             .get(granule_index)
-            .ok_or(QztError::ContainerCorrupt)?;
+            .ok_or(QztError::ContainerCorrupt)
+    }))
+}
+
+pub(crate) fn count_chunks(granules: &[SearchGranule]) -> Result<u64> {
+    count_chunk_spans(granules.iter().map(Ok))
+}
+
+fn count_chunk_spans<'a>(
+    granules: impl IntoIterator<Item = Result<&'a SearchGranule>>,
+) -> Result<u64> {
+    let mut chunks = BTreeSet::new();
+    for granule in granules {
+        let granule = granule?;
         for chunk_id in granule.chunk_start..granule.chunk_end {
             chunks.insert(chunk_id);
         }
@@ -1615,6 +1611,32 @@ mod serialized_metrics_tests {
         assert_eq!(report.incomplete_reason, Some("test_reason"));
         assert!((report.metrics.index_size_ratio - 0.25).abs() < f64::EPSILON);
         assert!(report.metrics.query_time_ms >= 0.0);
+    }
+
+    #[test]
+    fn shared_chunk_counter_deduplicates_overlapping_spans() {
+        let granules = vec![
+            SearchGranule {
+                granule_id: 0,
+                logical_offset: 0,
+                byte_length: 4,
+                chunk_start: 0,
+                chunk_end: 2,
+                first_line: Some(0),
+                line_count: Some(1),
+            },
+            SearchGranule {
+                granule_id: 1,
+                logical_offset: 4,
+                byte_length: 4,
+                chunk_start: 1,
+                chunk_end: 3,
+                first_line: Some(1),
+                line_count: Some(1),
+            },
+        ];
+
+        assert_eq!(count_chunks(&granules), Ok(3));
     }
 
     #[test]
