@@ -1,5 +1,6 @@
 use std::fs;
 use std::process::Command;
+mod support;
 
 fn run(args: &[&str]) -> std::process::Output {
     Command::new(env!("CARGO_BIN_EXE_qzt"))
@@ -10,7 +11,8 @@ fn run(args: &[&str]) -> std::process::Output {
 
 #[test]
 fn pack_docs_round_trips_in_argument_order_with_prefixed_basenames() {
-    let base = std::env::temp_dir().join(format!("qzt-38-pack-docs-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-38-pack-docs-{}", std::process::id()));
     let _ = fs::remove_dir_all(&base);
     fs::create_dir_all(&base).expect("fixture directory");
     let first = base.join("first.txt");
@@ -62,7 +64,8 @@ fn pack_docs_round_trips_in_argument_order_with_prefixed_basenames() {
 
 #[test]
 fn pack_docs_rejects_duplicate_basenames_without_leaving_output_artifacts() {
-    let base = std::env::temp_dir().join(format!("qzt-38-pack-docs-dupe-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-38-pack-docs-dupe-{}", std::process::id()));
     let _ = fs::remove_dir_all(&base);
     let one = base.join("one");
     let two = base.join("two");
@@ -91,7 +94,8 @@ fn pack_docs_rejects_duplicate_basenames_without_leaving_output_artifacts() {
 
 #[test]
 fn pack_docs_memory_profile_is_available_and_help_explains_memory_cost() {
-    let base = std::env::temp_dir().join(format!("qzt-38-pack-docs-memory-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-38-pack-docs-memory-{}", std::process::id()));
     let _ = fs::remove_dir_all(&base);
     fs::create_dir_all(&base).expect("fixture directory");
     let input = base.join("input.txt");
@@ -125,7 +129,8 @@ fn pack_docs_memory_profile_is_available_and_help_explains_memory_cost() {
 
 #[test]
 fn pack_docs_memory_uses_bounded_default_chunks_and_honors_explicit_sizes() {
-    let base = std::env::temp_dir().join(format!("qzt-38-memory-chunks-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-38-memory-chunks-{}", std::process::id()));
     let _ = fs::remove_dir_all(&base);
     fs::create_dir_all(&base).expect("fixture directory");
     let large = base.join("large.txt");
@@ -236,7 +241,8 @@ fn pack_docs_memory_uses_bounded_default_chunks_and_honors_explicit_sizes() {
 
 #[test]
 fn pack_memory_profile_error_explains_the_document_index_requirement() {
-    let base = std::env::temp_dir().join(format!("qzt-110-memory-message-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-110-memory-message-{}", std::process::id()));
     let _ = fs::remove_dir_all(&base);
     fs::create_dir_all(&base).expect("fixture directory");
     let input = base.join("input.txt");
@@ -263,7 +269,7 @@ fn pack_memory_profile_error_explains_the_document_index_requirement() {
 fn pack_docs_preserves_existing_output_permissions() {
     use std::os::unix::fs::PermissionsExt;
 
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-38-pack-docs-permissions-{}",
         std::process::id()
     ));

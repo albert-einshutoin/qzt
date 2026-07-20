@@ -22,6 +22,9 @@ Run the same gate CI runs:
 make check
 ```
 
+This default gate includes rustdoc with warnings denied; generated HTML stays
+under the ignored Cargo target directory.
+
 For documentation or release-hygiene changes, also run:
 
 ```sh

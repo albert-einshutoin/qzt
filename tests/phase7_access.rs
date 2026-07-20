@@ -66,7 +66,7 @@ fn read_line_raw_reads_first_last_and_spanning_lines() {
 fn cli_range_and_line_smoke() {
     let input = b"alpha\nbeta\ngamma\n";
     let container = pack(input, 8, 8);
-    let path = std::env::temp_dir().join(format!(
+    let path = crate::support::secure_temp_root().join(format!(
         "qzt-phase7-{}-{}.qzt",
         std::process::id(),
         input.len()

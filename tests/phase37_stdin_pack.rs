@@ -6,6 +6,7 @@
 /// - Using stdin (`-`) with a non-streaming profile exits 2 with a clear message.
 /// - File input behaviour is completely unchanged.
 use std::fs;
+mod support;
 use std::io::Write as _;
 use std::process::{Command, Stdio};
 
@@ -49,7 +50,8 @@ fn verify_deep(packed: &std::path::Path) {
 /// `qzt pack - -o out.qzt` with non-empty stdin packs and round-trips correctly.
 #[test]
 fn pack_reads_stdin_and_roundtrips() {
-    let dir = std::env::temp_dir().join(format!("qzt-37-stdin-rt-{}", std::process::id()));
+    let dir =
+        crate::support::secure_temp_root().join(format!("qzt-37-stdin-rt-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
     let out = dir.join("stdin.qzt");
 
@@ -92,7 +94,8 @@ fn pack_reads_stdin_and_roundtrips() {
 /// Empty containers are already supported by the format (see `tests/vectors/valid_empty`).
 #[test]
 fn pack_stdin_empty_input_roundtrips() {
-    let dir = std::env::temp_dir().join(format!("qzt-37-stdin-empty-{}", std::process::id()));
+    let dir = crate::support::secure_temp_root()
+        .join(format!("qzt-37-stdin-empty-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
     let out = dir.join("stdin_empty.qzt");
 
@@ -126,7 +129,8 @@ fn pack_stdin_empty_input_roundtrips() {
 /// A one-byte stdin input exercises the smallest non-empty streaming chunk.
 #[test]
 fn pack_stdin_one_byte_deep_verifies_and_roundtrips() {
-    let dir = std::env::temp_dir().join(format!("qzt-37-stdin-one-{}", std::process::id()));
+    let dir =
+        crate::support::secure_temp_root().join(format!("qzt-37-stdin-one-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
     let out = dir.join("stdin_one.qzt");
 
@@ -162,7 +166,8 @@ fn pack_stdin_one_byte_deep_verifies_and_roundtrips() {
 /// a message containing "stdin" to stderr.
 #[test]
 fn pack_stdin_rejects_non_streaming_profile() {
-    let dir = std::env::temp_dir().join(format!("qzt-37-stdin-badprof-{}", std::process::id()));
+    let dir = crate::support::secure_temp_root()
+        .join(format!("qzt-37-stdin-badprof-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
     let out = dir.join("never.qzt");
 
@@ -219,7 +224,8 @@ fn pack_stdin_rejects_non_streaming_profile() {
 /// forces the in-memory path and cannot be used with stdin.
 #[test]
 fn pack_stdin_rejects_dense_line_index() {
-    let dir = std::env::temp_dir().join(format!("qzt-37-stdin-dense-{}", std::process::id()));
+    let dir = crate::support::secure_temp_root()
+        .join(format!("qzt-37-stdin-dense-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
     let out = dir.join("never.qzt");
 
@@ -273,7 +279,8 @@ fn pack_stdin_rejects_dense_line_index() {
 /// File input behaviour is completely unchanged after the stdin feature.
 #[test]
 fn pack_file_input_unchanged() {
-    let dir = std::env::temp_dir().join(format!("qzt-37-file-unch-{}", std::process::id()));
+    let dir =
+        crate::support::secure_temp_root().join(format!("qzt-37-file-unch-{}", std::process::id()));
     fs::create_dir_all(&dir).unwrap();
     let input = dir.join("input.txt");
     let out = dir.join("output.qzt");

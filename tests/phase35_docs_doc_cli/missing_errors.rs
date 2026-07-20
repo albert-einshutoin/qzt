@@ -4,7 +4,7 @@ use super::{no_index_container, run, two_doc_container};
 
 #[test]
 fn doc_reports_missing_index_and_missing_id_separately() {
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-35-doc-distinguish-missing-{}",
         std::process::id()
     ));

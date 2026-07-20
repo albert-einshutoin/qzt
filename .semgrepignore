@@ -1,0 +1,12 @@
+# Generated Rust and fuzz build outputs contain no reviewable source.
+/target/
+/fuzz/target/
+
+# Runtime-generated fuzz inputs and crash artifacts are untrusted evidence,
+# not source; the fuzz harness itself remains scan-visible.
+/fuzz/corpus/
+/fuzz/artifacts/
+
+# Local coverage reports are generated from already scanned source files.
+/coverage/
+/coverage-*/

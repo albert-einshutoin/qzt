@@ -6,6 +6,7 @@
 /// non-empty only where existing contracts allow it — not duplicated here).
 use std::fs;
 use std::process::Command;
+mod support;
 
 use qzt::{Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterBuilder, WriterOptions};
 
@@ -85,7 +86,8 @@ fn parse_json_stdout(output: &std::process::Output) -> serde_json::Value {
 
 #[test]
 fn info_json_serde_roundtrip_has_required_fields() {
-    let base = std::env::temp_dir().join(format!("qzt-89-info-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-89-info-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let packed = pack_simple(&base);
     let path = packed.to_str().unwrap();
@@ -111,7 +113,8 @@ fn info_json_serde_roundtrip_has_required_fields() {
 
 #[test]
 fn verify_json_serde_roundtrip_has_required_fields() {
-    let base = std::env::temp_dir().join(format!("qzt-89-verify-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-89-verify-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let packed = pack_simple(&base);
     let path = packed.to_str().unwrap();
@@ -135,7 +138,8 @@ fn verify_json_serde_roundtrip_has_required_fields() {
 
 #[test]
 fn verify_json_error_contract_is_stable() {
-    let base = std::env::temp_dir().join(format!("qzt-123-verify-error-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-123-verify-error-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let packed = pack_simple(&base);
     let corrupt = base.join("corrupt.qzt");
@@ -182,7 +186,8 @@ fn verify_json_error_contract_is_stable() {
 
 #[test]
 fn docs_json_serde_roundtrip_has_required_fields() {
-    let base = std::env::temp_dir().join(format!("qzt-89-docs-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-89-docs-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let packed = pack_with_document_index(&base);
     let path = packed.to_str().unwrap();
@@ -215,7 +220,8 @@ fn docs_json_serde_roundtrip_has_required_fields() {
 
 #[test]
 fn search_json_serde_roundtrip_has_required_fields() {
-    let base = std::env::temp_dir().join(format!("qzt-89-search-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-89-search-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let packed = pack_simple(&base);
     let path = packed.to_str().unwrap();

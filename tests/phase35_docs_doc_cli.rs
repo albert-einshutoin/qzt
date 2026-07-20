@@ -5,6 +5,7 @@
 ///   to 1-based for both text and JSON output.
 use std::fs;
 use std::process::Command;
+mod support;
 
 use qzt::{
     Checksum, ChunkerOptions, DocumentEntry, DocumentIndex, WriterBuilder, WriterOptions,
@@ -95,7 +96,8 @@ mod missing_errors;
 
 #[test]
 fn docs_text_header_is_first_stdout_line() {
-    let base = std::env::temp_dir().join(format!("qzt-35-docs-hdr-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-35-docs-hdr-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     fs::write(&qzt_path, two_doc_container()).expect("write fixture");
@@ -119,7 +121,8 @@ fn docs_text_header_is_first_stdout_line() {
 
 #[test]
 fn docs_text_lists_two_documents_with_correct_ids() {
-    let base = std::env::temp_dir().join(format!("qzt-35-docs-two-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-35-docs-two-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     fs::write(&qzt_path, two_doc_container()).expect("write fixture");
@@ -149,7 +152,8 @@ fn docs_text_lists_two_documents_with_correct_ids() {
 fn docs_text_first_line_is_one_based() {
     // first_line stored as 0 in doc-one → must display as 1
     // first_line stored as 1 in doc-two → must display as 2
-    let base = std::env::temp_dir().join(format!("qzt-35-docs-1based-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-docs-1based-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     fs::write(&qzt_path, two_doc_container()).expect("write fixture");
@@ -171,7 +175,8 @@ fn docs_text_first_line_is_one_based() {
 
 #[test]
 fn docs_text_checksum_format_is_algorithm_colon_hex() {
-    let base = std::env::temp_dir().join(format!("qzt-35-docs-chk-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-35-docs-chk-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     fs::write(&qzt_path, two_doc_container()).expect("write fixture");
@@ -203,7 +208,8 @@ fn docs_text_checksum_format_is_algorithm_colon_hex() {
 
 #[test]
 fn docs_json_contains_documents_array() {
-    let base = std::env::temp_dir().join(format!("qzt-35-docs-json-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-35-docs-json-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     fs::write(&qzt_path, two_doc_container()).expect("write fixture");
@@ -237,7 +243,8 @@ fn docs_json_contains_documents_array() {
 fn docs_json_first_line_is_one_based() {
     // doc-one: stored first_line=0 → JSON must show 1
     // doc-two: stored first_line=1 → JSON must show 2
-    let base = std::env::temp_dir().join(format!("qzt-35-docs-json-1b-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-docs-json-1b-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     fs::write(&qzt_path, two_doc_container()).expect("write fixture");
@@ -261,7 +268,8 @@ fn docs_json_first_line_is_one_based() {
 
 #[test]
 fn docs_json_checksum_has_algorithm_and_value_keys() {
-    let base = std::env::temp_dir().join(format!("qzt-35-docs-json-chk-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-docs-json-chk-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     fs::write(&qzt_path, two_doc_container()).expect("write fixture");
@@ -288,8 +296,8 @@ fn docs_json_checksum_has_algorithm_and_value_keys() {
 
 #[test]
 fn docs_no_index_exits_1_text() {
-    let base =
-        std::env::temp_dir().join(format!("qzt-35-docs-noindex-text-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-docs-noindex-text-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("noidx.qzt");
     fs::write(&qzt_path, no_index_container()).expect("write fixture");
@@ -308,8 +316,8 @@ fn docs_no_index_exits_1_text() {
 
 #[test]
 fn docs_no_index_exits_1_json() {
-    let base =
-        std::env::temp_dir().join(format!("qzt-35-docs-noindex-json-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-docs-noindex-json-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("noidx.qzt");
     fs::write(&qzt_path, no_index_container()).expect("write fixture");
@@ -330,7 +338,8 @@ fn docs_no_index_exits_1_json() {
 
 #[test]
 fn doc_verified_extracts_correct_bytes() {
-    let base = std::env::temp_dir().join(format!("qzt-35-doc-ver-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-35-doc-ver-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     fs::write(&qzt_path, two_doc_container()).expect("write fixture");
@@ -352,7 +361,8 @@ fn doc_verified_extracts_correct_bytes() {
 
 #[test]
 fn doc_verified_writes_to_output_file() {
-    let base = std::env::temp_dir().join(format!("qzt-35-doc-out-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-35-doc-out-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     let out_path = base.join("extracted.txt");
@@ -384,7 +394,8 @@ fn doc_verified_writes_to_output_file() {
 
 #[test]
 fn doc_corrupt_verified_exits_1_no_verify_succeeds() {
-    let base = std::env::temp_dir().join(format!("qzt-35-doc-corrupt-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-doc-corrupt-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     // Build a clean two-doc container.
@@ -432,8 +443,8 @@ fn doc_corrupt_verified_exits_1_no_verify_succeeds() {
 /// to ensure the checksum mismatch path is exercised.
 #[test]
 fn doc_corrupt_chunk_payload_verified_fails_no_verify_returns_garbage() {
-    let base =
-        std::env::temp_dir().join(format!("qzt-35-doc-corrupt-chunk-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-doc-corrupt-chunk-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     // Build a container where we know the chunk payload is large enough to flip.
@@ -520,7 +531,8 @@ fn doc_corrupt_chunk_payload_verified_fails_no_verify_returns_garbage() {
 //                         → VerifiedChecksumMismatch, exits 1
 #[test]
 fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
-    let base = std::env::temp_dir().join(format!("qzt-35-doc-tampered-chk-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-doc-tampered-chk-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     // Build a document entry whose checksum.value is deliberately wrong.
@@ -586,7 +598,8 @@ fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
 
 #[test]
 fn doc_unknown_id_exits_1() {
-    let base = std::env::temp_dir().join(format!("qzt-35-doc-miss-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-35-doc-miss-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("two.qzt");
     fs::write(&qzt_path, two_doc_container()).expect("write fixture");
@@ -605,7 +618,8 @@ fn doc_unknown_id_exits_1() {
 
 #[test]
 fn doc_no_index_exits_1() {
-    let base = std::env::temp_dir().join(format!("qzt-35-doc-noindex-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-doc-noindex-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("noidx.qzt");
     fs::write(&qzt_path, no_index_container()).expect("write fixture");
@@ -626,7 +640,8 @@ fn doc_no_index_exits_1() {
 
 #[test]
 fn docs_text_doc_id_tab_and_newline_are_escaped() {
-    let base = std::env::temp_dir().join(format!("qzt-35-docs-escape-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-35-docs-escape-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     // Build a container where one doc_id contains a tab and a newline.
     let input = b"hello\nworld\n";
@@ -728,7 +743,8 @@ fn eyeball_docs_and_doc_commands_manual_verify() {
     )
     .expect("pack");
 
-    let base = std::env::temp_dir().join(format!("qzt-eyeball-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-eyeball-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let path = base.join("evidence.qzt");
     fs::write(&path, container).expect("write");

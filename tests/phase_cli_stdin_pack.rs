@@ -5,6 +5,7 @@
 /// message so large stdin inputs are never buffered silently.
 use std::fs;
 use std::process::{Command, Output, Stdio};
+mod support;
 
 struct StdinPackRejectionCase {
     name: &'static str,
@@ -26,7 +27,8 @@ fn run_pack_stdin(extra_args: &[&str], out: &str) -> Output {
 /// Non-streaming stdin pack paths exit 2 and explain the streaming-only contract.
 #[test]
 fn stdin_pack_rejects_non_streaming_paths() {
-    let base = std::env::temp_dir().join(format!("qzt-cli-stdin-pack-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-cli-stdin-pack-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let cases = [

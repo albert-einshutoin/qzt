@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::process::{Command, Output};
 use std::sync::atomic::{AtomicU64, Ordering};
+mod support;
 
 #[cfg(unix)]
 use std::process::Stdio;
@@ -568,8 +569,8 @@ struct CliFixture {
 impl CliFixture {
     fn new() -> Self {
         let sequence = FIXTURE_SEQUENCE.fetch_add(1, Ordering::Relaxed);
-        let base =
-            std::env::temp_dir().join(format!("qzt-phase41-{}-{sequence}", std::process::id()));
+        let base = crate::support::secure_temp_root()
+            .join(format!("qzt-phase41-{}-{sequence}", std::process::id()));
         fs::create_dir_all(&base).expect("create fixture directory");
         let packed = base.join("plain.qzt");
         let documents = base.join("documents.qzt");

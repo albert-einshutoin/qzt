@@ -12,7 +12,8 @@ use support::{assert_success, output_success};
 
 #[test]
 fn cli_pack_info_verify_range_lines_and_export_round_trip() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-phase9-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -82,7 +83,7 @@ fn cli_pack_info_verify_range_lines_and_export_round_trip() {
 fn streaming_pack_does_not_follow_the_legacy_temporary_path_symlink() {
     use std::os::unix::fs::symlink;
 
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-phase9-pack-temp-symlink-{}",
         std::process::id()
     ));
@@ -125,7 +126,8 @@ fn streaming_pack_does_not_follow_the_legacy_temporary_path_symlink() {
 
 #[test]
 fn cli_pack_rejects_invalid_utf8() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-invalid-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-invalid-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("invalid.bin");
     let packed = base.join("invalid.qzt");
@@ -195,7 +197,8 @@ fn help_links_the_full_cli_stability_contract() {
 
 #[test]
 fn range_and_line_reject_unknown_trailing_options_as_usage_errors() {
-    let base = std::env::temp_dir().join(format!("qzt-phase41-args-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-phase41-args-{}", std::process::id()));
     fs::create_dir_all(&base).expect("create fixture directory");
     let packed = base.join("input.qzt");
     fs::write(
@@ -258,7 +261,7 @@ fn pack_help_mentions_stdin_packing_constraints() {
 /// the streaming-only path so large streams are never buffered silently.
 #[test]
 fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-phase9-stdin-dense-conflict-{}",
         std::process::id()
     ));
@@ -324,7 +327,7 @@ fn stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr() {
 /// Issue #115: `qzt pack -` with `--profile memory` exits 2 and names the unsupported profile.
 #[test]
 fn stdin_pack_memory_profile_conflict_exits_2_with_clear_stderr() {
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-phase9-stdin-memory-conflict-{}",
         std::process::id()
     ));
@@ -409,7 +412,8 @@ fn run_stdin_pack(args: &[&str], stdin_bytes: &[u8]) -> std::process::Output {
 /// combinations remain usage errors with actionable diagnostics.
 #[test]
 fn stdin_pack_table_driven_core_success_and_rejections() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-stdin-table-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-stdin-table-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = b"alpha\nbeta\n";
 
@@ -485,7 +489,8 @@ fn cli_pack_profile_dense_and_writer_options_reach_metadata_and_info() {
     // The "memory" profile requires a DocumentIndex which is not expressible via
     // the CLI pack command. Use "archive" to verify that profile, dense-line-index,
     // and writer options are correctly forwarded to the container metadata.
-    let base = std::env::temp_dir().join(format!("qzt-phase9-profile-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-profile-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -536,7 +541,8 @@ fn cli_pack_profile_dense_and_writer_options_reach_metadata_and_info() {
 /// `qzt info --format json` emits `container_id`, `original_checksum`, and `blake3`.
 #[test]
 fn info_json_contains_container_id_and_checksum() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-json-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-phase9-json-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -607,7 +613,8 @@ fn info_json_contains_container_id_and_checksum() {
 /// `qzt info --format text` is accepted as explicit text mode.
 #[test]
 fn info_format_text_explicit_accepted() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-fmt-text-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-fmt-text-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -637,7 +644,8 @@ fn info_format_text_explicit_accepted() {
 /// An unknown `--format` value must exit with code 2.
 #[test]
 fn info_unknown_format_exits_2() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-fmt-bad-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-fmt-bad-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -672,7 +680,8 @@ fn info_unknown_format_exits_2() {
 /// `checked_chunks` count.
 #[test]
 fn verify_json_reports_ok_with_counts() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-vjson-ok-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-vjson-ok-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -717,7 +726,8 @@ fn verify_json_reports_ok_with_counts() {
 /// Machine-readable verification metrics are fixed by verification level.
 #[test]
 fn verify_json_decoded_bytes_are_fixed_by_level() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-vjson-levels-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-vjson-levels-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -785,7 +795,8 @@ fn verify_json_decoded_bytes_are_fixed_by_level() {
 /// `"ok":false` plus an `"error"` key to stdout (no stderr output in JSON mode).
 #[test]
 fn verify_json_reports_failure_with_exit_1() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-vjson-fail-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-vjson-fail-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -844,7 +855,8 @@ fn verify_json_reports_failure_with_exit_1() {
 /// `qzt verify --deep` text mode prints `Decoded bytes:` matching the original size.
 #[test]
 fn verify_deep_text_reports_decoded_bytes() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-vdeep-text-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-vdeep-text-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -883,7 +895,8 @@ fn verify_deep_text_reports_decoded_bytes() {
 /// `qzt info <file> --format` with the flag as the last argument (missing value) exits 2.
 #[test]
 fn info_format_missing_value_exits_2() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-fmt-missing-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-fmt-missing-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -916,7 +929,8 @@ fn info_format_missing_value_exits_2() {
 /// `qzt verify --format bad` (unknown format value) exits with code 2.
 #[test]
 fn verify_unknown_format_exits_2() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-vfmt-bad-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-vfmt-bad-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -950,7 +964,8 @@ fn verify_unknown_format_exits_2() {
 /// `qzt line <file> 0` is a usage error (CLI line numbers are 1-based); `1` reads the first line.
 #[test]
 fn cli_line_rejects_zero_and_reads_first_with_one() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-line-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-phase9-line-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -996,7 +1011,8 @@ fn cli_line_rejects_zero_and_reads_first_with_one() {
 /// `qzt verify --format` with the flag as the last argument (missing value) exits 2.
 #[test]
 fn verify_format_missing_value_exits_2() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-vfmt-missing-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-vfmt-missing-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -1089,7 +1105,8 @@ fn run_qzt(args: &[&str]) -> std::process::Output {
 /// CHANGELOG contract: `qzt docs` exits 1 when the container has no Document Index.
 #[test]
 fn docs_no_document_index_exits_1() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-docs-noindex-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-docs-noindex-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("noidx.qzt");
     fs::write(&qzt_path, docs_doc_no_index_container()).expect("write fixture");
@@ -1112,7 +1129,8 @@ fn docs_no_document_index_exits_1() {
 /// CHANGELOG contract: `qzt doc` exits 1 for an unknown `doc_id`.
 #[test]
 fn doc_unknown_id_exits_1() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-doc-unknown-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-doc-unknown-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("indexed.qzt");
     fs::write(&qzt_path, docs_doc_indexed_container()).expect("write fixture");
@@ -1136,7 +1154,7 @@ fn doc_unknown_id_exits_1() {
 /// while `--no-verify` still returns intact payload bytes.
 #[test]
 fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-phase9-doc-tampered-chk-{}",
         std::process::id()
     ));
@@ -1197,7 +1215,8 @@ fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
 /// Regression guard: success path for `qzt docs --format json` remains stable.
 #[test]
 fn docs_json_success_path_smoke() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-docs-json-ok-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-docs-json-ok-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("indexed.qzt");
     fs::write(&qzt_path, docs_doc_indexed_container()).expect("write fixture");
@@ -1226,7 +1245,8 @@ fn docs_json_success_path_smoke() {
 /// Regression guard: success path for `qzt doc` verified extraction remains stable.
 #[test]
 fn doc_success_path_smoke() {
-    let base = std::env::temp_dir().join(format!("qzt-phase9-doc-ok-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase9-doc-ok-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let qzt_path = base.join("indexed.qzt");
     fs::write(&qzt_path, docs_doc_indexed_container()).expect("write fixture");

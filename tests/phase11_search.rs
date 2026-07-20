@@ -176,7 +176,8 @@ fn normalized_token_index_is_rejected_in_phase11() {
 
 #[test]
 fn cli_search_reports_verified_hits_and_metrics() {
-    let base = std::env::temp_dir().join(format!("qzt-phase11-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-phase11-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");

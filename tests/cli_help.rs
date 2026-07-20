@@ -1,5 +1,6 @@
 use std::fs;
 use std::process::Command;
+mod support;
 
 /// Exact profile list line pinned by issue #71.
 const PACK_PROFILES_LINE: &str = "Profiles: minimal, core, log, archive, memory";
@@ -46,7 +47,8 @@ fn pack_help_states_technical_preview_positioning() {
 
 #[test]
 fn pack_rejects_invalid_profile_with_usage_error() {
-    let base = std::env::temp_dir().join(format!("qzt-cli-help-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-cli-help-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     fs::write(&input, b"hello\n").expect("fixture input should be writable");
@@ -126,7 +128,8 @@ fn every_subcommand_exposes_command_specific_help() {
 
 #[test]
 fn pack_accepts_options_before_the_input_path() {
-    let base = std::env::temp_dir().join(format!("qzt-cli-options-first-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-cli-options-first-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let output_path = base.join("out.qzt");

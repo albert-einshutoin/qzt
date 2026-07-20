@@ -182,6 +182,12 @@ For a quicker profile iteration:
 QZT_RELEASE_BENCH_QUERY_REPETITIONS=5 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=2 make bench-profile
 ```
 
+The equivalent convenience target for routine evidence checks is:
+
+```sh
+make bench-profile-quick
+```
+
 See [the release-hardening guide](docs/QZT_v0.1_Release_Hardening.md) for corpus
 details, metric definitions, and additional profiling targets.
 
