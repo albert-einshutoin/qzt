@@ -1,4 +1,4 @@
-.PHONY: fmt clippy check-default test check dist-check doc bench-release bench-profile bench-profile-matrix bench-partial-decompression
+.PHONY: fmt clippy check-default test check coverage dist-check doc bench-release bench-profile bench-profile-matrix bench-partial-decompression
 
 RELEASE_BENCH_QUERY_REPETITIONS ?= 500
 RELEASE_BENCH_QUERY_WARMUP_REPETITIONS ?= 20
@@ -21,6 +21,12 @@ test:
 	cargo test --all-targets --all-features
 
 check: fmt clippy check-default test
+
+# The initial main-branch measurement was 92.37% lines. A whole-percent 90%
+# floor preserves roughly two points of headroom for LLVM/platform variance
+# while preventing material untested-code regressions.
+coverage:
+	cargo llvm-cov --all-features --workspace --fail-under-lines 90
 
 # cargo-dist currently generates workflow-wide write permission. The wrapper
 # reapplies QZT's least-privilege policy and verifies the checked-in result.
