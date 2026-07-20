@@ -2,6 +2,7 @@
 name = "qzt-fuzz"
 version = "0.0.0"
 edition = "2024"
+license = "MIT OR Apache-2.0"
 publish = false
 
 [package.metadata]
@@ -9,7 +10,7 @@ cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = "0.4"
-qzt = { path = ".." }
+qzt = { path = "..", version = "=0.1.0" }
 
 [[bin]]
 name = "open_verify"

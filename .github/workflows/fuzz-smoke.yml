@@ -1,0 +1,47 @@
+name: fuzz-smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fuzz-smoke
+  cancel-in-progress: false
+
+jobs:
+  fuzz:
+    name: open and verify fuzz smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CARGO_FUZZ_VERSION: "0.13.2"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: fuzz
+      # This workflow is weekly/manual, so a locked versioned install keeps the
+      # supply chain explicit without adding a mutable third-party installer.
+      - name: Install cargo-fuzz
+        run: cargo install --locked --version "$CARGO_FUZZ_VERSION" cargo-fuzz
+      - name: Validate locked fuzz dependencies
+        run: cargo +nightly metadata --manifest-path fuzz/Cargo.toml --locked --format-version 1 --no-deps
+      - name: Build fuzz target
+        run: cargo +nightly fuzz build open_verify
+      - name: Run bounded fuzz smoke
+        run: cargo +nightly fuzz run open_verify -- -max_total_time=60 -timeout=10 -max_len=4096
+      - name: Preserve crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: open-verify-fuzz-artifacts-${{ github.sha }}
+          path: fuzz/artifacts
+          if-no-files-found: ignore
+          retention-days: 7

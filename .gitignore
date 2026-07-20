@@ -20,6 +20,7 @@ coverage-*/
 /tarpaulin-report.html
 /cobertura.xml
 /fuzz/artifacts/
+/fuzz/corpus/
 /fuzz/coverage/
 /fuzz/target/
 
