@@ -25,8 +25,11 @@ matters more than database-style indexing or whole-file decompression.
 Run the default smoke:
 
 ```sh
-cargo test --test phase18_competitive_benchmark -- --nocapture
+cargo test --features internal-testing --test phase18_competitive_benchmark -- --nocapture
 ```
+
+`internal-testing` exposes the non-public benchmark and corpus harness only to
+this focused integration test; it does not change QZT's default public API.
 
 External tool comparisons against SQLite FTS5 and ripgrep run behind the
 `bench-compete` feature so the default quality gate remains portable. Missing

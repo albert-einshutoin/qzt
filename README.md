@@ -153,7 +153,9 @@ Known limitations before production use:
   then `qzt search --sidecar <file.qzi>`.
 - **Token search is co-occurrence, not phrase search**: A multi-token query
   `"foo bar"` matches lines that contain both tokens in any order.  Tokens do
-  not need to be adjacent.  This is not grep-compatible.
+  not need to be adjacent. Tokenization accepts ASCII alphanumerics plus `_`
+  and `-`, and lowercases ASCII before indexing. Use the n-gram path for
+  substring or CJK-style search. This is not grep-compatible.
 - **Normalized search not implemented**: `SearchIndexSource::NormalizedUtf8`
   (Unicode normalization, case folding, width folding) is not yet implemented.
 - **Sidecar size**: current writers emit the compact QZI v2 layout. Existing
@@ -321,7 +323,9 @@ let container = WriterBuilder::new()
 Range semantics: `--bytes A:B` is a half-open byte range `[A, B)`, while
 `--lines A:B` is 1-based and inclusive on both ends. `qzt line FILE N` returns
 the same raw line bytes as `qzt range FILE --lines N:N` — a convenience wrapper
-for a single-line range. An n-gram query shorter
+for a single-line range. On an empty container, `qzt line FILE 1` writes no
+stdout, reports that the line is out of range, and exits with exit code **1**.
+An n-gram query shorter
 than the index `n` (default 3) cannot be answered by the index; instead of a
 confident empty result the CLI reports
 `incomplete_reason=query_shorter_than_ngram_n` and prints a warning.
@@ -387,6 +391,15 @@ If a query is shorter than the sidecar's n-gram `n` (default 3), the index
 cannot answer it. Search does not report a confident empty result; it prints a
 warning and sets `incomplete_reason=query_shorter_than_ngram_n`.
 
+### Token query has no indexable tokens
+
+A token query containing only whitespace, punctuation, or non-ASCII text has
+no token keys under the ASCII tokenization contract. Search does not report a
+confident empty result; it exits successfully with a warning and sets
+`incomplete_reason=query_has_no_indexable_tokens`. This differs from
+`query_shorter_than_ngram_n`, which applies only to an n-gram query shorter
+than the configured `n`. Use n-gram search for substring or CJK-style input.
+
 ### Memory profile requires a Document Index
 
 The `memory` profile requires a Document Index at pack time. `qzt pack` cannot
@@ -398,6 +411,7 @@ required.
 
 ## Documentation
 
+- Reference map: [Documentation index](docs/README.md)
 - Vulnerability reporting: [Security Policy](SECURITY.md)
 - Contributor workflow: [Contributing Guide](CONTRIBUTING.md)
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](https://github.com/albert-einshutoin/qzt/blob/main/docs/QZT_v0.1_Core_Spec.md)
