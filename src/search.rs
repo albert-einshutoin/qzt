@@ -447,21 +447,7 @@ impl RawTokenIndex {
         validate_granules(source_size_bytes, &granules)?;
         validate_term_dictionary_shape(&terms, &postings, granules.len())?;
 
-        let mut encoded_postings = Vec::with_capacity(postings.len());
-        let mut posting_offset = 0_u64;
-        for (term, posting_list) in terms.iter_mut().zip(&postings) {
-            let encoded = encode_delta_varint_u64(posting_list)?;
-            term.document_frequency = 0;
-            term.granule_frequency = usize_to_u64(posting_list.len())?;
-            term.posting_offset = posting_offset;
-            term.posting_size = usize_to_u64(encoded.len())?;
-            term.skip_offset = 0;
-            term.skip_size = 0;
-            posting_offset = posting_offset
-                .checked_add(term.posting_size)
-                .ok_or(QztError::ResourceLimitExceeded)?;
-            encoded_postings.push(encoded);
-        }
+        let encoded = encode_posting_lists(&mut terms, &postings, false)?;
 
         Ok(Self {
             container_id,
@@ -472,7 +458,7 @@ impl RawTokenIndex {
             granules,
             terms,
             postings,
-            encoded_postings,
+            encoded_postings: encoded.postings,
         })
     }
 
@@ -747,28 +733,7 @@ impl RawNgramIndex {
         validate_granules(source_size_bytes, &granules)?;
         validate_term_dictionary_shape(&terms, &postings, granules.len())?;
 
-        let mut encoded_postings = Vec::with_capacity(postings.len());
-        let mut skip_data = Vec::with_capacity(postings.len());
-        let mut posting_offset = 0_u64;
-        let mut skip_offset = 0_u64;
-        for (term, posting_list) in terms.iter_mut().zip(&postings) {
-            let encoded = encode_delta_varint_u64(posting_list)?;
-            let skips = build_skip_points(posting_list)?;
-            term.document_frequency = 0;
-            term.granule_frequency = usize_to_u64(posting_list.len())?;
-            term.posting_offset = posting_offset;
-            term.posting_size = usize_to_u64(encoded.len())?;
-            term.skip_offset = skip_offset;
-            term.skip_size = usize_to_u64(skips.len().saturating_mul(24))?;
-            posting_offset = posting_offset
-                .checked_add(term.posting_size)
-                .ok_or(QztError::ResourceLimitExceeded)?;
-            skip_offset = skip_offset
-                .checked_add(term.skip_size)
-                .ok_or(QztError::ResourceLimitExceeded)?;
-            encoded_postings.push(encoded);
-            skip_data.push(skips);
-        }
+        let encoded = encode_posting_lists(&mut terms, &postings, true)?;
 
         Ok(Self {
             container_id,
@@ -791,8 +756,8 @@ impl RawNgramIndex {
             granules,
             terms,
             postings,
-            skip_data,
-            encoded_postings,
+            skip_data: encoded.skips,
+            encoded_postings: encoded.postings,
         })
     }
 
@@ -1249,16 +1214,66 @@ fn chunk_index_for_offset(entries: &[ChunkEntry], offset: u64) -> Result<usize> 
     Ok(low)
 }
 
-fn build_skip_points(posting_list: &[u64]) -> Result<Vec<SkipPoint>> {
+struct EncodedPostingLists {
+    postings: Vec<Vec<u8>>,
+    skips: Vec<Vec<SkipPoint>>,
+}
+
+fn encode_posting_lists(
+    terms: &mut [TermDictionaryEntry],
+    postings: &[Vec<u64>],
+    with_skips: bool,
+) -> Result<EncodedPostingLists> {
+    let mut encoded_postings = Vec::with_capacity(postings.len());
+    let mut skip_data = if with_skips {
+        Vec::with_capacity(postings.len())
+    } else {
+        Vec::new()
+    };
+    let mut posting_offset = 0_u64;
+    let mut skip_offset = 0_u64;
+
+    for (term, posting_list) in terms.iter_mut().zip(postings) {
+        let encoded = encode_delta_varint_u64(posting_list)?;
+        let skips = if with_skips {
+            build_skip_points(posting_list, &encoded)?
+        } else {
+            Vec::new()
+        };
+        term.document_frequency = 0;
+        term.granule_frequency = usize_to_u64(posting_list.len())?;
+        term.posting_offset = posting_offset;
+        term.posting_size = usize_to_u64(encoded.len())?;
+        term.skip_offset = skip_offset;
+        term.skip_size = usize_to_u64(skips.len().saturating_mul(24))?;
+        posting_offset = posting_offset
+            .checked_add(term.posting_size)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        skip_offset = skip_offset
+            .checked_add(term.skip_size)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        encoded_postings.push(encoded);
+        if with_skips {
+            skip_data.push(skips);
+        }
+    }
+
+    Ok(EncodedPostingLists {
+        postings: encoded_postings,
+        skips: skip_data,
+    })
+}
+
+fn build_skip_points(posting_list: &[u64], encoded: &[u8]) -> Result<Vec<SkipPoint>> {
     if posting_list.len() < 1024 {
         return Ok(Vec::new());
     }
 
     let mut points = Vec::new();
-    let mut encoded = Vec::new();
+    let mut cursor = 0_usize;
     let mut previous = 0_u64;
     for (index, granule_id) in posting_list.iter().enumerate() {
-        let byte_offset = usize_to_u64(encoded.len())?;
+        let byte_offset = usize_to_u64(cursor)?;
         if index > 0 && index % 128 == 0 {
             points.push(SkipPoint {
                 entry_index: usize_to_u64(index)?,
@@ -1266,18 +1281,21 @@ fn build_skip_points(posting_list: &[u64]) -> Result<Vec<SkipPoint>> {
                 posting_byte_offset: byte_offset,
             });
         }
-        let delta = if index == 0 {
-            *granule_id
+        let delta = read_varuint(encoded, &mut cursor)?;
+        let decoded = if index == 0 {
+            delta
         } else {
-            if *granule_id <= previous {
-                return Err(QztError::ContainerCorrupt);
-            }
-            granule_id
-                .checked_sub(previous)
+            previous
+                .checked_add(delta)
                 .ok_or(QztError::ContainerCorrupt)?
         };
-        write_varuint(delta, &mut encoded);
-        previous = *granule_id;
+        if decoded != *granule_id {
+            return Err(QztError::ContainerCorrupt);
+        }
+        previous = decoded;
+    }
+    if cursor != encoded.len() {
+        return Err(QztError::ContainerCorrupt);
     }
     Ok(points)
 }
@@ -1595,7 +1613,7 @@ mod serialized_metrics_tests {
         assert!(report.capped);
         assert_eq!(report.planner, planner);
         assert_eq!(report.incomplete_reason, Some("test_reason"));
-        assert_eq!(report.metrics.index_size_ratio, 0.25);
+        assert!((report.metrics.index_size_ratio - 0.25).abs() < f64::EPSILON);
         assert!(report.metrics.query_time_ms >= 0.0);
     }
 
