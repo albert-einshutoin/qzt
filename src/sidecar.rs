@@ -15,11 +15,11 @@ use crate::schema::{
     required_text, required_u64_with_overflow, text_pair, Checksum,
 };
 use crate::search::{
-    compact_line_granules_supported, decode_delta_varint_u64_with_limit, early_exit_report,
-    elapsed_ms, empty_search_metrics, encode_delta_varint_u64, intersect_postings, key_hash,
-    ngram_keys_for_query, substring_spans, term_index_for_key, unique_query_keys, verified_spans,
-    verify_candidates, NgramIndexBuildOptions, PlannerDecision, RawNgramIndex, RawTokenIndex,
-    SearchGranule, SearchOptions, SearchReport, TermDictionaryEntry,
+    compact_line_granules_supported, count_chunks, decode_delta_varint_u64_with_limit,
+    early_exit_report, elapsed_ms, empty_search_metrics, encode_delta_varint_u64,
+    intersect_postings, key_hash, ngram_keys_for_query, substring_spans, term_index_for_key,
+    unique_query_keys, verified_spans, verify_candidates, NgramIndexBuildOptions, PlannerDecision,
+    RawNgramIndex, RawTokenIndex, SearchGranule, SearchOptions, SearchReport, TermDictionaryEntry,
 };
 use crate::skeleton::open_skeleton_details;
 
@@ -931,16 +931,6 @@ impl QziFileSidecar<Mutex<File>> {
             open_file_with_len(path).map_err(|error| QztError::Io(error.kind()))?;
         Self::open_read_at_with_limits(Mutex::new(file), len, container, limits)
     }
-}
-
-fn count_chunks(granules: &[SearchGranule]) -> Result<u64> {
-    let mut chunks = std::collections::BTreeSet::new();
-    for granule in granules {
-        for chunk_id in granule.chunk_start..granule.chunk_end {
-            chunks.insert(chunk_id);
-        }
-    }
-    usize_to_u64(chunks.len())
 }
 
 fn map_read_error(error: &std::io::Error) -> QztError {

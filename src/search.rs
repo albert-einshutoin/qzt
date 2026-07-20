@@ -1407,12 +1407,24 @@ pub(crate) fn verify_candidates(
 }
 
 fn count_candidate_chunks(granules: &[SearchGranule], candidates: &[u64]) -> Result<u64> {
-    let mut chunks = BTreeSet::new();
-    for granule_id in candidates {
+    count_chunk_spans(candidates.iter().map(|granule_id| {
         let granule_index = u64_to_usize(*granule_id)?;
-        let granule = granules
+        granules
             .get(granule_index)
-            .ok_or(QztError::ContainerCorrupt)?;
+            .ok_or(QztError::ContainerCorrupt)
+    }))
+}
+
+pub(crate) fn count_chunks(granules: &[SearchGranule]) -> Result<u64> {
+    count_chunk_spans(granules.iter().map(Ok))
+}
+
+fn count_chunk_spans<'a>(
+    granules: impl IntoIterator<Item = Result<&'a SearchGranule>>,
+) -> Result<u64> {
+    let mut chunks = BTreeSet::new();
+    for granule in granules {
+        let granule = granule?;
         for chunk_id in granule.chunk_start..granule.chunk_end {
             chunks.insert(chunk_id);
         }
@@ -1599,6 +1611,32 @@ mod serialized_metrics_tests {
         assert_eq!(report.incomplete_reason, Some("test_reason"));
         assert!((report.metrics.index_size_ratio - 0.25).abs() < f64::EPSILON);
         assert!(report.metrics.query_time_ms >= 0.0);
+    }
+
+    #[test]
+    fn shared_chunk_counter_deduplicates_overlapping_spans() {
+        let granules = vec![
+            SearchGranule {
+                granule_id: 0,
+                logical_offset: 0,
+                byte_length: 4,
+                chunk_start: 0,
+                chunk_end: 2,
+                first_line: Some(0),
+                line_count: Some(1),
+            },
+            SearchGranule {
+                granule_id: 1,
+                logical_offset: 4,
+                byte_length: 4,
+                chunk_start: 1,
+                chunk_end: 3,
+                first_line: Some(1),
+                line_count: Some(1),
+            },
+        ];
+
+        assert_eq!(count_chunks(&granules), Ok(3));
     }
 
     #[test]
