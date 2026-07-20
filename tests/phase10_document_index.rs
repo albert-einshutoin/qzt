@@ -284,7 +284,8 @@ fn info_json_identity_fields_survive_document_index_container() {
         pack_document_fixture(input, container_id, writer_options(8, 8), &document_index)
             .expect("document-index container should pack structurally");
 
-    let base = std::env::temp_dir().join(format!("qzt-93-info-json-docidx-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-93-info-json-docidx-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let path = base.join("indexed.qzt");
     fs::write(&path, container).expect("write indexed container");

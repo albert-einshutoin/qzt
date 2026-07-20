@@ -1,13 +1,34 @@
 #![allow(dead_code)]
 
 use std::io;
+use std::path::Path;
 use std::process::Command;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
+
+use tempfile::TempDir;
 
 use qzt::{
     Checksum, ChunkerOptions, DocumentEntry, ReadAt, SearchReport, WriterOptions,
     pack_bytes_with_container_id,
 };
+
+/// Return a process-private temporary root for integration-test paths.
+///
+/// Many tests need stable child paths for CLI assertions. A securely created
+/// parent keeps those predictable child names inaccessible to other users and
+/// processes, while `TempDir` removes the complete tree when the test binary
+/// exits.
+pub fn secure_temp_root() -> &'static Path {
+    static ROOT: OnceLock<TempDir> = OnceLock::new();
+
+    ROOT.get_or_init(|| {
+        tempfile::Builder::new()
+            .prefix("qzt-integration-test-")
+            .tempdir()
+            .expect("secure integration-test temporary root should be created")
+    })
+    .path()
+}
 
 /// Compare semantically-equivalent search behavior between two execution paths.
 ///

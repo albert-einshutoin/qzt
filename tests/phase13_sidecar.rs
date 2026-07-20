@@ -140,7 +140,8 @@ fn rare_term_sidecar_query_decodes_only_candidate_overlapping_chunks() {
 
 #[test]
 fn cli_rebuilds_sidecar_and_searches_with_it() {
-    let base = std::env::temp_dir().join(format!("qzt-phase13-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-phase13-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -183,7 +184,7 @@ fn cli_rebuilds_sidecar_and_searches_with_it() {
 
 #[test]
 fn cli_inspects_validated_token_and_ngram_sidecars_as_text_and_json() {
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-phase13-inspect-sidecar-{}",
         std::process::id()
     ));
@@ -270,7 +271,7 @@ fn cli_inspects_validated_token_and_ngram_sidecars_as_text_and_json() {
 
 #[test]
 fn cli_inspect_sidecar_rejects_corruption_without_affecting_core_verify() {
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-phase13-inspect-corrupt-{}",
         std::process::id()
     ));
@@ -388,7 +389,8 @@ fn rejected_sidecar_does_not_break_core_operations() {
 
 #[test]
 fn cli_search_reports_user_readable_unsupported_sidecar_version() {
-    let base = std::env::temp_dir().join(format!("qzt-phase13-version-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase13-version-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");
@@ -512,7 +514,7 @@ fn postings_byte_flip_sidecar_cli_exits_without_panic() {
 
 #[test]
 fn zero_length_granules_section_sidecar_cli_exits_without_panic() {
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-phase13-corrupt-zero-length-granules-{}",
         std::process::id()
     ));
@@ -627,7 +629,7 @@ fn assert_zero_length_granules_section_rejected(container: &[u8], sidecar: &[u8]
 }
 
 fn run_corrupted_sidecar_cli_test(label: &str, corrupt: impl FnOnce(&mut Vec<u8>)) {
-    let base = std::env::temp_dir().join(format!(
+    let base = crate::support::secure_temp_root().join(format!(
         "qzt-phase13-corrupt-{label}-{}",
         std::process::id()
     ));

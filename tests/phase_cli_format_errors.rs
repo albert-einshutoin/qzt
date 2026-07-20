@@ -5,6 +5,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+mod support;
 
 use qzt::{Checksum, DocumentEntry, DocumentIndex, WriterBuilder, WriterOptions};
 
@@ -71,7 +72,8 @@ fn pack_with_document_index(base: &Path) -> PathBuf {
 /// Unknown `--format` values exit 2 with stderr naming the bad value and accepted formats.
 #[test]
 fn unknown_format_exits_2_with_message() {
-    let base = std::env::temp_dir().join(format!("qzt-cli-format-errors-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-cli-format-errors-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let plain_qzt = pack_plain(&base);

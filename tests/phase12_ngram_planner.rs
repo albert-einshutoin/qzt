@@ -194,7 +194,8 @@ fn skip_data_reduces_reported_posting_bytes_for_long_lists() {
 
 #[test]
 fn cli_ngram_search_reports_benchmark_metrics() {
-    let base = std::env::temp_dir().join(format!("qzt-phase12-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-phase12-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let input = base.join("input.txt");
     let packed = base.join("input.qzt");

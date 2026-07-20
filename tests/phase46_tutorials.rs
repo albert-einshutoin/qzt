@@ -6,6 +6,7 @@ const SYSTEMD_ALERT: &str = include_str!("../docs/guides/examples/qzt-verify-ale
 const ACTIONS_WORKFLOW: &str = include_str!("../docs/guides/examples/qzt-artifact-workflow.yml");
 
 use serde_json::Value;
+mod support;
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -20,7 +21,8 @@ impl TutorialTempDir {
             .duration_since(UNIX_EPOCH)
             .expect("system time after Unix epoch")
             .as_nanos();
-        let path = std::env::temp_dir().join(format!("qzt-phase46-{}-{nonce}", std::process::id()));
+        let path = crate::support::secure_temp_root()
+            .join(format!("qzt-phase46-{}-{nonce}", std::process::id()));
         fs::create_dir(&path).expect("tutorial temp directory must be created");
         Self(path)
     }

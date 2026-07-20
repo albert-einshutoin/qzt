@@ -6,6 +6,7 @@
 /// both modes and checking that text output is byte-for-byte equivalent to
 /// what the pre-existing tests expected.
 use std::fs;
+mod support;
 use std::process::Command;
 
 // ---------------------------------------------------------------------------
@@ -46,7 +47,8 @@ fn pack_to(input: &[u8], base: &std::path::Path) -> std::path::PathBuf {
 /// incomplete.
 #[test]
 fn search_json_outputs_hits_and_null_incomplete_reason() {
-    let base = std::env::temp_dir().join(format!("qzt-36-json-hits-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-36-json-hits-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"info\nerror code\nerror again\n", &base);
@@ -144,7 +146,8 @@ fn search_json_outputs_hits_and_null_incomplete_reason() {
 /// When the query is absent from the index, `"hits":[]` is emitted.
 #[test]
 fn search_json_zero_hits_produces_empty_array() {
-    let base = std::env::temp_dir().join(format!("qzt-36-json-zero-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-36-json-zero-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"alpha\nbeta\ngamma\n", &base);
@@ -195,7 +198,8 @@ fn search_json_zero_hits_produces_empty_array() {
 /// quoted string (not `null`) both in JSON and on stderr.
 #[test]
 fn search_json_quotes_incomplete_reason_when_present() {
-    let base = std::env::temp_dir().join(format!("qzt-36-json-incomplete-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-36-json-incomplete-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"error occurred\nerror again\n", &base);
@@ -244,7 +248,8 @@ fn search_json_quotes_incomplete_reason_when_present() {
 /// output (must not break the JSON structure).
 #[test]
 fn search_json_escapes_query_with_double_quotes() {
-    let base = std::env::temp_dir().join(format!("qzt-36-json-escape-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-36-json-escape-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     // The query "error" (with literal quotes) won't match, but exercises
@@ -285,7 +290,8 @@ fn search_json_escapes_query_with_double_quotes() {
 /// line must remain intact.
 #[test]
 fn search_text_mode_unchanged() {
-    let base = std::env::temp_dir().join(format!("qzt-36-text-mode-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-36-text-mode-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"info\nerror code\nerror again\n", &base);
@@ -330,8 +336,8 @@ fn search_text_mode_unchanged() {
 /// original query string unchanged.
 #[test]
 fn search_text_metrics_escapes_query_control_chars() {
-    let base =
-        std::env::temp_dir().join(format!("qzt-36-text-metrics-escape-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-36-text-metrics-escape-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"some content\n", &base);
@@ -407,7 +413,8 @@ fn search_text_metrics_escapes_query_control_chars() {
 /// distinct from `incomplete_reason=query_shorter_than_ngram_n`.
 #[test]
 fn search_text_mode_capped_metrics_contract() {
-    let base = std::env::temp_dir().join(format!("qzt-36-capped-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-36-capped-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"needle one\nneedle two\nneedle three\n", &base);
@@ -441,7 +448,8 @@ fn search_text_mode_capped_metrics_contract() {
 /// empty hits and `capped=true` (issue #136).
 #[test]
 fn search_json_max_results_zero_caps_empty_hits() {
-    let base = std::env::temp_dir().join(format!("qzt-36-max0-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-36-max0-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"needle one\nneedle two\nneedle three\n", &base);
@@ -519,7 +527,8 @@ fn search_json_max_results_zero_caps_empty_hits() {
 /// An unknown `--format` value must exit with code 2 (usage error).
 #[test]
 fn search_unknown_format_exits_2() {
-    let base = std::env::temp_dir().join(format!("qzt-36-fmt-bad-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-36-fmt-bad-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"hello\n", &base);
@@ -548,7 +557,8 @@ fn search_unknown_format_exits_2() {
 /// that both runs produce the `hit …` and `metrics …` line prefixes.
 #[test]
 fn search_format_text_explicit_accepted() {
-    let base = std::env::temp_dir().join(format!("qzt-36-fmt-text-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-36-fmt-text-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"hello world\n", &base);
@@ -600,7 +610,8 @@ fn search_format_text_explicit_accepted() {
 /// applied as required by the issue.
 #[test]
 fn search_json_source_field_is_string() {
-    let base = std::env::temp_dir().join(format!("qzt-36-json-src-{}", std::process::id()));
+    let base =
+        crate::support::secure_temp_root().join(format!("qzt-36-json-src-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
 
     let packed = pack_to(b"alpha beta gamma\n", &base);

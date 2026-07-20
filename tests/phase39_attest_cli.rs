@@ -1,6 +1,7 @@
 use std::fmt::Write as _;
 use std::fs;
 use std::process::{Command, Output};
+mod support;
 
 #[cfg(unix)]
 use std::process::Stdio;
@@ -12,7 +13,8 @@ use qzt::{QztFileReader, WriterOptions, pack_bytes_with_container_id};
 const SOURCE: &[u8] = b"alpha\nbeta\ngamma\n";
 
 fn fixture(label: &str) -> (std::path::PathBuf, Vec<u8>) {
-    let base = std::env::temp_dir().join(format!("qzt-phase39-{label}-{}", std::process::id()));
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-phase39-{label}-{}", std::process::id()));
     let _ = fs::create_dir_all(&base);
     let path = base.join("evidence.qzt");
     let bytes = pack_bytes_with_container_id(SOURCE, [0x39; 16], WriterOptions::default())
