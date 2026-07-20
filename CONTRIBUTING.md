@@ -29,6 +29,15 @@ make doc
 cargo package --allow-dirty
 ```
 
+When changing `Cargo.toml`, `Cargo.lock`, or dependency policy, also run:
+
+```sh
+cargo deny check bans licenses sources
+```
+
+This gate reviews allowed licenses, banned or duplicated crates, and dependency
+sources. OSV Scanner remains the vulnerability-advisory gate in CI.
+
 ## Adding a conformance test
 
 Conformance tests live under `tests/` as integration test binaries. Name new

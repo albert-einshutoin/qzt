@@ -1,0 +1,27 @@
+# QZT accepts only dependency licenses that are permissive and compatible with
+# redistribution under MIT OR Apache-2.0. Keep this list narrow so a newly
+# introduced license requires an explicit review instead of silently passing.
+[licenses]
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "MIT",
+    "MIT-0",
+]
+confidence-threshold = 0.8
+
+[bans]
+# Duplicate transitive versions are visible but are not an automatic release
+# blocker; Cargo often cannot unify them until upstream constraints converge.
+multiple-versions = "warn"
+# Wildcard requirements make dependency resolution non-reproducible over time.
+wildcards = "deny"
+
+[sources]
+# Fail closed: every registry or Git dependency outside these reviewed sources
+# must be approved in this file before entering the locked dependency graph.
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

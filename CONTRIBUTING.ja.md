@@ -31,6 +31,15 @@ make doc
 cargo package --allow-dirty
 ```
 
+`Cargo.toml`、`Cargo.lock`、依存ポリシーを変更する場合は、次も実行します。
+
+```sh
+cargo deny check bans licenses sources
+```
+
+このゲートは許可ライセンス、禁止・重複crate、依存の取得元を検査します。
+既知の脆弱性は、CIのOSV Scannerが引き続き担当します。
+
 ## conformance testの追加
 
 conformance testは`tests/`配下のintegration test binaryとして配置し、対応するphaseで
