@@ -135,22 +135,9 @@ pub fn output_success(command: &mut Command) -> Vec<u8> {
 }
 
 pub fn assert_success(command: &mut Command) {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-}
-
-pub fn run_success(command: &mut Command) -> Vec<u8> {
-    let output = command.output().expect("command should run");
-    assert!(
-        output.status.success(),
-        "stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    output.stdout
+    // Keep one command-execution contract so assertion diagnostics cannot drift
+    // between callers that need stdout and callers that only need success.
+    drop(output_success(command));
 }
 
 #[derive(Clone)]

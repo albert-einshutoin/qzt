@@ -1,19 +1,14 @@
 use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::pack_bytes_with_container_id;
 mod support;
-use support::writer_options;
-
-fn pack(input: &[u8]) -> Vec<u8> {
-    pack_bytes_with_container_id(input, [0x66; 16], writer_options(8, 16))
-        .expect("pack should work")
-}
+use support::pack_with_container_id;
 
 #[test]
 fn reader_open_info_and_export_work_for_phase5_container() {
     let input = b"hello\nworld\n";
-    let reader = QztReader::open(pack(input)).expect("reader should open");
+    let reader = QztReader::open(pack_with_container_id(input, [0x66; 16], 8, 16))
+        .expect("reader should open");
     let info = reader.info();
 
     assert_eq!(info.original_size, input.len() as u64);
@@ -29,7 +24,7 @@ fn reader_open_info_and_export_work_for_phase5_container() {
 
 #[test]
 fn quick_verify_succeeds_without_decompressing_corrupt_compressed_chunk() {
-    let mut container = pack(b"hello\nworld");
+    let mut container = pack_with_container_id(b"hello\nworld", [0x66; 16], 8, 16);
     let details = open_skeleton_details(&container).expect("container should open structurally");
     let offset = usize::try_from(details.chunk_entries[0].physical_offset).expect("fits in tests");
     container[offset] ^= 0xff;
@@ -45,7 +40,7 @@ fn quick_verify_succeeds_without_decompressing_corrupt_compressed_chunk() {
 
 #[test]
 fn normal_verify_detects_compressed_chunk_checksum_mismatch() {
-    let mut container = pack(b"hello\nworld");
+    let mut container = pack_with_container_id(b"hello\nworld", [0x66; 16], 8, 16);
     let details = open_skeleton_details(&container).expect("container should open structurally");
     let offset = usize::try_from(details.chunk_entries[0].physical_offset).expect("fits in tests");
     container[offset] ^= 0xff;
@@ -60,7 +55,7 @@ fn normal_verify_detects_compressed_chunk_checksum_mismatch() {
 
 #[test]
 fn normal_verify_detects_container_checksum_mismatch_when_present() {
-    let mut container = pack(b"hello\nworld");
+    let mut container = pack_with_container_id(b"hello\nworld", [0x66; 16], 8, 16);
     container[40] ^= 0x01; // index_hint_offset is non-authoritative, but covered by container_checksum.
 
     let reader = QztReader::open(container).expect("index hint corruption should not break open");
@@ -74,7 +69,8 @@ fn normal_verify_detects_container_checksum_mismatch_when_present() {
 #[test]
 fn deep_verify_decompresses_and_reports_decoded_bytes() {
     let input = b"a\r\nb\nc";
-    let reader = QztReader::open(pack(input)).expect("reader should open");
+    let reader = QztReader::open(pack_with_container_id(input, [0x66; 16], 8, 16))
+        .expect("reader should open");
     let report = reader
         .verify(VerifyLevel::Deep)
         .expect("deep verify should pass");

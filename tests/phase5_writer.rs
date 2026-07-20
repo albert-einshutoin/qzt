@@ -6,16 +6,11 @@ use qzt::skeleton::open_skeleton_details;
 use qzt::writer::{export_all, pack_bytes_with_container_id};
 mod support;
 use std::time::Instant;
-use support::writer_options;
-
-fn pack(input: &[u8]) -> Vec<u8> {
-    pack_bytes_with_container_id(input, [0x55; 16], writer_options(8, 16))
-        .expect("pack should work")
-}
+use support::{pack_with_container_id, writer_options};
 
 #[test]
 fn empty_file_pack_export_equality() {
-    let container = pack(b"");
+    let container = pack_with_container_id(b"", [0x55; 16], 8, 16);
 
     assert_eq!(export_all(&container), Ok(Vec::new()));
     assert_eq!(
@@ -30,7 +25,7 @@ fn empty_file_pack_export_equality() {
 #[test]
 fn ascii_file_pack_export_equality() {
     let input = b"hello\nworld\n";
-    let container = pack(input);
+    let container = pack_with_container_id(input, [0x55; 16], 8, 16);
 
     assert_eq!(export_all(&container), Ok(input.to_vec()));
 }
@@ -38,7 +33,7 @@ fn ascii_file_pack_export_equality() {
 #[test]
 fn japanese_and_emoji_pack_export_equality() {
     let input = "こんにちは\n😀😃😄\n".as_bytes();
-    let container = pack(input);
+    let container = pack_with_container_id(input, [0x55; 16], 8, 16);
 
     assert_eq!(export_all(&container), Ok(input.to_vec()));
 }
@@ -46,7 +41,7 @@ fn japanese_and_emoji_pack_export_equality() {
 #[test]
 fn crlf_and_mixed_newline_pack_export_equality() {
     let input = b"a\r\nb\nc";
-    let container = pack(input);
+    let container = pack_with_container_id(input, [0x55; 16], 8, 16);
 
     assert_eq!(export_all(&container), Ok(input.to_vec()));
 }
@@ -70,7 +65,7 @@ fn long_line_pack_export_equality_and_continuation_flags() {
 #[test]
 fn compressed_and_uncompressed_checksums_match_exact_bytes() {
     let input = b"hello\nworld";
-    let container = pack(input);
+    let container = pack_with_container_id(input, [0x55; 16], 8, 16);
     let details = open_skeleton_details(&container).expect("container should open");
 
     for entry in details.chunk_entries {
@@ -92,7 +87,7 @@ fn compressed_and_uncompressed_checksums_match_exact_bytes() {
 
 #[test]
 fn header_is_patched_with_metadata_and_index_hint_offsets() {
-    let container = pack(b"abc");
+    let container = pack_with_container_id(b"abc", [0x55; 16], 8, 16);
     let header = Header::decode(&container[..HEADER_LEN]).expect("header should decode");
 
     assert!(header.metadata_offset > HEADER_LEN as u64);
