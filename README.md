@@ -120,6 +120,19 @@ experimental `v0.1 technical preview`, not production-ready software.
 - Product status: experimental reference implementation
 ```
 
+## What QZT is not
+
+QZT is a `v0.1 technical preview` with deliberately narrow boundaries:
+
+- It is **not a replacement for zstd**. QZT uses independent zstd frames to
+  add seeking, integrity metadata, and evidence-oriented indexes.
+- It **does not display text without decompression**. A range read decompresses
+  only the chunks intersecting that range instead of the whole container.
+- It is **not Memory Pager** and does not provide a mutable virtual-memory or
+  operating-system paging abstraction.
+- It is **not a vector database or FM-index**. QZI provides raw token or n-gram
+  candidate lookup and verifies every reported hit against original bytes.
+
 QZI (`.qzi`) is a derived, rebuildable, untrusted search sidecar—not part of
 the Core container format. Review its fail-closed boundary and on-disk layout
 in the [QZI v0.1 Sidecar Spec](docs/QZI_v0.1_Sidecar_Spec.md) before adoption.
@@ -380,8 +393,13 @@ required.
 ## Documentation
 
 - Vulnerability reporting: [Security Policy](SECURITY.md)
+- Contributor workflow: [Contributing Guide](CONTRIBUTING.md)
 - Core spec summary: [docs/QZT_v0.1_Core_Spec.md](https://github.com/albert-einshutoin/qzt/blob/main/docs/QZT_v0.1_Core_Spec.md)
 - Format stability: [docs/QZT_v0.1_Format_Stability.md](docs/QZT_v0.1_Format_Stability.md)
+- Memory guarantees: [docs/QZT_v0.1_Memory_Guarantees.md](docs/QZT_v0.1_Memory_Guarantees.md)
+- Competitive benchmark methodology: [docs/QZT_v0.1_Competitive_Benchmarks.md](docs/QZT_v0.1_Competitive_Benchmarks.md)
+- Validation corpus: [docs/QZT_v0.1_Validation_Corpus.md](docs/QZT_v0.1_Validation_Corpus.md)
+- Public API stability: [docs/API_STABILITY.md](docs/API_STABILITY.md)
 - QZI sidecar spec: [docs/QZI_v0.1_Sidecar_Spec.md](docs/QZI_v0.1_Sidecar_Spec.md)
 - Attestation signing and anchoring: [docs/guides/attestation.md](docs/guides/attestation.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.md](docs/QZT_v0.1_Core_Readiness.md)
