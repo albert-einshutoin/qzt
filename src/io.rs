@@ -127,7 +127,7 @@ mod shared_tests {
     #[test]
     fn range_hash_matches_the_exact_selected_bytes_across_buffer_boundaries() {
         let bytes = (0..(70 * 1024 + 17))
-            .map(|index| (index % 251) as u8)
+            .map(|index| u8::try_from(index % 251).expect("fixture byte fits u8"))
             .collect::<Vec<_>>();
         let offset = 113_u64;
         let size = 66 * 1024 + 7_usize;
