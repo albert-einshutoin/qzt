@@ -40,6 +40,16 @@ cargo deny check bans licenses sources
 このゲートは許可ライセンス、禁止・重複crate、依存の取得元を検査します。
 既知の脆弱性は、CIのOSV Scannerが引き続き担当します。
 
+CIのline coverageゲートをローカルで再現するには、`cargo-llvm-cov`を導入して
+次を実行します。
+
+```sh
+make coverage
+```
+
+初回実測値は92.37%です。LLVMやplatform差のため約2ptの余裕を残しつつ、
+大きな後退を拒否する初期基準として90%を設定しています。
+
 ## conformance testの追加
 
 conformance testは`tests/`配下のintegration test binaryとして配置し、対応するphaseで

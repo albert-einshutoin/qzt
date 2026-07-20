@@ -38,6 +38,16 @@ cargo deny check bans licenses sources
 This gate reviews allowed licenses, banned or duplicated crates, and dependency
 sources. OSV Scanner remains the vulnerability-advisory gate in CI.
 
+To reproduce the CI line-coverage floor locally, install `cargo-llvm-cov` and
+run:
+
+```sh
+make coverage
+```
+
+The initial measured line coverage was 92.37%; the gate starts at 90% to retain
+roughly two percentage points of tolerance while blocking material regressions.
+
 ## Adding a conformance test
 
 Conformance tests live under `tests/` as integration test binaries. Name new
