@@ -4,18 +4,9 @@
 //! the UTF-8 / CRLF / chunk-boundary edges that are hard to enumerate by hand.
 
 use proptest::prelude::*;
-use qzt::{ChunkerOptions, QztReader, VerifyLevel, WriterOptions, pack_bytes};
-
-/// Small chunk sizes so arbitrary inputs cross several chunk boundaries.
-fn small_chunk_options() -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size: 8,
-            max_chunk_size: 32,
-        },
-        zstd_level: 0,
-    }
-}
+use qzt::{QztReader, VerifyLevel, pack_bytes};
+mod support;
+use support::small_chunk_options;
 
 proptest! {
     /// Packing then exporting reproduces the original bytes exactly, and the

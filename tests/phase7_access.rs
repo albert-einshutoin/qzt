@@ -4,18 +4,13 @@ use std::time::Instant;
 
 use qzt::error::QztError;
 use qzt::reader::QztReader;
-use qzt::writer::pack_bytes_with_container_id;
 mod support;
-use support::writer_options;
-
-fn pack(input: &[u8], target: usize, max: usize) -> Vec<u8> {
-    pack_bytes_with_container_id(input, [0x77; 16], writer_options(target, max))
-        .expect("pack should work")
-}
+use support::pack_with_container_id;
 
 #[test]
 fn read_range_within_one_chunk_and_across_chunks() {
-    let reader = QztReader::open(pack(b"abcdefghij", 4, 4)).expect("reader should open");
+    let reader = QztReader::open(pack_with_container_id(b"abcdefghij", [0x77; 16], 4, 4))
+        .expect("reader should open");
 
     assert_eq!(reader.read_range(1, 2), Ok(b"bc".to_vec()));
     assert_eq!(reader.read_range(3, 5), Ok(b"defgh".to_vec()));
@@ -23,7 +18,8 @@ fn read_range_within_one_chunk_and_across_chunks() {
 
 #[test]
 fn read_range_zero_length_and_overflow_are_handled() {
-    let reader = QztReader::open(pack(b"abc", 4, 4)).expect("reader should open");
+    let reader = QztReader::open(pack_with_container_id(b"abc", [0x77; 16], 4, 4))
+        .expect("reader should open");
 
     assert_eq!(reader.read_range(1, 0), Ok(Vec::new()));
     assert_eq!(
@@ -39,7 +35,8 @@ fn read_range_zero_length_and_overflow_are_handled() {
 #[test]
 fn read_text_range_rejects_invalid_utf8_boundary() {
     let input = "あい".as_bytes();
-    let reader = QztReader::open(pack(input, 8, 8)).expect("reader should open");
+    let reader = QztReader::open(pack_with_container_id(input, [0x77; 16], 8, 8))
+        .expect("reader should open");
 
     assert_eq!(
         reader.read_text_range(1, 2),
@@ -51,7 +48,8 @@ fn read_text_range_rejects_invalid_utf8_boundary() {
 #[test]
 fn read_line_raw_reads_first_last_and_spanning_lines() {
     let input = b"first\nabcdefghijklmnopqrstuvwxyz\nlast";
-    let reader = QztReader::open(pack(input, 8, 8)).expect("reader should open");
+    let reader = QztReader::open(pack_with_container_id(input, [0x77; 16], 8, 8))
+        .expect("reader should open");
 
     assert_eq!(reader.read_line_raw(0), Ok(b"first\n".to_vec()));
     assert_eq!(
@@ -65,7 +63,7 @@ fn read_line_raw_reads_first_last_and_spanning_lines() {
 #[test]
 fn cli_range_and_line_smoke() {
     let input = b"alpha\nbeta\ngamma\n";
-    let container = pack(input, 8, 8);
+    let container = pack_with_container_id(input, [0x77; 16], 8, 8);
     let path = crate::support::secure_temp_root().join(format!(
         "qzt-phase7-{}-{}.qzt",
         std::process::id(),
@@ -100,7 +98,7 @@ fn phase7_intermediate_benchmark_records_nonzero_metrics() {
     let input = vec![b'a'; 64 * 1024];
 
     let started = Instant::now();
-    let container = pack(&input, 16 * 1024, 16 * 1024);
+    let container = pack_with_container_id(&input, [0x77; 16], 16 * 1024, 16 * 1024);
     let pack_elapsed = started.elapsed();
 
     let reader = QztReader::open(&container).expect("reader should open");
@@ -114,7 +112,8 @@ fn phase7_intermediate_benchmark_records_nonzero_metrics() {
     let range_elapsed = started.elapsed();
 
     let line_input = b"line0\nline1\nline2\n";
-    let line_reader = QztReader::open(pack(line_input, 8, 8)).expect("line reader should open");
+    let line_reader = QztReader::open(pack_with_container_id(line_input, [0x77; 16], 8, 8))
+        .expect("line reader should open");
     let started = Instant::now();
     let line = line_reader.read_line_raw(1).expect("line should read");
     let line_elapsed = started.elapsed();

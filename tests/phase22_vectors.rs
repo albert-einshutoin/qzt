@@ -2,7 +2,6 @@ use std::fs::{self, OpenOptions};
 use std::io::{ErrorKind, Write};
 use std::path::PathBuf;
 
-use qzt::chunker::ChunkerOptions;
 use qzt::error::QztError;
 use qzt::fixed::{FooterTrailer, Header};
 use qzt::format::{FOOTER_TRAILER_LEN, HEADER_LEN};
@@ -10,6 +9,8 @@ use qzt::reader::{QztReader, VerifyLevel};
 use qzt::schema::{Checksum, FooterPayload};
 use qzt::skeleton::open_skeleton_details;
 use qzt::writer::{DocumentSpan, WriterBuilder, WriterOptions, pack_bytes};
+mod support;
+use support::writer_options;
 
 const REQUIRED_VECTORS: [&str; 14] = [
     "valid_c1",
@@ -504,7 +505,7 @@ fn valid_utf8_multibyte() -> Vec<u8> {
 }
 
 fn valid_multi_chunk() -> Vec<u8> {
-    pack_bytes(b"alpha\nbeta\ngamma\n", small_chunk_options()).expect("pack multi-chunk vector")
+    pack_bytes(b"alpha\nbeta\ngamma\n", writer_options(8, 8)).expect("pack multi-chunk vector")
 }
 
 fn valid_no_trailing_newline() -> Vec<u8> {
@@ -528,16 +529,6 @@ fn valid_document_index() -> Vec<u8> {
         )])
         .pack(input)
         .expect("pack Document Index vector")
-}
-
-fn small_chunk_options() -> WriterOptions {
-    WriterOptions {
-        chunker: ChunkerOptions {
-            target_chunk_size: 8,
-            max_chunk_size: 8,
-        },
-        zstd_level: 0,
-    }
 }
 
 fn corrupt_header() -> Vec<u8> {
