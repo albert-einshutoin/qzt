@@ -24,6 +24,9 @@ CIと同じ品質ゲートを実行します。
 make check
 ```
 
+この既定ゲートにはwarningを拒否するrustdocも含まれます。生成HTMLはgitignore済みの
+Cargo target directory内に留まります。
+
 ドキュメントまたはrelease hygieneを変更した場合は、次も実行します。
 
 ```sh

@@ -1,4 +1,4 @@
-.PHONY: fmt clippy check-default test check coverage dist-check doc bench-release bench-profile bench-profile-matrix bench-partial-decompression
+.PHONY: fmt clippy check-default test check coverage dist-check doc bench-release bench-profile bench-profile-quick bench-profile-matrix bench-partial-decompression
 
 RELEASE_BENCH_QUERY_REPETITIONS ?= 500
 RELEASE_BENCH_QUERY_WARMUP_REPETITIONS ?= 20
@@ -20,7 +20,7 @@ check-default:
 test:
 	cargo test --all-targets --all-features
 
-check: fmt clippy check-default test
+check: fmt clippy check-default test doc
 
 # The initial main-branch measurement was 92.37% lines. A whole-percent 90%
 # floor preserves roughly two points of headroom for LLVM/platform variance
@@ -43,6 +43,11 @@ bench-profile:
 	QZT_RELEASE_BENCH_QUERY_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_REPETITIONS) \
 	QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS) \
 	cargo test --release --all-features --test release_hardening release_benchmark_profile -- --ignored --exact --nocapture
+
+# Routine evidence checks need the same benchmark path with a small, explicit
+# sample count; timing remains evidence and never becomes a correctness gate.
+bench-profile-quick:
+	$(MAKE) bench-profile QZT_RELEASE_BENCH_QUERY_REPETITIONS=5 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=2
 
 bench-profile-matrix:
 	QZT_RELEASE_BENCH_QUERY_REPETITIONS=$(QZT_RELEASE_BENCH_QUERY_REPETITIONS) \

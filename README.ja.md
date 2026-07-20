@@ -175,6 +175,12 @@ make bench-profile
 QZT_RELEASE_BENCH_QUERY_REPETITIONS=5 QZT_RELEASE_BENCH_QUERY_WARMUP_REPETITIONS=2 make bench-profile
 ```
 
+日常的なevidence確認では、同じ設定を使うconvenience targetも利用できます。
+
+```sh
+make bench-profile-quick
+```
+
 コーパス詳細、指標の定義、追加の profiling 対象は
 [release-hardening guide](docs/QZT_v0.1_Release_Hardening.ja.md) を参照してください。
 
