@@ -1,5 +1,5 @@
 use crate::error::{QztError, Result};
-use crate::primitives::{read_u32_le, read_u64_le, usize_to_u64};
+use crate::primitives::{checked_logical_end, read_u32_le, read_u64_le, usize_to_u64};
 
 pub const CHUNK_ENTRY_LEN: usize = 128;
 pub const STARTS_WITH_LINE_CONTINUATION: u32 = 1;
@@ -61,6 +61,33 @@ impl ChunkEntry {
                 .map_err(|_| QztError::ChunkTableInvalid)?,
         })
     }
+}
+
+pub(crate) fn partition_by_end(
+    entries: &[ChunkEntry],
+    target: u64,
+    mut end_of: impl FnMut(&ChunkEntry) -> Result<u64>,
+) -> Result<usize> {
+    let mut low = 0_usize;
+    let mut high = entries.len();
+    while low < high {
+        let mid = low + (high - low) / 2;
+        if end_of(&entries[mid])? <= target {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    Ok(low)
+}
+
+pub(crate) fn chunk_index_for_logical_offset(
+    entries: &[ChunkEntry],
+    offset: u64,
+) -> Result<usize> {
+    partition_by_end(entries, offset, |entry| {
+        checked_logical_end(entry.logical_offset, entry.uncompressed_size)
+    })
 }
 
 /// Validates a fixed Chunk Table block without decompressing chunks.
@@ -136,4 +163,44 @@ pub fn validate_chunk_table_block(
     }
 
     Ok(entries)
+}
+
+#[cfg(test)]
+mod search_tests {
+    use super::*;
+
+    fn entry(
+        logical_offset: u64,
+        uncompressed_size: u64,
+        first_line: u64,
+        line_count: u64,
+    ) -> ChunkEntry {
+        ChunkEntry {
+            chunk_id: logical_offset,
+            physical_offset: 0,
+            compressed_size: 0,
+            logical_offset,
+            uncompressed_size,
+            first_line,
+            line_count,
+            dictionary_id: 0,
+            flags: 0,
+            compressed_checksum_blake3: [0; 32],
+            uncompressed_checksum_blake3: [0; 32],
+        }
+    }
+
+    #[test]
+    fn partition_by_end_supports_byte_and_line_boundaries() {
+        let entries = vec![entry(0, 4, 0, 2), entry(4, 6, 2, 3)];
+
+        assert_eq!(chunk_index_for_logical_offset(&entries, 0), Ok(0));
+        assert_eq!(chunk_index_for_logical_offset(&entries, 4), Ok(1));
+        assert_eq!(
+            partition_by_end(&entries, 2, |entry| {
+                crate::primitives::checked_logical_end(entry.first_line, entry.line_count)
+            }),
+            Ok(1)
+        );
+    }
 }

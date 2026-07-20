@@ -5,7 +5,9 @@ use std::path::Path;
 #[cfg(windows)]
 use std::sync::Mutex;
 
-use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
+use crate::chunk_table::{
+    ChunkEntry, STARTS_WITH_LINE_CONTINUATION, chunk_index_for_logical_offset, partition_by_end,
+};
 use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
 use crate::chunker::NewlineMode;
@@ -794,7 +796,7 @@ fn read_range_from_entries_cached(
     }
 
     let mut output = Vec::new();
-    let mut index = range_start_chunk_index(entries, offset)?;
+    let mut index = chunk_index_for_logical_offset(entries, offset)?;
     while let Some(entry) = entries.get(index) {
         let chunk_end = checked_logical_end(entry.logical_offset, entry.uncompressed_size)?;
         if entry.logical_offset >= end {
@@ -1043,37 +1045,10 @@ impl StreamingTextAnalysis {
     }
 }
 
-fn range_start_chunk_index(entries: &[ChunkEntry], offset: u64) -> Result<usize> {
-    let mut low = 0_usize;
-    let mut high = entries.len();
-
-    while low < high {
-        let mid = low + (high - low) / 2;
-        let chunk_end =
-            checked_logical_end(entries[mid].logical_offset, entries[mid].uncompressed_size)?;
-        if chunk_end <= offset {
-            low = mid + 1;
-        } else {
-            high = mid;
-        }
-    }
-
-    Ok(low)
-}
-
 fn line_start_chunk_index(entries: &[ChunkEntry], line_zero_based: u64) -> Result<usize> {
-    let mut low = 0_usize;
-    let mut high = entries.len();
-
-    while low < high {
-        let mid = low + (high - low) / 2;
-        let line_end = checked_logical_end(entries[mid].first_line, entries[mid].line_count)?;
-        if line_end <= line_zero_based {
-            low = mid + 1;
-        } else {
-            high = mid;
-        }
-    }
+    let low = partition_by_end(entries, line_zero_based, |entry| {
+        checked_logical_end(entry.first_line, entry.line_count)
+    })?;
 
     let entry = entries.get(low).ok_or(QztError::LineOutOfRange)?;
     let line_end = checked_logical_end(entry.first_line, entry.line_count)?;
@@ -1193,8 +1168,8 @@ fn document_chunk_range(
     }
     let end = checked_logical_end(offset, length)?;
 
-    let first_index = range_start_chunk_index(chunk_entries, offset)?;
-    let last_index = range_start_chunk_index(chunk_entries, end - 1)?;
+    let first_index = chunk_index_for_logical_offset(chunk_entries, offset)?;
+    let last_index = chunk_index_for_logical_offset(chunk_entries, end - 1)?;
     let first = chunk_entries
         .get(first_index)
         .ok_or(QztError::ChunkTableInvalid)?

@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::time::Instant;
 
-use crate::chunk_table::ChunkEntry;
+use crate::chunk_table::{ChunkEntry, chunk_index_for_logical_offset};
 use crate::error::{QztError, Result};
 use crate::io::ReadAt;
 use crate::primitives::{checked_logical_end, u64_to_usize, usize_to_u64};
@@ -1184,8 +1184,8 @@ fn emit_line_granule(
 /// Chunk-id span `[chunk_start, chunk_end)` covering a non-empty logical
 /// range, found with two binary searches over the contiguous chunk table.
 fn chunk_span_for_range(entries: &[ChunkEntry], start: u64, end: u64) -> Result<(u64, u64)> {
-    let first_index = chunk_index_for_offset(entries, start)?;
-    let last_index = chunk_index_for_offset(entries, end.saturating_sub(1))?;
+    let first_index = chunk_index_for_logical_offset(entries, start)?;
+    let last_index = chunk_index_for_logical_offset(entries, end.saturating_sub(1))?;
     let first = entries
         .get(first_index)
         .ok_or(QztError::ChunkTableInvalid)?
@@ -1196,22 +1196,6 @@ fn chunk_span_for_range(entries: &[ChunkEntry], start: u64, end: u64) -> Result<
         .chunk_id;
     let last_exclusive = last.checked_add(1).ok_or(QztError::ChunkTableInvalid)?;
     Ok((first, last_exclusive))
-}
-
-fn chunk_index_for_offset(entries: &[ChunkEntry], offset: u64) -> Result<usize> {
-    let mut low = 0_usize;
-    let mut high = entries.len();
-    while low < high {
-        let mid = low + (high - low) / 2;
-        let chunk_end =
-            checked_logical_end(entries[mid].logical_offset, entries[mid].uncompressed_size)?;
-        if chunk_end <= offset {
-            low = mid + 1;
-        } else {
-            high = mid;
-        }
-    }
-    Ok(low)
 }
 
 struct EncodedPostingLists {
