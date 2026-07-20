@@ -539,7 +539,7 @@ impl RawTokenIndex {
         let mut metrics = empty_search_metrics(
             query,
             "token",
-            self.index_size_bytes(),
+            index_size_bytes(&self.granules, &self.terms, &self.encoded_postings),
             self.source_size_bytes,
         );
         metrics.term_lookups = usize_to_u64(query_keys.len())?;
@@ -632,28 +632,6 @@ impl RawTokenIndex {
         })
     }
 
-    fn index_size_bytes(&self) -> u64 {
-        let granule_bytes = serialized_granule_bytes(&self.granules);
-        let term_bytes = 8usize.saturating_add(
-            self.terms
-                .iter()
-                .map(|term| {
-                    term.key
-                        .len()
-                        .saturating_add(varuint_len(term.key.len() as u64))
-                        .saturating_add(varuint_len(term.granule_frequency))
-                        .saturating_add(varuint_len(term.posting_size))
-                })
-                .sum::<usize>(),
-        );
-        let posting_bytes = self.encoded_postings.iter().map(Vec::len).sum::<usize>();
-        u64::try_from(
-            granule_bytes
-                .saturating_add(term_bytes)
-                .saturating_add(posting_bytes),
-        )
-        .unwrap_or(u64::MAX)
-    }
 }
 
 /// Transient raw Unicode-scalar n-gram index over line granules.
@@ -881,7 +859,7 @@ impl RawNgramIndex {
         let mut metrics = empty_search_metrics(
             query,
             "ngram",
-            self.index_size_bytes(),
+            index_size_bytes(&self.granules, &self.terms, &self.encoded_postings),
             self.source_size_bytes,
         );
         metrics.term_lookups = usize_to_u64(query_keys.len())?;
@@ -1011,28 +989,33 @@ impl RawNgramIndex {
         Ok(skip_probe_bytes.min(term.posting_size))
     }
 
-    fn index_size_bytes(&self) -> u64 {
-        let granule_bytes = serialized_granule_bytes(&self.granules);
-        let term_bytes = 8usize.saturating_add(
-            self.terms
-                .iter()
-                .map(|term| {
-                    term.key
-                        .len()
-                        .saturating_add(varuint_len(term.key.len() as u64))
-                        .saturating_add(varuint_len(term.granule_frequency))
-                        .saturating_add(varuint_len(term.posting_size))
-                })
-                .sum::<usize>(),
-        );
-        let posting_bytes = self.encoded_postings.iter().map(Vec::len).sum::<usize>();
-        u64::try_from(
-            granule_bytes
-                .saturating_add(term_bytes)
-                .saturating_add(posting_bytes),
-        )
-        .unwrap_or(u64::MAX)
-    }
+}
+
+fn index_size_bytes(
+    granules: &[SearchGranule],
+    terms: &[TermDictionaryEntry],
+    encoded_postings: &[Vec<u8>],
+) -> u64 {
+    let granule_bytes = serialized_granule_bytes(granules);
+    let term_bytes = 8usize.saturating_add(
+        terms
+            .iter()
+            .map(|term| {
+                term.key
+                    .len()
+                    .saturating_add(varuint_len(term.key.len() as u64))
+                    .saturating_add(varuint_len(term.granule_frequency))
+                    .saturating_add(varuint_len(term.posting_size))
+            })
+            .sum::<usize>(),
+    );
+    let posting_bytes = encoded_postings.iter().map(Vec::len).sum::<usize>();
+    u64::try_from(
+        granule_bytes
+            .saturating_add(term_bytes)
+            .saturating_add(posting_bytes),
+    )
+    .unwrap_or(u64::MAX)
 }
 
 fn varuint_len(mut value: u64) -> usize {
@@ -1647,7 +1630,10 @@ mod serialized_metrics_tests {
         )
         .expect("legacy fallback fixture should build");
 
-        assert_eq!(index.index_size_bytes(), 77);
+        assert_eq!(
+            index_size_bytes(&index.granules, &index.terms, &index.encoded_postings),
+            77
+        );
     }
 }
 
