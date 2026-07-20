@@ -48,6 +48,23 @@ make coverage
 The initial measured line coverage was 92.37%; the gate starts at 90% to retain
 roughly two percentage points of tolerance while blocking material regressions.
 
+Before changing a public example, execute its user-visible path:
+
+```sh
+cargo run --locked --example evidence_ref
+```
+
+Changes to parsing, verification, or fuzz targets should also run the bounded
+nightly smoke locally when `cargo-fuzz` is available:
+
+```sh
+cargo +nightly fuzz run open_verify -- -max_total_time=60 -timeout=10 -max_len=4096
+```
+
+The same fuzz command runs weekly and on manual dispatch, not on every pull
+request. Generated corpus and crash state remain local; CI retains crash
+artifacts for seven days when a run fails.
+
 ## Adding a conformance test
 
 Conformance tests live under `tests/` as integration test binaries. Name new

@@ -22,6 +22,11 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - run: make check
+      # `make check` compiles examples; execute the public usage path once to
+      # catch runtime-only regressions without duplicating it on the MSRV lane.
+      - name: Run public evidence example
+        if: matrix.toolchain == 'stable'
+        run: cargo run --locked --example evidence_ref
 
   docs:
     name: docs
@@ -48,11 +53,18 @@ jobs:
       - uses: actions/checkout@v5
       # OSV Scanner owns vulnerability advisories. This gate independently
       # enforces licenses, banned dependencies, and trusted package sources.
-      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+      - name: Audit product dependencies
+        uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
         with:
           rust-version: "1.87.0"
           command: check bans licenses sources
           arguments: --all-features
+      - name: Audit fuzz dependencies
+        uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          rust-version: "1.87.0"
+          manifest-path: fuzz/Cargo.toml
+          command: check bans licenses sources
 
   coverage:
     name: line coverage

@@ -50,6 +50,22 @@ make coverage
 初回実測値は92.37%です。LLVMやplatform差のため約2ptの余裕を残しつつ、
 大きな後退を拒否する初期基準として90%を設定しています。
 
+公開exampleを変更する前に、利用者が通る実行経路を確認します。
+
+```sh
+cargo run --locked --example evidence_ref
+```
+
+parse、verify、fuzz targetを変更する場合は、`cargo-fuzz`を導入した環境で
+bounded nightly smokeも実行します。
+
+```sh
+cargo +nightly fuzz run open_verify -- -max_total_time=60 -timeout=10 -max_len=4096
+```
+
+同じfuzz commandは毎週および手動dispatchで実行し、全PRでは実行しません。
+生成corpusとcrash stateはローカルに残し、CI失敗時のcrash artifactは7日保持します。
+
 ## conformance testの追加
 
 conformance testは`tests/`配下のintegration test binaryとして配置し、対応するphaseで

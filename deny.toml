@@ -8,6 +8,9 @@ allow = [
     "BSD-2-Clause",
     "MIT",
     "MIT-0",
+    # libfuzzer-sys incorporates LLVM's permissive University of Illinois
+    # license in addition to its MIT/Apache wrapper code.
+    "NCSA",
 ]
 confidence-threshold = 0.8
 
