@@ -1,0 +1,49 @@
+{
+  "analysisModule": "rust.py",
+  "buildCommands": [
+    ["cargo", "check", "--locked", "--all-targets", "--all-features"]
+  ],
+  "cachePaths": [
+    "${CARGO_HOME}/registry",
+    "${CARGO_HOME}/git",
+    "target"
+  ],
+  "crateNames": ["qzt"],
+  "dangerousGlobs": [
+    ".cargo/**",
+    "build.rs",
+    "fuzz/Cargo.lock",
+    "fuzz/Cargo.toml"
+  ],
+  "fullTestCommand": [
+    "cargo",
+    "test",
+    "--locked",
+    "--all-targets",
+    "--all-features"
+  ],
+  "id": "rust-cargo",
+  "integrationTestCommand": [
+    "cargo",
+    "test",
+    "--locked",
+    "--all-features",
+    "--test",
+    "{target}"
+  ],
+  "projectMarkers": ["Cargo.toml"],
+  "projectType": "rust-cargo",
+  "sourceGlobs": ["src/*.rs", "src/**/*.rs"],
+  "staticAnalysisCommands": [
+    ["cargo", "fmt", "--all", "--", "--check"],
+    ["cargo", "clippy", "--locked", "--all-targets", "--all-features", "--", "-D", "warnings"]
+  ],
+  "testGlobs": ["tests/*.rs", "tests/**/*.rs"],
+  "unitTestCommand": [
+    "cargo",
+    "test",
+    "--locked",
+    "--all-features",
+    "--lib"
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "e2eTestGlobs": [
+    "tests/cli_help.rs",
+    "tests/*cli*.rs",
+    "tests/json_output_serde_roundtrip.rs",
+    "tests/phase36_search_json.rs"
+  ],
+  "fullTestGlobs": [
+    ".github/**",
+    "ci/**",
+    "Cargo.lock",
+    "Cargo.toml",
+    "Makefile",
+    "deny.toml",
+    "rust-toolchain*",
+    "src/error.rs",
+    "src/format.rs",
+    "src/io.rs",
+    "src/lib.rs",
+    "src/limits.rs",
+    "src/primitives.rs",
+    "src/schema.rs"
+  ],
+  "moduleTestMappings": {
+    "benchmark": [
+      "phase18_competitive_benchmark",
+      "phase45_benchmark_publication",
+      "phase46_partial_decompression",
+      "release_hardening"
+    ],
+    "cli_attest": [
+      "phase39_attest_cli",
+      "phase55_cli_regression_contracts"
+    ],
+    "cli_json": [
+      "json_output_serde_roundtrip",
+      "phase36_search_json",
+      "phase_cli_format_errors",
+      "phase55_cli_regression_contracts"
+    ],
+    "corpus": [
+      "phase18_competitive_benchmark",
+      "phase23_acceptance",
+      "phase23a_validation_corpus"
+    ],
+    "main": [
+      "cli_help",
+      "json_output_serde_roundtrip",
+      "phase35_docs_doc_cli",
+      "phase36_search_json",
+      "phase37_stdin_pack",
+      "phase38_pack_docs_cli",
+      "phase39_attest_cli",
+      "phase41_cli_docs",
+      "phase55_cli_regression_contracts",
+      "phase7_access",
+      "phase9_cli_core",
+      "phase_cli_format_errors",
+      "phase_cli_stdin_pack"
+    ]
+  },
+  "pathTestMappings": {
+    "CHANGELOG.md": [
+      "phase48_public_release_docs"
+    ],
+    "CONTRIBUTING.md": [
+      "phase47_oss_governance"
+    ],
+    "README*": [
+      "phase44_readme_product",
+      "phase46_tutorials",
+      "phase54_public_reference_gaps"
+    ],
+    "SECURITY.md": [
+      "phase47_oss_governance"
+    ],
+    "docs/**": [
+      "phase30_public_docs",
+      "phase42_release_readiness",
+      "phase45_benchmark_publication",
+      "phase46_tutorials",
+      "phase48_public_release_docs",
+      "phase54_public_reference_gaps"
+    ],
+    "examples/**": [
+      "phase20_public_api",
+      "phase52_fuzz_example_smoke"
+    ],
+    "tasks/**": [
+      "phase54_public_reference_gaps"
+    ]
+  },
+  "safeNonCodeGlobs": [
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "LICENSE*",
+    "README*",
+    "SECURITY.md",
+    "docs/**",
+    "examples/**",
+    "tasks/**"
+  ],
+  "smokeTestTargets": [
+    "phase0_smoke"
+  ]
+}
