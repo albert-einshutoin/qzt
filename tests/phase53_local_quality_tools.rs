@@ -7,7 +7,7 @@ fn repository_file(path: &str) -> String {
 #[test]
 fn default_local_gate_includes_rustdoc_warnings() {
     let makefile = repository_file("Makefile");
-    assert!(makefile.contains("check: fmt clippy check-default test doc"));
+    assert!(makefile.contains("check: fmt clippy check-default test ci-test doc"));
     assert!(makefile.contains("RUSTDOCFLAGS=\"-D warnings\" cargo doc --no-deps --all-features"));
 }
 
