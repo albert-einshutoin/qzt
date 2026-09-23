@@ -827,7 +827,7 @@ fn replace_output(temp_path: &Path, output_path: &Path) -> std::io::Result<()> {
         .chain(Some(0))
         .collect();
     // Same-directory rename: never permit the copy-and-delete cross-volume path.
-    // WRITE_THROUGH is Windows' available persistence confirmation for this move.
+    // Request WRITE_THROUGH, but Windows has no separate portable directory sync.
     let result = unsafe { MoveFileExW(existing.as_ptr(), new.as_ptr(), 0x1 | 0x8) };
     if result == 0 {
         Err(std::io::Error::last_os_error())
@@ -838,8 +838,8 @@ fn replace_output(temp_path: &Path, output_path: &Path) -> std::io::Result<()> {
 
 #[cfg(windows)]
 fn sync_output_directory(_output_path: &Path) -> std::io::Result<()> {
-    // MoveFileExW with MOVEFILE_WRITE_THROUGH confirms the move. Windows does not
-    // expose a portable directory fsync through std::fs.
+    // MoveFileExW confirms the move; no separate portable directory fsync exists
+    // here. Its WRITE_THROUGH flag does not prove same-volume rename durability.
     Ok(())
 }
 

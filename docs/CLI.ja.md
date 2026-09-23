@@ -61,8 +61,10 @@ Windowsでは既存出力のsecurity descriptorからDACLを複製します。�
 場合は置換しません。owner、その他の拡張属性、filesystem固有のsecurity labelは
 引き継ぎ対象外です。macOS/Linuxは同一directory内のrename後、親directoryを`sync_all`します。
 Windowsは同一directory内で`MoveFileExW(REPLACE_EXISTING | WRITE_THROUGH)`を使います。
-Windowsに移植可能な独立したdirectory syncはないため、このAPIのwrite-through完了を
-永続化確認とします。filesystemやnetwork mountの種類を問わない停電耐性は保証せず、
+Windowsに移植可能な独立したdirectory syncはありません。APIの成功は置換完了を示しますが、
+`WRITE_THROUGH`の明示的なflush保証はcopy/delete経路に関するもので、今回の同一volume内の
+renameには適用を証明できません。Windowsで成功してもdirectory entryの障害時永続性は未確認です。
+filesystemやnetwork mountの種類を問わない停電耐性は保証せず、
 操作中の他processによるpath変更は対象外です。stdoutはstreamであり、失敗前に
 受理されたbyteは取り消せません。
 

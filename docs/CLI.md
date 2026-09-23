@@ -73,13 +73,15 @@ replacement is abandoned. Ownership, non-access extended attributes, and
 filesystem-specific security labels are not part of the preserved metadata.
 On macOS and Linux, replacement is a same-directory rename followed by a
 `sync_all` of the parent directory. On Windows, replacement uses
-`MoveFileExW(REPLACE_EXISTING | WRITE_THROUGH)` in the same directory; Windows
-does not provide a separate portable directory sync here, so the API's
-write-through completion is the durability confirmation. These steps do not
-promise power-loss durability on every filesystem or network mount. Filesystem
-changes by another process during the operation remain outside this CLI
-contract. stdout commands are streams: bytes already accepted by stdout cannot
-be rolled back on later failure.
+`MoveFileExW(REPLACE_EXISTING | WRITE_THROUGH)` in the same directory. Its
+return value confirms the move, but there is no separate portable directory
+sync here. Microsoft's explicit flush guarantee for `WRITE_THROUGH` covers
+copy-and-delete moves, which this same-volume path does not use; successful
+Windows output therefore does not prove crash durability of the directory
+entry. These steps do not promise power-loss durability on every filesystem or
+network mount. Filesystem changes by another process during the operation
+remain outside this CLI contract. stdout commands are streams: bytes already
+accepted by stdout cannot be rolled back on later failure.
 
 ## Commands
 
