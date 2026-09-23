@@ -415,12 +415,7 @@ fn set_acl(output: &Path) -> bool {
 
 #[cfg(windows)]
 fn read_acl(output: &Path) -> String {
-    let literal = output.display().to_string().replace('\'', "''");
-    let script = format!("(Get-Acl -LiteralPath '{literal}').Sddl");
-    let result = Command::new("powershell.exe")
-        .args(["-NoProfile", "-NonInteractive", "-Command", &script])
-        .output()
-        .unwrap();
+    let result = Command::new("icacls").arg(output).output().unwrap();
     assert!(
         result.status.success(),
         "{}",
