@@ -46,6 +46,41 @@ These meanings are frozen for v0.1:
 - No command writes progress output today. Progress output may be added only to
   stderr.
 
+### File output safety
+
+`pack`, `pack-docs`, `export`, `doc`, and `sidecar-rebuild` reject an output that
+is the same file as any input, before writing. The check follows input links and
+compares filesystem identity (device/inode on Unix; volume/file ID on Windows),
+so relative and absolute names, hard links, and case aliases on a
+case-insensitive filesystem are covered. An output path that is a symlink,
+including a dangling symlink, is rejected even when it points elsewhere.
+
+These commands create a new temporary file in the output directory, preserve
+an existing output file's mode/readonly permissions and access ACL, complete writing and validation, flush
+and sync the temporary file, then replace the output. A failure before
+replacement leaves the input and existing output unchanged; a failed new
+output has no completed output name. Temporary files are removed on failure;
+if removal fails, stderr includes both the original error and the remaining
+temporary path. A replacement failure exits `1` and reports that its outcome
+must be inspected. A failure **after** replacement during directory durability
+confirmation exits `1` and explicitly reports that the output was replaced but
+durability is unconfirmed. Do not interpret that result as an unchanged output.
+
+On macOS, access ACLs are copied with `fcopyfile`; on Linux, POSIX access ACLs
+are copied through `system.posix_acl_access`; on Windows, the DACL is copied
+from the existing output's security descriptor. If that copy fails, the
+replacement is abandoned. Ownership, non-access extended attributes, and
+filesystem-specific security labels are not part of the preserved metadata.
+On macOS and Linux, replacement is a same-directory rename followed by a
+`sync_all` of the parent directory. On Windows, replacement uses
+`MoveFileExW(REPLACE_EXISTING | WRITE_THROUGH)` in the same directory; Windows
+does not provide a separate portable directory sync here, so the API's
+write-through completion is the durability confirmation. These steps do not
+promise power-loss durability on every filesystem or network mount. Filesystem
+changes by another process during the operation remain outside this CLI
+contract. stdout commands are streams: bytes already accepted by stdout cannot
+be rolled back on later failure.
+
 ## Commands
 
 ### `qzt help`, `qzt --help`, `qzt version`, `qzt --version`
@@ -119,8 +154,8 @@ Print structural metadata. Default format is text. JSON fields are:
 
 ### `qzt export <FILE> [-o <OUTPUT>]`
 
-Stream all original bytes to stdout, or to a newly created/truncated output
-file. Opening checks the container structure, and decoding validates each
+Stream all original bytes to stdout, or to an atomically replaced output file.
+Opening checks the container structure, and decoding validates each
 chunk's compressed and uncompressed checksums. It does not validate the
 whole-container prefix checksum or aggregate original checksum; run
 `qzt verify <FILE> --deep` first when exporting evidence.

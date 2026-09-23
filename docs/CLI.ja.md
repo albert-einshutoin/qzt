@@ -39,6 +39,33 @@ v0.1では次の意味を固定します。
   部分出力が残る可能性があります。
 - 現在progress出力はありません。将来追加する場合もstderrだけを使用します。
 
+### file出力の保護
+
+`pack`、`pack-docs`、`export`、`doc`、`sidecar-rebuild`は、いずれかの入力と
+同じfileを出力先に指定すると書込み前に拒否します。入力側のlinkをたどり、
+filesystem上の同一性（Unixはdevice/inode、Windowsはvolume/file ID）を比較するため、
+相対/絶対path、hard link、case-insensitive filesystemの大文字小文字違いも対象です。
+出力先がsymlinkなら、dangling symlinkも含め、参照先にかかわらず拒否します。
+
+これらのcommandは出力先と同じdirectoryに一意な一時fileを作り、既存出力の
+mode/readonly権限とアクセスACLを引き継ぎます。書込み・検証・flush・file syncに
+成功してから置換します。
+置換前の失敗では入力と既存出力は変わらず、新規出力の完成名に部分fileは残りません。
+一時fileの清掃にも失敗した場合は、主エラーと残った一時pathを両方stderrに出します。
+置換失敗はexit `1`で結果の確認を求めます。**置換後**のdirectory永続化確認が
+失敗した場合もexit `1`で「置換済み・永続化未確認」を明示します。この場合、
+既存出力が保全されたと解釈してはいけません。
+
+アクセスACLはmacOSでは`fcopyfile`、Linuxでは`system.posix_acl_access`、
+Windowsでは既存出力のsecurity descriptorからDACLを複製します。複製できない
+場合は置換しません。owner、その他の拡張属性、filesystem固有のsecurity labelは
+引き継ぎ対象外です。macOS/Linuxは同一directory内のrename後、親directoryを`sync_all`します。
+Windowsは同一directory内で`MoveFileExW(REPLACE_EXISTING | WRITE_THROUGH)`を使います。
+Windowsに移植可能な独立したdirectory syncはないため、このAPIのwrite-through完了を
+永続化確認とします。filesystemやnetwork mountの種類を問わない停電耐性は保証せず、
+操作中の他processによるpath変更は対象外です。stdoutはstreamであり、失敗前に
+受理されたbyteは取り消せません。
+
 ## コマンド
 
 ### `qzt help`, `qzt --help`, `qzt version`, `qzt --version`
@@ -106,7 +133,7 @@ qzt pack-docs alpha.txt beta.txt --doc-id-prefix demo/ -o evidence.qzt
 
 ### `qzt export <FILE> [-o <OUTPUT>]`
 
-全原文byteをstdout、または新規作成/切詰めする出力fileへstreamします。open時にcontainer
+全原文byteをstdout、またはatomicに置換する出力fileへstreamします。open時にcontainer
 構造を検査し、復号時に各chunkの圧縮済み/復号済みchecksumを検証します。container全体の
 prefix checksumと原文全体checksumは検証しないため、証跡export前には
 `qzt verify <FILE> --deep`を実行してください。

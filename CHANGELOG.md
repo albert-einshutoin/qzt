@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- CLI file outputs now reject input/output aliases and output symlinks before
+  writing. `pack`, `pack-docs`, `export`, `doc`, and `sidecar-rebuild` replace
+  outputs only after successful writing and file sync; failed exports no longer
+  truncate an existing destination. Post-replacement durability failures are
+  reported separately from failures that leave the old output intact.
+
 ## 0.1.0 - 2026-07-19
 
 QZT v0.1 is a technical preview reference implementation of the Cold Evidence

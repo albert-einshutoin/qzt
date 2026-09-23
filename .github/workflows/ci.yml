@@ -93,6 +93,25 @@ jobs:
       - run: cargo test --release --locked --features internal-testing --test phase21_evidence_retrieval windows_file_backed
       - run: cargo build --release --locked
 
+  safe-file-output-platforms:
+    name: safe file output (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Linux ACL test tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y acl
+      - run: cargo test --locked --bin qzt atomic_output_tests
+      - run: cargo test --locked --test phase44_safe_file_output -- --nocapture
+
   dist-workflow:
     name: dist workflow
     runs-on: ubuntu-latest
