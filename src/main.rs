@@ -765,6 +765,14 @@ fn check_output_collision(output_path: &Path, inputs: &[&Path]) -> CliResult<()>
                     .into());
                 }
             }
+            #[cfg(windows)]
+            if metadata.permissions().readonly() {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    "output path is read-only on Windows",
+                )
+                .into());
+            }
         }
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
         Err(error) => return Err(error.into()),
@@ -847,6 +855,8 @@ fn create_atomic_output(
     output_path: &Path,
     read_access: bool,
 ) -> CliResult<(std::path::PathBuf, std::fs::File)> {
+    #[cfg(all(test, windows))]
+    fail_at(AtomicStage::TempCreate)?;
     let file_name = output_path.file_name().ok_or_else(|| {
         std::io::Error::new(
             std::io::ErrorKind::InvalidInput,
@@ -927,6 +937,8 @@ fn cleanup_atomic_output(temp_output_path: &Path, primary_error: CliError) -> Cl
 #[cfg(test)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum AtomicStage {
+    #[cfg(windows)]
+    TempCreate,
     Flush,
     FileSync,
     Replace,
@@ -1039,6 +1051,33 @@ mod atomic_output_tests {
         assert_eq!(output, b"old output");
         assert_eq!(leftovers.len(), 1);
         assert!(message.contains(&leftovers[0].display().to_string()));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn readonly_output_is_rejected_before_temp_creation() {
+        let root = tempfile::tempdir().unwrap();
+        let input = root.path().join("input.txt");
+        let output = root.path().join("output.txt");
+        std::fs::write(&input, b"input original").unwrap();
+        std::fs::write(&output, b"old output").unwrap();
+        let mut permissions = std::fs::metadata(&output).unwrap().permissions();
+        permissions.set_readonly(true);
+        std::fs::set_permissions(&output, permissions).unwrap();
+        FAIL_STAGE.with(|slot| slot.set(Some(AtomicStage::TempCreate)));
+        let error = write_atomically(&output, &[&input], false, |_| {
+            panic!("readonly output must be rejected before writing")
+        })
+        .unwrap_err();
+        FAIL_STAGE.with(|slot| slot.set(None));
+        assert!(error.to_string().contains("read-only"), "{error}");
+        assert_eq!(std::fs::read(&input).unwrap(), b"input original");
+        assert_eq!(std::fs::read(&output).unwrap(), b"old output");
+        assert!(std::fs::metadata(&output).unwrap().permissions().readonly());
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 2);
+        let mut permissions = std::fs::metadata(&output).unwrap().permissions();
+        permissions.set_readonly(false);
+        std::fs::set_permissions(&output, permissions).unwrap();
     }
 }
 

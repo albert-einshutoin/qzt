@@ -8,7 +8,9 @@
   writing. `pack`, `pack-docs`, `export`, `doc`, and `sidecar-rebuild` replace
   outputs only after successful writing and file sync; failed exports no longer
   truncate an existing destination. Post-replacement durability failures are
-  reported separately from failures that leave the old output intact.
+  reported separately from failures that leave the old output intact. On
+  Windows, an existing read-only output is rejected before temporary output
+  creation without changing its bytes, read-only attribute, or DACL.
 
 ## 0.1.0 - 2026-07-19
 

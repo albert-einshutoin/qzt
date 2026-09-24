@@ -338,18 +338,22 @@ fn readonly_existing_output_is_rejected_before_any_output() {
             .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
             .filter(|name| name.contains("qzt-tmp"))
             .collect();
+        let output_preserved = fs::read(&output).unwrap() == b"existing output original";
+        let readonly_preserved = fs::metadata(&output).unwrap().permissions().readonly();
+        let acl_preserved = read_acl(&output) == acl_before;
+        let inputs_preserved = before
+            .iter()
+            .all(|(input, bytes)| fs::read(input).unwrap().as_slice() == bytes.as_slice());
         eprintln!(
-            "{command}: exit={:?}, stderr={stderr:?}, temporary={leftovers:?}",
+            "{command}: exit={:?}, stderr={stderr:?}, output={output_preserved}, readonly={readonly_preserved}, acl={acl_preserved}, inputs={inputs_preserved}, temporary={leftovers:?}",
             result.status.code()
         );
         let rejected_safely = !result.status.success()
             && stderr.contains("read-only")
-            && fs::read(&output).unwrap() == b"existing output original"
-            && fs::metadata(&output).unwrap().permissions().readonly()
-            && read_acl(&output) == acl_before
-            && before
-                .iter()
-                .all(|(input, bytes)| fs::read(input).unwrap().as_slice() == bytes.as_slice())
+            && output_preserved
+            && readonly_preserved
+            && acl_preserved
+            && inputs_preserved
             && leftovers.is_empty();
         if !rejected_safely {
             failures.push(format!(
@@ -364,10 +368,23 @@ fn readonly_existing_output_is_rejected_before_any_output() {
         if !writable.status.success()
             || fs::read(&output).unwrap() == b"existing output original"
             || read_acl(&output) != acl_before
+            || !before
+                .iter()
+                .all(|(input, bytes)| fs::read(input).unwrap().as_slice() == bytes.as_slice())
         {
             failures.push(format!(
                 "{command}: writable replacement failed: {}",
                 String::from_utf8_lossy(&writable.stderr)
+            ));
+        }
+        let new_output = temp.path().join("new-output");
+        let mut new_args = args.clone();
+        *new_args.last_mut().unwrap() = path(&new_output);
+        let new_result = run(&new_args);
+        if !new_result.status.success() || fs::read(&new_output).unwrap_or_default().is_empty() {
+            failures.push(format!(
+                "{command}: new output failed: {}",
+                String::from_utf8_lossy(&new_result.stderr)
             ));
         }
     }

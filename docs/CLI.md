@@ -56,8 +56,11 @@ case-insensitive filesystem are covered. An output path that is a symlink,
 including a dangling symlink, is rejected even when it points elsewhere.
 
 These commands create a new temporary file in the output directory, preserve
-an existing output file's mode/readonly permissions and access ACL, complete writing and validation, flush
-and sync the temporary file, then replace the output. A failure before
+an existing output file's mode and access ACL, complete writing and validation,
+flush and sync the temporary file, then replace the output. On Windows, an
+existing output with the read-only attribute is rejected before temporary file
+creation, without changing its bytes, attribute, or DACL. Writable existing
+outputs and new paths retain normal replacement behavior. A failure before
 replacement leaves the input and existing output unchanged; a failed new
 output has no completed output name. Temporary files are removed on failure;
 if removal fails, stderr includes both the original error and the remaining

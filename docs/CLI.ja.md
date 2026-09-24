@@ -48,8 +48,10 @@ filesystem上の同一性（Unixはdevice/inode、Windowsはvolume/file ID）を
 出力先がsymlinkなら、dangling symlinkも含め、参照先にかかわらず拒否します。
 
 これらのcommandは出力先と同じdirectoryに一意な一時fileを作り、既存出力の
-mode/readonly権限とアクセスACLを引き継ぎます。書込み・検証・flush・file syncに
-成功してから置換します。
+modeとアクセスACLを引き継ぎます。書込み・検証・flush・file syncに成功してから
+置換します。Windowsで既存出力にreadonly属性がある場合は、一時file作成前に
+明確なエラーで拒否し、内容・readonly属性・DACLを変更しません。書込み可能な
+既存出力の置換と新規出力は通常どおり実行します。
 置換前の失敗では入力と既存出力は変わらず、新規出力の完成名に部分fileは残りません。
 一時fileの清掃にも失敗した場合は、主エラーと残った一時pathを両方stderrに出します。
 置換失敗はexit `1`で結果の確認を求めます。**置換後**のdirectory永続化確認が
