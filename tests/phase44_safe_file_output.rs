@@ -285,6 +285,95 @@ fn replacement_preserves_existing_output_acl() {
     assert_eq!(read_acl(&output), before);
 }
 
+#[cfg(windows)]
+#[test]
+fn readonly_existing_output_is_rejected_before_any_output() {
+    let mut failures = Vec::new();
+    for command in ["pack", "pack-docs", "export", "doc", "sidecar-rebuild"] {
+        let temp = tempfile::tempdir_in(support::secure_temp_root()).unwrap();
+        let source = temp.path().join("source.txt");
+        let second = temp.path().join("second.txt");
+        let packed = temp.path().join("source.qzt");
+        let docs = temp.path().join("docs.qzt");
+        let output = temp.path().join("existing-output");
+        fs::write(&source, b"input original\n").unwrap();
+        fs::write(&second, b"second original\n").unwrap();
+        assert!(
+            run(&["pack", path(&source), "-o", path(&packed)])
+                .status
+                .success()
+        );
+        assert!(
+            run(&["pack-docs", path(&source), "-o", path(&docs)])
+                .status
+                .success()
+        );
+        fs::write(&output, b"existing output original").unwrap();
+        assert!(set_acl(&output));
+        let acl_before = read_acl(&output);
+        let mut permissions = fs::metadata(&output).unwrap().permissions();
+        permissions.set_readonly(true);
+        fs::set_permissions(&output, permissions).unwrap();
+
+        let args = match command {
+            "pack" => vec!["pack", path(&source), "-o", path(&output)],
+            "pack-docs" => vec![
+                "pack-docs",
+                path(&source),
+                path(&second),
+                "-o",
+                path(&output),
+            ],
+            "export" => vec!["export", path(&packed), "-o", path(&output)],
+            "doc" => vec!["doc", path(&docs), "source.txt", "-o", path(&output)],
+            "sidecar-rebuild" => vec!["sidecar-rebuild", path(&packed), "-o", path(&output)],
+            _ => unreachable!(),
+        };
+        let before = [source.clone(), second.clone(), packed.clone(), docs.clone()]
+            .map(|input| (input.clone(), fs::read(input).unwrap()));
+        let result = run(&args);
+        let stderr = String::from_utf8_lossy(&result.stderr);
+        let leftovers: Vec<_> = fs::read_dir(temp.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+            .filter(|name| name.contains("qzt-tmp"))
+            .collect();
+        eprintln!(
+            "{command}: exit={:?}, stderr={stderr:?}, temporary={leftovers:?}",
+            result.status.code()
+        );
+        let rejected_safely = !result.status.success()
+            && stderr.contains("read-only")
+            && fs::read(&output).unwrap() == b"existing output original"
+            && fs::metadata(&output).unwrap().permissions().readonly()
+            && read_acl(&output) == acl_before
+            && before
+                .iter()
+                .all(|(input, bytes)| fs::read(input).unwrap().as_slice() == bytes.as_slice())
+            && leftovers.is_empty();
+        if !rejected_safely {
+            failures.push(format!(
+                "{command}: readonly rejection did not preserve all state"
+            ));
+        }
+
+        let mut permissions = fs::metadata(&output).unwrap().permissions();
+        permissions.set_readonly(false);
+        fs::set_permissions(&output, permissions).unwrap();
+        let writable = run(&args);
+        if !writable.status.success()
+            || fs::read(&output).unwrap() == b"existing output original"
+            || read_acl(&output) != acl_before
+        {
+            failures.push(format!(
+                "{command}: writable replacement failed: {}",
+                String::from_utf8_lossy(&writable.stderr)
+            ));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
 #[cfg(target_os = "macos")]
 fn set_acl(output: &Path) -> bool {
     let result = Command::new("chmod")
