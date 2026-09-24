@@ -243,6 +243,8 @@ Reader は untrusted input を扱う前提です。
 ```text
 - offset + size overflow を拒否
 - allocation limit を確認
+- 各 chunk の `line_count <= uncompressed_size` と全体の `line_count <= original_size` を、DLI の確保前に確認
+- DLI の entry／offset 件数と残り入力長を確保前に照合し、entry 配列と全 chunk の offset 配列の要求容量を累積して制限
 - compressed / uncompressed chunk size の設定上限を open 時に確認
 - decompression bomb を防ぐ
 - malformed CBOR を拒否
@@ -250,6 +252,14 @@ Reader は untrusted input を扱う前提です。
 - unknown optional block は安全に無視
 - corrupt file で panic しない
 ```
+
+Rust 実装の `ResourceLimits::max_dense_line_index_allocation` の既定値は
+256 MiB です。符号化された index block の上限（既定 64 MiB）や CBOR 専用上限とは
+別に、展開後の `DenseLineEntry` 配列と全 `u64` offset 配列の要求容量を計上します。
+varint の展開で保存サイズより大きくなり得るための上限です。この値を超える正常な
+DLI を開く場合は明示的に引き上げてください。公開 `ResourceLimits` にフィールドが
+追加されたため、`..ResourceLimits::default()` を使わない構造体リテラルには追記が
+必要です。continuation chunk は非空でも新しい行の開始が0件の場合があります。
 
 ## 15. Conformance levels
 

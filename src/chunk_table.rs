@@ -116,8 +116,14 @@ pub fn validate_chunk_table_block(
     if chunk_count == 0 {
         return Err(QztError::ChunkCountMismatch);
     }
+    if line_count > original_size {
+        return Err(QztError::ChunkTableInvalid);
+    }
 
-    let mut entries = Vec::with_capacity(bytes.len() / CHUNK_ENTRY_LEN);
+    let mut entries = Vec::new();
+    entries
+        .try_reserve_exact(bytes.len() / CHUNK_ENTRY_LEN)
+        .map_err(|_| QztError::ResourceLimitExceeded)?;
     for record in bytes.chunks_exact(CHUNK_ENTRY_LEN) {
         entries.push(ChunkEntry::decode(record)?);
     }
@@ -128,7 +134,7 @@ pub fn validate_chunk_table_block(
     let mut total_line_count = 0_u64;
 
     for (index, entry) in entries.iter().enumerate() {
-        if entry.chunk_id != index as u64 {
+        if entry.chunk_id != usize_to_u64(index)? {
             return Err(QztError::ChunkTableInvalid);
         }
         if entry.logical_offset != expected_logical_offset {
@@ -139,6 +145,9 @@ pub fn validate_chunk_table_block(
         }
         if entry.compressed_size == 0 || entry.uncompressed_size == 0 {
             return Err(QztError::ChunkSizeMismatch);
+        }
+        if entry.line_count > entry.uncompressed_size {
+            return Err(QztError::ChunkTableInvalid);
         }
         if entry.flags & !STARTS_WITH_LINE_CONTINUATION != 0 {
             return Err(QztError::InvalidFlags);

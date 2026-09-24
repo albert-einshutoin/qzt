@@ -254,7 +254,7 @@ pub fn open_skeleton_details_with_limits(
 
     let dictionaries = parse_dictionary_blocks(bytes, &index_root, header.container_id, limits)?;
     validate_required_dictionaries(&chunk_entries, &dictionaries)?;
-    let dense_line_index = parse_dense_line_index(bytes, &index_root, &chunk_entries)?;
+    let dense_line_index = parse_dense_line_index(bytes, &index_root, &chunk_entries, limits)?;
     let document_index = parse_document_index(bytes, &index_root, header.container_id, limits)?;
 
     Ok(SkeletonDetails {
@@ -402,7 +402,7 @@ pub fn open_skeleton_details_read_at<R: ReadAt>(
     )?;
     validate_required_dictionaries(&chunk_entries, &dictionaries)?;
     let dense_line_index =
-        parse_dense_line_index_at(reader, final_file_size, &index_root, &chunk_entries)?;
+        parse_dense_line_index_at(reader, final_file_size, &index_root, &chunk_entries, limits)?;
     let document_index = parse_document_index_at(
         reader,
         final_file_size,
@@ -514,6 +514,7 @@ fn parse_dense_line_index(
     bytes: &[u8],
     index_root: &IndexRoot,
     chunk_entries: &[ChunkEntry],
+    limits: ResourceLimits,
 ) -> Result<Option<DenseLineIndex>> {
     let mut dense = None;
 
@@ -536,9 +537,10 @@ fn parse_dense_line_index(
         if Checksum::blake3(dense_bytes) != descriptor.checksum {
             return Err(QztError::ChunkTableChecksumMismatch);
         }
-        dense = Some(DenseLineIndex::decode_for_chunks(
+        dense = Some(DenseLineIndex::decode_for_chunks_with_limit(
             dense_bytes,
             chunk_entries,
+            limits.max_dense_line_index_allocation,
         )?);
     }
 
@@ -638,6 +640,7 @@ fn parse_dense_line_index_at<R: ReadAt>(
     final_file_size: u64,
     index_root: &IndexRoot,
     chunk_entries: &[ChunkEntry],
+    limits: ResourceLimits,
 ) -> Result<Option<DenseLineIndex>> {
     let mut dense = None;
 
@@ -661,9 +664,10 @@ fn parse_dense_line_index_at<R: ReadAt>(
         if Checksum::blake3(&dense_bytes) != descriptor.checksum {
             return Err(QztError::ChunkTableChecksumMismatch);
         }
-        dense = Some(DenseLineIndex::decode_for_chunks(
+        dense = Some(DenseLineIndex::decode_for_chunks_with_limit(
             &dense_bytes,
             chunk_entries,
+            limits.max_dense_line_index_allocation,
         )?);
     }
 
@@ -771,7 +775,11 @@ fn read_physical_at<R: ReadAt>(
         return Err(QztError::PhysicalRangeOutOfBounds);
     }
     let len = u64_to_usize(range.size)?;
-    let mut bytes = vec![0_u8; len];
+    let mut bytes = Vec::new();
+    bytes
+        .try_reserve_exact(len)
+        .map_err(|_| QztError::ResourceLimitExceeded)?;
+    bytes.resize(len, 0);
     read_exact_at_qzt(reader, range.offset, &mut bytes)?;
     Ok(bytes)
 }
@@ -795,4 +803,17 @@ fn slice_physical(bytes: &[u8], range: PhysicalRange) -> Result<&[u8]> {
     bytes
         .get(start..end)
         .ok_or(QztError::PhysicalRangeOutOfBounds)
+}
+
+#[cfg(test)]
+mod allocation_tests {
+    use super::*;
+
+    #[test]
+    fn positioned_block_read_reports_reservation_failure() {
+        assert_eq!(
+            read_physical_at(&&[][..], u64::MAX, PhysicalRange::new(0, u64::MAX)),
+            Err(QztError::ResourceLimitExceeded)
+        );
+    }
 }

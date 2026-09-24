@@ -4,6 +4,15 @@
 
 ### Fixed
 
+- Reject impossible Chunk Table line counts before Dense Line Index (DLI)
+  allocation, even without a DLI. DLI decoding now validates counts, encoded
+  length, and a cumulative decoded-vector budget before fallible reservations;
+  malformed declarations return errors instead of panicking. Both Reader paths
+  use the new `ResourceLimits::max_dense_line_index_allocation` field (256 MiB
+  default), separate from the stored index-block and CBOR limits. Source users
+  constructing `ResourceLimits` with a complete struct literal must add this
+  field; valid DLI expansions above the new default require an explicit limit.
+
 - CLI file outputs now reject input/output aliases and output symlinks before
   writing. `pack`, `pack-docs`, `export`, `doc`, and `sidecar-rebuild` replace
   outputs only after successful writing and file sync; failed exports no longer
