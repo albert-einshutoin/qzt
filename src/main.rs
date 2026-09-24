@@ -12,7 +12,7 @@ use qzt::{
     Checksum, DocumentSpan, NgramIndexBuildOptions, QziFileSidecar, QztError, QztFileReader,
     QztFileWriter, RawNgramIndex, RawTokenIndex, ReadAt, SearchIndexSource, SearchOptions,
     SearchReport, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel, VerifyReport,
-    WriterBuilder, WriterOptions, build_search_sidecar_from_file,
+    WriterBuilder, WriterOptions, build_search_sidecar_from_file_with_line_limit,
 };
 
 type CliResult<T> = std::result::Result<T, CliError>;
@@ -142,8 +142,16 @@ fn print_command_help(command: &str) -> ExitCode {
                 "  --index token|ngram       In-memory index kind (default: token)\n",
                 "  --ngram <N>               N-gram width (default: 3)\n",
                 "  --sidecar <PATH>          Use an existing QZI sidecar\n",
+                "  --max-query-bytes <N>     Query UTF-8 byte limit (default: 4KiB)\n",
+                "  --max-query-terms <N>     Distinct query key limit (default: 256)\n",
+                "  --max-posting-bytes <N>   Encoded posting byte limit (default: 128MiB)\n",
+                "  --max-posting-ids <N>     Posting ID limit (default: 10000000)\n",
+                "  --max-posting-work <N>    Intersection step limit (default: 20000000)\n",
                 "  --max-candidates <N>      Candidate-granule budget\n",
-                "  --max-decoded-bytes <N>   Decode budget; KiB/MiB/GiB suffixes accepted\n",
+                "  --max-decoded-bytes <N>   Logical granule byte limit (default: 256MiB)\n",
+                "  --max-physical-decoded-bytes <N>  Physical chunk byte limit (default: 256MiB)\n",
+                "  --max-physical-decoded-chunks <N>  Chunk decode limit (default: 10000)\n",
+                "  --max-line-bytes <N>      Build-time line limit without --sidecar (default: 16MiB)\n",
                 "  --max-results <N>         Result cap\n",
                 "  --format text|json        Output format (default: text)"
             ),
@@ -162,7 +170,8 @@ fn print_command_help(command: &str) -> ExitCode {
             concat!(
                 "  -o, --output <PATH>  Output .qzi path (required)\n",
                 "  --index token|ngram  Index kind (default: token)\n",
-                "  --ngram <N>          N-gram width (default: 3)"
+                "  --ngram <N>          N-gram width (default: 3)\n",
+                "  --max-line-bytes <N>  Source line limit (default: 16MiB)"
             ),
         ),
         "verify" => print_simple_command_help(
@@ -1326,9 +1335,8 @@ enum SearchFormat {
 
 /// Prints the text-mode search report to stdout.
 ///
-/// The output is byte-identical to the pre-existing format. Each hit is on its
-/// own line followed by a single `metrics` line and an optional stderr warning
-/// when `incomplete_reason` is set.
+/// Each hit is on its own line followed by a single `metrics` line and an
+/// optional stderr warning when `incomplete_reason` is set.
 fn write_search_report_text(report: &SearchReport, output: &mut dyn Write) -> std::io::Result<()> {
     for hit in &report.hits {
         writeln!(
@@ -1341,7 +1349,7 @@ fn write_search_report_text(report: &SearchReport, output: &mut dyn Write) -> st
     let query_escaped = cli_json::escape(&report.metrics.query);
     writeln!(
         output,
-        "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} verified_matches={} query_time_ms={:.3} capped={} incomplete_reason={}",
+        "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} physical_decoded_chunks={} verified_matches={} query_time_ms={:.3} capped={} stop_reason={} incomplete_reason={}",
         query_escaped,
         report.metrics.index_kind,
         report.metrics.posting_granularity,
@@ -1354,9 +1362,11 @@ fn write_search_report_text(report: &SearchReport, output: &mut dyn Write) -> st
         report.metrics.candidate_chunks,
         report.metrics.decoded_bytes,
         report.metrics.physical_decoded_bytes,
+        report.metrics.physical_decoded_chunks,
         report.metrics.verified_matches,
         report.metrics.query_time_ms,
         report.capped,
+        report.stop_reason.unwrap_or("none"),
         report.incomplete_reason.unwrap_or("none")
     )?;
     if let Some(reason) = report.incomplete_reason {
@@ -1411,6 +1421,10 @@ fn write_search_report_json(report: &SearchReport, output: &mut dyn Write) -> st
         None => "null".to_owned(),
         Some(reason) => format!("\"{}\"", cli_json::escape(reason)),
     };
+    let stop_json = match report.stop_reason {
+        None => "null".to_owned(),
+        Some(reason) => format!("\"{}\"", cli_json::escape(reason)),
+    };
     // Guard against NaN/inf producing invalid JSON for the f64 metric fields.
     debug_assert!(report.metrics.index_size_ratio.is_finite());
     debug_assert!(report.metrics.query_time_ms.is_finite());
@@ -1431,10 +1445,12 @@ fn write_search_report_json(report: &SearchReport, output: &mut dyn Write) -> st
             "\"candidate_chunks\":{candidate_chunks},",
             "\"decoded_bytes\":{decoded_bytes},",
             "\"physical_decoded_bytes\":{physical_decoded_bytes},",
+            "\"physical_decoded_chunks\":{physical_decoded_chunks},",
             "\"verified_matches\":{verified_matches},",
             "\"query_time_ms\":{query_time_ms}",
             "}},",
             "\"capped\":{capped},",
+            "\"stop_reason\":{stop_reason},",
             "\"incomplete_reason\":{incomplete_reason}",
             "}}"
         ),
@@ -1450,9 +1466,11 @@ fn write_search_report_json(report: &SearchReport, output: &mut dyn Write) -> st
         candidate_chunks = report.metrics.candidate_chunks,
         decoded_bytes = report.metrics.decoded_bytes,
         physical_decoded_bytes = report.metrics.physical_decoded_bytes,
+        physical_decoded_chunks = report.metrics.physical_decoded_chunks,
         verified_matches = report.metrics.verified_matches,
         query_time_ms = report.metrics.query_time_ms,
         capped = report.capped,
+        stop_reason = stop_json,
         incomplete_reason = incomplete_json,
     )?;
     if let Some(reason) = report.incomplete_reason {
@@ -1897,6 +1915,7 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     let mut options = SearchOptions::default();
     let mut index_kind = "token";
     let mut ngram = 3_usize;
+    let mut max_line_bytes = TokenIndexBuildOptions::default().max_line_bytes;
     let mut sidecar_path = None;
     let mut format = SearchFormat::Text;
     while let Some(arg) = args.next() {
@@ -1929,6 +1948,39 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                     return ExitCode::from(2);
                 };
                 sidecar_path = Some(path);
+            }
+            "--max-line-bytes" => {
+                let Some(value) = args.next().and_then(|value| parse_byte_limit(&value)) else {
+                    eprintln!("qzt search: invalid --max-line-bytes");
+                    return ExitCode::from(2);
+                };
+                max_line_bytes = value;
+            }
+            "--max-query-bytes" | "--max-posting-bytes" | "--max-physical-decoded-bytes" => {
+                let Some(value) = args.next().and_then(|value| parse_byte_limit(&value)) else {
+                    eprintln!("qzt search: invalid {arg}");
+                    return ExitCode::from(2);
+                };
+                match arg.as_str() {
+                    "--max-query-bytes" => options.max_query_bytes = value,
+                    "--max-posting-bytes" => options.max_posting_bytes_per_query = value,
+                    _ => options.max_physical_decoded_bytes = value,
+                }
+            }
+            "--max-query-terms"
+            | "--max-posting-ids"
+            | "--max-posting-work"
+            | "--max-physical-decoded-chunks" => {
+                let Some(value) = args.next().and_then(|value| value.parse::<u64>().ok()) else {
+                    eprintln!("qzt search: invalid {arg}");
+                    return ExitCode::from(2);
+                };
+                match arg.as_str() {
+                    "--max-query-terms" => options.max_query_terms = value,
+                    "--max-posting-ids" => options.max_posting_ids_per_query = value,
+                    "--max-posting-work" => options.max_posting_work = value,
+                    _ => options.max_physical_decoded_chunks = value,
+                }
             }
             "--max-candidates" => {
                 let Some(value) = args.next().and_then(|value| value.parse::<u64>().ok()) else {
@@ -1975,6 +2027,11 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let result: CliResult<_> = (|| {
+        if u64::try_from(query.len()).map_err(|_| QztError::ResourceLimitExceeded)?
+            > options.max_query_bytes
+        {
+            return Err(QztError::ResourceLimitExceeded.into());
+        }
         let reader = QztFileReader::open_path(&path)?;
         if let Some(sidecar_path) = &sidecar_path {
             let sidecar = QziFileSidecar::open_path(sidecar_path, &reader)?;
@@ -1985,12 +2042,19 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                 NgramIndexBuildOptions {
                     source: SearchIndexSource::RawUtf8,
                     n: ngram,
+                    max_line_bytes,
                     ..NgramIndexBuildOptions::default()
                 },
             )?;
             Ok(index.search_file(&reader, &query, options)?)
         } else {
-            let index = RawTokenIndex::build_from_file(&reader, TokenIndexBuildOptions::default())?;
+            let index = RawTokenIndex::build_from_file(
+                &reader,
+                TokenIndexBuildOptions {
+                    max_line_bytes,
+                    ..TokenIndexBuildOptions::default()
+                },
+            )?;
             Ok(index.search_file(&reader, &query, options)?)
         }
     })();
@@ -2013,6 +2077,7 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
     let mut output_path = None;
     let mut index_kind = "token";
     let mut ngram = 3_usize;
+    let mut max_line_bytes = TokenIndexBuildOptions::default().max_line_bytes;
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "-o" | "--output" => {
@@ -2044,6 +2109,13 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
                 }
                 ngram = value;
             }
+            "--max-line-bytes" => {
+                let Some(value) = args.next().and_then(|value| parse_byte_limit(&value)) else {
+                    eprintln!("qzt sidecar-rebuild: invalid --max-line-bytes");
+                    return ExitCode::from(2);
+                };
+                max_line_bytes = value;
+            }
             _ => {
                 eprintln!("qzt sidecar-rebuild: unknown option '{arg}'");
                 return ExitCode::from(2);
@@ -2064,7 +2136,8 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
     let result: CliResult<()> = (|| {
         check_output_collision(Path::new(&output_path), &[Path::new(&path)])?;
         let reader = QztFileReader::open_path(&path)?;
-        let sidecar = build_search_sidecar_from_file(&reader, kind)?;
+        let sidecar =
+            build_search_sidecar_from_file_with_line_limit(&reader, kind, max_line_bytes)?;
         write_container_atomically(Path::new(&output_path), &[Path::new(&path)], &sidecar)?;
         Ok(())
     })();

@@ -66,29 +66,33 @@ qzt search archive.qzt ERROR \
   --max-results 1 \
   --format json > bounded.json
 
-jq '{hits, capped, incomplete_reason, metrics: {
+jq '{hits, capped, stop_reason, incomplete_reason, metrics: {
   candidate_granules: .metrics.candidate_granules,
   decoded_bytes: .metrics.decoded_bytes,
   physical_decoded_bytes: .metrics.physical_decoded_bytes,
+  physical_decoded_chunks: .metrics.physical_decoded_chunks,
   verified_matches: .metrics.verified_matches
 }}' bounded.json
 ```
 
 `--max-candidates`はcandidate granule、`--max-decoded-bytes`は検証するlogical candidate
 byte、`--max-results`は返すhitを制限します。`capped=true`ならbudgetで処理または出力が
-停止したため、省略hitをabsenceとして扱えません。`capped`と`incomplete_reason`は独立です。
+停止したため、省略hitをabsenceとして扱えません。停止理由は`stop_reason`に記録されます。
+`capped`と`incomplete_reason`は独立です。query key、posting、物理展開の上限は
+[予算表](../QZT_v0.1_Memory_Guarantees.md#search-and-index-build-budgets)を参照してください。
 
 tiny sampleでは1 hitと次のcostを観測しました。
 
 ```json
-{"capped":true,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":104,"physical_decoded_bytes":452,"verified_matches":1}}
+{"capped":true,"stop_reason":"max_search_results","incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":104,"physical_decoded_bytes":452,"verified_matches":1}}
 ```
 
 ## 4. cost metricを正しく読む
 
 - `candidate_granules`: byte検証前にposting listから得たcandidate数。
 - `decoded_bytes`: 検証したlogical candidate byte。
-- `physical_decoded_bytes`: 物理的に展開した完全QZT chunk。同一query内はcacheされます。
+- `physical_decoded_bytes`: 物理的に展開した完全QZT chunk。cache hitは無料、eviction後の再展開は再計上します。
+- `physical_decoded_chunks`: 実際のchunk展開回数。候補chunk区間の和集合の数とは異なります。
 - `verified_matches`: original byteと照合できたoccurrence数。
 - `index_size_ratio`: serialized index payload（granules、terms、postings）byte / source byte。
   QZI header/manifest overheadは含まれないため、on-disk全体は`wc -c archive.token.qzi`で別途測ります。

@@ -59,7 +59,7 @@ pub use search::{
 };
 pub use sidecar::{
     QziFileSidecar, QziSidecar, SidecarIndexKind, SidecarLimits, build_search_sidecar,
-    build_search_sidecar_from_file,
+    build_search_sidecar_from_file, build_search_sidecar_from_file_with_line_limit,
 };
 #[doc(hidden)]
 pub use skeleton::open_skeleton_details;

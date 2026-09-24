@@ -224,7 +224,16 @@ fn machine_readable_schemas_and_defaults_match_the_documented_contract() {
     assert_eq!(verify["decoded_bytes"], 0);
 
     let search = run_json(&["search", packed, "alpha", "--format", "json"]);
-    assert_keys(&search, &["capped", "hits", "incomplete_reason", "metrics"]);
+    assert_keys(
+        &search,
+        &[
+            "capped",
+            "hits",
+            "incomplete_reason",
+            "metrics",
+            "stop_reason",
+        ],
+    );
     assert!(search["hits"].is_array());
     assert_eq!(search["metrics"]["index_kind"], "token");
     assert_keys(
@@ -237,6 +246,7 @@ fn machine_readable_schemas_and_defaults_match_the_documented_contract() {
             "index_size_bytes",
             "index_size_ratio",
             "physical_decoded_bytes",
+            "physical_decoded_chunks",
             "posting_bytes_read",
             "posting_granularity",
             "query",
@@ -300,7 +310,7 @@ fn machine_readable_schemas_and_defaults_match_the_documented_contract() {
         SearchOptions::default().max_decoded_bytes,
         256 * 1024 * 1024
     );
-    assert_eq!(SearchOptions::default().max_search_results, u64::MAX);
+    assert_eq!(SearchOptions::default().max_search_results, 10_000);
 }
 
 #[test]
@@ -338,13 +348,14 @@ fn documented_search_defaults_and_schema_are_scoped_to_the_runtime_command() {
         let search = command_section(document, "qzt search");
         assert!(search.contains(&candidate_default));
         assert!(search.contains(&format!("{decoded_mib} MiB")));
-        assert!(search.contains("u64::MAX"));
+        assert!(search.contains("10,000"));
         assert_fields_in_section(
             search,
             &[
                 "capped",
                 "hits",
                 "incomplete_reason",
+                "stop_reason",
                 "metrics",
                 "byte_length",
                 "chunk_end",
@@ -358,6 +369,7 @@ fn documented_search_defaults_and_schema_are_scoped_to_the_runtime_command() {
                 "index_size_bytes",
                 "index_size_ratio",
                 "physical_decoded_bytes",
+                "physical_decoded_chunks",
                 "posting_bytes_read",
                 "posting_granularity",
                 "query",

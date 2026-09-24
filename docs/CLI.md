@@ -208,10 +208,24 @@ Search verified original UTF-8 bytes.
 | `--index token\|ngram` | In-memory raw index; default `token`. |
 | `--ngram <N>` | N-gram scalar width; default `3`, must be positive. |
 | `--sidecar <PATH>` | Use an existing QZI sidecar instead of building an in-memory index. |
+| `--max-query-bytes <N|NKiB|NMiB|NGiB>` | UTF-8 query bytes, checked before sidecar-less index build; default 4 KiB. |
+| `--max-query-terms <N>` | Distinct normalized token or n-gram keys; default 256. |
+| `--max-posting-bytes <N|NKiB|NMiB|NGiB>` | Actual encoded posting bytes per query; default 128 MiB. |
+| `--max-posting-ids <N>` | Selected posting IDs per query; default 10,000,000. |
+| `--max-posting-work <N>` | ID copies, comparisons, and intersection output pushes; default 20,000,000. |
 | `--max-candidates <N>` | Candidate granules; default `10000`. |
-| `--max-decoded-bytes <N|NKiB|NMiB|NGiB>` | Decode budget; default 256 MiB. Suffixes are case-sensitive. |
-| `--max-results <N>` | Result cap; default unlimited (`u64::MAX`). |
+| `--max-decoded-bytes <N|NKiB|NMiB|NGiB>` | Logical verified granule bytes; default 256 MiB. |
+| `--max-physical-decoded-bytes <N|NKiB|NMiB|NGiB>` | Full chunk decompression bytes; default 256 MiB. |
+| `--max-physical-decoded-chunks <N>` | Chunk decompression calls; default 10,000. |
+| `--max-line-bytes <N|NKiB|NMiB|NGiB>` | Source line bytes for index build without `--sidecar`; default 16 MiB. |
+| `--max-results <N>` | Result cap; default 10,000. |
 | `--format text\|json` | Default text. |
+
+Byte suffixes are case-sensitive. Zero allows no work in the named unit.
+Query/posting/index-build overruns exit `1` with no successful report;
+candidate, logical/physical decode, and result limits return a capped report
+with only verified hits. The [budget table](QZT_v0.1_Memory_Guarantees.md#search-and-index-build-budgets)
+defines the exact accounting and check points.
 
 QZI search checks fetched granule ranges against the bound QZT Chunk Table
 before counting candidate chunks or returning hit coordinates. File-backed
@@ -219,13 +233,18 @@ search may stop at a candidate cap before fetching granules; then
 `candidate_chunks` is `0` and unread granules have not been validated.
 
 JSON top-level fields are `hits` (array), `metrics` (object), `capped`
-(boolean), and `incomplete_reason` (string or null). Each hit has
+(boolean), `stop_reason` (string or null), and `incomplete_reason` (string or null). Each hit has
 `logical_offset`, `byte_length`, `chunk_start`, `chunk_end`, and `source`
 (`verified_original_bytes`). Metrics contain `query`, `index_kind`,
 `posting_granularity`, `index_size_bytes`, `source_size_bytes`,
 `index_size_ratio`, `term_lookups`, `posting_bytes_read`,
 `candidate_granules`, `candidate_chunks`, `decoded_bytes`,
-`physical_decoded_bytes`, `verified_matches`, and `query_time_ms`.
+`physical_decoded_bytes`, `physical_decoded_chunks`, `verified_matches`, and `query_time_ms`.
+
+Text metrics include the same `stop_reason` (`none` when absent). `capped=true`
+always has a named stop reason; `capped=false` has none. A capped zero-hit result
+is distinct from an ordinary zero-hit result. `posting_bytes_read` is a planner
+estimate for transient n-gram search, not the actual posting-byte budget meter.
 
 `incomplete_reason` currently uses `query_shorter_than_ngram_n`,
 `query_has_no_indexable_tokens`, or
@@ -246,7 +265,9 @@ does not upgrade the QZT from quick structural validation; use
 ### `qzt sidecar-rebuild <FILE> -o <OUTPUT.qzi> [OPTIONS]`
 
 Build a QZI sidecar. Options are `--index token|ngram` (default token),
-`--ngram <N>` (default 3), and required `-o, --output`. Search verifies that the
+`--ngram <N>` (default 3), `--max-line-bytes <N|NKiB|NMiB|NGiB>`
+(default 16 MiB, including LF and optional CR), and required `-o, --output`.
+An oversized line fails before key generation. Search verifies that the
 sidecar belongs to the selected container when it opens it.
 
 ### `qzt verify <FILE> [--quick|--normal|--deep] [--format text|json]`

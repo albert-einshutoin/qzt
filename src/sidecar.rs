@@ -201,6 +201,25 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
     reader: &QztFileReader<R>,
     kind: SidecarIndexKind,
 ) -> Result<Vec<u8>> {
+    build_search_sidecar_from_file_with_line_limit(
+        reader,
+        kind,
+        crate::search::TokenIndexBuildOptions::default().max_line_bytes,
+    )
+}
+
+/// Builds a QZI sidecar with a caller-selected maximum source-line size.
+/// The limit includes LF and any preceding CR; zero accepts only empty input.
+///
+/// # Errors
+///
+/// Returns `ResourceLimitExceeded` before indexing a line longer than
+/// `max_line_bytes`, or the errors of [`build_search_sidecar_from_file`].
+pub fn build_search_sidecar_from_file_with_line_limit<R: ReadAt>(
+    reader: &QztFileReader<R>,
+    kind: SidecarIndexKind,
+    max_line_bytes: u64,
+) -> Result<Vec<u8>> {
     let details = reader.skeleton_details();
     let footer_checksum = reader.footer_checksum()?;
 
@@ -209,7 +228,10 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
         SidecarIndexKind::Token => {
             let index = RawTokenIndex::build_from_file(
                 reader,
-                crate::search::TokenIndexBuildOptions::default(),
+                crate::search::TokenIndexBuildOptions {
+                    max_line_bytes,
+                    ..crate::search::TokenIndexBuildOptions::default()
+                },
             )?;
             (
                 "token".to_owned(),
@@ -225,6 +247,7 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
             let index = RawNgramIndex::build_from_file(
                 reader,
                 NgramIndexBuildOptions {
+                    max_line_bytes,
                     n,
                     ..NgramIndexBuildOptions::default()
                 },
@@ -656,9 +679,9 @@ impl<R: ReadAt> QziFileSidecar<R> {
         let index_kind: &'static str = if is_ngram { "ngram" } else { "token" };
         let query_keys = if is_ngram {
             let n = self.manifest.ngram_n.ok_or(QztError::ContainerCorrupt)?;
-            ngram_keys_for_query(query, n)?
+            ngram_keys_for_query(query, n, options)?
         } else {
-            unique_query_keys(query.as_bytes())
+            unique_query_keys(query, options)?
         };
 
         let mut planner = PlannerDecision::new(query_keys.clone());
@@ -675,7 +698,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
                 metrics,
                 planner,
                 started,
-                false,
+                None,
                 Some(if is_ngram {
                     "query_shorter_than_ngram_n"
                 } else {
@@ -692,7 +715,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
                     metrics,
                     planner,
                     started,
-                    false,
+                    None,
                     (is_ngram && !self.manifest.complete)
                         .then_some("missing_required_key_in_incomplete_index"),
                 ));
@@ -726,15 +749,25 @@ impl<R: ReadAt> QziFileSidecar<R> {
             .map(|index| self.terms[*index].key.clone())
             .collect();
 
-        if metrics.posting_bytes_read > self.limits.max_posting_bytes_per_query {
+        if metrics.posting_bytes_read > self.limits.max_posting_bytes_per_query.min(options.max_posting_bytes_per_query) {
             return Err(QztError::ResourceLimitExceeded);
         }
-        let mut remaining_ids = self.limits.max_decoded_posting_ids;
+        let mut remaining_ids = self.limits.max_decoded_posting_ids.min(options.max_posting_ids_per_query);
+        let declared_ids = term_indexes.iter().try_fold(0_u64, |sum, index| {
+            sum.checked_add(self.terms[*index].granule_frequency)
+                .ok_or(QztError::ResourceLimitExceeded)
+        })?;
+        if declared_ids > remaining_ids {
+            return Err(QztError::ResourceLimitExceeded);
+        }
         let mut posting_lists = Vec::new();
         posting_lists
             .try_reserve(term_indexes.len())
             .map_err(|_| QztError::ResourceLimitExceeded)?;
         for term_index in term_indexes {
+            if self.terms[term_index].granule_frequency > remaining_ids {
+                return Err(QztError::ResourceLimitExceeded);
+            }
             let postings = self.fetch_postings(term_index, remaining_ids)?;
             remaining_ids = remaining_ids
                 .checked_sub(usize_to_u64(postings.len())?)
@@ -742,17 +775,22 @@ impl<R: ReadAt> QziFileSidecar<R> {
             posting_lists.push(postings);
         }
         let posting_refs = posting_lists.iter().map(Vec::as_slice).collect::<Vec<_>>();
-        let candidates = intersect_postings(&posting_refs);
+        let candidates = intersect_postings(&posting_refs, options.max_posting_work)?;
         metrics.candidate_granules = usize_to_u64(candidates.len())?;
 
         if metrics.candidate_granules > options.max_candidate_granules
             || options.max_search_results == 0
         {
+            let reason = if metrics.candidate_granules > options.max_candidate_granules {
+                "max_candidate_granules"
+            } else {
+                "max_search_results"
+            };
             return Ok(early_exit_report(
                 metrics,
                 planner,
                 started,
-                true,
+                Some(reason),
                 None,
             ));
         }
@@ -765,6 +803,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
 
         let verification = verify_candidates(
             &candidates,
+            &reader.skeleton_details().chunk_entries,
             &mut |granule_id| {
                 let position = candidates
                     .binary_search(&granule_id)
@@ -775,11 +814,11 @@ impl<R: ReadAt> QziFileSidecar<R> {
                     .ok_or(QztError::ContainerCorrupt)
             },
             &mut |offset, length, cache| reader.read_range_cached(offset, length, cache),
-            &mut |decoded| {
+            &mut |decoded, limit| {
                 if is_ngram {
-                    substring_spans(decoded, query.as_bytes())
+                    substring_spans(decoded, query.as_bytes(), limit)
                 } else {
-                    verified_spans(decoded, &query_keys)
+                    verified_spans(decoded, &query_keys, limit)
                 }
             },
             options,
@@ -787,12 +826,14 @@ impl<R: ReadAt> QziFileSidecar<R> {
 
         metrics.decoded_bytes = verification.decoded_bytes;
         metrics.physical_decoded_bytes = verification.physical_decoded_bytes;
+        metrics.physical_decoded_chunks = verification.physical_decoded_chunks;
         metrics.verified_matches = usize_to_u64(verification.hits.len())?;
         metrics.query_time_ms = elapsed_ms(started);
         Ok(SearchReport {
             hits: verification.hits,
             metrics,
-            capped: verification.capped,
+            capped: verification.stop_reason.is_some(),
+            stop_reason: verification.stop_reason,
             planner,
             incomplete_reason: None,
         })
@@ -2203,6 +2244,37 @@ mod manifest_tests {
                         "file kind={kind:?} legacy={legacy} case={case}",
                     );
                 }
+            }
+        }
+    }
+
+    #[test]
+    fn search_budgets_apply_to_v1_v2_token_and_ngram_on_both_reader_paths() {
+        let container = crate::writer::pack_bytes(
+            b"alpha beta\n",
+            crate::writer::WriterOptions::default(),
+        ).unwrap();
+        let memory_reader = QztReader::open(&container).unwrap();
+        let file_reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64).unwrap();
+        for kind in [SidecarIndexKind::Token, SidecarIndexKind::Ngram { n: 3 }] {
+            for legacy in [false, true] {
+                let bytes = if legacy { legacy_fixture(&container, kind) } else { build_search_sidecar(&container, kind).unwrap() };
+                let memory = QziSidecar::open(&container, &bytes).unwrap();
+                let file = QziFileSidecar::open_read_at(bytes.as_slice(), bytes.len() as u64, &file_reader).unwrap();
+                let query = "alpha";
+                let too_long = SearchOptions { max_query_bytes: 4, ..Default::default() };
+                assert_eq!(memory.search(&memory_reader, query, too_long).map(|_| ()), Err(QztError::ResourceLimitExceeded));
+                assert_eq!(file.search(&file_reader, query, too_long).map(|_| ()), Err(QztError::ResourceLimitExceeded));
+                let no_chunks = SearchOptions { max_physical_decoded_chunks: 0, ..Default::default() };
+                let memory_report = memory.search(&memory_reader, query, no_chunks).unwrap();
+                let file_report = file.search(&file_reader, query, no_chunks).unwrap();
+                assert_eq!(memory_report.stop_reason, Some("max_physical_decoded_chunks"));
+                assert_eq!(file_report.stop_reason, memory_report.stop_reason);
+                assert!(memory_report.hits.is_empty());
+                assert!(file_report.hits.is_empty());
+                let expected = memory.search(&memory_reader, query, SearchOptions::default()).unwrap();
+                let actual = file.search(&file_reader, query, SearchOptions::default()).unwrap();
+                assert_eq!(actual.hits, expected.hits);
             }
         }
     }

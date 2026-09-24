@@ -147,6 +147,10 @@ Known limitations before production use:
   Building an index (`qzt sidecar-rebuild`, or `qzt search` without
   `--sidecar`) still holds the full posting map in memory — roughly the
   sidecar size expanded — so build sidecars on a machine sized for the corpus.
+  Query limits now bound keys, posting processing, verified logical bytes,
+  actual chunk decompression, and returned spans; they do not bound the whole
+  index build or process RSS. Source lines over 16 MiB are rejected by default.
+  See the [search budget table](docs/QZT_v0.1_Memory_Guarantees.md#search-and-index-build-budgets).
 - **Transient search index**: `qzt search` without `--sidecar` rebuilds the
   search index on every invocation (chunk-at-a-time decode, but the full index
   stays in memory).  For repeated searches, use `qzt sidecar-rebuild` once and

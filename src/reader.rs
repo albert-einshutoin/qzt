@@ -709,6 +709,44 @@ impl ChunkDecodeCache {
         self.physical_decoded_bytes
     }
 
+    pub(crate) fn decoded_chunks(&self) -> u64 {
+        self.decoded_chunks
+    }
+
+    /// Preflights one verified granule against the cache's actual one-entry
+    /// eviction policy. A cache hit is free; returning a cap leaves the cache
+    /// and the underlying reader untouched.
+    pub(crate) fn search_limit_for_span(
+        &self,
+        entries: &[ChunkEntry],
+        chunk_start: u64,
+        chunk_end: u64,
+        max_bytes: u64,
+        max_chunks: u64,
+    ) -> Result<Option<&'static str>> {
+        let start = u64_to_usize(chunk_start)?;
+        let end = u64_to_usize(chunk_end)?;
+        let span = entries.get(start..end).ok_or(QztError::ChunkTableInvalid)?;
+        let mut cached = self.chunk_id;
+        let mut bytes = self.physical_decoded_bytes;
+        let mut chunks = self.decoded_chunks;
+        for entry in span {
+            if cached != Some(entry.chunk_id) {
+                bytes = bytes.checked_add(entry.uncompressed_size)
+                    .ok_or(QztError::ResourceLimitExceeded)?;
+                if bytes > max_bytes {
+                    return Ok(Some("max_physical_decoded_bytes"));
+                }
+                chunks = chunks.checked_add(1).ok_or(QztError::ResourceLimitExceeded)?;
+                if chunks > max_chunks {
+                    return Ok(Some("max_physical_decoded_chunks"));
+                }
+                cached = Some(entry.chunk_id);
+            }
+        }
+        Ok(None)
+    }
+
     fn decoded_entry(
         &mut self,
         entry: &ChunkEntry,
@@ -733,6 +771,46 @@ impl ChunkDecodeCache {
                 .ok_or(QztError::ResourceLimitExceeded)?;
         }
         Ok(&self.decoded)
+    }
+}
+
+#[cfg(test)]
+mod search_cache_budget_tests {
+    use super::*;
+
+    #[test]
+    fn hits_are_free_and_evicted_chunks_are_charged_again() {
+        let entries = (0..2).map(|id| ChunkEntry {
+            chunk_id: id,
+            physical_offset: 0,
+            compressed_size: 1,
+            logical_offset: id * 4,
+            uncompressed_size: 4,
+            first_line: 0,
+            line_count: 0,
+            dictionary_id: 0,
+            flags: 0,
+            compressed_checksum_blake3: [0; 32],
+            uncompressed_checksum_blake3: [0; 32],
+        }).collect::<Vec<_>>();
+        let mut cache = ChunkDecodeCache::new();
+        let decodes = std::cell::Cell::new(0);
+        let mut decode = |_: &ChunkEntry| {
+            decodes.set(decodes.get() + 1);
+            Ok(vec![0; 4])
+        };
+        cache.decoded_entry(&entries[0], &mut decode).expect("A");
+        cache.decoded_entry(&entries[0], &mut decode).expect("A hit");
+        assert_eq!(decodes.get(), 1);
+        assert_eq!(cache.search_limit_for_span(&entries, 0, 1, 4, 1).expect("preflight"), None);
+        cache.decoded_entry(&entries[1], &mut decode).expect("B");
+        assert_eq!(cache.search_limit_for_span(&entries, 0, 1, 8, 2).expect("preflight"), Some("max_physical_decoded_bytes"));
+        assert_eq!(decodes.get(), 2, "rejected re-decode did not start");
+        assert_eq!(cache.search_limit_for_span(&entries, 0, 1, 12, 2).expect("preflight"), Some("max_physical_decoded_chunks"));
+        cache.decoded_entry(&entries[0], &mut decode).expect("A again");
+        assert_eq!(decodes.get(), 3);
+        assert_eq!(cache.physical_decoded_bytes(), 12);
+        assert_eq!(cache.decoded_chunks(), 3);
     }
 }
 

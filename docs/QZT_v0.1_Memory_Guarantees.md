@@ -14,8 +14,8 @@ verify quick: structural metadata and index region only.
 verify normal: compressed chunks streamed one at a time for checksum checks.
 verify deep: compressed chunks decoded one at a time; original checksum and
              line/newline state are accumulated incrementally.
-search: bounded by SearchOptions max_candidate_granules, max_decoded_bytes,
-        and max_search_results.
+search: per-query limits on input keys, posting work, candidate verification,
+        physical decompression, and returned hits; see the table below.
 ```
 
 CBOR allocation and item budgets are sourced from `ResourceLimits`, including
@@ -38,3 +38,38 @@ Containers whose DLI would require more than 256 MiB of vector capacity now
 need an explicit higher limit. This adds a field to the public `ResourceLimits`
 struct; source users constructing it without `..ResourceLimits::default()`
 must set the new field. The CBOR-only budgets are unchanged.
+
+## Search and index-build budgets
+
+The defaults bound a typical interactive query while preserving the existing
+256 MiB logical verification limit and QZI's 128 MiB posting-byte/10-million-ID
+guardrails. They limit the named work, **not** peak process RSS: dictionary and
+posting maps built for a transient index still scale with corpus vocabulary.
+All numeric limits are inclusive. Zero permits no work in the named unit;
+an empty query or empty source remains valid where it uses no such unit.
+
+| Limit (default) | Scope and unit; check point | Overrun | API / CLI |
+|---|---|---|---|
+| Query bytes (4 KiB) | One query's UTF-8 bytes, before copy, key generation, or CLI index build | Error | `SearchOptions.max_query_bytes` / `--max-query-bytes` |
+| Distinct keys (256) | One query's unique ASCII-folded token or exact n-gram keys, before adding the next key | Error | `max_query_terms` / `--max-query-terms` |
+| Encoded postings (128 MiB) | Sum of selected lists' actual encoded bytes, before file-backed list reads or raw intersection | Error | `max_posting_bytes_per_query` / `--max-posting-bytes` |
+| Posting IDs (10,000,000) | Sum of selected lists' decoded ID counts, before file-backed fetch/decode or raw intersection | Error | `max_posting_ids_per_query` / `--max-posting-ids` |
+| Intersection work (20,000,000) | One query's first-list ID copies plus ID comparisons and output pushes, charged before each step | Error | `max_posting_work` / `--max-posting-work` |
+| Candidate granules (10,000) | Intersected candidates, before candidate decode; file-backed QZI stops before granule fetch | `max_candidate_granules` cap | `max_candidate_granules` / `--max-candidates` |
+| Logical bytes (256 MiB) | Cumulative granule byte lengths, before each granule read | `max_decoded_bytes` cap | `max_decoded_bytes` / `--max-decoded-bytes` |
+| Physical bytes (256 MiB) | Cumulative full uncompressed chunk sizes on cache misses, before decompression | `max_physical_decoded_bytes` cap | `max_physical_decoded_bytes` / `--max-physical-decoded-bytes` |
+| Physical chunks (10,000) | Cumulative decompression calls on cache misses, before decompression | `max_physical_decoded_chunks` cap | `max_physical_decoded_chunks` / `--max-physical-decoded-chunks` |
+| Results (10,000) | Verified hit spans retained, before further span generation | `max_search_results` cap | `max_search_results` / `--max-results` |
+| Source line (16 MiB) | One line's original bytes including LF and optional CR, before carry growth or key generation | Error | `TokenIndexBuildOptions` / `NgramIndexBuildOptions.max_line_bytes`; `build_search_sidecar_from_file_with_line_limit`; CLI `--max-line-bytes` during raw build or `sidecar-rebuild` |
+
+File-backed QZI also applies the lower of its open-time `SidecarLimits` and
+query `SearchOptions` for encoded posting bytes and decoded IDs. Stored QZI
+section sizes and Reader per-chunk limits remain separate. `posting_bytes_read`
+is a planner estimate for a transient n-gram index; it is **not** the posting
+budget meter. A cache hit is free. If a chunk was evicted, decompression is
+charged again; `physical_decoded_chunks` therefore differs from the union of
+candidate chunk ranges. A cap sets `capped=true` and `stop_reason`, retains only
+already verified hits, and exits the CLI successfully. Corruption, I/O, Reader
+limits, and query/posting/line overruns remain errors (CLI exit 1). The
+independent `incomplete_reason` describes index/query semantic incompleteness;
+the broader completeness model is tracked in #291.
