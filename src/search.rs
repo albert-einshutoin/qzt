@@ -486,7 +486,7 @@ impl RawTokenIndex {
         query: &str,
         options: SearchOptions,
     ) -> Result<SearchReport> {
-        self.search_impl(query, options, &mut |offset, length, cache| {
+        self.search_impl(reader.skeleton_details(), query, options, &mut |offset, length, cache| {
             reader.read_range_cached(offset, length, cache)
         })
     }
@@ -508,13 +508,14 @@ impl RawTokenIndex {
         query: &str,
         options: SearchOptions,
     ) -> Result<SearchReport> {
-        self.search_impl(query, options, &mut |offset, length, cache| {
+        self.search_impl(reader.skeleton_details(), query, options, &mut |offset, length, cache| {
             reader.read_range_cached(offset, length, cache)
         })
     }
 
     fn search_impl(
         &self,
+        details: &crate::skeleton::SkeletonDetails,
         query: &str,
         options: SearchOptions,
         read_range_cached: RangeReadFn<'_>,
@@ -570,7 +571,12 @@ impl RawTokenIndex {
             .collect::<Vec<_>>();
         let candidates = intersect_postings(&posting_refs);
         metrics.candidate_granules = usize_to_u64(candidates.len())?;
-        metrics.candidate_chunks = count_candidate_chunks(&self.granules, &candidates)?;
+        metrics.candidate_chunks = count_candidate_chunks(
+            &self.granules,
+            &candidates,
+            &details.chunk_entries,
+            details.summary.original_size,
+        )?;
 
         if metrics.candidate_granules > options.max_candidate_granules {
             return Ok(early_exit_report(
@@ -785,7 +791,7 @@ impl RawNgramIndex {
         query: &str,
         options: SearchOptions,
     ) -> Result<SearchReport> {
-        self.search_impl(query, options, &mut |offset, length, cache| {
+        self.search_impl(reader.skeleton_details(), query, options, &mut |offset, length, cache| {
             reader.read_range_cached(offset, length, cache)
         })
     }
@@ -807,13 +813,14 @@ impl RawNgramIndex {
         query: &str,
         options: SearchOptions,
     ) -> Result<SearchReport> {
-        self.search_impl(query, options, &mut |offset, length, cache| {
+        self.search_impl(reader.skeleton_details(), query, options, &mut |offset, length, cache| {
             reader.read_range_cached(offset, length, cache)
         })
     }
 
     fn search_impl(
         &self,
+        details: &crate::skeleton::SkeletonDetails,
         query: &str,
         options: SearchOptions,
         read_range_cached: RangeReadFn<'_>,
@@ -888,7 +895,12 @@ impl RawNgramIndex {
             .collect::<Vec<_>>();
         let candidates = intersect_postings(&posting_refs);
         metrics.candidate_granules = usize_to_u64(candidates.len())?;
-        metrics.candidate_chunks = count_candidate_chunks(&self.granules, &candidates)?;
+        metrics.candidate_chunks = count_candidate_chunks(
+            &self.granules,
+            &candidates,
+            &details.chunk_entries,
+            details.summary.original_size,
+        )?;
 
         if metrics.candidate_granules > options.max_candidate_granules {
             return Ok(early_exit_report(
@@ -1198,6 +1210,31 @@ fn chunk_span_for_range(entries: &[ChunkEntry], start: u64, end: u64) -> Result<
     Ok((first, last_exclusive))
 }
 
+/// Rejects untrusted QZI coordinates before they are counted or copied to hits.
+pub(crate) fn validate_granule_chunk_span(
+    granule: &SearchGranule,
+    entries: &[ChunkEntry],
+    original_size: u64,
+) -> Result<()> {
+    let chunk_count = usize_to_u64(entries.len())?;
+    if granule.chunk_start >= granule.chunk_end || granule.chunk_end > chunk_count {
+        return Err(QztError::ChunkTableInvalid);
+    }
+    let end = granule
+        .logical_offset
+        .checked_add(granule.byte_length)
+        .ok_or(QztError::LogicalRangeOutOfBounds)?;
+    if granule.byte_length == 0 || end > original_size {
+        return Err(QztError::LogicalRangeOutOfBounds);
+    }
+    if chunk_span_for_range(entries, granule.logical_offset, end)?
+        != (granule.chunk_start, granule.chunk_end)
+    {
+        return Err(QztError::ChunkTableInvalid);
+    }
+    Ok(())
+}
+
 struct EncodedPostingLists {
     postings: Vec<Vec<u8>>,
     skips: Vec<Vec<SkipPoint>>,
@@ -1406,12 +1443,19 @@ pub(crate) fn verify_candidates(
     })
 }
 
-fn count_candidate_chunks(granules: &[SearchGranule], candidates: &[u64]) -> Result<u64> {
+fn count_candidate_chunks(
+    granules: &[SearchGranule],
+    candidates: &[u64],
+    entries: &[ChunkEntry],
+    original_size: u64,
+) -> Result<u64> {
     count_chunk_spans(candidates.iter().map(|granule_id| {
         let granule_index = u64_to_usize(*granule_id)?;
-        granules
+        let granule = granules
             .get(granule_index)
-            .ok_or(QztError::ContainerCorrupt)
+            .ok_or(QztError::ContainerCorrupt)?;
+        validate_granule_chunk_span(granule, entries, original_size)?;
+        Ok(granule)
     }))
 }
 
@@ -1422,14 +1466,28 @@ pub(crate) fn count_chunks(granules: &[SearchGranule]) -> Result<u64> {
 fn count_chunk_spans<'a>(
     granules: impl IntoIterator<Item = Result<&'a SearchGranule>>,
 ) -> Result<u64> {
-    let mut chunks = BTreeSet::new();
+    let mut spans = Vec::new();
     for granule in granules {
         let granule = granule?;
-        for chunk_id in granule.chunk_start..granule.chunk_end {
-            chunks.insert(chunk_id);
+        if granule.chunk_start >= granule.chunk_end {
+            return Err(QztError::ChunkTableInvalid);
+        }
+        spans.try_reserve(1).map_err(|_| QztError::ResourceLimitExceeded)?;
+        spans.push((granule.chunk_start, granule.chunk_end));
+    }
+    spans.sort_unstable_by_key(|span| span.0);
+    let mut total = 0_u64;
+    let mut covered_end = 0_u64;
+    for (start, end) in spans {
+        let uncovered_start = start.max(covered_end);
+        if end > uncovered_start {
+            total = total
+                .checked_add(end - uncovered_start)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            covered_end = end;
         }
     }
-    usize_to_u64(chunks.len())
+    Ok(total)
 }
 
 pub(crate) fn intersect_postings(posting_lists: &[&[u64]]) -> Vec<u64> {
@@ -1637,6 +1695,32 @@ mod serialized_metrics_tests {
         ];
 
         assert_eq!(count_chunks(&granules), Ok(3));
+    }
+
+    #[test]
+    fn chunk_counter_merges_unordered_contained_adjacent_and_wide_spans() {
+        let spans = [(8, 10), (1, 4), (2, 3), (4, 6), (5, 9), (12, 13)];
+        let granules = spans
+            .into_iter()
+            .enumerate()
+            .map(|(id, (chunk_start, chunk_end))| SearchGranule {
+                granule_id: id as u64,
+                logical_offset: id as u64,
+                byte_length: 1,
+                chunk_start,
+                chunk_end,
+                first_line: None,
+                line_count: None,
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(count_chunks(&granules), Ok(10));
+
+        let mut wide = granules[0].clone();
+        wide.chunk_start = 0;
+        wide.chunk_end = u64::MAX;
+        assert_eq!(count_chunks(&[wide.clone()]), Ok(u64::MAX));
+        wide.chunk_end = wide.chunk_start;
+        assert_eq!(count_chunks(&[wide]), Err(QztError::ChunkTableInvalid));
     }
 
     #[test]

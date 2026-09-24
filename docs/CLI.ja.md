@@ -186,6 +186,10 @@ Document Index entryを一覧します。Indexなしは終了`1`。JSONは
 | `--max-results <N>` | 結果上限。既定無制限(`u64::MAX`)。 |
 | `--format text\|json` | 既定text。 |
 
+QZI 検索では、取得した granule の範囲を紐づく QZT Chunk Table に照合してから
+候補 chunk 数や hit 座標に使用します。file-backed 検索が候補上限で granule
+取得前に終了した場合、`candidate_chunks` は `0` で、未読 record は未検証です。
+
 JSON top-levelは`hits` array、`metrics` object、`capped` boolean、
 `incomplete_reason` string/nullです。hitは`logical_offset`, `byte_length`,
 `chunk_start`, `chunk_end`, `source` (`verified_original_bytes`)を持ちます。

@@ -175,6 +175,12 @@ is 56 for `legacy-v1` and 20 for `line-implied-v2`. Size mismatch MUST reject
 the sidecar.
 
 Each granule record maps a posting target to a logical byte range and chunk span in the source container.
+For a non-empty granule, `logical_offset + byte_length` must be checked for
+overflow and must not exceed the QZT original size. Its half-open chunk span
+must satisfy `chunk_start < chunk_end <= chunk_count` and exactly equal the
+span derived from that logical range using the verified QZT Chunk Table.
+Offsets at chunk boundaries and a range ending at EOF are valid. An empty QZT
+has zero granules; an empty span in a granule is invalid.
 
 ### `terms` section
 
@@ -246,11 +252,19 @@ Posting lists MUST be strictly increasing by `granule_id`. Every referenced `gra
 A sidecar hit is a **candidate** only. Search MUST:
 
 1. Intersect posting lists for query keys.
-2. Resolve candidate granules to chunk spans.
+2. Validate candidate granule ranges against the QZT Chunk Table before
+   counting chunks or reporting hit coordinates.
 3. Decode the overlapping original bytes from the **source QZT container**.
 4. Verify matches against those original bytes (token or n-gram rules).
 
-A sidecar alone MUST NOT be treated as proof of content. Tampered sidecar data that passes section checksums but disagrees with the container will fail original-byte verification or source binding on open.
+A sidecar alone MUST NOT be treated as proof of content. In-memory open checks
+all decoded granule spans. File-backed open checks section integrity and source
+binding, then checks only fetched candidate granules during search; a candidate
+cap may return before fetching any granule with `candidate_chunks = 0`, without
+claiming the unread records were validated. Candidate chunk counts use a sorted
+union of half-open spans, in O(g log g) time and O(g) space for g fetched
+granules, independent of span width. Hit chunk coordinates remain the validated
+range of the containing granule.
 
 ## Fail-closed summary
 

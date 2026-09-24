@@ -176,6 +176,12 @@ granule_count 回繰り返し（各 20 バイト）:
 `legacy-v1` が 56、`line-implied-v2` が 20 で、不一致は拒否します。
 
 各 granule record は、source コンテナ内の論理バイト範囲と chunk span への posting ターゲットを表します。
+非空 granule の `logical_offset + byte_length` は overflow を検査し、QZT の
+原文サイズ以下でなければなりません。半開 chunk 区間は
+`chunk_start < chunk_end <= chunk_count` を満たし、検証済み QZT Chunk Table
+から論理範囲に対して導出した区間と完全一致する必要があります。chunk 境界の offset
+と EOF で終わる範囲は有効です。空 QZT は 0 granule ですが、granule 内の空 span
+は不正です。
 
 ### `terms` section
 
@@ -245,11 +251,18 @@ posting list は `granule_id` の昇順でなければなりません。参照�
 sidecar のヒットは **候補** に過ぎません。search は次を行います。
 
 1. query key の posting list を intersect する。
-2. 候補 granule を chunk span に解決する。
+2. 候補 granule の範囲を QZT Chunk Table に照合し、chunk 数の集計や hit 座標への
+   使用より前に検証する。
 3. **source QZT コンテナ** から重なる原文バイトを decode する。
 4. その原文バイトに対して token または n-gram 規則で一致を検証する。
 
-sidecar 単体を内容の証拠として扱ってはいけません。section checksum を通過してもコンテナと矛盾する改ざん sidecar は、原文検証または open 時の source binding で失敗します。
+sidecar 単体を内容の証拠として扱ってはいけません。in-memory の open は復元した
+全 granule を検証します。file-backed の open は section の整合性と source binding
+を検証し、search 時に取得した候補 granule だけを検証します。候補上限で取得前に
+終了する場合、`candidate_chunks = 0` とし、未読 record を検証済みとは扱いません。
+候補 chunk 数は半開区間をソート・統合して計算します。取得した granule 数を g と
+すると時間 O(g log g)、空間 O(g) で、span の幅には依存しません。hit の chunk
+座標は、その hit を含む granule の検証済み範囲です。
 
 ## Fail-closed まとめ
 

@@ -213,6 +213,11 @@ Search verified original UTF-8 bytes.
 | `--max-results <N>` | Result cap; default unlimited (`u64::MAX`). |
 | `--format text\|json` | Default text. |
 
+QZI search checks fetched granule ranges against the bound QZT Chunk Table
+before counting candidate chunks or returning hit coordinates. File-backed
+search may stop at a candidate cap before fetching granules; then
+`candidate_chunks` is `0` and unread granules have not been validated.
+
 JSON top-level fields are `hits` (array), `metrics` (object), `capped`
 (boolean), and `incomplete_reason` (string or null). Each hit has
 `logical_offset`, `byte_length`, `chunk_start`, `chunk_end`, and `source`

@@ -4,6 +4,13 @@
 
 ### Fixed
 
+- QZI token/ngram search now checks each granule's declared half-open chunk
+  span against its logical byte range and the bound QZT Chunk Table before
+  counting candidate chunks or emitting hit coordinates. In-memory open checks
+  all granules; file-backed search checks fetched candidates while retaining
+  lazy reads. Candidate chunk counts now merge intervals instead of enumerating
+  every chunk ID, so malformed wide spans are rejected without a huge loop.
+
 - Reject impossible Chunk Table line counts before Dense Line Index (DLI)
   allocation, even without a DLI. DLI decoding now validates counts, encoded
   length, and a cumulative decoded-vector budget before fallible reservations;
