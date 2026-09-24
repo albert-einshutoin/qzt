@@ -1,6 +1,6 @@
 use qzt::reader::{QztFileReader, QztReader, VerifyLevel};
-use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
-use qzt::writer::WriterBuilder;
+use qzt::schema::DocumentIndex;
+use qzt::writer::{DocumentSpan, WriterBuilder, pack_bytes_with_document_index_override};
 mod support;
 use support::{CountingReadAt, document_with_checksum, writer_options};
 
@@ -9,28 +9,11 @@ fn file_backed_deep_verify_matches_in_memory_deep_verify() {
     // The memory profile requires a DocumentIndex; provide a minimal one that
     // covers the entire input as a single document.
     let input = b"alpha\nbeta\ngamma\nlong line continues across chunks\n";
-    // count newlines; small test slice so naive bytecount is acceptable
-    #[allow(clippy::naive_bytecount)]
-    let line_count = input.iter().filter(|&&b| b == b'\n').count() as u64;
-    let document_index = DocumentIndex {
-        container_id: [0x16; 16],
-        documents: vec![DocumentEntry::new(
-            "all",
-            0,
-            input.len() as u64,
-            0,
-            line_count,
-            0,
-            // chunk count: ceil(len / max_chunk_size) = ceil(51/8) = 7
-            7,
-            Checksum::blake3(input),
-        )],
-    };
     let container = WriterBuilder::new()
         .container_id([0x16; 16])
         .options(writer_options(8, 8))
         .profile("memory")
-        .document_index(document_index)
+        .document_spans(vec![DocumentSpan::new("all", 0, input.len() as u64)])
         .pack(input)
         .expect("memory profile should pack");
     let memory = QztReader::open(&container).expect("memory reader should open");
@@ -96,12 +79,13 @@ fn deep_verify_rejects_stale_document_index_with_range_scoped_read() {
             },
         )],
     };
-    let container = WriterBuilder::new()
-        .container_id([0x61; 16])
-        .options(writer_options(8, 8))
-        .document_index(document_index)
-        .pack(input)
-        .expect("document-index container should pack");
+    let container = pack_bytes_with_document_index_override(
+        input,
+        [0x61; 16],
+        writer_options(8, 8),
+        &document_index,
+    )
+    .expect("stale document-index fixture");
     let file =
         QztFileReader::open_read_at(&container[..], container.len() as u64).expect("file open");
 

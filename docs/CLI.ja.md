@@ -100,6 +100,11 @@ peak memoryはchunk bufferに加えて`O(chunk_count)`のchunk metadataを含み
 設定ほどmetadataが増えます。それ以外は入力全体をmemoryへ読みます。
 `qzt pack --profile memory`は必要なDocument Indexを作れないため
 終了`1`になります。`pack-docs`を使ってください。
+chunk設定、生成index、document metadataがdefault Readerの上限を超える場合は
+packをエラーにします。streaming Writerには空のrandom-access一時fileを渡します。
+generic APIは非空sinkを書込み前に拒否し、途中の書込み・flush失敗では部分出力が
+残り得ます。CLIはその一時出力を廃棄し、既存の出力先を保全します。generic sinkの
+flush成功は停電時の永続化保証ではなく、CLI側で別途file syncと置換を行います。
 
 ```sh
 journalctl --since today | qzt pack - -o today.qzt

@@ -225,11 +225,7 @@ pub fn open_skeleton_details_with_limits(
         index_root.line_count,
     )?;
     for entry in &chunk_entries {
-        if entry.compressed_size > limits.max_compressed_chunk_size
-            || entry.uncompressed_size > limits.max_uncompressed_chunk_size
-        {
-            return Err(QztError::ResourceLimitExceeded);
-        }
+        limits.enforce_chunk_sizes(entry.compressed_size, entry.uncompressed_size)?;
     }
 
     let mut ranges = vec![
@@ -366,11 +362,7 @@ pub fn open_skeleton_details_read_at<R: ReadAt>(
         index_root.line_count,
     )?;
     for entry in &chunk_entries {
-        if entry.compressed_size > limits.max_compressed_chunk_size
-            || entry.uncompressed_size > limits.max_uncompressed_chunk_size
-        {
-            return Err(QztError::ResourceLimitExceeded);
-        }
+        limits.enforce_chunk_sizes(entry.compressed_size, entry.uncompressed_size)?;
     }
 
     let mut ranges = vec![
@@ -430,17 +422,11 @@ pub fn open_skeleton_details_read_at<R: ReadAt>(
 }
 
 fn enforce_index_block_size(size: u64, limits: ResourceLimits) -> Result<()> {
-    if size > limits.max_index_block_size {
-        return Err(QztError::ResourceLimitExceeded);
-    }
-    Ok(())
+    limits.enforce_index_block_size(size)
 }
 
 fn cbor_limits(limits: ResourceLimits) -> CborLimits {
-    CborLimits {
-        max_allocation: limits.max_cbor_allocation,
-        max_items: limits.max_cbor_items,
-    }
+    limits.cbor_limits()
 }
 
 fn parse_dictionary_blocks(

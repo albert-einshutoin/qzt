@@ -302,6 +302,14 @@ qzt search output.qzt "error" --sidecar output.qzt.qzi --format json
 ライブラリでは`WriterBuilder::document_spans`へ`DocumentSpan`を渡すことで、
 line、chunk、checksumを手計算せず同じDocument Indexを生成できます。
 
+公開Writerは、default Readerがopen・Deep verifyできない設定やoptional indexを
+エラーとして拒否します。`QztFileWriter`のsinkは実長0で、seekどおりに読み書きできる
+`Read + Write + Seek`である必要があります。先頭やEOFに位置していても既存バイトが
+あれば書込み前に拒否し、実長0で位置だけ先へ進んだsinkは先頭へ戻します。
+`finish()`成功時はflush済みで位置はEOFですが、flushはfilesystem syncではありません。
+streaming開始後の失敗では部分出力を呼出し側が廃棄してください。CLIの`pack`と
+`pack-docs`は一時fileからの安全な置換で既存出力を保護します。
+
 range の範囲指定: `--bytes A:B` は half-open なバイト範囲 `[A, B)`、
 `--lines A:B` は 1-based で両端を含みます。`qzt line FILE N` は
 `qzt range FILE --lines N:N` と同じ raw line bytes を返します（1行だけの

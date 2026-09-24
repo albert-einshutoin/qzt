@@ -118,6 +118,13 @@ an atomic rename. Peak memory includes the chunk buffer plus `O(chunk_count)`
 chunk metadata; very small configured chunks increase that metadata. Other
 profile/Dense combinations read the complete input into memory. `qzt pack --profile memory`
 cannot create the required Document Index and exits `1`; use `pack-docs`.
+Pack rejects chunk settings, generated indexes, or document metadata that
+exceed default Reader limits. The streaming writer receives an empty
+random-access temporary file; its generic API rejects nonempty sinks before
+writing and treats a later write/flush failure as partial output. The CLI
+discards that temporary output and leaves the existing destination intact.
+Flush success alone does not promise power-loss durability; the CLI applies
+its separate file-sync and replacement contract.
 
 ```sh
 journalctl --since today | qzt pack - -o today.qzt

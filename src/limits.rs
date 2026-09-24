@@ -1,4 +1,7 @@
-/// Reader resource limits for untrusted QZT containers.
+use crate::cbor::CborLimits;
+use crate::error::{QztError, Result};
+
+/// Reader resource limits for untrusted QZT containers and successful Writer output.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ResourceLimits {
     /// Maximum compressed bytes read into memory for one chunk decode.
@@ -42,6 +45,46 @@ impl Default for ResourceLimits {
             max_preview_bytes: 1024 * 1024,
             max_cbor_allocation: 16 * 1024 * 1024,
             max_cbor_items: 1_000_000,
+        }
+    }
+}
+
+impl ResourceLimits {
+    pub(crate) fn enforce_index_block_size(self, size: u64) -> Result<()> {
+        if size > self.max_index_block_size {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+        Ok(())
+    }
+
+    pub(crate) fn enforce_chunk_table_entries(self, count: usize) -> Result<()> {
+        let bytes = count.checked_mul(crate::chunk_table::CHUNK_ENTRY_LEN)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        self.enforce_index_block_size(
+            u64::try_from(bytes).map_err(|_| QztError::ResourceLimitExceeded)?,
+        )
+    }
+
+    pub(crate) fn enforce_chunk_sizes(self, compressed: u64, uncompressed: u64) -> Result<()> {
+        if compressed > self.max_compressed_chunk_size
+            || uncompressed > self.max_uncompressed_chunk_size
+        {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+        Ok(())
+    }
+
+    pub(crate) fn enforce_dense_allocation(self, bytes: u64) -> Result<()> {
+        if bytes > self.max_dense_line_index_allocation {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+        Ok(())
+    }
+
+    pub(crate) fn cbor_limits(self) -> CborLimits {
+        CborLimits {
+            max_allocation: self.max_cbor_allocation,
+            max_items: self.max_cbor_items,
         }
     }
 }

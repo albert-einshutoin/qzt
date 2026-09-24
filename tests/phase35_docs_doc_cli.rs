@@ -455,12 +455,15 @@ fn doc_corrupt_chunk_payload_verified_fails_no_verify_returns_garbage() {
         .take(512)
         .copied()
         .collect();
+    #[allow(clippy::naive_bytecount)]
+    let line_count = input.iter().filter(|&&byte| byte == b'\n').count() as u64
+        + u64::from(input.last() != Some(&b'\n'));
     let doc_entry = DocumentEntry::new(
         "all",
         0,
         input.len() as u64,
         0,
-        input.windows(1).filter(|w| w[0] == b'\n').count() as u64,
+        line_count,
         0,
         1,
         Checksum::blake3(&input),
@@ -555,11 +558,15 @@ fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
         container_id: [0xab; 16],
         documents: vec![doc_entry],
     };
-    // `WriterBuilder::document_index` stores the DocumentEntry as supplied.
-    // It computes block-level integrity for the index block so the container
-    // opens cleanly; only the per-document checksum inside the entry is wrong.
-    let container = pack_document_fixture(TWO_LINES, [0xab; 16], writer_options(), document_index)
-        .expect("pack with tampered document checksum");
+    // Only the internal fixture hook can serialize a deliberately stale
+    // document checksum; the normal Writer rejects it before pack succeeds.
+    let container = qzt::writer::pack_bytes_with_document_index_override(
+        TWO_LINES,
+        [0xab; 16],
+        writer_options(),
+        &document_index,
+    )
+    .expect("pack with tampered document checksum");
 
     let qzt_path = base.join("tampered.qzt");
     fs::write(&qzt_path, &container).expect("write tampered container");

@@ -2361,6 +2361,14 @@ A Writer Core implementation MUST support:
 
 Writer Core MAY omit embedded dictionary output. If it emits dictionary-compressed chunks, it MUST emit a valid Dictionary Block.
 
+The Rust reference Writer's successful output stays within its default Reader
+resource limits and passes default open, Deep verification, and exact export.
+Its streaming API accepts only an empty, faithful random-access sink; a
+nonempty sink is rejected before writing. A failure after streaming starts can
+leave partial bytes in that sink. Generic `flush` success does not imply file
+sync or power-loss durability; CLI file output has a separate replacement
+contract.
+
 ### 34.3 QZT v0.1 Search Extension
 
 Search extension implementation MAY support:
