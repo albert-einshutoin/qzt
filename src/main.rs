@@ -1,5 +1,6 @@
 mod cli_attest;
 mod cli_json;
+mod cli_output_security;
 
 use std::collections::HashSet;
 use std::fmt;
@@ -20,6 +21,8 @@ type CliResult<T> = std::result::Result<T, CliError>;
 enum CliError {
     Io(std::io::Error),
     Qzt(QztError),
+    ReplacementUnconfirmed(std::io::Error),
+    DurabilityUnconfirmed(std::io::Error),
 }
 
 impl fmt::Display for CliError {
@@ -27,6 +30,14 @@ impl fmt::Display for CliError {
         match self {
             Self::Io(error) => write!(formatter, "I/O error: {error}"),
             Self::Qzt(error) => write!(formatter, "{error}"),
+            Self::ReplacementUnconfirmed(error) => write!(
+                formatter,
+                "output replacement failed or its outcome is unconfirmed; inspect the output path: {error}"
+            ),
+            Self::DurabilityUnconfirmed(error) => write!(
+                formatter,
+                "output replaced, but directory durability is unconfirmed: {error}"
+            ),
         }
     }
 }
@@ -428,15 +439,19 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let result: CliResult<()> = (|| {
+        let output_path = Path::new(&output_path);
+        if !stdin_input {
+            check_output_collision(output_path, &[Path::new(&input_path)])?;
+        }
         if profile == "core" && !dense_line_index {
             let mut input: Box<dyn Read> = if stdin_input {
                 Box::new(std::io::stdin().lock())
             } else {
                 Box::new(std::fs::File::open(&input_path)?)
             };
-            let output_path = Path::new(&output_path);
-            let (temp_output_path, output) = create_atomic_output(output_path, true)?;
-            let stream_result: CliResult<()> = (|| {
+            let input_file = Path::new(&input_path);
+            let inputs: &[&Path] = if stdin_input { &[] } else { &[input_file] };
+            write_atomically(output_path, inputs, true, |output| {
                 let mut writer = QztFileWriter::new(output, options)?;
                 let mut buffer = vec![0_u8; 64 * 1024];
                 loop {
@@ -447,23 +462,16 @@ fn run_pack(args: impl Iterator<Item = String>) -> ExitCode {
                     writer.push(&buffer[..read])?;
                 }
                 writer.finish()?;
-                let output = writer.into_inner();
-                output.sync_all()?;
-                drop(output);
-                std::fs::rename(&temp_output_path, output_path)?;
                 Ok(())
-            })();
-            if let Err(primary_error) = stream_result {
-                return Err(cleanup_atomic_output(&temp_output_path, primary_error));
-            }
+            })?;
         } else {
-            let input = std::fs::read(input_path)?;
+            let input = std::fs::read(&input_path)?;
             let container = WriterBuilder::new()
                 .options(options)
                 .profile(&profile)
                 .dense_line_index(dense_line_index)
                 .pack(&input)?;
-            write_container_atomically(&output_path, &container)?;
+            write_container_atomically(output_path, &[Path::new(&input_path)], &container)?;
         }
         Ok(())
     })();
@@ -660,6 +668,12 @@ fn pack_docs_document_id(input_path: &str, doc_id_prefix: &str) -> Option<String
 }
 
 fn pack_docs(args: PackDocsArgs) -> CliResult<()> {
+    let input_paths: Vec<std::path::PathBuf> = args.input_paths.iter().map(Into::into).collect();
+    let input_refs: Vec<&Path> = input_paths
+        .iter()
+        .map(std::path::PathBuf::as_path)
+        .collect();
+    check_output_collision(Path::new(&args.output_path), &input_refs)?;
     let (input, spans) = load_pack_docs_input(&args)?;
     let PackDocsArgs {
         output_path,
@@ -669,7 +683,7 @@ fn pack_docs(args: PackDocsArgs) -> CliResult<()> {
         ..
     } = args;
     let container = build_pack_docs_container(options, &profile, dense_line_index, &input, spans)?;
-    write_container_atomically(&output_path, &container)
+    write_container_atomically(Path::new(&output_path), &input_refs, &container)
 }
 
 fn load_pack_docs_input(args: &PackDocsArgs) -> CliResult<(Vec<u8>, Vec<DocumentSpan>)> {
@@ -709,19 +723,131 @@ fn build_pack_docs_container(
     Ok(builder.pack(input)?)
 }
 
-fn write_container_atomically(output_path: &str, container: &[u8]) -> CliResult<()> {
-    let output_path = Path::new(output_path);
-    let (temp_output_path, mut file) = create_atomic_output(output_path, false)?;
-    let write_result: CliResult<()> = (|| {
+fn write_container_atomically(
+    output_path: &Path,
+    inputs: &[&Path],
+    container: &[u8],
+) -> CliResult<()> {
+    write_atomically(output_path, inputs, false, |file| {
         file.write_all(container)?;
+        Ok(())
+    })
+}
+
+fn check_output_collision(output_path: &Path, inputs: &[&Path]) -> CliResult<()> {
+    match std::fs::symlink_metadata(output_path) {
+        Ok(metadata) => {
+            // Replacing a symlink would replace the link itself, which is surprising
+            // for a CLI output path. Reject it, including dangling symlinks.
+            if metadata.file_type().is_symlink() {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "output path is a symlink",
+                )
+                .into());
+            }
+            if !metadata.is_file() {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "output path is not a regular file",
+                )
+                .into());
+            }
+            for input in inputs {
+                if same_file::is_same_file(input, output_path)? {
+                    return Err(std::io::Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        format!(
+                            "input and output refer to the same file: {}",
+                            input.display()
+                        ),
+                    )
+                    .into());
+                }
+            }
+            #[cfg(windows)]
+            if metadata.permissions().readonly() {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    "output path is read-only on Windows",
+                )
+                .into());
+            }
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => return Err(error.into()),
+    }
+    Ok(())
+}
+
+fn write_atomically(
+    output_path: &Path,
+    inputs: &[&Path],
+    read_access: bool,
+    write: impl FnOnce(&mut std::fs::File) -> CliResult<()>,
+) -> CliResult<()> {
+    check_output_collision(output_path, inputs)?;
+    let (temp_path, mut file) = create_atomic_output(output_path, read_access)?;
+    let result = (|| {
+        write(&mut file)?;
+        #[cfg(test)]
+        fail_at(AtomicStage::Flush)?;
+        file.flush()?;
+        #[cfg(test)]
+        fail_at(AtomicStage::FileSync)?;
         file.sync_all()?;
         drop(file);
-        std::fs::rename(&temp_output_path, output_path)?;
-        Ok(())
+        check_output_collision(output_path, inputs)?;
+        #[cfg(test)]
+        fail_at(AtomicStage::Replace)?;
+        replace_output(&temp_path, output_path).map_err(CliError::ReplacementUnconfirmed)?;
+        #[cfg(test)]
+        fail_at(AtomicStage::DirectorySync).map_err(CliError::DurabilityUnconfirmed)?;
+        sync_output_directory(output_path).map_err(CliError::DurabilityUnconfirmed)
     })();
-    if let Err(primary_error) = write_result {
-        return Err(cleanup_atomic_output(&temp_output_path, primary_error));
+    result.map_err(|error| cleanup_atomic_output(&temp_path, error))
+}
+
+#[cfg(unix)]
+fn replace_output(temp_path: &Path, output_path: &Path) -> std::io::Result<()> {
+    std::fs::rename(temp_path, output_path)
+}
+
+#[cfg(unix)]
+fn sync_output_directory(output_path: &Path) -> std::io::Result<()> {
+    std::fs::File::open(output_parent(output_path))?.sync_all()
+}
+
+#[cfg(windows)]
+#[allow(unsafe_code)]
+fn replace_output(temp_path: &Path, output_path: &Path) -> std::io::Result<()> {
+    use std::os::windows::ffi::OsStrExt;
+
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn MoveFileExW(existing: *const u16, new: *const u16, flags: u32) -> i32;
     }
+
+    let existing: Vec<u16> = temp_path.as_os_str().encode_wide().chain(Some(0)).collect();
+    let new: Vec<u16> = output_path
+        .as_os_str()
+        .encode_wide()
+        .chain(Some(0))
+        .collect();
+    // Same-directory rename: never permit the copy-and-delete cross-volume path.
+    // Request WRITE_THROUGH, but Windows has no separate portable directory sync.
+    let result = unsafe { MoveFileExW(existing.as_ptr(), new.as_ptr(), 0x1 | 0x8) };
+    if result == 0 {
+        Err(std::io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
+
+#[cfg(windows)]
+fn sync_output_directory(_output_path: &Path) -> std::io::Result<()> {
+    // MoveFileExW confirms the move; no separate portable directory fsync exists
+    // here. Its WRITE_THROUGH flag does not prove same-volume rename durability.
     Ok(())
 }
 
@@ -729,13 +855,15 @@ fn create_atomic_output(
     output_path: &Path,
     read_access: bool,
 ) -> CliResult<(std::path::PathBuf, std::fs::File)> {
+    #[cfg(all(test, windows))]
+    fail_at(AtomicStage::TempCreate)?;
     let file_name = output_path.file_name().ok_or_else(|| {
         std::io::Error::new(
             std::io::ErrorKind::InvalidInput,
             "output path has no file name",
         )
     })?;
-    let parent = output_path.parent().unwrap_or_else(|| Path::new("."));
+    let parent = output_parent(output_path);
     let inherited_permissions = match std::fs::symlink_metadata(output_path) {
         Ok(metadata) if metadata.file_type().is_file() => Some(metadata.permissions()),
         Ok(_) => None,
@@ -762,6 +890,12 @@ fn create_atomic_output(
                         drop(file);
                         return Err(cleanup_atomic_output(&path, primary_error.into()));
                     }
+                    if let Err(primary_error) =
+                        cli_output_security::preserve_output_security(output_path, &path, &file)
+                    {
+                        drop(file);
+                        return Err(cleanup_atomic_output(&path, primary_error.into()));
+                    }
                 }
                 return Ok((path, file));
             }
@@ -776,14 +910,174 @@ fn create_atomic_output(
     .into())
 }
 
+fn output_parent(output_path: &Path) -> &Path {
+    output_path
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new("."))
+}
+
 fn cleanup_atomic_output(temp_output_path: &Path, primary_error: CliError) -> CliError {
-    match std::fs::remove_file(temp_output_path) {
+    #[cfg(test)]
+    let cleanup_result =
+        fail_at(AtomicStage::Cleanup).and_then(|()| std::fs::remove_file(temp_output_path));
+    #[cfg(not(test))]
+    let cleanup_result = std::fs::remove_file(temp_output_path);
+    match cleanup_result {
         Ok(()) => primary_error,
         Err(cleanup_error) if cleanup_error.kind() == std::io::ErrorKind::NotFound => primary_error,
         Err(cleanup_error) => std::io::Error::other(format!(
-            "{primary_error}; additionally failed to remove temporary output: {cleanup_error}"
+            "{primary_error}; additionally failed to remove temporary output {}: {cleanup_error}",
+            temp_output_path.display()
         ))
         .into(),
+    }
+}
+
+#[cfg(test)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum AtomicStage {
+    #[cfg(windows)]
+    TempCreate,
+    Flush,
+    FileSync,
+    Replace,
+    DirectorySync,
+    Cleanup,
+}
+
+#[cfg(test)]
+thread_local! {
+    static FAIL_STAGE: std::cell::Cell<Option<AtomicStage>> = const { std::cell::Cell::new(None) };
+}
+
+#[cfg(test)]
+fn fail_at(stage: AtomicStage) -> std::io::Result<()> {
+    if FAIL_STAGE.with(std::cell::Cell::get) == Some(stage) {
+        Err(std::io::Error::other("injected I/O failure"))
+    } else {
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod atomic_output_tests {
+    use super::*;
+
+    fn attempt(
+        stage: Option<AtomicStage>,
+        output_exists: bool,
+    ) -> (CliError, Vec<u8>, Vec<u8>, Vec<std::path::PathBuf>) {
+        let root = tempfile::tempdir().unwrap();
+        let input = root.path().join("input.txt");
+        let output = root.path().join("output.txt");
+        std::fs::write(&input, b"input original").unwrap();
+        if output_exists {
+            std::fs::write(&output, b"old output").unwrap();
+        }
+        FAIL_STAGE.with(|slot| slot.set(stage));
+        let error = write_atomically(&output, &[&input], false, |file| {
+            file.write_all(b"new output")?;
+            if stage.is_none() || stage == Some(AtomicStage::Cleanup) {
+                return Err(std::io::Error::other("injected write failure").into());
+            }
+            Ok(())
+        })
+        .unwrap_err();
+        FAIL_STAGE.with(|slot| slot.set(None));
+        let output_bytes = std::fs::read(&output).unwrap_or_default();
+        let input_bytes = std::fs::read(&input).unwrap();
+        let leftovers = std::fs::read_dir(root.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .filter(|path| {
+                path.file_name()
+                    .unwrap()
+                    .to_string_lossy()
+                    .contains("qzt-tmp")
+            })
+            .collect();
+        (error, input_bytes, output_bytes, leftovers)
+    }
+
+    #[test]
+    fn failures_before_replacement_preserve_old_and_new_destinations() {
+        for stage in [
+            None,
+            Some(AtomicStage::Flush),
+            Some(AtomicStage::FileSync),
+            Some(AtomicStage::Replace),
+        ] {
+            for output_exists in [false, true] {
+                let (error, input, output, leftovers) = attempt(stage, output_exists);
+                assert!(error.to_string().contains("injected"));
+                assert_eq!(input, b"input original");
+                assert_eq!(
+                    output,
+                    if output_exists {
+                        &b"old output"[..]
+                    } else {
+                        &b""[..]
+                    }
+                );
+                assert!(
+                    leftovers.is_empty(),
+                    "temporary output remained after {stage:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn post_replace_sync_failure_reports_replacement_and_keeps_new_content() {
+        let (error, input, output, leftovers) = attempt(Some(AtomicStage::DirectorySync), true);
+        assert!(matches!(error, CliError::DurabilityUnconfirmed(_)));
+        assert!(error.to_string().contains("output replaced"));
+        assert_eq!(input, b"input original");
+        assert_eq!(output, b"new output");
+        assert!(leftovers.is_empty());
+    }
+
+    #[test]
+    fn cleanup_failure_keeps_primary_error_and_names_remaining_file() {
+        let (error, input, output, leftovers) = attempt(Some(AtomicStage::Cleanup), true);
+        let message = error.to_string();
+        assert!(message.contains("injected write failure"), "{message}");
+        assert!(
+            message.contains("failed to remove temporary output"),
+            "{message}"
+        );
+        assert_eq!(input, b"input original");
+        assert_eq!(output, b"old output");
+        assert_eq!(leftovers.len(), 1);
+        assert!(message.contains(&leftovers[0].display().to_string()));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn readonly_output_is_rejected_before_temp_creation() {
+        let root = tempfile::tempdir().unwrap();
+        let input = root.path().join("input.txt");
+        let output = root.path().join("output.txt");
+        std::fs::write(&input, b"input original").unwrap();
+        std::fs::write(&output, b"old output").unwrap();
+        let mut permissions = std::fs::metadata(&output).unwrap().permissions();
+        permissions.set_readonly(true);
+        std::fs::set_permissions(&output, permissions).unwrap();
+        FAIL_STAGE.with(|slot| slot.set(Some(AtomicStage::TempCreate)));
+        let error = write_atomically(&output, &[&input], false, |_| {
+            panic!("readonly output must be rejected before writing")
+        })
+        .unwrap_err();
+        FAIL_STAGE.with(|slot| slot.set(None));
+        assert!(error.to_string().contains("read-only"), "{error}");
+        assert_eq!(std::fs::read(&input).unwrap(), b"input original");
+        assert_eq!(std::fs::read(&output).unwrap(), b"old output");
+        assert!(std::fs::metadata(&output).unwrap().permissions().readonly());
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 2);
+        let mut permissions = std::fs::metadata(&output).unwrap().permissions();
+        permissions.set_readonly(false);
+        std::fs::set_permissions(&output, permissions).unwrap();
     }
 }
 
@@ -949,12 +1243,17 @@ fn run_export(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let result: CliResult<()> = (|| {
+        if let Some(output_path) = &output_path {
+            check_output_collision(Path::new(output_path), &[Path::new(&path)])?;
+        }
         let reader = QztFileReader::open_path(&path)?;
         if let Some(output_path) = &output_path {
-            let file = std::fs::File::create(output_path)?;
-            let mut writer = std::io::BufWriter::new(file);
-            reader.export_to(&mut writer)?;
-            writer.flush()?;
+            write_atomically(Path::new(output_path), &[Path::new(&path)], false, |file| {
+                let mut writer = std::io::BufWriter::new(file);
+                reader.export_to(&mut writer)?;
+                writer.flush()?;
+                Ok(())
+            })?;
         } else {
             let stdout = std::io::stdout();
             let mut writer = std::io::BufWriter::new(stdout.lock());
@@ -1528,6 +1827,9 @@ fn run_doc(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 
     let result: CliResult<Vec<u8>> = (|| {
+        if let Some(output_path) = &output_path {
+            check_output_collision(Path::new(output_path), &[Path::new(&path)])?;
+        }
         let reader = QztFileReader::open_path(&path)?;
         let bytes = if no_verify {
             reader.read_document(&doc_id)?
@@ -1556,7 +1858,7 @@ fn run_doc(mut args: impl Iterator<Item = String>) -> ExitCode {
     match result {
         Ok(bytes) => {
             if let Some(ref out_path) = output_path {
-                match std::fs::write(out_path, &bytes) {
+                match write_container_atomically(Path::new(out_path), &[Path::new(&path)], &bytes) {
                     Ok(()) => ExitCode::SUCCESS,
                     Err(error) => {
                         eprintln!("qzt doc: {error}");
@@ -1760,9 +2062,10 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
         SidecarIndexKind::Token
     };
     let result: CliResult<()> = (|| {
+        check_output_collision(Path::new(&output_path), &[Path::new(&path)])?;
         let reader = QztFileReader::open_path(&path)?;
         let sidecar = build_search_sidecar_from_file(&reader, kind)?;
-        std::fs::write(output_path, sidecar)?;
+        write_container_atomically(Path::new(&output_path), &[Path::new(&path)], &sidecar)?;
         Ok(())
     })();
 
