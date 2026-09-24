@@ -82,6 +82,8 @@ pub enum QztError {
     RangeOverlap,
     /// Input ended before the declared structure was complete.
     UnexpectedEof,
+    /// A streaming writer requires a sink whose actual length is zero.
+    NonEmptyWriterSink,
     /// A streaming writer operation was attempted after finalization or a prior write failure.
     WriterAlreadyFinished,
     /// Restored bytes do not match a caller-supplied expected checksum.
@@ -137,6 +139,7 @@ impl fmt::Display for QztError {
             Self::ResourceLimitExceeded => "a resource limit was exceeded",
             Self::RangeOverlap => "physical ranges overlap",
             Self::UnexpectedEof => "unexpected end of input",
+            Self::NonEmptyWriterSink => "writer sink is not empty",
             Self::WriterAlreadyFinished => "writer has already been finished",
             Self::VerifiedChecksumMismatch => "verified content checksum mismatch",
             Self::BenchmarkMetricsMismatch => "benchmark metrics mismatch",

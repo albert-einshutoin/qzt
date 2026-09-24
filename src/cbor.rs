@@ -35,6 +35,85 @@ pub enum CborValue {
     Null,
 }
 
+/// The same item and payload/key-copy units charged by `Parser` when reading
+/// one deterministic value. Used by writers before encoding large indexes.
+#[derive(Debug, Clone, Copy, Default)]
+pub(crate) struct CborUsage {
+    pub items: u64,
+    pub allocation: u64,
+    pub encoded_bytes: u64,
+}
+
+impl CborUsage {
+    pub(crate) fn add(&mut self, other: Self) -> Result<()> {
+        self.items = self.items.checked_add(other.items).ok_or(QztError::ResourceLimitExceeded)?;
+        self.allocation = self.allocation.checked_add(other.allocation).ok_or(QztError::ResourceLimitExceeded)?;
+        self.encoded_bytes = self.encoded_bytes.checked_add(other.encoded_bytes).ok_or(QztError::ResourceLimitExceeded)?;
+        Ok(())
+    }
+
+    pub(crate) fn enforce(self, limits: CborLimits, max_block_bytes: u64) -> Result<()> {
+        if self.items > limits.max_items
+            || self.allocation > limits.max_allocation
+            || self.encoded_bytes > max_block_bytes
+        {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+        Ok(())
+    }
+}
+
+pub(crate) fn head_len(value: u64) -> u64 {
+    match value {
+        0..=23 => 1,
+        24..=0xff => 2,
+        0x100..=0xffff => 3,
+        0x1_0000..=0xffff_ffff => 5,
+        _ => 9,
+    }
+}
+
+pub(crate) fn measure_value(value: &CborValue) -> Result<CborUsage> {
+    let mut usage = CborUsage { items: 1, ..CborUsage::default() };
+    match value {
+        CborValue::Integer(value) => {
+            let argument = if *value >= 0 {
+                u64::try_from(*value).map_err(|_| QztError::ResourceLimitExceeded)?
+            } else {
+                value.checked_add(1).and_then(i128::checked_neg)
+                    .and_then(|v| u64::try_from(v).ok())
+                    .ok_or(QztError::ResourceLimitExceeded)?
+            };
+            usage.encoded_bytes = head_len(argument);
+        }
+        CborValue::Bytes(bytes) => {
+            let len = usize_to_u64(bytes.len())?;
+            usage.allocation = len;
+            usage.encoded_bytes = head_len(len).checked_add(len).ok_or(QztError::ResourceLimitExceeded)?;
+        }
+        CborValue::Text(text) => {
+            let len = usize_to_u64(text.len())?;
+            usage.allocation = len;
+            usage.encoded_bytes = head_len(len).checked_add(len).ok_or(QztError::ResourceLimitExceeded)?;
+        }
+        CborValue::Array(values) => {
+            usage.encoded_bytes = head_len(usize_to_u64(values.len())?);
+            for child in values { usage.add(measure_value(child)?)?; }
+        }
+        CborValue::Map(entries) => {
+            usage.encoded_bytes = head_len(usize_to_u64(entries.len())?);
+            for (key, value) in entries {
+                let key_usage = measure_value(key)?;
+                usage.allocation = usage.allocation.checked_add(key_usage.encoded_bytes).ok_or(QztError::ResourceLimitExceeded)?;
+                usage.add(key_usage)?;
+                usage.add(measure_value(value)?)?;
+            }
+        }
+        CborValue::Bool(_) | CborValue::Null => usage.encoded_bytes = 1,
+    }
+    Ok(usage)
+}
+
 /// Closed-schema rules for text-keyed CBOR maps.
 #[derive(Debug, Clone, Copy)]
 // Exposed only by `internal-testing` so conformance tests can exercise the

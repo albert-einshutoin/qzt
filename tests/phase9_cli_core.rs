@@ -1178,12 +1178,13 @@ fn doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds() {
         container_id: [0x96; 16],
         documents: vec![doc_entry],
     };
-    let container = WriterBuilder::new()
-        .container_id([0x96; 16])
-        .options(docs_doc_writer_options())
-        .document_index(document_index)
-        .pack(DOCS_DOC_TWO_LINES)
-        .expect("tampered checksum container should pack");
+    let container = qzt::writer::pack_bytes_with_document_index_override(
+        DOCS_DOC_TWO_LINES,
+        [0x96; 16],
+        docs_doc_writer_options(),
+        &document_index,
+    )
+    .expect("tampered checksum fixture should pack");
 
     let qzt_path = base.join("tampered.qzt");
     fs::write(&qzt_path, &container).expect("write fixture");

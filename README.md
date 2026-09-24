@@ -324,6 +324,15 @@ let container = WriterBuilder::new()
     .pack(input)?;
 ```
 
+The public Writers reject settings or optional indexes that the default
+Readers cannot open and deep-verify. `QztFileWriter` requires an actually empty,
+faithful random-access `Read + Write + Seek` sink; it rejects existing bytes
+before writing even when positioned at zero or EOF. A zero-length sink with an
+advanced seek position is reset to zero. `finish()` flushes and leaves the sink
+at EOF, but flush is not filesystem sync. If streaming fails after it begins,
+discard its partial output. CLI `pack` and `pack-docs` preserve existing output
+through their temporary-file replacement path.
+
 Range semantics: `--bytes A:B` is a half-open byte range `[A, B)`, while
 `--lines A:B` is 1-based and inclusive on both ends. `qzt line FILE N` returns
 the same raw line bytes as `qzt range FILE --lines N:N` — a convenience wrapper

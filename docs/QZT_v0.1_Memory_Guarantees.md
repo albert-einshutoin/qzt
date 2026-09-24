@@ -39,6 +39,20 @@ need an explicit higher limit. This adds a field to the public `ResourceLimits`
 struct; source users constructing it without `..ResourceLimits::default()`
 must set the new field. The CBOR-only budgets are unchanged.
 
+Public Writer success is constrained by the same default Reader limits. A
+chunk's uncompressed size is at most 64 MiB, compressed bytes at most 72 MiB,
+and each stored index block at most 64 MiB. Chunk Table entry count is checked
+against its 128-byte record size before the next chunk is encoded. Metadata,
+Index Root, Footer, and Document Index CBOR must fit the Reader's 16 MiB
+decoded payload/key-copy budget and 1,000,000 decoded-value budget per block;
+the Document Index is measured one record at a time before its complete CBOR
+tree is built. Generated Dense Line Index vectors must fit the cumulative
+256 MiB allocation budget before construction, and their encoded block must
+fit 64 MiB before encoding. These checks can reject settings or metadata that
+older Writers accepted. They bound the named structures, not total process RSS
+or all in-memory `WriterBuilder` work. Generic sink flush does not perform file
+sync; CLI output uses a separate atomic replacement and durability procedure.
+
 ## Search and index-build budgets
 
 The defaults bound a typical interactive query while preserving the existing

@@ -2,7 +2,7 @@ use qzt::error::QztError;
 use qzt::reader::{QztReader, VerifyLevel};
 use qzt::schema::{Checksum, DocumentEntry, DocumentIndex};
 use qzt::skeleton::open_skeleton_details;
-use qzt::writer::WriterBuilder;
+use qzt::writer::{WriterBuilder, pack_bytes_with_document_index_override};
 mod support;
 use support::{DocumentFixture, document, writer_options};
 
@@ -12,11 +12,9 @@ fn pack_document_fixture(
     options: qzt::WriterOptions,
     document_index: &DocumentIndex,
 ) -> qzt::Result<Vec<u8>> {
-    WriterBuilder::new()
-        .container_id(container_id)
-        .options(options)
-        .document_index(document_index.clone())
-        .pack(input)
+    // Deep-verification fixtures intentionally include stale index fields;
+    // normal WriterBuilder now rejects those before reporting pack success.
+    pack_bytes_with_document_index_override(input, container_id, options, document_index)
 }
 
 fn pack_memory_fixture(

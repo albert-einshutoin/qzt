@@ -17,6 +17,35 @@ pub struct DenseLineEntry {
 }
 
 impl DenseLineIndex {
+    pub(crate) fn requested_allocation_for_chunks(chunk_entries: &[ChunkEntry]) -> Result<u64> {
+        let mut requested = allocation_bytes::<DenseLineEntry>(chunk_entries.len())?;
+        for entry in chunk_entries {
+            requested = requested
+                .checked_add(allocation_bytes::<u64>(u64_to_usize(entry.line_count)?)?)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+        }
+        Ok(requested)
+    }
+
+    pub(crate) fn encoded_size(&self) -> Result<u64> {
+        let mut size = varuint_len(usize_to_u64(self.entries.len())?);
+        for entry in &self.entries {
+            let offset_count = usize_to_u64(entry.line_start_offsets.len())?;
+            size = size.checked_add(varuint_len(entry.chunk_id))
+                .and_then(|n| n.checked_add(varuint_len(offset_count)))
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            let mut previous = 0_u64;
+            for (index, offset) in entry.line_start_offsets.iter().enumerate() {
+                let delta = if index == 0 { *offset } else {
+                    offset.checked_sub(previous).ok_or(QztError::ChunkTableInvalid)?
+                };
+                size = size.checked_add(varuint_len(delta)).ok_or(QztError::ResourceLimitExceeded)?;
+                previous = *offset;
+            }
+        }
+        Ok(size)
+    }
+
     pub fn from_original_bytes(input: &[u8], chunk_entries: &[ChunkEntry]) -> Result<Self> {
         let mut entries = Vec::with_capacity(chunk_entries.len());
         for entry in chunk_entries {
@@ -179,6 +208,15 @@ fn allocation_bytes<T>(count: usize) -> Result<u64> {
         .checked_mul(std::mem::size_of::<T>())
         .ok_or(QztError::ResourceLimitExceeded)?;
     usize_to_u64(bytes)
+}
+
+fn varuint_len(mut value: u64) -> u64 {
+    let mut size = 1;
+    while value >= 0x80 {
+        value >>= 7;
+        size += 1;
+    }
+    size
 }
 
 fn reserve_exact<T>(values: &mut Vec<T>, count: usize) -> Result<()> {

@@ -1,5 +1,6 @@
-use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
+use crate::cbor::{encode_deterministic, head_len, measure_value, validate_deterministic, CborLimits, CborValue};
 use crate::error::{QztError, Result};
+use crate::limits::ResourceLimits;
 use crate::primitives::usize_to_u64;
 use std::collections::BTreeSet;
 
@@ -699,6 +700,68 @@ pub struct DocumentIndex {
 }
 
 impl DocumentIndex {
+    pub(crate) fn preflight_document_ids<'a>(
+        ids: impl ExactSizeIterator<Item = &'a str>,
+        limits: ResourceLimits,
+    ) -> Result<()> {
+        let count = usize_to_u64(ids.len())?;
+        let empty = Self { container_id: [0; 16], documents: Vec::new() };
+        let base = measure_value(&empty.value_with_documents(Vec::new()))?;
+        let sample = DocumentEntry::new("", 0, 0, 0, 0, 0, 0, Checksum::blake3(b""));
+        let per_document = measure_value(&document_entry_value(&sample))?;
+        let items = per_document.items.checked_mul(count)
+            .and_then(|n| n.checked_add(base.items))
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        if items > limits.max_cbor_items { return Err(QztError::ResourceLimitExceeded); }
+        let fixed_allocation = per_document.allocation.checked_mul(count)
+            .and_then(|n| n.checked_add(base.allocation))
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        let mut allocation = fixed_allocation;
+        for id in ids {
+            allocation = allocation.checked_add(usize_to_u64(id.len())?)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            if allocation > limits.max_cbor_allocation { return Err(QztError::ResourceLimitExceeded); }
+        }
+        Ok(())
+    }
+
+    fn value_with_documents(&self, documents: Vec<CborValue>) -> CborValue {
+        CborValue::Map(vec![
+            text_pair("schema", CborValue::Text(SCHEMA_DOCUMENT_INDEX.to_owned())),
+            text_pair("format_version", version_value()),
+            text_pair("container_id", CborValue::Bytes(self.container_id.to_vec())),
+            text_pair("documents", CborValue::Array(documents)),
+        ])
+    }
+
+    /// Measures the exact encoded size and the Reader's CBOR accounting one
+    /// document at a time, before building the full CBOR value tree.
+    pub(crate) fn validate_for_writer(&self, limits: ResourceLimits) -> Result<()> {
+        let cbor_limits = CborLimits {
+            max_allocation: limits.max_cbor_allocation,
+            max_items: limits.max_cbor_items,
+        };
+        let count = usize_to_u64(self.documents.len())?;
+        if count > limits.max_cbor_items {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+        let mut usage = measure_value(&self.value_with_documents(Vec::new()))?;
+        usage.encoded_bytes = usage.encoded_bytes
+            .checked_add(head_len(count) - head_len(0))
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        usage.enforce(cbor_limits, limits.max_index_block_size)?;
+        for document in &self.documents {
+            if usize_to_u64(document.doc_id.len())?
+                > limits.max_cbor_allocation.saturating_sub(usage.allocation)
+            {
+                return Err(QztError::ResourceLimitExceeded);
+            }
+            usage.add(measure_value(&document_entry_value(document))?)?;
+            usage.enforce(cbor_limits, limits.max_index_block_size)?;
+        }
+        Ok(())
+    }
+
     pub(crate) fn validate_unique_doc_ids(&self) -> Result<()> {
         let mut seen = std::collections::HashSet::with_capacity(self.documents.len());
         if self.documents.iter().any(|document| !seen.insert(&document.doc_id)) {
@@ -715,15 +778,9 @@ impl DocumentIndex {
     /// a resource-limit error when the deterministic representation overflows.
     pub fn encode(&self) -> Result<Vec<u8>> {
         self.validate_unique_doc_ids()?;
-        encode_deterministic(&CborValue::Map(vec![
-            text_pair("schema", CborValue::Text(SCHEMA_DOCUMENT_INDEX.to_owned())),
-            text_pair("format_version", version_value()),
-            text_pair("container_id", CborValue::Bytes(self.container_id.to_vec())),
-            text_pair(
-                "documents",
-                CborValue::Array(self.documents.iter().map(document_entry_value).collect()),
-            ),
-        ]))
+        encode_deterministic(&self.value_with_documents(
+            self.documents.iter().map(document_entry_value).collect(),
+        ))
     }
 
     /// Decodes and validates a deterministic Document Index CBOR block.
@@ -1561,5 +1618,45 @@ mod refactor {
         .expect("fixture encoding");
 
         assert_eq!(DocumentIndex::decode(&bytes), Err(QztError::ContainerCorrupt));
+    }
+
+    #[test]
+    fn document_index_writer_budget_matches_reader_cbor_accounting() {
+        let index = DocumentIndex {
+            container_id: [0x29; 16],
+            documents: (0..3).map(|id| DocumentEntry::new(
+                format!("doc-{id}"), 0, 0, 0, 0, 0, 0, Checksum::blake3(b""),
+            )).collect(),
+        };
+        let value = index.value_with_documents(index.documents.iter().map(document_entry_value).collect());
+        let usage = measure_value(&value).expect("measure");
+        let bytes = index.encode().expect("encode");
+        assert_eq!(usage.encoded_bytes, bytes.len() as u64);
+
+        let limits = ResourceLimits {
+            max_index_block_size: usage.encoded_bytes,
+            max_cbor_items: usage.items,
+            max_cbor_allocation: usage.allocation,
+            ..ResourceLimits::default()
+        };
+        index.validate_for_writer(limits).expect("inclusive bounds");
+        crate::cbor::validate_deterministic_with_limits(&bytes, limits.cbor_limits())
+            .expect("Reader accepts same inclusive CBOR bounds");
+
+        for field in ["bytes", "items", "allocation"] {
+            let mut below = limits;
+            match field {
+                "bytes" => below.max_index_block_size -= 1,
+                "items" => below.max_cbor_items -= 1,
+                _ => below.max_cbor_allocation -= 1,
+            }
+            assert_eq!(index.validate_for_writer(below), Err(QztError::ResourceLimitExceeded), "{field}");
+            if field != "bytes" {
+                assert_eq!(
+                    crate::cbor::validate_deterministic_with_limits(&bytes, below.cbor_limits()),
+                    Err(QztError::ResourceLimitExceeded), "{field}",
+                );
+            }
+        }
     }
 }

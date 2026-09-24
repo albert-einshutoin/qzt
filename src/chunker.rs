@@ -1,5 +1,6 @@
 use crate::chunk_table::STARTS_WITH_LINE_CONTINUATION;
 use crate::error::{QztError, Result};
+use crate::limits::ResourceLimits;
 use crate::primitives::usize_to_u64;
 
 /// Writer options required by deterministic chunk planning.
@@ -95,6 +96,9 @@ pub fn plan_chunks(input: &[u8], options: ChunkerOptions) -> Result<ChunkPlan> {
     let mut start = 0_usize;
 
     while start < input.len() {
+        ResourceLimits::default().enforce_chunk_table_entries(
+            chunks.len().checked_add(1).ok_or(QztError::ResourceLimitExceeded)?,
+        )?;
         let end = choose_chunk_end(input, start, options)?;
         if end <= start {
             return Err(QztError::ResourceLimitExceeded);

@@ -41,6 +41,17 @@ limits. These are Rust API changes; QZT/QZI on-disk bytes are unchanged.
 `WriterBuilder` is the single entry point for optional profiles and indexes.
 The crate root retains `pack_bytes` for the common Core-profile case and
 `pack_bytes_with_container_id` for deterministic conformance fixtures.
+Writer success now requires an output within `ResourceLimits::default()` and a
+supplied Document Index that matches the source's ranges, lines, chunks, ID
+hashes, and checksums. Valid QZT v0.1 bytes are unchanged; previously accepted
+over-limit options/indexes and stale supplied records now fail packing.
+`QztFileWriter::new` adds the public `QztError::NonEmptyWriterSink` rejection.
+The generic sink must be empty and honor random-position reads/writes; an
+empty append-mode `File` cannot successfully finish. After a streaming error,
+the writer is poisoned and partial sink bytes must be discarded. Successful
+`finish` flushes and leaves the position at EOF, without claiming filesystem
+sync or power-loss durability. CLI file replacement remains a separate
+transaction.
 
 The pre-publication helper aliases were removed before the stable v0.1 crate:
 

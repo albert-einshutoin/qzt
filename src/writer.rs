@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use std::io::{Read, Seek, SeekFrom, Write};
 
+use crate::cbor::validate_deterministic_with_limits;
 use crate::chunk_table::ChunkEntry;
 use crate::chunker::{plan_chunks, ChunkerOptions, NewlineMode};
 use crate::dense_line_index::line_start_offsets;
@@ -8,6 +9,7 @@ use crate::dense_line_index::DenseLineIndex;
 use crate::error::{QztError, Result};
 use crate::fixed::{FooterTrailer, Header};
 use crate::format::HEADER_LEN;
+use crate::limits::ResourceLimits;
 use crate::primitives::{checked_logical_end, u64_to_usize, usize_to_u64};
 use crate::schema::{
     BlockDescriptor, BlockRef, Checksum, DocumentEntry, DocumentIndex, IndexRoot, Metadata,
@@ -37,7 +39,11 @@ impl DocumentSpan {
     }
 }
 
-/// Streaming QZT writer over a readable, writable, seekable output.
+/// Streaming QZT writer over an empty, faithful random-access output.
+///
+/// The sink must honor seeks for both reads and writes. A new empty append-mode
+/// file does not satisfy this contract and is rejected during finalization.
+/// CLI file output uses a separate temporary-file replacement transaction.
 pub struct QztFileWriter<W: Read + Write + Seek> {
     writer: W,
     options: WriterOptions,
@@ -154,6 +160,8 @@ impl WriterBuilder {
     /// If no container ID was configured, [`Self::pack`] adopts the index's
     /// `container_id`. An explicitly configured ID that differs from the index
     /// is rejected with [`QztError::ContainerIdMismatch`].
+    /// [`Self::pack`] also checks each supplied document's range, line and
+    /// chunk coordinates, ID hash, and source checksum before success.
     #[must_use]
     pub fn document_index(mut self, document_index: DocumentIndex) -> Self {
         self.document_index = Some(document_index);
@@ -173,10 +181,25 @@ impl WriterBuilder {
         self
     }
 
-    /// Packs input bytes into a QZT container.
+    /// Packs input bytes into a QZT container accepted by default Readers.
+    ///
+    /// Generated and supplied indexes must fit the default Reader's stored
+    /// block, decoded CBOR, and Dense Line Index budgets. Over-limit options or
+    /// indexes return [`QztError::ResourceLimitExceeded`]; inconsistent
+    /// supplied document records return an error rather than an unreadable
+    /// successful container.
     pub fn pack(self, input: &[u8]) -> Result<Vec<u8>> {
+        validate_writer_options(self.options)?;
         let document_index = self.document_index;
         let document_spans = self.document_spans;
+        if let Some(index) = &document_index {
+            index.validate_for_writer(ResourceLimits::default())?;
+        }
+        if let Some(spans) = &document_spans {
+            DocumentIndex::preflight_document_ids(
+                spans.iter().map(|span| span.doc_id.as_str()), ResourceLimits::default(),
+            )?;
+        }
         // A caller-provided DocumentIndex is already bound to a container ID.
         // Adopt that ID when none was configured, and reject conflicts here so
         // packing cannot succeed with a container that every reader must reject.
@@ -204,20 +227,45 @@ impl WriterBuilder {
             document_index.as_ref(),
             document_spans.as_deref(),
             &self.profile,
+            true,
         )
     }
 }
 
 impl<W: Read + Write + Seek> QztFileWriter<W> {
-    /// Creates a streaming writer and reserves the fixed header.
+    /// Creates a streaming writer on an empty random-access sink and reserves the header.
+    ///
+    /// An existing byte, regardless of the current seek position, is rejected
+    /// before writing. A zero-length sink is positioned at byte zero. On a
+    /// nonempty rejection the original position is restored; a failed seek may
+    /// leave the position unspecified, but no bytes have been written.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QztError::NonEmptyWriterSink`] for existing bytes, an I/O
+    /// error for a failed seek/write, or a resource error for unsupported
+    /// chunk sizes. Once header writing begins, a constructor error may leave
+    /// partial bytes in an originally empty sink.
     pub fn new(mut writer: W, options: WriterOptions) -> Result<Self> {
-        options.chunker.validate()?;
+        validate_writer_options(options)?;
+        let original_position = writer
+            .stream_position()
+            .map_err(|error| QztError::Io(error.kind()))?;
+        let length = writer
+            .seek(SeekFrom::End(0))
+            .map_err(|error| QztError::Io(error.kind()))?;
+        if length != 0 {
+            writer
+                .seek(SeekFrom::Start(original_position))
+                .map_err(|error| QztError::Io(error.kind()))?;
+            return Err(QztError::NonEmptyWriterSink);
+        }
         writer
             .seek(SeekFrom::Start(0))
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         writer
             .write_all(&[0_u8; HEADER_LEN])
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         Ok(Self {
             writer,
             options,
@@ -235,17 +283,27 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         })
     }
 
-    /// Pushes original UTF-8 bytes into the container stream.
+    /// Pushes original bytes into the container stream. Fragment boundaries
+    /// may split UTF-8 code points or CRLF pairs; the complete input must be
+    /// valid UTF-8.
     pub fn push(&mut self, bytes: &[u8]) -> Result<()> {
         if self.finished || self.poisoned {
             return Err(QztError::WriterAlreadyFinished);
         }
         let result = (|| {
             self.input_hasher.update(bytes);
-            self.pending.extend_from_slice(bytes);
-            while self.pending.len() > self.options.chunker.max_chunk_size {
-                let end = choose_stream_chunk_end(&self.pending, self.options.chunker)?;
-                self.emit_pending_chunk(end)?;
+            let mut remaining = bytes;
+            while !remaining.is_empty() {
+                let take = remaining.len().min(
+                    self.options.chunker.max_chunk_size + 1 - self.pending.len(),
+                );
+                self.pending.try_reserve(take).map_err(|_| QztError::ResourceLimitExceeded)?;
+                self.pending.extend_from_slice(&remaining[..take]);
+                remaining = &remaining[take..];
+                if self.pending.len() > self.options.chunker.max_chunk_size {
+                    let end = choose_stream_chunk_end(&self.pending, self.options.chunker)?;
+                    self.emit_pending_chunk(end)?;
+                }
             }
             Ok(())
         })();
@@ -255,7 +313,13 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         result
     }
 
-    /// Finishes the immutable container and patches the header.
+    /// Finishes the immutable container, flushes the sink, and leaves it at EOF.
+    ///
+    /// Success requires faithful random-position reads/writes and means that
+    /// the finished length matches the footer declaration. A
+    /// failed push/finish poisons this writer; the caller must discard any
+    /// partial output. Flush success is not filesystem sync or power-loss
+    /// durability.
     pub fn finish(&mut self) -> Result<()> {
         if self.finished || self.poisoned {
             return Err(QztError::WriterAlreadyFinished);
@@ -269,7 +333,8 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         result
     }
 
-    /// Returns the wrapped writer.
+    /// Returns the wrapped writer. After a failed push/finish, it may contain
+    /// partial output and must be discarded by the caller.
     pub fn into_inner(self) -> W {
         self.writer
     }
@@ -305,6 +370,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         );
         let metadata_bytes = metadata.encode()?;
         let metadata_size = usize_to_u64(metadata_bytes.len())?;
+        check_writer_cbor_block(&metadata_bytes)?;
 
         let chunk_table_offset = metadata_offset
             .checked_add(metadata_size)
@@ -329,6 +395,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             line_count: metadata.line_count,
         };
         let index_root_bytes = index_root.encode()?;
+        check_writer_cbor_block(&index_root_bytes)?;
         let index_root_offset = chunk_table_offset
             .checked_add(chunk_table_size)
             .ok_or(QztError::PhysicalRangeOutOfBounds)?;
@@ -345,22 +412,30 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
 
         self.writer
             .seek(SeekFrom::Start(metadata_offset))
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         self.writer
             .write_all(&metadata_bytes)
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         self.writer
             .write_all(&chunk_table_bytes)
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         self.writer
             .write_all(&index_root_bytes)
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         self.writer
             .seek(SeekFrom::Start(0))
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         self.writer
             .write_all(&header.encode())
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
+        if self.writer.stream_position().map_err(|error| QztError::Io(error.kind()))?
+            != HEADER_LEN as u64
+        {
+            return Err(QztError::ContainerCorrupt);
+        }
+        // A buffered Read + Write + Seek sink need not expose pending writes to
+        // its Read implementation until flush.
+        self.writer.flush().map_err(|error| QztError::Io(error.kind()))?;
 
         let container_checksum = self.hash_prefix(footer_payload_offset)?;
 
@@ -382,6 +457,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
             Some(&container_checksum),
         )?;
         let footer_payload_bytes = footer_payload.encode()?;
+        check_writer_cbor_block(&footer_payload_bytes)?;
         let footer_trailer = FooterTrailer {
             footer_payload_offset,
             footer_payload_size: usize_to_u64(footer_payload_bytes.len())?,
@@ -390,16 +466,20 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
 
         self.writer
             .seek(SeekFrom::Start(footer_payload_offset))
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         self.writer
             .write_all(&footer_payload_bytes)
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         self.writer
             .write_all(&footer_trailer.encode())
-            .map_err(|_| QztError::ContainerCorrupt)?;
-        self.writer
+            .map_err(|error| QztError::Io(error.kind()))?;
+        self.writer.flush().map_err(|error| QztError::Io(error.kind()))?;
+        let actual_size = self.writer
             .seek(SeekFrom::End(0))
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
+        if actual_size != footer_payload.final_file_size {
+            return Err(QztError::FinalFileSizeMismatch);
+        }
         Ok(())
     }
 
@@ -409,12 +489,12 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         let mut buffer = vec![0_u8; 64 * 1024];
         self.writer
             .seek(SeekFrom::Start(0))
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         while remaining > 0 {
             let chunk_len = u64_to_usize(remaining.min(buffer.len() as u64))?;
             self.writer
                 .read_exact(&mut buffer[..chunk_len])
-                .map_err(|_| QztError::ContainerCorrupt)?;
+                .map_err(|error| QztError::Io(error.kind()))?;
             hasher.update(&buffer[..chunk_len]);
             remaining -= chunk_len as u64;
         }
@@ -433,6 +513,8 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
     }
 
     fn emit_chunk(&mut self, uncompressed: &[u8]) -> Result<()> {
+        check_chunk_table_size(self.entries.len().checked_add(1).ok_or(QztError::ResourceLimitExceeded)?)?;
+        ResourceLimits::default().enforce_chunk_sizes(0, usize_to_u64(uncompressed.len())?)?;
         std::str::from_utf8(uncompressed).map_err(|_| QztError::InvalidUtf8)?;
         let compressed = zstd::stream::encode_all(uncompressed, self.options.zstd_level)
             .map_err(|_| QztError::ZstdEncodeError)?;
@@ -441,6 +523,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         }
 
         let compressed_size = usize_to_u64(compressed.len())?;
+        ResourceLimits::default().enforce_chunk_sizes(compressed_size, 0)?;
         let flags = if self.logical_offset > 0 && self.previous_byte != Some(b'\n') {
             crate::chunk_table::STARTS_WITH_LINE_CONTINUATION
         } else {
@@ -463,10 +546,10 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
 
         self.writer
             .seek(SeekFrom::Start(self.physical_offset))
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
         self.writer
             .write_all(&compressed)
-            .map_err(|_| QztError::ContainerCorrupt)?;
+            .map_err(|error| QztError::Io(error.kind()))?;
 
         self.update_newline_state(uncompressed)?;
         self.line_starts_seen = self
@@ -506,6 +589,33 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
     }
 }
 
+fn validate_writer_options(options: WriterOptions) -> Result<()> {
+    validate_writer_options_with_limits(options, ResourceLimits::default())
+}
+
+fn validate_writer_options_with_limits(options: WriterOptions, limits: ResourceLimits) -> Result<()> {
+    options.chunker.validate()?;
+    limits.enforce_chunk_sizes(0, usize_to_u64(options.chunker.max_chunk_size)?)
+}
+
+fn check_chunk_table_size(entry_count: usize) -> Result<()> {
+    check_chunk_table_size_with_limits(entry_count, ResourceLimits::default())
+}
+
+fn check_chunk_table_size_with_limits(entry_count: usize, limits: ResourceLimits) -> Result<()> {
+    limits.enforce_chunk_table_entries(entry_count)
+}
+
+fn check_writer_cbor_block(bytes: &[u8]) -> Result<()> {
+    check_writer_cbor_block_with_limits(bytes, ResourceLimits::default())
+}
+
+fn check_writer_cbor_block_with_limits(bytes: &[u8], limits: ResourceLimits) -> Result<()> {
+    limits.enforce_index_block_size(usize_to_u64(bytes.len())?)?;
+    validate_deterministic_with_limits(bytes, limits.cbor_limits())?;
+    Ok(())
+}
+
 fn choose_stream_chunk_end(input: &[u8], options: ChunkerOptions) -> Result<usize> {
     let max_end = options.max_chunk_size;
     if input.len() <= max_end {
@@ -533,7 +643,8 @@ fn choose_non_final_chunk_end(input: &[u8], target_end: usize, max_end: usize) -
         .ok_or(QztError::ResourceLimitExceeded)
 }
 
-/// Packs UTF-8 input into a no-dictionary QZT container.
+/// Packs UTF-8 input into a no-dictionary QZT container within the default
+/// Reader's resource limits.
 pub fn pack_bytes(input: &[u8], options: WriterOptions) -> Result<Vec<u8>> {
     let container_id = container_id_from_input(input);
     pack_bytes_with_container_id(input, container_id, options)
@@ -564,6 +675,7 @@ pub fn pack_bytes_with_container_id(
         None,
         None,
         "core",
+        true,
     )
 }
 
@@ -573,7 +685,7 @@ pub fn pack_bytes_with_container_id(
 /// must be stale while the authoritative Chunk Table remains valid.
 // Internal-testing fixture hook for deliberately stale/corrupt dense indexes;
 // production callers must use `WriterBuilder`, which always derives the index.
-#[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
+#[cfg(feature = "internal-testing")]
 pub fn pack_bytes_with_dense_line_index_override(
     input: &[u8],
     container_id: [u8; 16],
@@ -588,6 +700,21 @@ pub fn pack_bytes_with_dense_line_index_override(
         None,
         None,
         "core",
+        true,
+    )
+}
+
+/// Fixture hook for intentionally stale Document Index records in Deep tests.
+#[cfg(feature = "internal-testing")]
+pub fn pack_bytes_with_document_index_override(
+    input: &[u8],
+    container_id: [u8; 16],
+    options: WriterOptions,
+    document_index: &DocumentIndex,
+) -> Result<Vec<u8>> {
+    pack_bytes_internal(
+        input, container_id, options, DenseLineIndexMode::Omit,
+        Some(document_index), None, "core", false,
     )
 }
 
@@ -602,7 +729,7 @@ enum DenseLineIndexMode {
     /// Dense Line Index is written only when `plan.line_count` meets the threshold.
     GenerateIfAtLeast(u64),
     // Constructed only through the internal-testing fixture hook above.
-    #[cfg_attr(not(feature = "internal-testing"), allow(dead_code))]
+    #[cfg(feature = "internal-testing")]
     Override(DenseLineIndex),
 }
 
@@ -613,6 +740,8 @@ struct OptionalBlocks<'a> {
     writer_options: WriterOptions,
 }
 
+// The final flag is confined to the internal-testing fixture hook.
+#[allow(clippy::too_many_arguments)]
 fn pack_bytes_internal(
     input: &[u8],
     container_id: [u8; 16],
@@ -621,15 +750,19 @@ fn pack_bytes_internal(
     document_index: Option<&DocumentIndex>,
     document_spans: Option<&[DocumentSpan]>,
     profile: &str,
+    verify_document_index: bool,
 ) -> Result<Vec<u8>> {
+    validate_writer_options(options)?;
     validate_profile(profile)?;
     if profile == "memory" && document_index.is_none() && document_spans.is_none() {
         return Err(QztError::MetadataInvalid);
     }
     if let Some(document_index) = document_index {
+        document_index.validate_for_writer(ResourceLimits::default())?;
         document_index.validate_unique_doc_ids()?;
     }
     let plan = plan_chunks(input, options.chunker)?;
+    check_chunk_table_size(plan.chunks.len())?;
     let mut compressed_chunks = Vec::with_capacity(plan.chunks.len());
     let mut entries = Vec::with_capacity(plan.chunks.len());
     let mut physical_offset = HEADER_LEN as u64;
@@ -648,6 +781,7 @@ fn pack_bytes_internal(
         }
 
         let compressed_size = usize_to_u64(compressed.len())?;
+        ResourceLimits::default().enforce_chunk_sizes(compressed_size, chunk.uncompressed_size)?;
         let entry = ChunkEntry {
             chunk_id: chunk.chunk_id,
             physical_offset,
@@ -671,20 +805,36 @@ fn pack_bytes_internal(
 
     let dense_line_index = match dense_mode {
         DenseLineIndexMode::Omit => None,
-        DenseLineIndexMode::Generate => Some(DenseLineIndex::from_original_bytes(input, &entries)?),
+        DenseLineIndexMode::Generate => {
+            check_dense_allocation(&entries)?;
+            Some(DenseLineIndex::from_original_bytes(input, &entries)?)
+        }
         DenseLineIndexMode::GenerateIfAtLeast(min_lines) => {
             if plan.line_count >= min_lines {
+                check_dense_allocation(&entries)?;
                 Some(DenseLineIndex::from_original_bytes(input, &entries)?)
             } else {
                 None
             }
         }
+        #[cfg(feature = "internal-testing")]
         DenseLineIndexMode::Override(dense) => Some(dense),
     };
     let generated_document_index = document_spans
         .map(|spans| build_document_index(spans, input, container_id, &entries))
         .transpose()?;
     let document_index = generated_document_index.as_ref().or(document_index);
+    if let Some(index) = document_index {
+        index.validate_for_writer(ResourceLimits::default())?;
+        if verify_document_index && generated_document_index.is_none() {
+            let spans: Vec<_> = index.documents.iter().map(|document| DocumentSpan::new(
+                document.doc_id.clone(), document.logical_offset, document.byte_length,
+            )).collect();
+            if build_document_index(&spans, input, container_id, &entries)? != *index {
+                return Err(QztError::ContainerCorrupt);
+            }
+        }
+    }
 
     assemble_container(
         input,
@@ -701,12 +851,25 @@ fn pack_bytes_internal(
     )
 }
 
+fn check_dense_allocation(entries: &[ChunkEntry]) -> Result<()> {
+    check_dense_allocation_with_limits(entries, ResourceLimits::default())
+}
+
+fn check_dense_allocation_with_limits(entries: &[ChunkEntry], limits: ResourceLimits) -> Result<()> {
+    limits.enforce_dense_allocation(
+        DenseLineIndex::requested_allocation_for_chunks(entries)?,
+    )
+}
+
 fn build_document_index(
     spans: &[DocumentSpan],
     input: &[u8],
     container_id: [u8; 16],
     entries: &[ChunkEntry],
 ) -> Result<DocumentIndex> {
+    DocumentIndex::preflight_document_ids(
+        spans.iter().map(|span| span.doc_id.as_str()), ResourceLimits::default(),
+    )?;
     let input_len = usize_to_u64(input.len())?;
     let mut seen = HashSet::with_capacity(spans.len());
     let mut ranges = Vec::with_capacity(spans.len());
@@ -862,7 +1025,13 @@ fn assemble_container(
     );
     let metadata_bytes = metadata.encode()?;
     let metadata_size = usize_to_u64(metadata_bytes.len())?;
+    check_writer_cbor_block(&metadata_bytes)?;
 
+    if let Some(index) = optional.dense_line_index {
+        if index.encoded_size()? > ResourceLimits::default().max_index_block_size {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+    }
     let dense_line_index_bytes = optional
         .dense_line_index
         .map(DenseLineIndex::encode)
@@ -880,6 +1049,9 @@ fn assemble_container(
         .document_index
         .map(DocumentIndex::encode)
         .transpose()?;
+    if let Some(bytes) = &document_index_bytes {
+        check_writer_cbor_block(bytes)?;
+    }
     let document_index_offset = dense_line_index_offset
         .checked_add(dense_line_index_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
@@ -928,6 +1100,7 @@ fn assemble_container(
         line_count: metadata.line_count,
     };
     let index_root_bytes = index_root.encode()?;
+    check_writer_cbor_block(&index_root_bytes)?;
     let index_root_offset = chunk_table_offset
         .checked_add(chunk_table_size)
         .ok_or(QztError::PhysicalRangeOutOfBounds)?;
@@ -977,6 +1150,7 @@ fn assemble_container(
         Some(&prefix_checksum),
     )?;
     let footer_payload_bytes = footer_payload.encode()?;
+    check_writer_cbor_block(&footer_payload_bytes)?;
     let footer_trailer = FooterTrailer {
         footer_payload_offset,
         footer_payload_size: usize_to_u64(footer_payload_bytes.len())?,
@@ -999,5 +1173,84 @@ fn validate_profile(profile: &str) -> Result<()> {
         Ok(())
     } else {
         Err(QztError::MetadataInvalid)
+    }
+}
+
+#[cfg(test)]
+mod writer_contract_tests {
+    use super::*;
+
+    #[test]
+    fn reader_chunk_and_block_bounds_are_inclusive_for_writer() {
+        let mut limits = ResourceLimits {
+            max_uncompressed_chunk_size: 8,
+            ..ResourceLimits::default()
+        };
+        let options = WriterOptions {
+            chunker: ChunkerOptions { target_chunk_size: 4, max_chunk_size: 8 },
+            ..WriterOptions::default()
+        };
+        assert_eq!(validate_writer_options_with_limits(options, limits), Ok(()));
+        assert_eq!(validate_writer_options_with_limits(WriterOptions {
+            chunker: ChunkerOptions { max_chunk_size: 9, ..options.chunker },
+            ..options
+        }, limits), Err(QztError::ResourceLimitExceeded));
+
+        limits.max_compressed_chunk_size = 7;
+        assert_eq!(limits.enforce_chunk_sizes(7, 8), Ok(()));
+        assert_eq!(limits.enforce_chunk_sizes(8, 8), Err(QztError::ResourceLimitExceeded));
+
+        limits.max_index_block_size = 2 * crate::chunk_table::CHUNK_ENTRY_LEN as u64;
+        assert_eq!(check_chunk_table_size_with_limits(2, limits), Ok(()));
+        assert_eq!(check_chunk_table_size_with_limits(3, limits), Err(QztError::ResourceLimitExceeded));
+        assert_eq!(check_chunk_table_size_with_limits(usize::MAX, limits), Err(QztError::ResourceLimitExceeded));
+    }
+
+    #[test]
+    fn encoded_and_expanded_index_bounds_are_checked_separately() {
+        let entry = ChunkEntry {
+            chunk_id: 0, physical_offset: 128, compressed_size: 1,
+            logical_offset: 0, uncompressed_size: 3, first_line: 0, line_count: 2,
+            dictionary_id: 0, flags: 0,
+            compressed_checksum_blake3: [0; 32], uncompressed_checksum_blake3: [0; 32],
+        };
+        let entries = [entry];
+        let allocation = DenseLineIndex::requested_allocation_for_chunks(&entries).unwrap();
+        let mut limits = ResourceLimits {
+            max_dense_line_index_allocation: allocation,
+            ..ResourceLimits::default()
+        };
+        assert_eq!(check_dense_allocation_with_limits(&entries, limits), Ok(()));
+        limits.max_dense_line_index_allocation -= 1;
+        assert_eq!(check_dense_allocation_with_limits(&entries, limits), Err(QztError::ResourceLimitExceeded));
+
+        let index = DenseLineIndex::from_original_bytes(b"a\nb", &entries).unwrap();
+        let encoded = index.encode().unwrap();
+        assert_eq!(index.encoded_size(), Ok(encoded.len() as u64));
+        limits.max_index_block_size = encoded.len() as u64;
+        assert_eq!(limits.enforce_index_block_size(index.encoded_size().unwrap()), Ok(()));
+        limits.max_index_block_size -= 1;
+        assert_eq!(limits.enforce_index_block_size(index.encoded_size().unwrap()), Err(QztError::ResourceLimitExceeded));
+    }
+
+    #[test]
+    fn writer_cbor_block_uses_reader_item_allocation_and_stored_size_limits() {
+        let bytes = [0x81, 0x63, b'a', b'b', b'c'];
+        let limits = ResourceLimits {
+            max_index_block_size: 5,
+            max_cbor_allocation: 3,
+            max_cbor_items: 2,
+            ..ResourceLimits::default()
+        };
+        assert_eq!(check_writer_cbor_block_with_limits(&bytes, limits), Ok(()));
+        for field in ["stored bytes", "allocation", "items"] {
+            let mut below = limits;
+            match field {
+                "stored bytes" => below.max_index_block_size -= 1,
+                "allocation" => below.max_cbor_allocation -= 1,
+                _ => below.max_cbor_items -= 1,
+            }
+            assert_eq!(check_writer_cbor_block_with_limits(&bytes, below), Err(QztError::ResourceLimitExceeded), "{field}");
+        }
     }
 }

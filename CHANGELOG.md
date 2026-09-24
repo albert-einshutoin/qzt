@@ -4,6 +4,17 @@
 
 ### Fixed
 
+- Public Writer output now stays within default Reader limits for chunk sizes,
+  Chunk Table and optional index blocks, decoded CBOR items/allocation, and
+  cumulative Dense Line Index allocation. Supplied Document Index records are
+  checked against their source before pack succeeds. `QztFileWriter` rejects
+  any nonempty sink before writing, flushes before prefix read and on success,
+  checks final length, and rejects append-mode files that cannot patch the
+  header in place. Failed streaming writes remain poisoned; callers discard
+  partial output. `QztError::NonEmptyWriterSink` is new, and formerly accepted
+  over-limit options/indexes or stale Document Index records now return errors.
+  Existing valid QZT v0.1 bytes and CLI atomic replacement remain unchanged.
+
 - Search now limits query bytes and distinct keys before key materialization;
   actual encoded posting bytes, decoded IDs, and intersection work before
   expensive query processing; and cumulative physical chunk bytes/decompressions

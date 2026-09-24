@@ -275,6 +275,12 @@ Search Extension:
   benchmark metrics、sidecar validation を満たす。
 ```
 
+Rust参照実装のWriterは、成功した出力をdefault Readerの資源上限内に収め、
+default open・Deep verify・exact exportを満たします。streaming APIのsinkは
+実長0かつseek位置どおりに読み書きできる必要があり、非空sinkは書込み前に拒否します。
+streaming開始後の失敗では部分出力が残り得ます。generic sinkの`flush`成功は
+file syncや停電時の永続化を意味せず、CLIのfile出力は別の置換契約で保護します。
+
 ## 16. Test suite
 
 Core conformance tests は fixed structures、CBOR、Metadata、Footer、Chunk Table、UTF-8、line access、verification、resource limits、CLI を対象にします。
