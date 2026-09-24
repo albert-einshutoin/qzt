@@ -579,6 +579,67 @@ fn zero_length_granules_section_sidecar_cli_exits_without_panic() {
     let _ = fs::remove_dir_all(base);
 }
 
+#[test]
+fn cli_search_rejects_checksum_consistent_out_of_range_chunk_span() {
+    let base = support::secure_temp_root().join(format!(
+        "qzt-phase13-invalid-chunk-span-{}",
+        std::process::id()
+    ));
+    fs::create_dir_all(&base).unwrap();
+    let packed = base.join("source.qzt");
+    let sidecar_path = base.join("source.qzt.qzi");
+    let input = b"alpha\n";
+    let container =
+        pack_bytes_with_container_id(input, [0xfa; 16], writer_options(64, 64)).unwrap();
+    let mut sidecar = build_search_sidecar(&container, SidecarIndexKind::Token).unwrap();
+    patch_first_compact_granule_span(&mut sidecar, 2);
+    fs::write(&packed, &container).unwrap();
+    fs::write(&sidecar_path, &sidecar).unwrap();
+
+    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .arg("search")
+        .arg(&packed)
+        .arg("alpha")
+        .arg("--sidecar")
+        .arg(&sidecar_path)
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(1));
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!stderr.is_empty() && !stderr.contains("panicked"));
+    let reader = QztReader::open(&container).unwrap();
+    assert_eq!(reader.export_all().unwrap(), input);
+    assert!(reader.verify(VerifyLevel::Deep).is_ok());
+    fs::remove_dir_all(base).unwrap();
+}
+
+fn patch_first_compact_granule_span(sidecar: &mut [u8], span: u32) {
+    let manifest_size =
+        usize::try_from(u64::from_le_bytes(sidecar[8..16].try_into().unwrap())).unwrap();
+    let section_start = 16 + manifest_size;
+    let granule_end = compact_v2_terms_offset(sidecar);
+    sidecar[section_start + 8 + 16..section_start + 8 + 20].copy_from_slice(&span.to_le_bytes());
+    let checksum = Checksum::blake3(&sidecar[section_start..granule_end]).value;
+    let manifest = &mut sidecar[16..section_start];
+    let granules_at = manifest
+        .windows(8)
+        .position(|bytes| bytes == b"granules")
+        .unwrap();
+    let postings_at = manifest[granules_at..]
+        .windows(8)
+        .position(|bytes| bytes == b"postings")
+        .unwrap()
+        + granules_at;
+    let region = &mut manifest[granules_at..postings_at];
+    let value_at = region
+        .windows(5)
+        .position(|bytes| bytes == b"value")
+        .unwrap()
+        + 5;
+    assert_eq!(&region[value_at..value_at + 2], &[0x58, 0x20]);
+    region[value_at + 2..value_at + 34].copy_from_slice(&checksum);
+}
+
 fn token_sidecar_fixture(input: &[u8], container_id: [u8; 16]) -> (Vec<u8>, Vec<u8>) {
     let container = pack_bytes_with_container_id(input, container_id, writer_options(64, 64))
         .expect("container should pack");

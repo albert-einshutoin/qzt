@@ -5,6 +5,7 @@ use std::time::Instant;
 use std::sync::Mutex;
 
 use crate::cbor::{encode_deterministic, validate_deterministic, CborValue};
+use crate::chunk_table::ChunkEntry;
 use crate::error::{QztError, Result};
 use crate::format::{FOOTER_TRAILER_LEN, MAJOR_VERSION, MINOR_VERSION};
 use crate::io::{ReadAt, hash_read_at_range, open_file_with_len};
@@ -18,7 +19,7 @@ use crate::search::{
     compact_line_granules_supported, count_chunks, decode_delta_varint_u64_with_limit,
     early_exit_report, elapsed_ms, empty_search_metrics, encode_delta_varint_u64,
     intersect_postings, key_hash, ngram_keys_for_query, substring_spans, term_index_for_key,
-    unique_query_keys, verified_spans, verify_candidates, NgramIndexBuildOptions, PlannerDecision,
+    unique_query_keys, validate_granule_chunk_span, verified_spans, verify_candidates, NgramIndexBuildOptions, PlannerDecision,
     RawNgramIndex, RawTokenIndex, SearchGranule, SearchOptions, SearchReport, TermDictionaryEntry,
 };
 use crate::skeleton::open_skeleton_details;
@@ -381,6 +382,13 @@ impl QziSidecar {
         let term_bytes = section_slice(sidecar_bytes, section_base, &manifest.terms)?;
         let posting_bytes = section_slice(sidecar_bytes, section_base, &manifest.postings)?;
         let granules = decode_granules(granule_bytes, manifest.granule_encoding, limits)?;
+        for granule in &granules {
+            validate_granule_chunk_span(
+                granule,
+                &details.chunk_entries,
+                details.summary.original_size,
+            )?;
+        }
         let terms = decode_terms(term_bytes, manifest.term_encoding, limits)?;
         validate_file_term_dictionary(
             &terms,
@@ -751,7 +759,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
 
         let granules = candidates
             .iter()
-            .map(|granule_id| self.fetch_granule(*granule_id))
+            .map(|granule_id| self.fetch_granule(*granule_id, &reader.skeleton_details().chunk_entries))
             .collect::<Result<Vec<_>>>()?;
         metrics.candidate_chunks = count_chunks(&granules)?;
 
@@ -823,7 +831,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
         Ok(postings)
     }
 
-    fn fetch_granule(&self, granule_id: u64) -> Result<SearchGranule> {
+    fn fetch_granule(&self, granule_id: u64, entries: &[ChunkEntry]) -> Result<SearchGranule> {
         if granule_id >= self.granule_count {
             return Err(QztError::ContainerCorrupt);
         }
@@ -842,16 +850,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
         if granule.granule_id != granule_id {
             return Err(QztError::ContainerCorrupt);
         }
-        let end = granule
-            .logical_offset
-            .checked_add(granule.byte_length)
-            .ok_or(QztError::LogicalRangeOutOfBounds)?;
-        if end > self.manifest.source_size_bytes {
-            return Err(QztError::LogicalRangeOutOfBounds);
-        }
-        if granule.chunk_end < granule.chunk_start {
-            return Err(QztError::ChunkTableInvalid);
-        }
+        validate_granule_chunk_span(&granule, entries, self.manifest.source_size_bytes)?;
         Ok(granule)
     }
 
@@ -1723,6 +1722,86 @@ fn none_if_max(value: u64) -> Option<u64> {
 mod manifest_tests {
     use super::*;
 
+    fn legacy_fixture(container: &[u8], kind: SidecarIndexKind) -> Vec<u8> {
+        let modern = build_search_sidecar(container, kind).expect("modern sidecar");
+        let manifest_len = usize::try_from(read_u64_le(&modern[8..16]).unwrap()).unwrap();
+        let section_start = HEADER_LEN + manifest_len;
+        let mut manifest = decode_manifest(&modern[HEADER_LEN..section_start]).unwrap();
+        let granules = decode_granules(
+            section_slice(&modern, section_start, &manifest.granules).unwrap(),
+            manifest.granule_encoding,
+            SidecarLimits::default(),
+        )
+        .unwrap();
+        let terms = decode_terms(
+            section_slice(&modern, section_start, &manifest.terms).unwrap(),
+            manifest.term_encoding,
+            SidecarLimits::default(),
+        )
+        .unwrap();
+        let granule_bytes = encode_granules(&granules, GranuleEncoding::LegacyV1).unwrap();
+        let term_bytes = encode_terms(&terms, TermEncoding::LegacyV1).unwrap();
+        let posting_bytes = section_slice(&modern, section_start, &manifest.postings).unwrap();
+        manifest.format_version = SidecarFormatVersion::V1;
+        manifest.granule_encoding = GranuleEncoding::LegacyV1;
+        manifest.term_encoding = TermEncoding::LegacyV1;
+        manifest.granules = SectionRef {
+            offset: 0,
+            size: granule_bytes.len() as u64,
+            checksum: Checksum::blake3(&granule_bytes),
+        };
+        manifest.terms = SectionRef {
+            offset: manifest.granules.size,
+            size: term_bytes.len() as u64,
+            checksum: Checksum::blake3(&term_bytes),
+        };
+        manifest.postings = SectionRef {
+            offset: manifest.terms.offset + manifest.terms.size,
+            size: posting_bytes.len() as u64,
+            checksum: Checksum::blake3(posting_bytes),
+        };
+        manifest.index_size_bytes = manifest.postings.offset + manifest.postings.size;
+        let value = validate_deterministic(&encode_manifest(&manifest).unwrap()).unwrap();
+        let CborValue::Map(mut fields) = value else { panic!("manifest map") };
+        fields.retain(|(key, _)| {
+            key != &CborValue::Text("granule_encoding".to_owned())
+                && key != &CborValue::Text("term_encoding".to_owned())
+        });
+        let manifest_bytes = encode_deterministic(&CborValue::Map(fields)).unwrap();
+        let mut sidecar = Vec::new();
+        sidecar.extend_from_slice(SIDECAR_MAGIC);
+        sidecar.extend_from_slice(&(manifest_bytes.len() as u64).to_le_bytes());
+        sidecar.extend_from_slice(&manifest_bytes);
+        sidecar.extend_from_slice(&granule_bytes);
+        sidecar.extend_from_slice(&term_bytes);
+        sidecar.extend_from_slice(posting_bytes);
+        sidecar
+    }
+
+    fn mutate_first_granule(sidecar: &mut [u8], mutate: impl FnOnce(&mut [u8], GranuleEncoding)) {
+        let manifest_len = usize::try_from(read_u64_le(&sidecar[8..16]).unwrap()).unwrap();
+        let section_start = HEADER_LEN + manifest_len;
+        let mut manifest = decode_manifest(&sidecar[HEADER_LEN..section_start]).unwrap();
+        let record_start = section_start + 8;
+        let record_end = record_start + usize::try_from(manifest.granule_encoding.record_len()).unwrap();
+        mutate(&mut sidecar[record_start..record_end], manifest.granule_encoding);
+        let granule_end = section_start + usize::try_from(manifest.granules.size).unwrap();
+        manifest.granules.checksum = Checksum::blake3(&sidecar[section_start..granule_end]);
+        let mut manifest_bytes = encode_manifest(&manifest).unwrap();
+        if manifest.format_version == SidecarFormatVersion::V1 {
+            let CborValue::Map(mut fields) = validate_deterministic(&manifest_bytes).unwrap() else {
+                panic!("manifest map")
+            };
+            fields.retain(|(key, _)| {
+                key != &CborValue::Text("granule_encoding".to_owned())
+                    && key != &CborValue::Text("term_encoding".to_owned())
+            });
+            manifest_bytes = encode_deterministic(&CborValue::Map(fields)).unwrap();
+        }
+        assert_eq!(manifest_bytes.len(), manifest_len);
+        sidecar[HEADER_LEN..section_start].copy_from_slice(&manifest_bytes);
+    }
+
     fn checksum_fixture(label: &[u8]) -> CborValue {
         checksum_value(&Checksum::blake3(label))
     }
@@ -2023,6 +2102,222 @@ mod manifest_tests {
                 .map(|_| ()),
             Err(QztError::ContainerCorrupt)
         );
+    }
+
+    #[test]
+    fn qzi_granule_claiming_two_chunks_for_one_chunk_is_rejected() {
+        let container = crate::writer::pack_bytes_with_container_id(
+            b"alpha\n",
+            [0x95; 16],
+            crate::writer::WriterOptions::default(),
+        )
+        .expect("container should pack");
+        let mut sidecar = build_search_sidecar(&container, SidecarIndexKind::Token)
+            .expect("sidecar should build");
+        let manifest_size = usize::try_from(read_u64_le(&sidecar[8..16]).expect("manifest size"))
+            .expect("manifest fits memory");
+        let section_start = HEADER_LEN + manifest_size;
+        let mut manifest = decode_manifest(&sidecar[HEADER_LEN..section_start])
+            .expect("manifest should decode");
+        assert_eq!(manifest.granule_encoding, GranuleEncoding::LineImpliedV2);
+        let record_start = section_start + 8;
+        sidecar[record_start + 16..record_start + 20].copy_from_slice(&2_u32.to_le_bytes());
+        let granule_end = section_start + usize::try_from(manifest.granules.size).unwrap();
+        manifest.granules.checksum = Checksum::blake3(&sidecar[section_start..granule_end]);
+        let manifest_bytes = encode_manifest(&manifest).expect("manifest should re-encode");
+        assert_eq!(manifest_bytes.len(), manifest_size);
+        sidecar[HEADER_LEN..section_start].copy_from_slice(&manifest_bytes);
+
+        assert_eq!(
+            QziSidecar::open(&container, &sidecar).map(|_| ()),
+            Err(QztError::ChunkTableInvalid)
+        );
+    }
+
+    #[test]
+    fn token_and_ngram_v1_v2_reject_invalid_granules_on_both_reader_paths() {
+        let container = crate::writer::pack_bytes_with_container_id(
+            b"alpha\n",
+            [0x96; 16],
+            crate::writer::WriterOptions::default(),
+        )
+        .unwrap();
+        let memory_reader = QztReader::open(&container).unwrap();
+        let file_reader =
+            QztFileReader::open_read_at(container.as_slice(), container.len() as u64).unwrap();
+        for kind in [SidecarIndexKind::Token, SidecarIndexKind::Ngram { n: 3 }] {
+            for legacy in [false, true] {
+                let valid = if legacy {
+                    legacy_fixture(&container, kind)
+                } else {
+                    build_search_sidecar(&container, kind).unwrap()
+                };
+                let memory = QziSidecar::open(&container, &valid).unwrap();
+                let file = QziFileSidecar::open_read_at(
+                    valid.as_slice(), valid.len() as u64, &file_reader,
+                )
+                .unwrap();
+                assert_eq!(
+                    memory.search(&memory_reader, "alpha", SearchOptions::default()).unwrap().hits,
+                    file.search(&file_reader, "alpha", SearchOptions::default()).unwrap().hits,
+                    "valid kind={kind:?} legacy={legacy}",
+                );
+                for case in 0..6 {
+                    let mut bad = valid.clone();
+                    mutate_first_granule(&mut bad, |record, encoding| {
+                        let (offset, length, start, end) = match encoding {
+                            GranuleEncoding::LegacyV1 => (8, 16, 24, 32),
+                            GranuleEncoding::LineImpliedV2 => (0, 8, 12, 16),
+                        };
+                        let put = |record: &mut [u8], position: usize, value: u64| {
+                            if encoding == GranuleEncoding::LegacyV1 {
+                                record[position..position + 8].copy_from_slice(&value.to_le_bytes());
+                            } else {
+                                record[position..position + 4]
+                                    .copy_from_slice(&u32::try_from(value).unwrap().to_le_bytes());
+                            }
+                        };
+                        match case {
+                            0 => put(record, end, 2), // one real chunk, two claimed
+                            1 => put(record, end, 0), // empty span
+                            2 => {
+                                put(record, start, 2);
+                                put(record, end, u64::from(legacy));
+                            }
+                            3 => record[offset..offset + 8].copy_from_slice(&u64::MAX.to_le_bytes()),
+                            4 => put(record, length, 0),
+                            5 => put(record, end, if legacy { u64::MAX } else { u64::from(u32::MAX) }),
+                            _ => unreachable!(),
+                        }
+                    });
+                    assert!(
+                        QziSidecar::open(&container, &bad).is_err(),
+                        "memory kind={kind:?} legacy={legacy} case={case}",
+                    );
+                    let lazy = QziFileSidecar::open_read_at(
+                        bad.as_slice(), bad.len() as u64, &file_reader,
+                    )
+                    .unwrap();
+                    assert!(
+                        lazy.search(&file_reader, "alpha", SearchOptions::default()).is_err(),
+                        "file kind={kind:?} legacy={legacy} case={case}",
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn malformed_candidate_is_checked_before_memory_cap_but_lazy_cap_skips_unread_record() {
+        let container = crate::writer::pack_bytes_with_container_id(
+            b"alpha\n", [0x97; 16], crate::writer::WriterOptions::default(),
+        ).unwrap();
+        let reader = QztReader::open(&container).unwrap();
+        let file_reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
+            .unwrap();
+        let valid = build_search_sidecar(&container, SidecarIndexKind::Token).unwrap();
+        let mut raw = match QziSidecar::open(&container, &valid).unwrap().index {
+            SidecarSearchIndex::Token(index) => index,
+            SidecarSearchIndex::Ngram(_) => unreachable!(),
+        };
+        raw.granules[0].chunk_end = 2;
+        let cap = SearchOptions { max_candidate_granules: 0, ..SearchOptions::default() };
+        assert_eq!(
+            raw.search(&reader, "alpha", cap).map(|_| ()),
+            Err(QztError::ChunkTableInvalid),
+        );
+
+        let mut bad = valid;
+        mutate_first_granule(&mut bad, |record, _| {
+            record[16..20].copy_from_slice(&2_u32.to_le_bytes());
+        });
+        let lazy = QziFileSidecar::open_read_at(bad.as_slice(), bad.len() as u64, &file_reader)
+            .unwrap();
+        let capped = lazy.search(&file_reader, "alpha", cap).unwrap();
+        assert!(capped.capped);
+        assert_eq!(capped.metrics.candidate_chunks, 0);
+        assert_eq!(
+            lazy.search(&file_reader, "alpha", SearchOptions::default()).map(|_| ()),
+            Err(QztError::ChunkTableInvalid),
+        );
+    }
+
+    #[test]
+    fn granule_coordinates_respect_chunk_boundaries_eof_and_continuation() {
+        let options = crate::writer::WriterOptions {
+            chunker: crate::chunker::ChunkerOptions {
+                target_chunk_size: 4,
+                max_chunk_size: 4,
+            },
+            ..crate::writer::WriterOptions::default()
+        };
+        let input = b"abcdefghij\nxy\n";
+        let container = crate::writer::pack_bytes_with_container_id(input, [0x98; 16], options)
+            .unwrap();
+        let reader = QztReader::open(&container).unwrap();
+        let entries = &reader.skeleton_details().chunk_entries;
+        let size = input.len() as u64;
+        assert!(entries.len() >= 3);
+        let sidecar = build_search_sidecar(&container, SidecarIndexKind::Token).unwrap();
+        let opened = QziSidecar::open(&container, &sidecar).unwrap();
+        let SidecarSearchIndex::Token(index) = opened.index else { unreachable!() };
+        let long_line = &index.granules[0];
+        assert!(long_line.chunk_end - long_line.chunk_start > 1);
+        validate_granule_chunk_span(long_line, entries, size).unwrap();
+        let mut narrow = long_line.clone();
+        narrow.chunk_end -= 1;
+        assert_eq!(
+            validate_granule_chunk_span(&narrow, entries, size),
+            Err(QztError::ChunkTableInvalid),
+        );
+        let mut wide = long_line.clone();
+        wide.chunk_end = entries.len() as u64;
+        assert_eq!(
+            validate_granule_chunk_span(&wide, entries, size),
+            Err(QztError::ChunkTableInvalid),
+        );
+        let mut shifted = long_line.clone();
+        shifted.logical_offset = entries.last().unwrap().logical_offset;
+        shifted.byte_length = 1;
+        assert_eq!(
+            validate_granule_chunk_span(&shifted, entries, size),
+            Err(QztError::ChunkTableInvalid),
+        );
+        let mut at_boundary = long_line.clone();
+        at_boundary.logical_offset = entries[1].logical_offset;
+        at_boundary.byte_length = entries[1].uncompressed_size;
+        at_boundary.chunk_start = 1;
+        at_boundary.chunk_end = 2;
+        validate_granule_chunk_span(&at_boundary, entries, size).unwrap();
+        at_boundary.logical_offset = size - 1;
+        at_boundary.byte_length = 1;
+        at_boundary.chunk_start = (entries.len() - 1) as u64;
+        at_boundary.chunk_end = entries.len() as u64;
+        validate_granule_chunk_span(&at_boundary, entries, size).unwrap();
+        at_boundary.logical_offset = size;
+        assert_eq!(
+            validate_granule_chunk_span(&at_boundary, entries, size),
+            Err(QztError::LogicalRangeOutOfBounds),
+        );
+    }
+
+    #[test]
+    fn empty_source_has_zero_granules_in_both_encodings_and_readers() {
+        let container = crate::writer::pack_bytes_with_container_id(
+            b"", [0x99; 16], crate::writer::WriterOptions::default(),
+        ).unwrap();
+        let file_reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
+            .unwrap();
+        for kind in [SidecarIndexKind::Token, SidecarIndexKind::Ngram { n: 3 }] {
+            for legacy in [false, true] {
+                let sidecar = if legacy { legacy_fixture(&container, kind) }
+                    else { build_search_sidecar(&container, kind).unwrap() };
+                assert!(QziSidecar::open(&container, &sidecar).is_ok());
+                assert!(QziFileSidecar::open_read_at(
+                    sidecar.as_slice(), sidecar.len() as u64, &file_reader,
+                ).is_ok());
+            }
+        }
     }
 
     #[test]
