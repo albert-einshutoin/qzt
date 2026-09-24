@@ -110,6 +110,7 @@ fn soft_targets_are_recorded_without_hard_failing_on_band_drift() {
                 max_candidate_granules: 10_000,
                 max_decoded_bytes: 2 * 1024 * 1024,
                 max_search_results: 16,
+                ..SearchOptions::default()
             },
         )
         .expect("search");

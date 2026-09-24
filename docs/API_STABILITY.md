@@ -23,6 +23,19 @@ These are the intended embedding APIs for v0.1:
 - `Checksum`, `VerifyLevel`, `QztError`, and `Result` for verification flows.
 - validation corpus helpers used by conformance and benchmark harnesses.
 
+Search callers should use `SearchOptions { field, ..SearchOptions::default() }`.
+Issue #289 adds query/posting/physical-decode fields and changes the default
+`max_search_results` from unlimited to 10,000. `SearchReport::stop_reason`
+distinguishes a named runtime cap from an ordinary empty result, while
+`incomplete_reason` continues to describe semantic incompleteness.
+`SearchMetrics::physical_decoded_chunks` counts cache misses, including a
+decompression after eviction. The `max_line_bytes` field is added to both
+`TokenIndexBuildOptions` and `NgramIndexBuildOptions` (16 MiB default), and
+`build_search_sidecar_from_file_with_line_limit` exposes it for QZI builds.
+Complete struct literals need the new fields; use struct update syntax or set
+them explicitly. Larger valid queries and source lines require explicit
+limits. These are Rust API changes; QZT/QZI on-disk bytes are unchanged.
+
 ### Writer API consolidation
 
 `WriterBuilder` is the single entry point for optional profiles and indexes.

@@ -2305,7 +2305,7 @@ max_uncompressed_chunk_size: 64MiB
 max_dictionary_size: 16MiB
 max_index_block_size: configurable
 max_dense_line_index_allocation: 256MiB
-max_search_results: 100000
+max_search_results: 10000
 max_preview_bytes: 1MiB
 ```
 

@@ -141,6 +141,10 @@ production use の前に残っている既知の制限は以下です。
   一方、index の構築（`qzt sidecar-rebuild`、または `--sidecar` なしの
   `qzt search`）は posting map 全体をメモリに保持する（おおよそ sidecar サイズの
   展開分）ため、sidecar の構築はコーパスに見合ったマシンで行ってください。
+  queryのkey数、posting処理、検証するlogical byte、実際のchunk展開、返却spanには
+  上限がありますが、index構築全体やprocess RSSの上限ではありません。
+  既定では16 MiBを超えるsource行を拒否します。
+  [検索予算表](docs/QZT_v0.1_Memory_Guarantees.md#search-and-index-build-budgets)を参照してください。
 - **一時 search index**: `--sidecar` なしの `qzt search` は、実行ごとに
   search index を再構築します（チャンク単位の decode ですが index 全体はメモリに
   残ります）。繰り返し検索する場合は、先に `qzt sidecar-rebuild` を一度実行し、

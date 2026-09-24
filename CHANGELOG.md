@@ -4,6 +4,20 @@
 
 ### Fixed
 
+- Search now limits query bytes and distinct keys before key materialization;
+  actual encoded posting bytes, decoded IDs, and intersection work before
+  expensive query processing; and cumulative physical chunk bytes/decompressions
+  before candidate decoding. Token AND verification and overlapping n-gram
+  matches generate only the spans needed for the result cap. Token/ngram index
+  builders reject source lines over 16 MiB by default, including single-chunk
+  lines. `SearchOptions` and both index build option structs gain fields; source
+  users with complete struct literals must update them. The default result cap
+  changes from unlimited to 10,000. Search reports add `stop_reason` and
+  `physical_decoded_chunks` (also in text/JSON CLI output). Query/posting/line
+  limit failures remain errors; candidate, logical/physical decode, and result
+  stops return verified partial results with a named cap. Existing QZI v1/v2
+  layouts and Core byte interpretation are unchanged.
+
 - QZI token/ngram search now checks each granule's declared half-open chunk
   span against its logical byte range and the bound QZT Chunk Table before
   counting candidate chunks or emitting hit coordinates. In-memory open checks

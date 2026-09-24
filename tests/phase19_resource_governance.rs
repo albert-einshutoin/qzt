@@ -1,11 +1,11 @@
 use qzt::cbor::{CborLimits, CborValue, encode_deterministic, validate_deterministic_with_limits};
 use qzt::error::QztError;
 use qzt::limits::ResourceLimits;
-use qzt::reader::QztReader;
+use qzt::reader::{QztFileReader, QztReader};
 use qzt::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
 use qzt::writer::pack_bytes;
 mod support;
-use support::writer_options;
+use support::{CountingReadAt, writer_options};
 
 #[test]
 fn cbor_decoder_uses_caller_supplied_allocation_budget() {
@@ -116,6 +116,7 @@ fn search_result_cap_limits_hits_and_marks_report_capped() {
                 max_candidate_granules: 100,
                 max_decoded_bytes: 1024 * 1024,
                 max_search_results: 2,
+                ..SearchOptions::default()
             },
         )
         .expect("search");
@@ -123,4 +124,41 @@ fn search_result_cap_limits_hits_and_marks_report_capped() {
     assert!(report.capped);
     assert_eq!(report.hits.len(), 2);
     assert_eq!(report.metrics.verified_matches, 2);
+}
+
+#[test]
+fn physical_decode_budget_stops_before_a_large_chunk_is_read() {
+    let mut input = b"needle\n".to_vec();
+    input.extend(std::iter::repeat_n(b'x', 131_072));
+    let container = pack_bytes(&input, writer_options(131_079, 131_079)).expect("pack");
+    let index = RawTokenIndex::build_from_container(&container, TokenIndexBuildOptions::default())
+        .expect("index");
+    let source = CountingReadAt::new(container.clone());
+    let reader = QztFileReader::open_read_at(source.clone(), container.len() as u64).expect("open");
+    assert_eq!(
+        reader.skeleton_details().chunk_entries[0].uncompressed_size,
+        131_079
+    );
+    let reads_before = source.reads.lock().expect("reads lock").len();
+
+    let report = index
+        .search_file(
+            &reader,
+            "needle",
+            SearchOptions {
+                max_decoded_bytes: 7,
+                max_physical_decoded_bytes: 7,
+                ..SearchOptions::default()
+            },
+        )
+        .expect("budget stops search without an error");
+
+    assert_eq!(report.stop_reason, Some("max_physical_decoded_bytes"));
+    assert!(report.capped);
+    assert!(report.hits.is_empty());
+    assert_eq!(
+        source.reads.lock().expect("reads lock").len(),
+        reads_before,
+        "no candidate chunk was read"
+    );
 }

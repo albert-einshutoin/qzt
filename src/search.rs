@@ -59,6 +59,8 @@ pub struct TokenIndexBuildOptions {
     pub source: SearchIndexSource,
     /// Unit represented by each posting; currently one original-text line.
     pub posting_granularity: PostingGranularity,
+    /// Maximum bytes in one source line, including LF and an optional CR.
+    pub max_line_bytes: u64,
 }
 
 impl Default for TokenIndexBuildOptions {
@@ -66,6 +68,7 @@ impl Default for TokenIndexBuildOptions {
         Self {
             source: SearchIndexSource::RawUtf8,
             posting_granularity: PostingGranularity::Line,
+            max_line_bytes: 16 * 1024 * 1024,
         }
     }
 }
@@ -83,6 +86,8 @@ pub struct NgramIndexBuildOptions {
     pub source: SearchIndexSource,
     /// Unit represented by each posting; currently one original-text line.
     pub posting_granularity: PostingGranularity,
+    /// Maximum bytes in one source line, including LF and an optional CR.
+    pub max_line_bytes: u64,
     /// Number of Unicode scalar values in each indexed n-gram; must be nonzero.
     pub n: usize,
     /// Whether the dictionary contains every n-gram from the source.
@@ -99,6 +104,7 @@ impl Default for NgramIndexBuildOptions {
         Self {
             source: SearchIndexSource::RawUtf8,
             posting_granularity: PostingGranularity::Line,
+            max_line_bytes: 16 * 1024 * 1024,
             n: 3,
             complete: true,
             high_df_per_million: 200_000,
@@ -173,12 +179,26 @@ impl PlannerDecision {
 /// Runtime search limits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SearchOptions {
+    /// Maximum UTF-8 query bytes, checked before copying or key generation.
+    pub max_query_bytes: u64,
+    /// Maximum distinct normalized token or n-gram keys in one query.
+    pub max_query_terms: u64,
+    /// Maximum actual encoded posting bytes consulted by one query.
+    pub max_posting_bytes_per_query: u64,
+    /// Maximum posting IDs examined across all selected lists.
+    pub max_posting_ids_per_query: u64,
+    /// Maximum ID copies and comparisons during posting intersection.
+    pub max_posting_work: u64,
     /// Maximum number of posting-intersection candidates allowed before any
     /// candidate is decoded. Exceeding it returns a capped report with no hits.
     pub max_candidate_granules: u64,
     /// Maximum sum of logical candidate-granule bytes verified for one query.
     /// Verification stops before the first granule that would exceed the cap.
     pub max_decoded_bytes: u64,
+    /// Maximum cumulative uncompressed chunk bytes physically decoded.
+    pub max_physical_decoded_bytes: u64,
+    /// Maximum cumulative chunk decompressions, including cache redecodes.
+    pub max_physical_decoded_chunks: u64,
     /// Maximum number of verified hits returned; zero disables verification
     /// and produces a capped report.
     pub max_search_results: u64,
@@ -187,9 +207,16 @@ pub struct SearchOptions {
 impl Default for SearchOptions {
     fn default() -> Self {
         Self {
+            max_query_bytes: 4 * 1024,
+            max_query_terms: 256,
+            max_posting_bytes_per_query: 128 * 1024 * 1024,
+            max_posting_ids_per_query: 10_000_000,
+            max_posting_work: 20_000_000,
             max_candidate_granules: 10_000,
             max_decoded_bytes: 256 * 1024 * 1024,
-            max_search_results: u64::MAX,
+            max_physical_decoded_bytes: 256 * 1024 * 1024,
+            max_physical_decoded_chunks: 10_000,
+            max_search_results: 10_000,
         }
     }
 }
@@ -268,6 +295,8 @@ pub struct SearchMetrics {
     /// verification (chunk-level work, as opposed to the logical granule
     /// bytes counted by `decoded_bytes`).
     pub physical_decoded_bytes: u64,
+    /// Number of actual chunk decompressions, counting cache misses.
+    pub physical_decoded_chunks: u64,
     /// Number of byte spans confirmed against decoded original text.
     pub verified_matches: u64,
     /// End-to-end query execution time in milliseconds.
@@ -283,6 +312,8 @@ pub struct SearchReport {
     pub metrics: SearchMetrics,
     /// Whether a runtime limit prevented complete candidate verification.
     pub capped: bool,
+    /// Which query cap stopped work, or `None` if no cap stopped work.
+    pub stop_reason: Option<&'static str>,
     /// Inspectable key selection and posting-planner decisions.
     pub planner: PlannerDecision,
     /// Semantic reason a complete answer was unavailable, independent of
@@ -322,6 +353,7 @@ pub(crate) fn empty_search_metrics(
         candidate_chunks: 0,
         decoded_bytes: 0,
         physical_decoded_bytes: 0,
+        physical_decoded_chunks: 0,
         verified_matches: 0,
         query_time_ms: 0.0,
     }
@@ -331,7 +363,7 @@ pub(crate) fn early_exit_report(
     mut metrics: SearchMetrics,
     planner: PlannerDecision,
     started: Instant,
-    capped: bool,
+    stop_reason: Option<&'static str>,
     incomplete_reason: Option<&'static str>,
 ) -> SearchReport {
     // Capture elapsed time at the same decision boundary as the former inline
@@ -340,7 +372,8 @@ pub(crate) fn early_exit_report(
     SearchReport {
         hits: Vec::new(),
         metrics,
-        capped,
+        capped: stop_reason.is_some(),
+        stop_reason,
         planner,
         incomplete_reason,
     }
@@ -409,6 +442,7 @@ impl RawTokenIndex {
             PostingGranularity::Line => build_line_index_streaming(
                 &details.chunk_entries,
                 details.summary.original_size,
+                options.max_line_bytes,
                 |entry| reader.decode_entry(entry),
                 |line| {
                     Ok(tokenize_ascii_lower(line)
@@ -521,7 +555,7 @@ impl RawTokenIndex {
         read_range_cached: RangeReadFn<'_>,
     ) -> Result<SearchReport> {
         let started = Instant::now();
-        let query_keys = unique_query_keys(query.as_bytes());
+        let query_keys = unique_query_keys(query, options)?;
         let mut planner = PlannerDecision::new(query_keys.clone());
         let mut metrics = empty_search_metrics(
             query,
@@ -536,7 +570,7 @@ impl RawTokenIndex {
                 metrics,
                 planner,
                 started,
-                false,
+                None,
                 Some("query_has_no_indexable_tokens"),
             ));
         }
@@ -549,7 +583,7 @@ impl RawTokenIndex {
                     metrics,
                     planner,
                     started,
-                    false,
+                    None,
                     None,
                 ));
             };
@@ -560,6 +594,7 @@ impl RawTokenIndex {
             posting_indexes.push(term_index);
         }
 
+        check_raw_posting_budget(&posting_indexes, &self.postings, &self.encoded_postings, options)?;
         posting_indexes.sort_by_key(|index| self.postings[*index].len());
         planner.selected_keys = posting_indexes
             .iter()
@@ -569,7 +604,7 @@ impl RawTokenIndex {
             .iter()
             .map(|index| self.postings[*index].as_slice())
             .collect::<Vec<_>>();
-        let candidates = intersect_postings(&posting_refs);
+        let candidates = intersect_postings(&posting_refs, options.max_posting_work)?;
         metrics.candidate_granules = usize_to_u64(candidates.len())?;
         metrics.candidate_chunks = count_candidate_chunks(
             &self.granules,
@@ -583,7 +618,7 @@ impl RawTokenIndex {
                 metrics,
                 planner,
                 started,
-                true,
+                Some("max_candidate_granules"),
                 None,
             ));
         }
@@ -592,13 +627,14 @@ impl RawTokenIndex {
                 metrics,
                 planner,
                 started,
-                true,
+                Some("max_search_results"),
                 None,
             ));
         }
 
         let verification = verify_candidates(
             &candidates,
+            &details.chunk_entries,
             &mut |granule_id| {
                 let granule_index = u64_to_usize(granule_id)?;
                 self.granules
@@ -607,18 +643,20 @@ impl RawTokenIndex {
                     .ok_or(QztError::ContainerCorrupt)
             },
             read_range_cached,
-            &mut |decoded| verified_spans(decoded, &query_keys),
+            &mut |decoded, limit| verified_spans(decoded, &query_keys, limit),
             options,
         )?;
 
         metrics.decoded_bytes = verification.decoded_bytes;
         metrics.physical_decoded_bytes = verification.physical_decoded_bytes;
+        metrics.physical_decoded_chunks = verification.physical_decoded_chunks;
         metrics.verified_matches = usize_to_u64(verification.hits.len())?;
         metrics.query_time_ms = elapsed_ms(started);
         Ok(SearchReport {
             hits: verification.hits,
             metrics,
-            capped: verification.capped,
+            capped: verification.stop_reason.is_some(),
+            stop_reason: verification.stop_reason,
             planner,
             incomplete_reason: None,
         })
@@ -700,6 +738,7 @@ impl RawNgramIndex {
             PostingGranularity::Line => build_line_index_streaming(
                 &details.chunk_entries,
                 details.summary.original_size,
+                options.max_line_bytes,
                 |entry| reader.decode_entry(entry),
                 |line| {
                     let text = std::str::from_utf8(line).map_err(|_| QztError::InvalidUtf8)?;
@@ -826,7 +865,7 @@ impl RawNgramIndex {
         read_range_cached: RangeReadFn<'_>,
     ) -> Result<SearchReport> {
         let started = Instant::now();
-        let query_keys = ngram_keys_for_query(query, self.declaration.n)?;
+        let query_keys = ngram_keys_for_query(query, self.declaration.n, options)?;
         let mut planner = PlannerDecision::new(query_keys.clone());
         let mut metrics = empty_search_metrics(
             query,
@@ -841,7 +880,7 @@ impl RawNgramIndex {
                 metrics,
                 planner,
                 started,
-                false,
+                None,
                 Some("query_shorter_than_ngram_n"),
             ));
         }
@@ -854,7 +893,7 @@ impl RawNgramIndex {
                     metrics,
                     planner,
                     started,
-                    false,
+                    None,
                     (!self.complete).then_some("missing_required_key_in_incomplete_index"),
                 ));
             };
@@ -889,11 +928,12 @@ impl RawNgramIndex {
                 .ok_or(QztError::ResourceLimitExceeded)?;
         }
 
+        check_raw_posting_budget(&term_indexes, &self.postings, &self.encoded_postings, options)?;
         let posting_refs = term_indexes
             .iter()
             .map(|index| self.postings[*index].as_slice())
             .collect::<Vec<_>>();
-        let candidates = intersect_postings(&posting_refs);
+        let candidates = intersect_postings(&posting_refs, options.max_posting_work)?;
         metrics.candidate_granules = usize_to_u64(candidates.len())?;
         metrics.candidate_chunks = count_candidate_chunks(
             &self.granules,
@@ -907,7 +947,7 @@ impl RawNgramIndex {
                 metrics,
                 planner,
                 started,
-                true,
+                Some("max_candidate_granules"),
                 None,
             ));
         }
@@ -916,13 +956,14 @@ impl RawNgramIndex {
                 metrics,
                 planner,
                 started,
-                true,
+                Some("max_search_results"),
                 None,
             ));
         }
 
         let verification = verify_candidates(
             &candidates,
+            &details.chunk_entries,
             &mut |granule_id| {
                 let granule_index = u64_to_usize(granule_id)?;
                 self.granules
@@ -931,18 +972,20 @@ impl RawNgramIndex {
                     .ok_or(QztError::ContainerCorrupt)
             },
             read_range_cached,
-            &mut |decoded| substring_spans(decoded, query.as_bytes()),
+            &mut |decoded, limit| substring_spans(decoded, query.as_bytes(), limit),
             options,
         )?;
 
         metrics.decoded_bytes = verification.decoded_bytes;
         metrics.physical_decoded_bytes = verification.physical_decoded_bytes;
+        metrics.physical_decoded_chunks = verification.physical_decoded_chunks;
         metrics.verified_matches = usize_to_u64(verification.hits.len())?;
         metrics.query_time_ms = elapsed_ms(started);
         Ok(SearchReport {
             hits: verification.hits,
             metrics,
-            capped: verification.capped,
+            capped: verification.stop_reason.is_some(),
+            stop_reason: verification.stop_reason,
             planner,
             incomplete_reason: None,
         })
@@ -1088,6 +1131,7 @@ type LineIndexParts = (Vec<SearchGranule>, Vec<TermDictionaryEntry>, Vec<Vec<u64
 fn build_line_index_streaming(
     entries: &[ChunkEntry],
     original_size: u64,
+    max_line_bytes: u64,
     mut decode: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
     mut keys_for_line: impl FnMut(&[u8]) -> Result<Vec<Vec<u8>>>,
 ) -> Result<LineIndexParts> {
@@ -1108,10 +1152,18 @@ fn build_line_index_streaming(
                 continue;
             }
             let line_end = checked_logical_end(entry.logical_offset, usize_to_u64(index + 1)?)?;
+            let segment = &decoded[consumed..=index];
+            let line_size = usize_to_u64(carry.len())?
+                .checked_add(usize_to_u64(segment.len())?)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            if line_size > max_line_bytes {
+                return Err(QztError::ResourceLimitExceeded);
+            }
             let line_bytes: &[u8] = if carry.is_empty() {
-                &decoded[consumed..=index]
+                segment
             } else {
-                carry.extend_from_slice(&decoded[consumed..=index]);
+                carry.try_reserve(segment.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+                carry.extend_from_slice(segment);
                 &carry
             };
             emit_line_granule(
@@ -1128,6 +1180,13 @@ fn build_line_index_streaming(
             line_start = line_end;
         }
         if consumed < decoded.len() {
+            let line_size = usize_to_u64(carry.len())?
+                .checked_add(usize_to_u64(decoded.len() - consumed)?)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            if line_size > max_line_bytes {
+                return Err(QztError::ResourceLimitExceeded);
+            }
+            carry.try_reserve(decoded.len() - consumed).map_err(|_| QztError::ResourceLimitExceeded)?;
             carry.extend_from_slice(&decoded[consumed..]);
         }
     }
@@ -1381,9 +1440,10 @@ pub(crate) type RangeReadFn<'a> =
 /// Outcome of verifying candidate granules against original bytes.
 pub(crate) struct CandidateVerification {
     pub(crate) hits: Vec<SearchHit>,
-    pub(crate) capped: bool,
+    pub(crate) stop_reason: Option<&'static str>,
     pub(crate) decoded_bytes: u64,
     pub(crate) physical_decoded_bytes: u64,
+    pub(crate) physical_decoded_chunks: u64,
 }
 
 /// Decodes each candidate granule (chunk decode cache shared across the loop)
@@ -1391,13 +1451,14 @@ pub(crate) struct CandidateVerification {
 /// indexes and the file-backed sidecar search.
 pub(crate) fn verify_candidates(
     candidates: &[u64],
+    entries: &[ChunkEntry],
     granule_at: &mut dyn FnMut(u64) -> Result<SearchGranule>,
     read_range_cached: RangeReadFn<'_>,
-    spans_for: &mut dyn FnMut(&[u8]) -> Vec<TokenSpan>,
+    spans_for: &mut dyn FnMut(&[u8], usize) -> Vec<TokenSpan>,
     options: SearchOptions,
 ) -> Result<CandidateVerification> {
     let mut hits = Vec::new();
-    let mut capped = false;
+    let mut stop_reason = None;
     let mut decoded_bytes = 0_u64;
     let mut cache = ChunkDecodeCache::new();
     for granule_id in candidates {
@@ -1406,15 +1467,29 @@ pub(crate) fn verify_candidates(
             .checked_add(granule.byte_length)
             .ok_or(QztError::ResourceLimitExceeded)?;
         if next_decoded > options.max_decoded_bytes {
-            capped = true;
+            stop_reason = Some("max_decoded_bytes");
+            break;
+        }
+        if let Some(reason) = cache.search_limit_for_span(
+            entries,
+            granule.chunk_start,
+            granule.chunk_end,
+            options.max_physical_decoded_bytes,
+            options.max_physical_decoded_chunks,
+        )? {
+            stop_reason = Some(reason);
             break;
         }
 
         let decoded = read_range_cached(granule.logical_offset, granule.byte_length, &mut cache)?;
         decoded_bytes = next_decoded;
-        for span in spans_for(&decoded) {
+        let remaining = options.max_search_results
+            .saturating_sub(usize_to_u64(hits.len())?);
+        let span_limit = usize::try_from(remaining).unwrap_or(usize::MAX);
+        for span in spans_for(&decoded, span_limit) {
             let span_offset = usize_to_u64(span.start)?;
             let span_len = usize_to_u64(span.end - span.start)?;
+            hits.try_reserve(1).map_err(|_| QztError::ResourceLimitExceeded)?;
             hits.push(SearchHit {
                 logical_offset: granule
                     .logical_offset
@@ -1427,19 +1502,20 @@ pub(crate) fn verify_candidates(
                 source: "verified_original_bytes",
             });
             if usize_to_u64(hits.len())? >= options.max_search_results {
-                capped = true;
+                stop_reason = Some("max_search_results");
                 break;
             }
         }
-        if capped {
+        if stop_reason.is_some() {
             break;
         }
     }
     Ok(CandidateVerification {
         hits,
-        capped,
+        stop_reason,
         decoded_bytes,
         physical_decoded_bytes: cache.physical_decoded_bytes(),
+        physical_decoded_chunks: cache.decoded_chunks(),
     })
 }
 
@@ -1490,55 +1566,106 @@ fn count_chunk_spans<'a>(
     Ok(total)
 }
 
-pub(crate) fn intersect_postings(posting_lists: &[&[u64]]) -> Vec<u64> {
+pub(crate) fn intersect_postings(posting_lists: &[&[u64]], max_work: u64) -> Result<Vec<u64>> {
     let Some(first) = posting_lists.first() else {
-        return Vec::new();
+        return Ok(Vec::new());
     };
-    let mut current = first.to_vec();
+    let mut work = usize_to_u64(first.len())?;
+    if work > max_work {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+    let mut current = Vec::new();
+    current.try_reserve_exact(first.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
+    current.extend_from_slice(first);
     for posting_list in &posting_lists[1..] {
-        current = intersect_two_sorted(&current, posting_list);
+        current = intersect_two_sorted(&current, posting_list, &mut work, max_work)?;
         if current.is_empty() {
             break;
         }
     }
-    current
+    Ok(current)
 }
 
-fn intersect_two_sorted(left: &[u64], right: &[u64]) -> Vec<u64> {
+fn intersect_two_sorted(left: &[u64], right: &[u64], work: &mut u64, max_work: u64) -> Result<Vec<u64>> {
     let mut output = Vec::new();
     let mut left_index = 0_usize;
     let mut right_index = 0_usize;
     while left_index < left.len() && right_index < right.len() {
+        charge_posting_work(work, max_work)?;
         match left[left_index].cmp(&right[right_index]) {
             std::cmp::Ordering::Less => left_index += 1,
             std::cmp::Ordering::Greater => right_index += 1,
             std::cmp::Ordering::Equal => {
+                charge_posting_work(work, max_work)?;
+                output.try_reserve(1).map_err(|_| QztError::ResourceLimitExceeded)?;
                 output.push(left[left_index]);
                 left_index += 1;
                 right_index += 1;
             }
         }
     }
-    output
+    Ok(output)
 }
 
-pub(crate) fn verified_spans(bytes: &[u8], query_keys: &[Vec<u8>]) -> Vec<TokenSpan> {
-    let tokens = tokenize_ascii_lower(bytes);
-    if query_keys
-        .iter()
-        .all(|key| tokens.iter().any(|token| token.key == *key))
-    {
-        tokens
-            .into_iter()
-            .filter(|token| query_keys.contains(&token.key))
-            .collect()
-    } else {
-        Vec::new()
+fn charge_posting_work(work: &mut u64, max_work: u64) -> Result<()> {
+    *work = work.checked_add(1).ok_or(QztError::ResourceLimitExceeded)?;
+    if *work > max_work {
+        return Err(QztError::ResourceLimitExceeded);
     }
+    Ok(())
 }
 
-pub(crate) fn substring_spans(bytes: &[u8], query: &[u8]) -> Vec<TokenSpan> {
-    if query.is_empty() || query.len() > bytes.len() {
+fn check_raw_posting_budget(
+    indexes: &[usize],
+    postings: &[Vec<u64>],
+    encoded: &[Vec<u8>],
+    options: SearchOptions,
+) -> Result<()> {
+    let mut bytes = 0_u64;
+    let mut ids = 0_u64;
+    for index in indexes {
+        bytes = bytes.checked_add(usize_to_u64(encoded[*index].len())?)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        ids = ids.checked_add(usize_to_u64(postings[*index].len())?)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        if bytes > options.max_posting_bytes_per_query || ids > options.max_posting_ids_per_query {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn verified_spans(bytes: &[u8], query_keys: &[Vec<u8>], limit: usize) -> Vec<TokenSpan> {
+    let mut spans = Vec::new();
+    let mut seen = vec![false; query_keys.len()];
+    let mut cursor = 0;
+    while cursor < bytes.len() {
+        while cursor < bytes.len() && !is_token_byte(bytes[cursor]) {
+            cursor += 1;
+        }
+        let start = cursor;
+        while cursor < bytes.len() && is_token_byte(bytes[cursor]) {
+            cursor += 1;
+        }
+        if start == cursor {
+            continue;
+        }
+        if let Some((index, key)) = query_keys.iter().enumerate()
+            .find(|(_, key)| bytes[start..cursor].eq_ignore_ascii_case(key)) {
+            seen[index] = true;
+            if spans.len() < limit {
+                spans.push(TokenSpan { key: key.clone(), start, end: cursor });
+            }
+        }
+        if spans.len() == limit && seen.iter().all(|found| *found) {
+            break;
+        }
+    }
+    if seen.iter().all(|found| *found) { spans } else { Vec::new() }
+}
+
+pub(crate) fn substring_spans(bytes: &[u8], query: &[u8], limit: usize) -> Vec<TokenSpan> {
+    if limit == 0 || query.is_empty() || query.len() > bytes.len() {
         return Vec::new();
     }
 
@@ -1551,29 +1678,75 @@ pub(crate) fn substring_spans(bytes: &[u8], query: &[u8]) -> Vec<TokenSpan> {
                 start,
                 end,
             });
+            if spans.len() == limit {
+                break;
+            }
         }
     }
     spans
 }
 
-pub(crate) fn unique_query_keys(query: &[u8]) -> Vec<Vec<u8>> {
-    let mut keys = tokenize_ascii_lower(query)
-        .into_iter()
-        .map(|token| token.key)
-        .collect::<Vec<_>>();
-    keys.sort();
-    keys.dedup();
-    keys
+pub(crate) fn validate_query_bytes(query: &str, options: SearchOptions) -> Result<()> {
+    if usize_to_u64(query.len())? > options.max_query_bytes {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+    Ok(())
 }
 
-pub(crate) fn ngram_keys_for_query(query: &str, n: usize) -> Result<Vec<Vec<u8>>> {
+pub(crate) fn unique_query_keys(query: &str, options: SearchOptions) -> Result<Vec<Vec<u8>>> {
+    validate_query_bytes(query, options)?;
+    let bytes = query.as_bytes();
+    let mut keys = BTreeSet::new();
+    let mut cursor = 0;
+    while cursor < bytes.len() {
+        while cursor < bytes.len() && !is_token_byte(bytes[cursor]) {
+            cursor += 1;
+        }
+        let start = cursor;
+        while cursor < bytes.len() && is_token_byte(bytes[cursor]) {
+            cursor += 1;
+        }
+        if start < cursor {
+            let key = bytes[start..cursor]
+                .iter()
+                .map(u8::to_ascii_lowercase)
+                .collect::<Vec<_>>();
+            if !keys.contains(&key) {
+                if usize_to_u64(keys.len())? >= options.max_query_terms {
+                    return Err(QztError::ResourceLimitExceeded);
+                }
+                keys.insert(key);
+            }
+        }
+    }
+    Ok(keys.into_iter().collect())
+}
+
+pub(crate) fn ngram_keys_for_query(
+    query: &str,
+    n: usize,
+    options: SearchOptions,
+) -> Result<Vec<Vec<u8>>> {
+    validate_query_bytes(query, options)?;
     if n == 0 {
         return Err(QztError::ResourceLimitExceeded);
     }
-    let mut keys = ngram_keys(query, n);
-    keys.sort();
-    keys.dedup();
-    Ok(keys)
+    let char_starts = query.char_indices().map(|(offset, _)| offset)
+        .chain(std::iter::once(query.len())).collect::<Vec<_>>();
+    if char_starts.len().saturating_sub(1) < n {
+        return Ok(Vec::new());
+    }
+    let mut keys = BTreeSet::new();
+    for window_start in 0..=char_starts.len() - 1 - n {
+        let key = &query.as_bytes()[char_starts[window_start]..char_starts[window_start + n]];
+        if !keys.contains(key) {
+            if usize_to_u64(keys.len())? >= options.max_query_terms {
+                return Err(QztError::ResourceLimitExceeded);
+            }
+            keys.insert(key.to_vec());
+        }
+    }
+    Ok(keys.into_iter().collect())
 }
 
 fn ngram_keys(text: &str, n: usize) -> Vec<Vec<u8>> {
@@ -1659,7 +1832,7 @@ mod serialized_metrics_tests {
             metrics,
             planner.clone(),
             Instant::now(),
-            true,
+            Some("max_candidate_granules"),
             Some("test_reason"),
         );
 
@@ -1669,6 +1842,29 @@ mod serialized_metrics_tests {
         assert_eq!(report.incomplete_reason, Some("test_reason"));
         assert!((report.metrics.index_size_ratio - 0.25).abs() < f64::EPSILON);
         assert!(report.metrics.query_time_ms >= 0.0);
+    }
+
+    #[test]
+    fn bounded_span_generation_preserves_token_and_and_ngram_overlap_order() {
+        let keys = vec![b"alpha".to_vec(), b"beta".to_vec()];
+        assert!(verified_spans(b"alpha alpha", &keys, 1).is_empty());
+        let spans = verified_spans(b"alpha alpha beta alpha", &keys, 1);
+        assert_eq!(spans.iter().map(|span| span.start).collect::<Vec<_>>(), vec![0]);
+        assert!(verified_spans(b"alpha beta", &keys, 0).is_empty());
+
+        assert!(substring_spans(b"aaaa", b"aa", 0).is_empty());
+        assert_eq!(substring_spans(b"aaaa", b"aa", 1).iter().map(|span| span.start).collect::<Vec<_>>(), vec![0]);
+        assert_eq!(substring_spans(b"aaaa", b"aa", 2).iter().map(|span| span.start).collect::<Vec<_>>(), vec![0, 1]);
+    }
+
+    #[test]
+    fn intersection_work_budget_has_an_inclusive_boundary_without_truncation() {
+        let left = [1, 3];
+        let right = [3];
+        let lists = [&left[..], &right[..]];
+        assert_eq!(intersect_postings(&lists, 4), Err(QztError::ResourceLimitExceeded));
+        assert_eq!(intersect_postings(&lists, 5), Ok(vec![3]));
+        assert_eq!(intersect_postings(&lists, 6), Ok(vec![3]));
     }
 
     #[test]
