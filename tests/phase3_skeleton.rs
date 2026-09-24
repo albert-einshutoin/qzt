@@ -1,5 +1,5 @@
 use qzt::cbor::{CborValue, encode_deterministic};
-use qzt::chunk_table::{CHUNK_ENTRY_LEN, validate_chunk_table_block};
+use qzt::chunk_table::{CHUNK_ENTRY_LEN, ChunkEntry, validate_chunk_table_block};
 use qzt::error::QztError;
 use qzt::schema::{Checksum, FooterPayload, IndexRoot, Metadata, validate_source_consistency};
 use qzt::skeleton::{open_skeleton, write_empty_container};
@@ -98,4 +98,83 @@ fn chunk_count_mismatch_is_rejected() {
 #[test]
 fn empty_chunk_table_is_valid_for_empty_source() {
     assert_eq!(validate_chunk_table_block(&[], 0, 0, 0), Ok(Vec::new()));
+}
+
+#[test]
+fn chunk_table_rejects_more_lines_than_source_bytes() {
+    let entry = ChunkEntry {
+        chunk_id: 0,
+        physical_offset: 0,
+        compressed_size: 1,
+        logical_offset: 0,
+        uncompressed_size: 1,
+        first_line: 0,
+        line_count: 1_u64 << 61,
+        dictionary_id: 0,
+        flags: 0,
+        compressed_checksum_blake3: [0; 32],
+        uncompressed_checksum_blake3: [0; 32],
+    };
+    assert_eq!(
+        validate_chunk_table_block(&entry.encode(), 1, 1, entry.line_count),
+        Err(QztError::ChunkTableInvalid)
+    );
+}
+
+#[test]
+fn chunk_table_rejects_cumulative_range_overflow() {
+    let first = ChunkEntry {
+        chunk_id: 0,
+        physical_offset: 0,
+        compressed_size: 1,
+        logical_offset: 0,
+        uncompressed_size: u64::MAX - 1,
+        first_line: 0,
+        line_count: u64::MAX - 1,
+        dictionary_id: 0,
+        flags: 0,
+        compressed_checksum_blake3: [0; 32],
+        uncompressed_checksum_blake3: [0; 32],
+    };
+    let mut second = first.clone();
+    second.chunk_id = 1;
+    second.logical_offset = u64::MAX - 1;
+    second.first_line = u64::MAX - 1;
+    second.uncompressed_size = 2;
+    second.line_count = 2;
+    let mut table = first.encode().to_vec();
+    table.extend_from_slice(&second.encode());
+    assert_eq!(
+        validate_chunk_table_block(&table, 2, u64::MAX, u64::MAX),
+        Err(QztError::LogicalRangeOutOfBounds)
+    );
+}
+
+#[test]
+fn chunk_table_rejects_per_chunk_line_excess_even_when_total_fits() {
+    let first = ChunkEntry {
+        chunk_id: 0,
+        physical_offset: 0,
+        compressed_size: 1,
+        logical_offset: 0,
+        uncompressed_size: 1,
+        first_line: 0,
+        line_count: 2,
+        dictionary_id: 0,
+        flags: 0,
+        compressed_checksum_blake3: [0; 32],
+        uncompressed_checksum_blake3: [0; 32],
+    };
+    let mut second = first.clone();
+    second.chunk_id = 1;
+    second.logical_offset = 1;
+    second.uncompressed_size = 2;
+    second.first_line = 2;
+    second.line_count = 0;
+    let mut table = first.encode().to_vec();
+    table.extend_from_slice(&second.encode());
+    assert_eq!(
+        validate_chunk_table_block(&table, 2, 3, 2),
+        Err(QztError::ChunkTableInvalid)
+    );
 }

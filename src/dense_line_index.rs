@@ -1,5 +1,6 @@
 use crate::chunk_table::{ChunkEntry, STARTS_WITH_LINE_CONTINUATION};
 use crate::error::{QztError, Result};
+use crate::limits::ResourceLimits;
 use crate::primitives::{u64_to_usize, usize_to_u64};
 
 /// Dense Line Index for fast in-chunk line start lookup.
@@ -63,13 +64,35 @@ impl DenseLineIndex {
     }
 
     pub fn decode_for_chunks(bytes: &[u8], chunk_entries: &[ChunkEntry]) -> Result<Self> {
+        Self::decode_for_chunks_with_limit(
+            bytes,
+            chunk_entries,
+            ResourceLimits::default().max_dense_line_index_allocation,
+        )
+    }
+
+    pub fn decode_for_chunks_with_limit(
+        bytes: &[u8],
+        chunk_entries: &[ChunkEntry],
+        max_allocation: u64,
+    ) -> Result<Self> {
         let mut cursor = 0_usize;
         let entry_count = read_varuint(bytes, &mut cursor)?;
-        if entry_count != chunk_entries.len() as u64 {
+        if entry_count != usize_to_u64(chunk_entries.len())? {
             return Err(QztError::ChunkTableInvalid);
         }
+        // Every entry needs at least a chunk ID and an offset count.
+        if entry_count > usize_to_u64((bytes.len() - cursor) / 2)? {
+            return Err(QztError::UnexpectedEof);
+        }
 
-        let mut entries = Vec::with_capacity(chunk_entries.len());
+        let mut requested = allocation_bytes::<DenseLineEntry>(chunk_entries.len())?;
+        if requested > max_allocation {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+
+        let mut entries = Vec::new();
+        reserve_exact(&mut entries, chunk_entries.len())?;
         for expected in chunk_entries {
             let chunk_id = read_varuint(bytes, &mut cursor)?;
             if chunk_id != expected.chunk_id {
@@ -79,8 +102,24 @@ impl DenseLineIndex {
             if offset_count != expected.line_count {
                 return Err(QztError::ChunkTableInvalid);
             }
+            if offset_count > expected.uncompressed_size {
+                return Err(QztError::ChunkTableInvalid);
+            }
+            // Each offset consumes at least one encoded byte.
+            if offset_count > usize_to_u64(bytes.len() - cursor)? {
+                return Err(QztError::UnexpectedEof);
+            }
 
-            let mut offsets = Vec::with_capacity(u64_to_usize(offset_count)?);
+            let offset_count = u64_to_usize(offset_count)?;
+            requested = requested
+                .checked_add(allocation_bytes::<u64>(offset_count)?)
+                .ok_or(QztError::ResourceLimitExceeded)?;
+            if requested > max_allocation {
+                return Err(QztError::ResourceLimitExceeded);
+            }
+
+            let mut offsets = Vec::new();
+            reserve_exact(&mut offsets, offset_count)?;
             let mut previous = 0_u64;
             for index in 0..offset_count {
                 let delta = read_varuint(bytes, &mut cursor)?;
@@ -135,6 +174,19 @@ impl DenseLineIndex {
     }
 }
 
+fn allocation_bytes<T>(count: usize) -> Result<u64> {
+    let bytes = count
+        .checked_mul(std::mem::size_of::<T>())
+        .ok_or(QztError::ResourceLimitExceeded)?;
+    usize_to_u64(bytes)
+}
+
+fn reserve_exact<T>(values: &mut Vec<T>, count: usize) -> Result<()> {
+    values
+        .try_reserve_exact(count)
+        .map_err(|_| QztError::ResourceLimitExceeded)
+}
+
 pub fn line_start_offsets(decoded: &[u8], flags: u32) -> Result<Vec<u64>> {
     let mut starts = Vec::new();
     if flags & STARTS_WITH_LINE_CONTINUATION == 0 && !decoded.is_empty() {
@@ -160,15 +212,16 @@ fn write_varuint(mut value: u64, output: &mut Vec<u8>) {
 }
 
 fn read_varuint(bytes: &[u8], cursor: &mut usize) -> Result<u64> {
-    let start = *cursor;
     let mut value = 0_u64;
     let mut shift = 0_u32;
+    let mut length = 0_u8;
 
     loop {
         let byte = *bytes.get(*cursor).ok_or(QztError::UnexpectedEof)?;
         *cursor += 1;
+        length += 1;
 
-        if shift >= 64 && byte & 0x7f != 0 {
+        if shift == 63 && byte & 0x7f > 1 {
             return Err(QztError::ChunkTableInvalid);
         }
         value |= u64::from(byte & 0x7f)
@@ -176,9 +229,7 @@ fn read_varuint(bytes: &[u8], cursor: &mut usize) -> Result<u64> {
             .ok_or(QztError::ChunkTableInvalid)?;
 
         if byte & 0x80 == 0 {
-            let mut minimal = Vec::new();
-            write_varuint(value, &mut minimal);
-            if minimal.as_slice() != &bytes[start..*cursor] {
+            if length > 1 && byte == 0 {
                 return Err(QztError::ChunkTableInvalid);
             }
             return Ok(value);
@@ -188,5 +239,22 @@ fn read_varuint(bytes: &[u8], cursor: &mut usize) -> Result<u64> {
         if shift > 63 {
             return Err(QztError::ChunkTableInvalid);
         }
+    }
+}
+
+#[cfg(test)]
+mod allocation_tests {
+    use super::*;
+
+    #[test]
+    fn reservation_failure_is_a_regular_error() {
+        assert_eq!(
+            reserve_exact(&mut Vec::<DenseLineEntry>::new(), usize::MAX),
+            Err(QztError::ResourceLimitExceeded)
+        );
+        assert_eq!(
+            reserve_exact(&mut Vec::<u64>::new(), usize::MAX),
+            Err(QztError::ResourceLimitExceeded)
+        );
     }
 }

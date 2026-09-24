@@ -9,6 +9,9 @@ pub struct ResourceLimits {
     pub max_dictionary_size: u64,
     /// Maximum bytes accepted for one index block.
     pub max_index_block_size: u64,
+    /// Maximum cumulative bytes requested for decoded Dense Line Index entry
+    /// and offset vectors. Stored index block bytes have a separate limit.
+    pub max_dense_line_index_allocation: u64,
     /// Maximum bytes exposed by preview-oriented operations.
     pub max_preview_bytes: u64,
     /// Maximum aggregate bytes allocated while decoding one CBOR value.
@@ -33,6 +36,9 @@ impl Default for ResourceLimits {
             max_uncompressed_chunk_size: 64 * 1024 * 1024,
             max_dictionary_size: 16 * 1024 * 1024,
             max_index_block_size: 64 * 1024 * 1024,
+            // A 64 MiB encoded block can expand substantially when varint
+            // offsets become u64s; cap requested vector storage at 256 MiB.
+            max_dense_line_index_allocation: 256 * 1024 * 1024,
             max_preview_bytes: 1024 * 1024,
             max_cbor_allocation: 16 * 1024 * 1024,
             max_cbor_items: 1_000_000,

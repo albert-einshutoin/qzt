@@ -24,3 +24,17 @@ allocation. Chunk Table entries are also rejected at open when compressed or
 uncompressed size exceeds the configured per-chunk limit. Normal verification
 hashes compressed bytes through a 64 KiB buffer; deep verification holds at
 most one bounded compressed chunk and its bounded decoded output at a time.
+
+At open, the shared Chunk Table validator rejects line counts larger than the
+corresponding uncompressed byte counts, including when no Dense Line Index
+(DLI) exists. DLI decoding checks declared entry and offset counts against the
+Chunk Table and the remaining encoded bytes before reserving vectors. The
+`ResourceLimits::max_dense_line_index_allocation` budget counts the requested
+capacity in bytes for the outer `DenseLineEntry` vector plus every chunk's
+`u64` offset vector cumulatively. Its default is 256 MiB: a 64 MiB encoded
+index block can expand substantially when varints become `u64` offsets, while
+the separate 64 MiB `max_index_block_size` still bounds stored block bytes.
+Containers whose DLI would require more than 256 MiB of vector capacity now
+need an explicit higher limit. This adds a field to the public `ResourceLimits`
+struct; source users constructing it without `..ResourceLimits::default()`
+must set the new field. The CBOR-only budgets are unchanged.

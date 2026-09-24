@@ -2292,6 +2292,9 @@ Readers MUST validate:
 - decompression does not exceed declared uncompressed_size
 - unknown flag bits are rejected
 - deterministic CBOR requirements are enforced before trusting CBOR fields
+- each chunk line_count <= its uncompressed_size, and total line_count <= original_size
+- Dense Line Index counts and encoded length before allocating decoded entries/offsets
+- cumulative Dense Line Index decoded-vector allocation <= configured max
 ```
 
 Recommended default limits:
@@ -2301,11 +2304,19 @@ max_compressed_chunk_size: 72MiB
 max_uncompressed_chunk_size: 64MiB
 max_dictionary_size: 16MiB
 max_index_block_size: configurable
+max_dense_line_index_allocation: 256MiB
 max_search_results: 100000
 max_preview_bytes: 1MiB
 ```
 
 Implementations MUST protect against decompression bombs.
+
+The Dense Line Index allocation limit counts requested capacity for its outer
+entry vector and all per-chunk `u64` offset vectors. It is separate from the
+stored index-block byte limit and the CBOR allocation limit. A continuation
+chunk may contain zero new line starts even when its decoded byte size is
+nonzero. The Rust reference Reader rejects invalid line counts and DLI sizes
+at open, without scanning the original content.
 
 ---
 
