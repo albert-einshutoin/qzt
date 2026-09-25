@@ -102,7 +102,7 @@ for physical decompression, posting processing, and query-key limits.
 The validated tiny sample showed one returned hit and:
 
 ```json
-{"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"physical_decoded_chunks":1,"verified_matches":1}}
+{"hits":[{"logical_offset":103,"byte_length":5,"chunk_start":0,"chunk_end":1,"source":"verified_original_bytes"}],"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"physical_decoded_chunks":1,"verified_matches":1}}
 ```
 
 ## 4. Read the cost metrics correctly

@@ -92,7 +92,7 @@ query key、posting、物理展開の上限は
 tiny sampleでは1 hitと次のcostを観測しました。
 
 ```json
-{"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"physical_decoded_chunks":1,"verified_matches":1}}
+{"hits":[{"logical_offset":103,"byte_length":5,"chunk_start":0,"chunk_end":1,"source":"verified_original_bytes"}],"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"physical_decoded_chunks":1,"verified_matches":1}}
 ```
 
 ## 4. cost metricを正しく読む
