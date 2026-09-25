@@ -1,13 +1,13 @@
 Measurement date: 2026-09-25 (local Japan time)
 QZT product code base: 917dd903d821b99da0197396958f7cff95e690d8
-Frozen harness and measurement commit: f4a49660a654259ce63343d8221fa2287e4036a7
+Frozen harness and measurement commit: 365a303a73224bc62cb4681b3dae9a1f46c74386
 Git working tree at measurement: clean
 Binary: /Volumes/Satechi/Developer/qzt-issue-295/target/release/qzt
 Binary SHA-256: cae7d34adb8f9091613f957532aef3106276caaeeba26ab1d15cc3eff70f9205
 Probe SHA-256: a36b9ffaa36398de1b0699baad5c17920e63302098d28f4a3d60540ec0ab679f
-An earlier full run at commit 079b6ad was superseded after the probe's
-  argument parsing was hardened. Its raw files remain in PR commit 775bc53;
-  final summary values use only the f4a4966 run.
+Earlier full runs at commits 079b6ad and f4a4966 were superseded after
+  argument-parsing and failure-accounting fixes. Their raw files remain in
+  PR commits 775bc53 and d4c8c04. Final values use only the 365a303 run.
 CLI version: qzt 0.1.0 (development checkout, not published pre.2)
 Build: cargo build --release --bin qzt --example cli_cost_probe (default features)
 Cargo.lock SHA-256: 2cc0af16ebb88af7ea8e1614392888ad803dcdf96e6c5ce1a024581dae3d864d
@@ -23,20 +23,26 @@ Concurrency: independent CLI child processes, slot limits 1, 8, 32; maximum
   overlap of spawned-to-collected intervals for each batch is retained in
   summary.json and records.jsonl.
   Supplemental c32 token-common-result run observed 32 live child processes,
-  at most 766.5% CPU (percent of one core, summed across children) and
-  2,826,896 KiB summed resident memory in ps samples. This is a sampled sum,
+  at most 766.8% CPU (percent of one core, summed across children) and
+  2,837,296 KiB summed resident memory in ps samples. This is a sampled sum,
   not an instantaneous system peak or process maximum RSS. A separate single
   token-common-result child was sampled 41 times by ps -M; up to one thread
   row was observed. These resource samples are separate from latency samples.
+  The supplemental run launched 32 copies of this command with Python
+  subprocess.Popen and sampled ps -o pid=,%cpu=,rss= -p <child-pids> every
+  50 ms until all children exited:
+    target/release/qzt search /private/tmp/qzt295-review-final-work/corpus.qzt qzt \
+      --sidecar /private/tmp/qzt295-review-final-work/corpus-token.qzi \
+      --max-results 10 --max-candidates 2000000 --format json
 Cache: no OS cache reset; verification and earlier measurements warmed files.
   Every CLI request launches a new process. API probe reuses opened objects.
   No controlled OS-cache-cold measurement.
 Measurement command from repository root:
-  python3 scripts/cli-cost-benchmark.py \
+  PYTHONDONTWRITEBYTECODE=1 python3 scripts/cli-cost-benchmark.py \
     --binary target/release/qzt \
     --probe target/release/examples/cli_cost_probe \
-    --work-dir /private/tmp/qzt295-final-work \
-    --log-dir /private/tmp/qzt295-final-raw \
+    --work-dir /private/tmp/qzt295-review-final-work \
+    --log-dir /private/tmp/qzt295-review-final-raw \
     --bytes 104857600 --seed 295 --samples 32 --api-samples 9 \
     --warmup 1 --build-runs 3 --timeout 120 --max-wall-seconds 3600
 No retry or outlier filtering. No timeout or nonzero exit in the measured run.

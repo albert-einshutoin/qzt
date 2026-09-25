@@ -1,5 +1,5 @@
 {
-  "product_commit": "f4a49660a654259ce63343d8221fa2287e4036a7",
+  "product_commit": "365a303a73224bc62cb4681b3dae9a1f46c74386",
   "dirty": false,
   "binary": "/Volumes/Satechi/Developer/qzt-issue-295/target/release/qzt",
   "binary_sha256": "cae7d34adb8f9091613f957532aef3106276caaeeba26ab1d15cc3eff70f9205",
@@ -8,8 +8,8 @@
   "options": {
     "binary": "target/release/qzt",
     "probe": "target/release/examples/cli_cost_probe",
-    "work_dir": "/private/tmp/qzt295-final-work",
-    "log_dir": "/private/tmp/qzt295-final-raw",
+    "work_dir": "/private/tmp/qzt295-review-final-work",
+    "log_dir": "/private/tmp/qzt295-review-final-raw",
     "bytes": 104857600,
     "seed": 295,
     "samples": 32,

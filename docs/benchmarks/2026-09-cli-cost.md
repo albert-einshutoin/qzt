@@ -3,7 +3,7 @@
 This report records local development-code measurements for #295. It is not a
 measurement of the published `v0.1.0-pre.2` binaries or a production SLA.
 
-## Measurement contract fixed before the 100 MiB run
+## Measurement contract fixed before the final 100 MiB run
 
 `scripts/cli-cost-benchmark.py` drives the prebuilt `target/release/qzt` and
 `target/release/examples/cli_cost_probe` executables. The generator uses the
@@ -77,12 +77,17 @@ The method review then removed explicit limit flags from default CLI cases and
 added spawned-process overlap accounting. A second pilot verified all 24
 case/concurrency cells and both independent RSS reads; the 32-slot cells in
 that pilot had only two requests and are **not** 32-way evidence. The large
-run will require at least 32 requests per cell and observed overlap.
+run therefore required at least 32 requests per cell and observed overlap.
+After the Codex review, three small subprocess tests covered an expired
+deadline before launch, an in-flight child killed at the overall deadline,
+and a failed spawn retained alongside a successful sibling. They run with
+`PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p
+test_cli_cost_benchmark.py -v` and passed before the final full run.
 
 ## Environment, raw evidence and results
 
 The frozen harness commit was
-`f4a49660a654259ce63343d8221fa2287e4036a7`; its working tree was clean.
+`365a303a73224bc62cb4681b3dae9a1f46c74386`; its working tree was clean.
 The QZT product code was unchanged from starting main
 `917dd903d821b99da0197396958f7cff95e690d8`.
 The release-profile binary was built with default features and SHA-256
@@ -95,13 +100,17 @@ See the [full environment and commands](raw/2026-09-cli-cost/environment.txt),
 [every attempt and output](raw/2026-09-cli-cost/records.jsonl),
 [recomputed summary](raw/2026-09-cli-cost/summary.json), and
 [separate resource sample](raw/2026-09-cli-cost/resource-sample.json).
-The first 100 MiB run used commit `079b6ad`; after a new Semgrep finding in
-the probe's argument parsing, the probe was changed to bounded `args_os()`
-parsing, reviewed with a small pilot, and the complete measurement was rerun
-at `f4a4966` under the same conditions. This report and its raw files use the
-**second** run. The QZT product binary hash and generated source hash were
-unchanged. The earlier run is retained in PR commit `775bc53` for audit, not
-mixed into the final run's percentiles.
+The first 100 MiB run used commit `079b6ad`; a new Semgrep finding led to
+bounded `args_os()` parsing and a second full run at `f4a4966`. Codex's review
+of the initial PR HEAD then identified two valid failure-accounting issues:
+the overall deadline was not enforced within a concurrent batch, and process
+launch failures could discard that batch's results. Both were fixed with
+small subprocess-failure tests, piloted, and the **complete third run** at
+`365a303` under the same conditions supplies this report's raw data and
+percentiles. The QZT product binary and generated source hashes stayed the
+same. Earlier runs remain in PR commits `775bc53` and `d4c8c04` for audit;
+their samples are not mixed into the final run. Their timing variation is a
+reason to avoid strong population or SLA claims.
 
 ### Source, correctness and capacity
 
@@ -135,7 +144,7 @@ is 264,996,139 bytes (2.527 times the original).
 
 ### Pack and independent QZI builds
 
-One new-file `qzt pack` process took **318 ms** and produced the 5,764,482-byte
+One new-file `qzt pack` process took **478 ms** and produced the 5,764,482-byte
 container. This excludes corpus generation and binary build. Each
 `sidecar-rebuild` process wrote a **new**, safely synchronized file. Parent
 wall time includes all CLI work; macOS `/usr/bin/time -l` reports the child's
@@ -144,8 +153,8 @@ harness's memory and prior searches are not included in the child peak.
 
 | Index | Build wall times, s (3 runs) | Child peak RSS, MiB (3 runs) |
 | --- | --- | --- |
-| Token | 3.097, 3.135, 2.984 | 624.0, 694.4, 693.7 |
-| N-gram | 25.962, 23.736, 24.800 | 2,812.0, 2,835.9, 2,853.9 |
+| Token | 4.646, 4.548, 3.466 | 631.6, 694.1, 693.2 |
+| N-gram | 33.035, 23.091, 23.332 | 3,060.4, 3,055.0, 3,147.1 |
 
 The n-gram build is the largest measured one-time cost on this corpus. The
 RSS rows are independent process peaks, not sums or estimates derived from
@@ -155,10 +164,10 @@ conversion or result is claimed.
 ### Open objects and search API
 
 Each phase-probe process opens QZT and then QZI from real files. Across four
-processes per index kind, QZT open median was **0.148 ms** for token cases and
-**0.136 ms** for n-gram cases; the first process in each group took 0.73 and
-0.76 ms respectively. QZI open median was **175.7 ms** for token (range
-151.7–238.7 ms) and **71.9 ms** for n-gram (65.4–94.3 ms). QZI open includes
+processes per index kind, QZT open median was **0.146 ms** for token cases and
+**0.136 ms** for n-gram cases; the first process in each group took 0.52 and
+0.62 ms respectively. QZI open median was **149.2 ms** for token (range
+143.0–163.6 ms) and **63.9 ms** for n-gram (62.6–85.1 ms). QZI open includes
 its actual section verification and dictionary loading, even when these
 repeat reads. The filesystem cache was uncontrolled and already touched by
 verification, so none of these are OS-cache-cold timings.
@@ -168,10 +177,10 @@ condition had these observed p50 wall times; one warmup was excluded:
 
 | Query | Token API p50 | N-gram API p50 | Result contract |
 | --- | ---: | ---: | --- |
-| Rare | 0.024 ms | 22.593 ms | 1 verified hit; uncapped |
-| Missing | 0.002 ms | 0.005 ms | 0 hit; source string absent |
-| Common, default | 14.669 ms | 14.443 ms | 0 hit, `max_candidate_granules`, 0 decode |
-| Common, explicit finite | 325.077 ms | 309.927 ms | 10 verified hits, `max_search_results`, nonzero decode |
+| Rare | 0.022 ms | 16.119 ms | 1 verified hit; uncapped |
+| Missing | 0.002 ms | 0.006 ms | 0 hit; source string absent |
+| Common, default | 13.178 ms | 14.534 ms | 0 hit, `max_candidate_granules`, 0 decode |
+| Common, explicit finite | 294.585 ms | 348.110 ms | 10 verified hits, `max_search_results`, nonzero decode |
 
 For the explicit common case, each baseline search reported 806,579 candidate
 granules, about 1.3 KiB of logical verification reads and 262,085 bytes of
@@ -189,46 +198,47 @@ overlap of intervals from child spawn through exit/output collection. It
 establishes overlapping invocations, including 32 for the expensive
 conditions; a separate `ps` sample confirmed 32 live processes for one token
 common run. A fast n-gram query could finish
-before all 32 slots filled (27–29 observed) and is not labeled as 32
+before all 32 slots filled (24–31 observed) and is not labeled as 32
 simultaneous CPU tasks. Full per-request wall times, exit status, output bytes,
 JSON and correctness verdicts remain in the raw log.
 
 | Query | Slots | p50 | p95 | p99 | Throughput/s | Max outstanding |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| token rare | 1 | 163.6 | 238.0 | 263.1 | 5.70 | 1 |
-| token rare | 8 | 252.0 | 307.8 | 315.3 | 29.62 | 8 |
-| token rare | 32 | 1,311.8 | 1,419.7 | 1,450.0 | 20.87 | 32 |
-| token missing | 1 | 162.7 | 248.2 | 253.9 | 5.86 | 1 |
-| token missing | 8 | 253.1 | 268.1 | 268.9 | 31.11 | 8 |
-| token missing | 32 | 1,104.9 | 1,198.5 | 1,201.8 | 25.65 | 32 |
-| token common/default | 1 | 180.8 | 293.4 | 293.9 | 5.12 | 1 |
-| token common/default | 8 | 287.3 | 338.2 | 338.7 | 27.03 | 8 |
-| token common/default | 32 | 1,130.4 | 1,233.5 | 1,265.2 | 23.17 | 32 |
-| token common/10 hits | 1 | 474.9 | 553.1 | 600.1 | 2.05 | 1 |
-| token common/10 hits | 8 | 5,082.2 | 5,226.0 | 5,228.9 | 1.60 | 8 |
-| token common/10 hits | 32 | 20,010.9 | 20,234.9 | 20,238.7 | 1.57 | 32 |
-| n-gram rare | 1 | 86.3 | 145.8 | 146.4 | 10.78 | 1 |
-| n-gram rare | 8 | 131.2 | 562.1 | 584.6 | 31.41 | 8 |
-| n-gram rare | 32 | 305.7 | 395.3 | 402.6 | 70.20 | 29 |
-| n-gram missing | 1 | 65.8 | 67.9 | 69.7 | 15.09 | 1 |
-| n-gram missing | 8 | 98.4 | 121.1 | 136.8 | 72.34 | 8 |
-| n-gram missing | 32 | 224.7 | 291.8 | 293.1 | 80.15 | 27 |
-| n-gram common/default | 1 | 88.7 | 108.7 | 113.0 | 11.02 | 1 |
-| n-gram common/default | 8 | 122.7 | 143.4 | 144.3 | 62.20 | 8 |
-| n-gram common/default | 32 | 279.5 | 351.8 | 355.6 | 69.03 | 28 |
-| n-gram common/10 hits | 1 | 366.0 | 384.6 | 472.3 | 2.71 | 1 |
-| n-gram common/10 hits | 8 | 4,942.7 | 5,136.7 | 5,142.6 | 1.59 | 8 |
-| n-gram common/10 hits | 32 | 20,055.1 | 20,268.2 | 20,319.0 | 1.57 | 32 |
+| token rare | 1 | 154.5 | 177.4 | 192.4 | 6.33 | 1 |
+| token rare | 8 | 250.7 | 262.3 | 263.0 | 31.57 | 8 |
+| token rare | 32 | 800.5 | 880.7 | 881.4 | 33.22 | 32 |
+| token missing | 1 | 158.1 | 172.6 | 173.0 | 6.27 | 1 |
+| token missing | 8 | 255.2 | 269.3 | 270.8 | 30.51 | 8 |
+| token missing | 32 | 1,779.2 | 1,864.0 | 1,891.6 | 16.30 | 32 |
+| token common/default | 1 | 170.7 | 191.9 | 195.7 | 5.74 | 1 |
+| token common/default | 8 | 275.5 | 293.4 | 293.6 | 28.45 | 8 |
+| token common/default | 32 | 1,147.6 | 1,277.7 | 1,278.2 | 24.09 | 32 |
+| token common/10 hits | 1 | 464.8 | 495.7 | 599.1 | 2.13 | 1 |
+| token common/10 hits | 8 | 5,108.2 | 5,509.6 | 5,510.9 | 1.58 | 8 |
+| token common/10 hits | 32 | 23,322.9 | 23,628.6 | 23,674.4 | 1.35 | 32 |
+| n-gram rare | 1 | 84.2 | 88.6 | 88.6 | 11.81 | 1 |
+| n-gram rare | 8 | 122.4 | 133.3 | 139.3 | 59.94 | 8 |
+| n-gram rare | 32 | 285.1 | 363.8 | 374.0 | 71.75 | 32 |
+| n-gram missing | 1 | 66.9 | 74.1 | 75.7 | 14.72 | 1 |
+| n-gram missing | 8 | 98.1 | 126.0 | 128.2 | 74.86 | 8 |
+| n-gram missing | 32 | 204.7 | 291.9 | 312.4 | 81.30 | 24 |
+| n-gram common/default | 1 | 81.2 | 85.5 | 94.3 | 12.24 | 1 |
+| n-gram common/default | 8 | 119.3 | 128.4 | 139.8 | 64.81 | 8 |
+| n-gram common/default | 32 | 317.7 | 387.1 | 396.0 | 72.54 | 31 |
+| n-gram common/10 hits | 1 | 362.8 | 469.8 | 554.8 | 2.57 | 1 |
+| n-gram common/10 hits | 8 | 4,851.3 | 4,975.8 | 5,072.9 | 1.65 | 8 |
+| n-gram common/10 hits | 32 | 18,991.9 | 19,282.6 | 19,299.0 | 1.65 | 32 |
 
 The 1-slot rare/missing CLI time is much larger than the reused-object API
 call. Separate open probes show token QZI open alone near the token rare CLI
 median, supporting QZI open as a major repeated-request cost. These are
 overlapping intervals from different processes, not additive component
 percentiles or a full CPU profile. The explicit common case spends hundreds of
-milliseconds inside the API call and falls to about 1.5 completed requests/s
-at 8–32 slots while per-request latency grows to 5–20 seconds. A separate
-32-child token-common sample observed 32 live processes, CPU up to 766.5% of
-one core summed across children, and a 2,826,896 KiB maximum **sampled sum**
+milliseconds inside the API call and falls to about 1.35–1.65 completed
+requests/s at 8–32 slots while per-request latency grows to about 5–23
+seconds. A separate 32-child token-common sample observed 32 live processes,
+CPU up to 766.8% of one core summed across children, and a 2,837,296 KiB
+maximum **sampled sum**
 of child RSS. This is not a measured system-wide memory peak. One isolated
 child had one observed thread; no exhaustive per-process thread profile was
 collected. The 10 logical CPUs were oversubscribed by 32 processes.
@@ -236,8 +246,8 @@ collected. The 10 logical CPUs were oversubscribed by 32 processes.
 ## Interpretation, limits and #27 decision
 
 For this synthetic corpus, the measured high costs are n-gram construction
-(23.7–26.0 s and 2.75–2.79 GiB peak), token QZI open in every fresh process
-(about 176 ms median), and high-frequency hit verification/planning under
+(23.1–33.0 s and 2.98–3.07 GiB peak), token QZI open in every fresh process
+(about 149 ms median), and high-frequency hit verification/planning under
 concurrency. The data justify **investigating** #27's index-build memory/time
 path and repeated token dictionary open, with a profiler and same-condition
 before/after comparison before choosing an optimization. They do not isolate
