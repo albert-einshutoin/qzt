@@ -1,8 +1,11 @@
 # QZT archiveの検索を運用する
 
 **所要時間:** 15 minutes（約15分）  
-**前提:** `qzt 0.1.0-pre.2`、`jq`。安定した契約は
-[docs/CLI.ja.md](../CLI.ja.md)を参照してください。
+**前提:** [commit固定の開発版CLI](../../README.ja.md#開発版cli)
+`ad709214f1e8ae18eff6e9f0b633345e40d1617b`、`jq`。
+cap optionはpre.2にもありますが、以下の`stop_reason`、index coverage、
+`physical_decoded_chunks` fieldはありません。欠けたfieldの`null`を検証済みと
+解釈せず、[開発版CLIリファレンス](../CLI.ja.md)の対象buildを使ってください。
 
 再利用可能なtoken/ngram sidecarを構築し、resource capを適用し、返却hitと物理decode量を
 混同せずにcostを読みます。
@@ -66,13 +69,15 @@ qzt search archive.qzt ERROR \
   --max-results 1 \
   --format json > bounded.json
 
-jq '{hits, capped, stop_reason, index_complete_declared, index_coverage_verified, incomplete_reason, metrics: {
+jq -e 'if has("stop_reason") and has("index_complete_declared") and
+  has("index_coverage_verified") and (.metrics | has("physical_decoded_chunks"))
+then {hits, capped, stop_reason, index_complete_declared, index_coverage_verified, incomplete_reason, metrics: {
   candidate_granules: .metrics.candidate_granules,
   decoded_bytes: .metrics.decoded_bytes,
   physical_decoded_bytes: .metrics.physical_decoded_bytes,
   physical_decoded_chunks: .metrics.physical_decoded_chunks,
   verified_matches: .metrics.verified_matches
-}}' bounded.json
+}} else error("development search fields are missing") end' bounded.json
 ```
 
 `--max-candidates`はcandidate granule、`--max-decoded-bytes`は検証するlogical candidate
@@ -87,7 +92,7 @@ query key、posting、物理展開の上限は
 tiny sampleでは1 hitと次のcostを観測しました。
 
 ```json
-{"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"verified_matches":1}}
+{"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"physical_decoded_chunks":1,"verified_matches":1}}
 ```
 
 ## 4. cost metricを正しく読む
@@ -115,5 +120,5 @@ hitの`byte_length`はmatch spanであり、物理decode量ではありません
 - QZT/QZIはarchiveやquery artifactを暗号化しません。sensitive dataにはredaction、access control、
   storage/transport encryptionを適用します。
 
-全コマンドはrelease binaryで実行済みです。
+全コマンドは上記の開発版buildで確認しています。
 [tutorial validation record](tutorial-validation.md)を参照してください。

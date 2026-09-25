@@ -58,19 +58,26 @@ fn tour_closes_the_verified_evidence_loop_with_real_commands() {
     for readme in [ENGLISH, JAPANESE] {
         for command in [
             "printf 'alpha\\nbeta\\nerror gamma\\n' > app.log",
-            "qzt pack app.log -o app.qzt",
-            "qzt info app.qzt --format json",
-            "qzt range app.qzt --lines 2:2",
-            "qzt sidecar-rebuild app.qzt -o app.qzt.qzi",
-            "qzt search app.qzt \"error\" --sidecar app.qzt.qzi",
-            "qzt verify app.qzt --deep",
-            "qzt attest app.qzt > app.attest.json",
+            "\"$QZT_BIN\" pack app.log -o app.qzt",
+            "\"$QZT_BIN\" info app.qzt --format json",
+            "\"$QZT_BIN\" range app.qzt --lines 2:2",
+            "\"$QZT_BIN\" sidecar-rebuild app.qzt -o app.qzt.qzi",
+            "\"$QZT_BIN\" search app.qzt \"error\" --sidecar app.qzt.qzi --format json",
+            "\"$QZT_BIN\" verify app.qzt --deep --format json",
+            "\"$QZT_BIN\" attest app.qzt > app.attest.json",
+            "\"$QZT_BIN\" export app.qzt -o restored.log",
+            "cmp app.log restored.log",
         ] {
             assert!(
                 readme.contains(command),
                 "missing executable tour command: {command}"
             );
         }
+    }
+
+    for readme in [ENGLISH, JAPANESE] {
+        assert!(!readme.contains("qzt inspect-sidecar app.qzt"));
+        assert!(readme.contains("scripts/smoke-release-tour.sh"));
     }
 
     for readme in [ENGLISH, JAPANESE] {
@@ -89,7 +96,7 @@ fn assert_in_order(document: &str, headings: &[&str]) {
     let mut previous = 0;
     for heading in headings {
         let position = document
-            .find(heading)
+            .find(&format!("{heading}\n"))
             .unwrap_or_else(|| panic!("missing heading: {heading}"));
         assert!(position >= previous, "heading out of order: {heading}");
         previous = position;

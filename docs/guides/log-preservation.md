@@ -1,8 +1,10 @@
 # Preserve and selectively disclose server logs
 
 **Time:** 15 minutes  
-**Prerequisites:** `qzt 0.1.0-pre.2`; `jq`; optional Linux/systemd and
-`minisign`. The stable command contract is [docs/CLI.md](../CLI.md).
+**Prerequisites:** the [pinned development CLI](../../README.md#development-cli)
+at `ad709214f1e8ae18eff6e9f0b633345e40d1617b`; `jq`; optional Linux/systemd
+and `minisign`. Commands and the `qzt-attestation-v1` checks below require that
+build, not the published pre.2 binary. See [development CLI reference](../CLI.md).
 
 This workflow creates tamper-evident technical records. It can show whether
 stored bytes changed after fixation; it does not establish that a log event was
@@ -237,5 +239,5 @@ adjacent token-boundary bytes read, and complete chunks physically decompressed.
   use `umask 077` and least-privilege ACLs, and protect archives with
   storage/transport encryption appropriate to the data.
 
-The commands above were executed against the release binary. See the
+The commands above target the pinned development build. See the
 [tutorial validation record](tutorial-validation.md).

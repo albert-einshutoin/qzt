@@ -14,32 +14,11 @@
 
 ## Install / インストール
 
-`v0.1.0`がcrates.ioへ公開された後は、安定版crateを導入できます。
-
-```sh
-cargo install qzt --version 0.1.0 --locked
-```
-
-crates.ioで利用可能になるまでは、macOS / Linuxに公開済みの
-[`v0.1.0-pre.2` technical preview](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
-をinstallします。
-
-```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.2/qzt-installer.sh | sh
-qzt --version
-```
-
-展開前にchecksumを検証してください。macOS/Linux、Windows、source buildの
-手順は以下で確認できます。
-
-<details>
-<summary>checksum検証付き手動導入とsource build</summary>
-
-<br>
-
-checksumを確認して手動導入する場合は、`aarch64-apple-darwin`、
-`x86_64-apple-darwin`、`x86_64-unknown-linux-gnu`から対象を選び、展開前に
-archiveを検証します。Apple siliconでの例:
+現在公開されているCLIは
+[`v0.1.0-pre.2` Release](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
+です。OSとarchitectureに合うarchiveと`.sha256`を取得し、checksum検証後に
+展開します。Apple siliconの例です（Intel Macは`x86_64-apple-darwin`、
+Linux x86_64は`x86_64-unknown-linux-gnu`を指定）。
 
 ```sh
 set -eu
@@ -50,11 +29,25 @@ base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
 curl --proto '=https' --tlsv1.2 -fLO "${base}/${archive}"
 curl --proto '=https' --tlsv1.2 -fLO "${base}/${archive}.sha256"
 expected="$(awk 'NF { print $1; exit }' "${archive}.sha256")"
-actual="$(shasum -a 256 "${archive}" | awk '{ print $1 }')"
+if command -v shasum >/dev/null 2>&1; then
+  actual="$(shasum -a 256 "${archive}" | awk '{ print $1 }')"
+else
+  actual="$(sha256sum "${archive}" | awk '{ print $1 }')"
+fi
 test "${expected}" = "${actual}"
 tar -xJf "${archive}"
-./"qzt-${target}"/qzt --version
+QZT_BIN="$(pwd)/qzt-${target}/qzt"
+"$QZT_BIN" --version
 ```
+
+以下のツアーでは、この絶対パス`QZT_BIN`を使います。公開CLIのversion出力は
+`qzt 0.1.0-pre.2`です。checksumの真正性は、信頼するReleaseとrepositoryの
+経路で確認してください。
+
+<details>
+<summary>Windows・installer・source build</summary>
+
+<br>
 
 Windowsでは同じReleaseの`.zip`と`.zip.sha256`を取得し、展開前に検証できます。
 
@@ -65,34 +58,64 @@ $actual = (Get-FileHash -Algorithm SHA256 $archive).Hash
 if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
 ```
 
-または`qzt-installer.ps1`を利用できます。プリビルドbinaryを使わず、review済み
-tagからbuildして導入する場合:
+または同じReleaseの`qzt-installer.sh`／`qzt-installer.ps1`を利用できます。
+配布binaryを使わず、**公開版と同じタグ**からbuildする場合:
 
 ```sh
-cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked qzt
 ```
+
+`cargo install qzt --version 0.1.0 --locked`は、そのversionがcrates.ioへ
+公開された後の選択肢です。現時点の導入手順ではありません。
 
 </details>
 
 ## 60秒ツアー
 
-install後、次のコマンドを上から順に実行します。
+上でchecksumを検証したpre.2 binaryを使い、`QZT_BIN`にはその絶対パスを
+設定してください。POSIX shell、`mktemp`、`cmp`を使用します。新しい使い捨て
+directoryで既存fileに依存せず実行します。
 
 ```sh
+set -eu
+test -x "$QZT_BIN"
+tour_dir="$(mktemp -d)"
+cd "$tour_dir"
 printf 'alpha\nbeta\nerror gamma\n' > app.log
-qzt pack app.log -o app.qzt
-qzt info app.qzt --format json
-qzt range app.qzt --lines 2:2
-qzt sidecar-rebuild app.qzt -o app.qzt.qzi
-qzt inspect-sidecar app.qzt --sidecar app.qzt.qzi --format json
-qzt search app.qzt "error" --sidecar app.qzt.qzi
-qzt verify app.qzt --deep
-qzt attest app.qzt > app.attest.json
+"$QZT_BIN" pack app.log -o app.qzt
+"$QZT_BIN" info app.qzt --format json
+"$QZT_BIN" range app.qzt --lines 2:2
+"$QZT_BIN" sidecar-rebuild app.qzt -o app.qzt.qzi
+"$QZT_BIN" search app.qzt "error" --sidecar app.qzt.qzi --format json
+"$QZT_BIN" verify app.qzt --deep --format json
+"$QZT_BIN" attest app.qzt > app.attest.json
+"$QZT_BIN" export app.qzt -o restored.log
+cmp app.log restored.log
 ```
 
-rangeは`beta`を出力します。searchはsourceが`verified_original_bytes`のhitを返し、
-deep verifyは全chunkを検証します。attestationは外部署名や信頼できるtimestampへ
-渡せるschema `qzt-attestation-v1`の決定的なJSON claimを1行で出力します。
+`info`は原文23 bytes・3行、rangeは改行を含む`beta`を返します。searchは
+byte offset 11に`verified_original_bytes`由来の`error` hitを1件返し、verifyは
+`ok=true`・`level=deep`を返します。pre.2のattestationは決定的な
+**versionなし**JSONで、`attestation_schema`や後のDeep coverage fieldはありません。
+`cmp`成功はexportと原文の全byte一致を意味します。JSON・決定性・byteを自動判定する
+[配布binary smoke script](scripts/smoke-release-tour.sh)は絶対パスのbinaryと`jq`を
+必要とします。[実測記録](docs/guides/tutorial-validation.md)も参照してください。
+
+## 開発版CLI
+
+現行の[CLIリファレンス](docs/CLI.ja.md)と以下の運用guideは、commit
+`ad709214f1e8ae18eff6e9f0b633345e40d1617b`の開発実装を対象とします。
+pre.2にないcommand、検索予算、安全性修正、`qzt-attestation-v1`の検証fieldを
+含みます。Rust 1.87以降でそのrevisionを導入する場合:
+
+```sh
+cargo install --git https://github.com/albert-einshutoin/qzt \
+  --rev ad709214f1e8ae18eff6e9f0b633345e40d1617b --locked qzt
+```
+
+QZT container形式の`v0.1`はCLIの配布versionとは別です。pre.2 JSONへ
+開発版のattestation判定を適用しないでください。以下の機能・制限説明は、
+別途明示した場合を除き、この開発版revisionを対象とします。
 
 ## ユースケース
 
@@ -241,7 +264,8 @@ make check
 1 つのテキストファイルで pack → inspect → export → diff まで試す最短パスです。
 QZT は `v0.1 technical preview` であり、production-ready ではない実験的な参照実装として扱ってください。
 
-local checkoutから使う場合は、先にrelease binaryをbuildします。
+local checkoutから使う場合は、そのcheckoutのCLIをrelease modeでbuildします。
+挙動はcheckoutしたcommitに従い、公開assetと同じとは限りません。
 
 ```sh
 cargo build --release
@@ -263,9 +287,10 @@ diff input.txt restored.txt
 
 ## CLIリファレンス
 
-全option、JSON schema、profileの実挙動、stdout/stderr規則、v0.1自動化向け
-安定性契約は[docs/CLI.ja.md](docs/CLI.ja.md)を参照してください。この節は
-commandの早見表だけに留めます。
+この早見表と[現行CLIリファレンス](docs/CLI.ja.md)は
+[commit固定の開発版](#開発版cli)を対象とします。公開pre.2 binaryでは
+[公開タグのCLIリファレンス](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.2/docs/CLI.ja.md)
+と上の公開版ツアーを参照してください。QZT形式`v0.1`はCLI versionではありません。
 
 ```sh
 qzt pack input.txt -o output.qzt

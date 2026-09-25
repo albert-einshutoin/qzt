@@ -14,33 +14,11 @@
 
 ## Install
 
-Install the stable crate after `v0.1.0` is published on crates.io:
-
-```sh
-cargo install qzt --version 0.1.0 --locked
-```
-
-Until the crates.io package is available, install the live
-[`v0.1.0-pre.2` technical preview](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
-on macOS or Linux:
-
-```sh
-curl --proto '=https' --tlsv1.2 -LsSf https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.2/qzt-installer.sh | sh
-qzt --version
-```
-
-Verify checksums before extraction; manual macOS/Linux, Windows, and source
-paths follow.
-
-<details>
-<summary>Checksum-verified and source installation options</summary>
-
-<br>
-
-For a verified manual install, choose one of
-`aarch64-apple-darwin`, `x86_64-apple-darwin`, or
-`x86_64-unknown-linux-gnu`, then verify the downloaded archive before
-extracting it. This example is for Apple silicon:
+The currently published CLI is the
+[`v0.1.0-pre.2` Release](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2).
+Download its archive and `.sha256` asset for your OS/architecture, verify the
+checksum, then extract it. For Apple silicon (use `x86_64-apple-darwin` or
+`x86_64-unknown-linux-gnu` for those hosts):
 
 ```sh
 set -eu
@@ -51,11 +29,25 @@ base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
 curl --proto '=https' --tlsv1.2 -fLO "${base}/${archive}"
 curl --proto '=https' --tlsv1.2 -fLO "${base}/${archive}.sha256"
 expected="$(awk 'NF { print $1; exit }' "${archive}.sha256")"
-actual="$(shasum -a 256 "${archive}" | awk '{ print $1 }')"
+if command -v shasum >/dev/null 2>&1; then
+  actual="$(shasum -a 256 "${archive}" | awk '{ print $1 }')"
+else
+  actual="$(sha256sum "${archive}" | awk '{ print $1 }')"
+fi
 test "${expected}" = "${actual}"
 tar -xJf "${archive}"
-./"qzt-${target}"/qzt --version
+QZT_BIN="$(pwd)/qzt-${target}/qzt"
+"$QZT_BIN" --version
 ```
+
+Run the tour below with this absolute `QZT_BIN` path. The published CLI reports
+`qzt 0.1.0-pre.2`. The archive checksum is provided by the Release; verify its
+authenticity through the Release and repository channel you trust.
+
+<details>
+<summary>Windows, installer, and source build options</summary>
+
+<br>
 
 Windows users can download the matching `.zip` and `.zip.sha256` assets and
 verify them before extraction:
@@ -67,35 +59,69 @@ $actual = (Get-FileHash -Algorithm SHA256 $archive).Hash
 if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
 ```
 
-Alternatively, run `qzt-installer.ps1` from the same Release. To build from
-the reviewed tag instead of downloading a prebuilt binary:
+Alternatively, use `qzt-installer.sh` or `qzt-installer.ps1` from the same
+Release. To build **the published version** from source instead of using its
+binary:
 
 ```sh
-cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked qzt
 ```
+
+`cargo install qzt --version 0.1.0 --locked` becomes an option only after that
+version is published on crates.io; it is not the current installation path.
 
 </details>
 
 ## 60-second Tour
 
-Run these commands in order after installation:
+Use the verified pre.2 binary from above (`QZT_BIN` must be its absolute path).
+Run this in a POSIX shell with `mktemp` and `cmp`. It creates a new disposable
+directory, independent of existing files:
 
 ```sh
+set -eu
+test -x "$QZT_BIN"
+tour_dir="$(mktemp -d)"
+cd "$tour_dir"
 printf 'alpha\nbeta\nerror gamma\n' > app.log
-qzt pack app.log -o app.qzt
-qzt info app.qzt --format json
-qzt range app.qzt --lines 2:2
-qzt sidecar-rebuild app.qzt -o app.qzt.qzi
-qzt inspect-sidecar app.qzt --sidecar app.qzt.qzi --format json
-qzt search app.qzt "error" --sidecar app.qzt.qzi
-qzt verify app.qzt --deep
-qzt attest app.qzt > app.attest.json
+"$QZT_BIN" pack app.log -o app.qzt
+"$QZT_BIN" info app.qzt --format json
+"$QZT_BIN" range app.qzt --lines 2:2
+"$QZT_BIN" sidecar-rebuild app.qzt -o app.qzt.qzi
+"$QZT_BIN" search app.qzt "error" --sidecar app.qzt.qzi --format json
+"$QZT_BIN" verify app.qzt --deep --format json
+"$QZT_BIN" attest app.qzt > app.attest.json
+"$QZT_BIN" export app.qzt -o restored.log
+cmp app.log restored.log
 ```
 
-The range command prints `beta`. Search reports a hit whose source is
-`verified_original_bytes`; deep verification checks every chunk; attestation
-emits one deterministic `qzt-attestation-v1` JSON claim suitable for external signing or trusted
-timestamping.
+`info` reports 23 original bytes and 3 lines; the line range prints `beta`
+with its newline. Search returns one `error` hit at byte offset 11 with source
+`verified_original_bytes`; `verify` reports `ok=true` and `level=deep`.
+The pre.2 attestation is deterministic, **versionless** JSON: it has no
+`attestation_schema` or later deep-coverage fields. `cmp` succeeds only when
+the exported file matches all original bytes. Run the
+[release-binary smoke script](scripts/smoke-release-tour.sh) with the absolute
+binary path for automated JSON, determinism, and byte checks (`jq` required).
+See the [measured validation record](docs/guides/tutorial-validation.md).
+
+## Development CLI
+
+The current [CLI reference](docs/CLI.md) and the operational guides below
+describe the development implementation at commit
+`ad709214f1e8ae18eff6e9f0b633345e40d1617b`, which adds commands,
+search budgets, safety fixes, and `qzt-attestation-v1` coverage fields that
+pre.2 does not provide. Install that exact source revision with Rust 1.87+:
+
+```sh
+cargo install --git https://github.com/albert-einshutoin/qzt \
+  --rev ad709214f1e8ae18eff6e9f0b633345e40d1617b --locked qzt
+```
+
+Its QZT container format is still `v0.1`; that is separate from the CLI
+distribution version. Do not apply the development attestation policy to a
+pre.2 JSON document. Feature and limit descriptions below apply to this
+development revision unless they explicitly say otherwise.
 
 ## Use Cases
 
@@ -248,7 +274,8 @@ The smallest successful path with one text file: pack, inspect, export, and
 confirm round-trip equality. QZT is a `v0.1 technical preview`—an experimental
 reference implementation, not production-ready software.
 
-From a local checkout, build the release binary first:
+From a local checkout, build that checkout's CLI in release mode first. Its
+behavior follows the checked-out commit, not the published asset:
 
 ```sh
 cargo build --release
@@ -271,9 +298,10 @@ No output from `diff` means the restored bytes match the source.
 
 ## CLI Reference
 
-See [docs/CLI.md](docs/CLI.md) for every option, JSON schema, profile
-behavior, stdout/stderr rule, and the v0.1 automation stability contract. This
-section is only a quick command map.
+This command map and [the current CLI reference](docs/CLI.md) describe the
+[pinned development build](#development-cli). For the published pre.2 binary,
+use the [CLI reference at the release tag](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.2/docs/CLI.md)
+and the release tour above. QZT format `v0.1` is not a CLI version.
 
 ```sh
 qzt pack input.txt -o output.qzt
