@@ -214,8 +214,8 @@ qzt range daily.qzt --bytes "${offset}:$((offset + length))"
 The validated sample returned `INC-4242`. A hit has
 `source=verified_original_bytes`; the search verifies candidate bytes before
 reporting it. The returned hit interval is not the physical decode boundary.
-Inspect `decoded_bytes` and `physical_decoded_bytes` to see candidate bytes
-verified and complete chunks physically decompressed.
+Inspect `decoded_bytes` and `physical_decoded_bytes` to see candidate and
+adjacent token-boundary bytes read, and complete chunks physically decompressed.
 
 ## Limitations
 

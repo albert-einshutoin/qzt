@@ -36,7 +36,7 @@ qzt search archive.qzt ERROR \
   --sidecar archive.token.qzi --format json | jq
 ```
 
-複数token queryは**co-occurrence**です。同じgranuleに全tokenがあればorderやadjacencyを
+複数token queryは**co-occurrence**です。原文の同じ行に全tokenがあればorderやadjacencyを
 要求しません。phrase searchではありません。
 
 n-gramは`n` Unicode scalar以上のsubstringに使います。
@@ -66,7 +66,7 @@ qzt search archive.qzt ERROR \
   --max-results 1 \
   --format json > bounded.json
 
-jq '{hits, capped, stop_reason, incomplete_reason, metrics: {
+jq '{hits, capped, stop_reason, index_complete_declared, index_coverage_verified, incomplete_reason, metrics: {
   candidate_granules: .metrics.candidate_granules,
   decoded_bytes: .metrics.decoded_bytes,
   physical_decoded_bytes: .metrics.physical_decoded_bytes,
@@ -76,21 +76,24 @@ jq '{hits, capped, stop_reason, incomplete_reason, metrics: {
 ```
 
 `--max-candidates`はcandidate granule、`--max-decoded-bytes`は検証するlogical candidate
-byte、`--max-results`は返すhitを制限します。`capped=true`ならbudgetで処理または出力が
+byteと隣接token境界byte、`--max-results`は返すhitを制限します。`capped=true`ならbudgetで処理または出力が
 停止したため、省略hitをabsenceとして扱えません。停止理由は`stop_reason`に記録されます。
-`capped`と`incomplete_reason`は独立です。query key、posting、物理展開の上限は
+結果上限に到達しても追加hitの有無は未確認です。`capped`と`incomplete_reason`は
+独立です。`index_complete_declared`はindexの宣言で、
+`index_coverage_verified`は現在falseです。上限なしの0件でも不存在は証明できません。
+query key、posting、物理展開の上限は
 [予算表](../QZT_v0.1_Memory_Guarantees.md#search-and-index-build-budgets)を参照してください。
 
 tiny sampleでは1 hitと次のcostを観測しました。
 
 ```json
-{"capped":true,"stop_reason":"max_search_results","incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":104,"physical_decoded_bytes":452,"verified_matches":1}}
+{"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"verified_matches":1}}
 ```
 
 ## 4. cost metricを正しく読む
 
 - `candidate_granules`: byte検証前にposting listから得たcandidate数。
-- `decoded_bytes`: 検証したlogical candidate byte。
+- `decoded_bytes`: 検証のために読んだlogical candidate byteと隣接token境界byte。
 - `physical_decoded_bytes`: 物理的に展開した完全QZT chunk。cache hitは無料、eviction後の再展開は再計上します。
 - `physical_decoded_chunks`: 実際のchunk展開回数。候補chunk区間の和集合の数とは異なります。
 - `verified_matches`: original byteと照合できたoccurrence数。
@@ -107,7 +110,7 @@ hitの`byte_length`はmatch spanであり、物理decode量ではありません
   ありません。ASCII case foldingは実装済みです。
 - sidecar buildは大きなmemoryを使い、sourceより大きくなる場合があります。
   [v0.1 benchmark report](../benchmarks/2026-07-v0.1.md)のtrade-offを確認してください。
-- capは意図的にpartial resultを許します。`capped`、`incomplete_reason`、metricsを確認します。
+- capは意図的にpartial resultを許します。`capped`、`incomplete_reason`、indexの網羅性field、metricsを確認します。
 - sidecarはtrusted evidenceではありません。authoritativeなQZT original byteで検証後にhitを返します。
 - QZT/QZIはarchiveやquery artifactを暗号化しません。sensitive dataにはredaction、access control、
   storage/transport encryptionを適用します。

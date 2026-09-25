@@ -192,7 +192,7 @@ Document Index entryを一覧します。Indexなしは終了`1`。JSONは
 | `--max-posting-ids <N>` | 選択したposting ID総数。既定10,000,000。 |
 | `--max-posting-work <N>` | IDコピー・比較・交差結果への追加の総数。既定20,000,000。 |
 | `--max-candidates <N>` | candidate granule。既定10000。 |
-| `--max-decoded-bytes <N|NKiB|NMiB|NGiB>` | 検証するlogical granule byte数。既定256 MiB。 |
+| `--max-decoded-bytes <N|NKiB|NMiB|NGiB>` | 検証するlogical候補byteと隣接token境界byte。既定256 MiB。 |
 | `--max-physical-decoded-bytes <N|NKiB|NMiB|NGiB>` | 物理的に展開する完全chunkのbyte数。既定256 MiB。 |
 | `--max-physical-decoded-chunks <N>` | chunk展開回数。既定10,000。 |
 | `--max-line-bytes <N|NKiB|NMiB|NGiB>` | sidecarなしのindex構築時の行byte数。既定16 MiB。 |
@@ -209,20 +209,30 @@ QZI 検索では、取得した granule の範囲を紐づく QZT Chunk Table �
 取得前に終了した場合、`candidate_chunks` は `0` で、未読 record は未検証です。
 
 JSON top-levelは`hits` array、`metrics` object、`capped` boolean、
-`stop_reason` string/null、`incomplete_reason` string/nullです。hitは`logical_offset`, `byte_length`,
+`stop_reason` string/null、`index_complete_declared` boolean、
+`index_coverage_verified` boolean、`incomplete_reason` string/nullです。hitは`logical_offset`, `byte_length`,
 `chunk_start`, `chunk_end`, `source` (`verified_original_bytes`)を持ちます。
 metricsは`query`, `index_kind`, `posting_granularity`, `index_size_bytes`,
 `source_size_bytes`, `index_size_ratio`, `term_lookups`, `posting_bytes_read`,
 `candidate_granules`, `candidate_chunks`, `decoded_bytes`,
 `physical_decoded_bytes`, `physical_decoded_chunks`, `verified_matches`, `query_time_ms`です。
 
-textのmetricsにも同じ`stop_reason`を出します（理由がなければ`none`）。
+textのmetricsにも両index fieldと同じ`stop_reason`を出します（理由がなければ`none`）。
+`index_complete_declared`はmemory indexのflagまたはQZI manifestの宣言で、
+原文の網羅性の証明ではありません。`index_coverage_verified`は現在falseです。
+`complete=true`や通常の0件でも同じです。section checksumとsource bindingでは
+全一致箇所にpostingがあるとは証明できません。`source=verified_original_bytes`は
+返したhitだけの保証です。token hitでは全query tokenが原文の同じ行にあり、必要なら
+granule外側のbyteも読んでtoken境界を検証します。このbyteはlogical/physical
+decode予算に計上します。
 `capped=true`は理由を持ち、capによる0件と通常の0件を区別できます。
 一時的なn-gram indexの`posting_bytes_read`はplannerの推定値で、実処理予算の計数値ではありません。
 
 `incomplete_reason`は現在`query_shorter_than_ngram_n`,
 `query_has_no_indexable_tokens`, `missing_required_key_in_incomplete_index`です。
 null以外なら、空/部分結果を完全な否定結果として解釈してはいけません。
+理由がnullでcapがなくても、未検証のindexから不存在は証明できません。
+結果上限は到達時に停止し、その先にhitがあるかは分かりません。
 
 ### `qzt inspect-sidecar <FILE.qzt> --sidecar <FILE.qzi> [--format text|json]`
 
@@ -232,6 +242,8 @@ metadataを表示します。既定のtext出力とJSON出力は`index_type`、`
 `granule_count`、`term_count`、`postings_size_bytes`を含みます。破損または別QZTに
 紐づくsidecarは成功summaryを出さずexit `1`になります。inspectionが行うQZT検証は
 quick構造検証までです。Core全体の検証には`qzt verify <FILE.qzt> --deep`を使います。
+`complete`はsidecar manifestの宣言値で、検索の網羅性の検証結果ではありません。
+inspection成功でも全一致箇所にpostingがあるとは証明できません。
 
 ### `qzt sidecar-rebuild <FILE> -o <OUTPUT.qzi> [OPTIONS]`
 

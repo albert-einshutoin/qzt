@@ -128,9 +128,9 @@ section を使う前に、reader は次を検証しなければなりません�
 `high_df_per_million` は planner の inclusive threshold
 `granule_frequency * 1_000_000 / granule_count` です。参照 writer は build option を
 manifest に記録し、既定値は `200_000`（20%）です。現行 CLI からは変更できません。
-n-gram search では threshold 以上の key を high-DF とし、必要な key がすべて
-high-DF なら早期に capped result を返して、common term の無制限な candidate decode
-を避けます。
+n-gram search では threshold 以上の key を planning 用の high-DF とします。
+この印だけでは query を停止せず、query・posting・candidate・decode・結果の
+各予算が引き続き適用されます。
 
 ## Section payload
 
@@ -255,6 +255,16 @@ sidecar のヒットは **候補** に過ぎません。search は次を行い�
    使用より前に検証する。
 3. **source QZT コンテナ** から重なる原文バイトを decode する。
 4. その原文バイトに対して token または n-gram 規則で一致を検証する。
+
+token の検証では、全 query token が原文の同じ行にあり、granule の直前・直後の
+byte も含めて token 境界が成立する必要があります。`source =
+verified_original_bytes` は返した hit にだけ適用され、全 hit の発見を証明しません。
+QZI manifest の `complete` は index の宣言であり、網羅性の検証結果ではありません。
+section checksum と source binding は sidecar の構造と紐付けを確認しますが、
+原文の全一致箇所に posting があることまでは証明しません。search report は宣言を
+`index_complete_declared` に示し、`index_coverage_verified = false` とします。
+通常の 0 件も不存在の証明ではありません。`capped` と `stop_reason` は作業・結果の
+上限を示し、`incomplete_reason` は index で回答できない query を独立に示します。
 
 sidecar 単体を内容の証拠として扱ってはいけません。in-memory の open は復元した
 全 granule を検証します。file-backed の open は section の整合性と source binding

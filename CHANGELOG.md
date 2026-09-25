@@ -4,6 +4,18 @@
 
 ### Fixed
 
+- Search now checks token boundaries and same-line token AND against original
+  QZT bytes, including adjacent bytes outside a candidate granule. This
+  prevents partial-token and cross-line false hits from a bound QZI sidecar.
+  A QZI `complete` flag remains a declaration, not evidence that every source
+  match has a posting. `SearchReport` and CLI text/JSON add
+  `index_complete_declared` and `index_coverage_verified` (currently false)
+  so zero hits and capped results do not overstate coverage. Incomplete token
+  indexes now report a missing required key consistently across in-memory and
+  file-backed search. Existing QZT/QZI bytes and per-hit
+  `source=verified_original_bytes` remain unchanged. Source users constructing
+  complete `SearchReport` literals must add the new fields.
+
 - Public Writer output now stays within default Reader limits for chunk sizes,
   Chunk Table and optional index blocks, decoded CBOR items/allocation, and
   cumulative Dense Line Index allocation. Supplied Document Index records are
