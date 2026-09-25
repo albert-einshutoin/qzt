@@ -1,5 +1,6 @@
 //! Opt-in file-backed phase probe for the #295 CLI cost measurement.
 use std::env;
+use std::ffi::OsString;
 use std::fs;
 use std::path::Path;
 use std::time::Instant;
@@ -12,11 +13,13 @@ use qzt::{
 const MARKER: &[u8] = b"\nissue295-needle-unique\n";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = env::args().skip(1).collect();
-    match args.first().map(String::as_str) {
+    // nosemgrep: rust.lang.security.args-os.args-os -- argv[0] is discarded;
+    // at most nine explicit inputs are accepted; corpus and sample sizes are capped.
+    let args: Vec<OsString> = env::args_os().skip(1).take(9).collect();
+    match args.first().and_then(|value| value.to_str()) {
         Some("generate") if args.len() == 4 => {
-            let target = args[2].parse::<usize>()?;
-            let seed = args[3].parse::<u64>()?;
+            let target = utf8_arg(&args[2])?.parse::<usize>()?;
+            let seed = utf8_arg(&args[3])?.parse::<u64>()?;
             if target == 0 || target > 1024 * 1024 * 1024 {
                 return Err("target must be within 1..=1073741824 bytes".into());
             }
@@ -25,7 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ValidationCorpusOptions { seed, target_bytes: target },
             )?;
             corpus.extend_from_slice(MARKER);
-            fs::write(&args[1], &corpus)?;
+            fs::write(Path::new(&args[1]), &corpus)?;
             // One-off metadata tally does not justify a new crate dependency.
             #[allow(clippy::naive_bytecount)]
             let lines = corpus.iter().filter(|byte| **byte == b'\n').count();
@@ -40,11 +43,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let started = Instant::now();
             let sidecar = QziFileSidecar::open_path(Path::new(&args[2]), &reader)?;
             let qzi_open_ms = started.elapsed().as_secs_f64() * 1000.0;
-            let query = &args[3];
-            let max_results = args[4].parse::<u64>()?;
-            let max_candidates = args[5].parse::<u64>()?;
-            let warmup = args[6].parse::<usize>()?;
-            let samples = args[7].parse::<usize>()?;
+            let query = utf8_arg(&args[3])?;
+            let max_results = utf8_arg(&args[4])?.parse::<u64>()?;
+            let max_candidates = utf8_arg(&args[5])?.parse::<u64>()?;
+            let warmup = utf8_arg(&args[6])?.parse::<usize>()?;
+            let samples = utf8_arg(&args[7])?.parse::<usize>()?;
             if samples == 0 || samples > 1000 || warmup > 1000 {
                 return Err("sample or warmup count outside 1..=1000".into());
             }
@@ -66,4 +69,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ => return Err("usage: cli_cost_probe generate PATH TARGET_BYTES SEED | api QZT QZI QUERY MAX_RESULTS MAX_CANDIDATES WARMUP SAMPLES".into()),
     }
     Ok(())
+}
+
+fn utf8_arg(value: &OsString) -> Result<&str, Box<dyn std::error::Error>> {
+    value
+        .to_str()
+        .ok_or_else(|| "argument must be UTF-8".into())
 }
