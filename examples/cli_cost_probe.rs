@@ -13,8 +13,7 @@ use qzt::{
 const MARKER: &[u8] = b"\nissue295-needle-unique\n";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // nosemgrep: rust.lang.security.args-os.args-os -- argv[0] is discarded;
-    // at most nine explicit inputs are accepted; corpus and sample sizes are capped.
+    // nosemgrep: rust.lang.security.args-os.args-os -- skip(1) discards argv[0]; take(9) bounds argument count; corpus and sample sizes are capped below.
     let args: Vec<OsString> = env::args_os().skip(1).take(9).collect();
     match args.first().and_then(|value| value.to_str()) {
         Some("generate") if args.len() == 4 => {
