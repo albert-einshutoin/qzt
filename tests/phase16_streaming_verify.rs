@@ -90,6 +90,19 @@ fn deep_verify_rejects_stale_document_index_with_range_scoped_read() {
         QztFileReader::open_read_at(&container[..], container.len() as u64).expect("file open");
 
     assert_eq!(
+        file.verify(VerifyLevel::Quick)
+            .unwrap()
+            .document_index_status,
+        qzt::IndexVerificationStatus::StoredBlockVerified
+    );
+    assert_eq!(
+        file.verify(VerifyLevel::Normal)
+            .unwrap()
+            .document_index_status,
+        qzt::IndexVerificationStatus::StoredBlockVerified
+    );
+
+    assert_eq!(
         file.verify(VerifyLevel::Deep),
         Err(qzt::error::QztError::ContainerCorrupt)
     );

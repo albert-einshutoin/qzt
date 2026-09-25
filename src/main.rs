@@ -1621,13 +1621,56 @@ fn run_verify(mut args: impl Iterator<Item = String>) -> ExitCode {
                 write_stdout_with(|output| {
                     writeln!(output, "Verify: {:?} ok", report.level)?;
                     writeln!(output, "Checked chunks: {}", report.checked_chunks)?;
-                    writeln!(output, "Decoded bytes: {}", report.decoded_bytes)
+                    writeln!(output, "Decoded bytes: {}", report.decoded_bytes)?;
+                    writeln!(
+                        output,
+                        "Compressed checksum chunks: {}",
+                        report.compressed_checksum_chunks
+                    )?;
+                    writeln!(output, "Decoded chunks: {}", report.decoded_chunks)?;
+                    writeln!(
+                        output,
+                        "Original checksum verified: {}",
+                        report.original_checksum_verified
+                    )?;
+                    writeln!(
+                        output,
+                        "Container prefix checksum: {}",
+                        report.container_checksum_status.as_str()
+                    )?;
+                    writeln!(
+                        output,
+                        "Dense Line Index: {}",
+                        report.dense_line_index_status.as_str()
+                    )?;
+                    writeln!(
+                        output,
+                        "Document Index: {}",
+                        report.document_index_status.as_str()
+                    )
                 })
             } else {
-                let chunks = report.checked_chunks;
-                let bytes = report.decoded_bytes;
                 let output = format!(
-                    "{{\"ok\":true,\"level\":\"{level_str}\",\"checked_chunks\":{chunks},\"decoded_bytes\":{bytes}}}"
+                    concat!(
+                        "{{\"ok\":true,\"level\":\"{level_str}\",",
+                        "\"checked_chunks\":{checked_chunks},",
+                        "\"compressed_checksum_chunks\":{compressed_checksum_chunks},",
+                        "\"decoded_chunks\":{decoded_chunks},",
+                        "\"decoded_bytes\":{decoded_bytes},",
+                        "\"original_checksum_verified\":{original_checksum_verified},",
+                        "\"container_checksum_status\":\"{container_checksum_status}\",",
+                        "\"dense_line_index_status\":\"{dense_line_index_status}\",",
+                        "\"document_index_status\":\"{document_index_status}\"}}"
+                    ),
+                    level_str = level_str,
+                    checked_chunks = report.checked_chunks,
+                    compressed_checksum_chunks = report.compressed_checksum_chunks,
+                    decoded_chunks = report.decoded_chunks,
+                    decoded_bytes = report.decoded_bytes,
+                    original_checksum_verified = report.original_checksum_verified,
+                    container_checksum_status = report.container_checksum_status.as_str(),
+                    dense_line_index_status = report.dense_line_index_status.as_str(),
+                    document_index_status = report.document_index_status.as_str(),
                 );
                 write_stdout(format!("{output}\n").as_bytes())
             }

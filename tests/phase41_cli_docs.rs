@@ -218,7 +218,21 @@ fn machine_readable_schemas_and_defaults_match_the_documented_contract() {
     assert_keys(&info["original_checksum"], &["algorithm", "value"]);
 
     let verify = run_json(&["verify", packed, "--format", "json"]);
-    assert_keys(&verify, &["checked_chunks", "decoded_bytes", "level", "ok"]);
+    assert_keys(
+        &verify,
+        &[
+            "checked_chunks",
+            "compressed_checksum_chunks",
+            "container_checksum_status",
+            "decoded_bytes",
+            "decoded_chunks",
+            "dense_line_index_status",
+            "document_index_status",
+            "level",
+            "ok",
+            "original_checksum_verified",
+        ],
+    );
     assert_eq!(verify["level"], "normal");
     assert_eq!(verify["ok"], true);
     assert_eq!(verify["decoded_bytes"], 0);
@@ -290,6 +304,7 @@ fn machine_readable_schemas_and_defaults_match_the_documented_contract() {
     assert_keys(
         &attest,
         &[
+            "attestation_schema",
             "chunk_count",
             "container_checksum",
             "container_id",
@@ -304,7 +319,17 @@ fn machine_readable_schemas_and_defaults_match_the_documented_contract() {
     assert_eq!(attest["verify"]["level"], "deep");
     assert_keys(
         &attest["verify"],
-        &["checked_chunks", "decoded_bytes", "level"],
+        &[
+            "checked_chunks",
+            "compressed_checksum_chunks",
+            "container_checksum_status",
+            "decoded_bytes",
+            "decoded_chunks",
+            "dense_line_index_status",
+            "document_index_status",
+            "level",
+            "original_checksum_verified",
+        ],
     );
 
     assert_eq!(SearchOptions::default().max_candidate_granules, 10_000);
@@ -388,7 +413,19 @@ fn documented_search_defaults_and_schema_are_scoped_to_the_runtime_command() {
         let verify = command_section(document, "qzt verify");
         assert_fields_in_section(
             verify,
-            &["checked_chunks", "decoded_bytes", "error", "level", "ok"],
+            &[
+                "checked_chunks",
+                "compressed_checksum_chunks",
+                "container_checksum_status",
+                "decoded_bytes",
+                "decoded_chunks",
+                "dense_line_index_status",
+                "document_index_status",
+                "error",
+                "level",
+                "ok",
+                "original_checksum_verified",
+            ],
             "verify",
         );
 
@@ -413,6 +450,7 @@ fn documented_search_defaults_and_schema_are_scoped_to_the_runtime_command() {
         assert_fields_in_section(
             attest,
             &[
+                "attestation_schema",
                 "chunk_count",
                 "container_checksum",
                 "container_id",
@@ -423,8 +461,14 @@ fn documented_search_defaults_and_schema_are_scoped_to_the_runtime_command() {
                 "original_size",
                 "verify",
                 "checked_chunks",
+                "compressed_checksum_chunks",
+                "container_checksum_status",
                 "decoded_bytes",
+                "decoded_chunks",
+                "dense_line_index_status",
+                "document_index_status",
                 "level",
+                "original_checksum_verified",
             ],
             "attest",
         );

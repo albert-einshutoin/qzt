@@ -259,22 +259,45 @@ searchで開く際に対象containerとの対応を検証します。
 | level | 検証内容 |
 |---|---|
 | `quick` | 構造block、offset、schema、必須checksum、resource limit。 |
-| `normal` | quick＋保存圧縮chunk checksum。decoded bytesは0。 |
+| `normal` | quick＋全圧縮chunk checksumと、存在する場合のcontainer prefix checksum。decoded bytesは0。 |
 | `deep` | normal＋復号、原文checksum、UTF-8/newline/index/document整合。 |
 
-成功JSONは`ok`, `level`, `checked_chunks`, `decoded_bytes`。失敗JSONは
+成功textは従来の先頭3行を維持し、圧縮checksum照合chunk数、展開chunk数、原文checksum状態、
+optionalなprefix checksum／Dense Line Index／Document Indexの状態を追加します。
+成功JSONは既存の`ok`, `level`, `checked_chunks`, `decoded_bytes`に加え、
+`compressed_checksum_chunks`, `decoded_chunks`, `original_checksum_verified`,
+`container_checksum_status`, `dense_line_index_status`, `document_index_status`を返します。
+`checked_chunks`は全levelでopen時に構造確認したChunk Table entry数です。payload検証数では
+ありません。chunk counterは内部で再hashした回数ではなく、異なるchunkの数です。
+同じReaderで以前にDeepを実行していても、今回指定したlevelの結果だけを表します。
+
+prefixの状態は`absent`／`present_unchecked`／`verified`、indexの状態は
+`absent`／`stored_block_verified`／`source_checked`です。保存blockの状態はblock checksum、
+schema、containerとのbinding、descriptorの物理保存範囲の検証を意味します。
+この段階ではDocument Indexの論理範囲やchunk spanは未照合です。
+DeepではDLIのoffsetを復号byteと照合します。
+Document Indexは文書byteのhash、論理範囲境界、chunk spanを照合しますが、正確な行位置・
+行数まで原文と照合したという意味ではありません。未知のoptional blockは対象外です。
+prefix checksumの対象はFooter Payload直前までで、全ファイルではありません。
+
+失敗JSONは
 `ok:false`, `level`, `error`を持ち、安定性契約どおりstdoutへ出して終了`1`です。
 
 ```json
-{"ok":true,"level":"deep","checked_chunks":1,"decoded_bytes":55}
+{"ok":true,"level":"deep","checked_chunks":1,"compressed_checksum_chunks":1,"decoded_chunks":1,"decoded_bytes":11,"original_checksum_verified":true,"container_checksum_status":"verified","dense_line_index_status":"absent","document_index_status":"absent"}
 ```
 
 ### `qzt attest [--level quick|normal|deep] <FILE>`
 
 既定deep。optionはfileの前後どちらでも使えます。検証成功まで何も出さず、成功後に
-正準JSON 1行だけを書きます。top-level fieldは`chunk_count`, `container_checksum`,
+正準JSON 1行だけを書きます。top-levelの`attestation_schema`は
+`qzt-attestation-v1`です。`format: "qzt-0.1"`はQZTコンテナ形式を示します。
+他のtop-level fieldは`chunk_count`, `container_checksum`,
 `container_id`, `final_file_size`, `format`, `line_count`, `original_checksum`,
-`original_size`, `verify`で、nested `verify`は`checked_chunks`, `decoded_bytes`, `level`を
+`original_size`, `verify`で、nested `verify`は`checked_chunks`,
+`compressed_checksum_chunks`, `container_checksum_status`, `decoded_bytes`,
+`decoded_chunks`, `dense_line_index_status`, `document_index_status`, `level`,
+`original_checksum_verified`を
 持ちます。[アテステーション正準形](#アテステーション正準形)と
 [署名guide](guides/attestation.md)を参照してください。
 
@@ -313,14 +336,19 @@ offset 28/length 27/first line 3の`demo/beta.txt`を返します。
 - lowercase hex、JSON integer、legacyで`container_checksum`がない場合だけ`null`。
 - path/host/clock/locale等の環境依存値なし。
 - 末尾LFちょうど1つ。
-- fieldは`chunk_count`, `container_checksum`, `container_id`,
+- fieldは`attestation_schema`, `chunk_count`, `container_checksum`, `container_id`,
   `final_file_size`, `format`, `line_count`, `original_checksum`,
-  `original_size`, `verify` (`checked_chunks`, `decoded_bytes`, `level`)。
+  `original_size`, `verify`（上記の検証範囲field）。
 
-実行済みfixture出力:
+#292より前のschema fieldがない出力はlegacy v0です。保存済みの旧byte列とその署名を
+組として維持し、旧出力の再生成には[署名guide](guides/attestation.md)記載の旧CLI commitを
+固定します。現CLIのv1出力には新しい署名・timestampが必要です。CLI更新だけによる
+attestation byte差を、QZT原文の破損と判断しないでください。
+
+実行済み`tests/vectors/valid_c1.qzt.hex` fixture出力:
 
 ```json
-{"chunk_count":1,"container_checksum":{"algorithm":"blake3","value":"c0c832eeb45e889673968b846e66abd9a533ccee5c6aa229f521486e195acbd1"},"container_id":"ea4b7a560231e640c9ab0c838cc22a78","final_file_size":2536,"format":"qzt-0.1","line_count":4,"original_checksum":{"algorithm":"blake3","value":"ea4b7a560231e640c9ab0c838cc22a7813bbc864d5a9f8a850df7ca5960dff30"},"original_size":55,"verify":{"checked_chunks":1,"decoded_bytes":55,"level":"deep"}}
+{"attestation_schema":"qzt-attestation-v1","chunk_count":1,"container_checksum":{"algorithm":"blake3","value":"d05f9357b3182e0e164b508b6cdfd1a2f421559df6886ee2701b330cd5b3a32d"},"container_id":"9885af894b1ee70d8c2cda08e9c68b81","final_file_size":1854,"format":"qzt-0.1","line_count":2,"original_checksum":{"algorithm":"blake3","value":"9885af894b1ee70d8c2cda08e9c68b813aec801465b87a0c16d355d7413b32b7"},"original_size":11,"verify":{"checked_chunks":1,"compressed_checksum_chunks":1,"container_checksum_status":"verified","decoded_bytes":11,"decoded_chunks":1,"dense_line_index_status":"absent","document_index_status":"absent","level":"deep","original_checksum_verified":true}}
 ```
 
 ## 制限

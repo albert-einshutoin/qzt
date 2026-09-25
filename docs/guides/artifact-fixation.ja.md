@@ -30,7 +30,15 @@ printf '2026-07-19T02:00:00Z pipeline start\n2026-07-19T02:03:00Z pipeline compl
 qzt pack-docs report.txt metrics.csv run.log -o "$archive_partial"
 mv -- "$archive_partial" "$archive"
 qzt attest "$archive" > "$attestation_partial"
-jq -e '.verify.level == "deep"' "$attestation_partial"
+jq -e '.attestation_schema == "qzt-attestation-v1" and
+  .verify.level == "deep" and
+  .verify.checked_chunks == .chunk_count and
+  .verify.compressed_checksum_chunks == .chunk_count and
+  .verify.decoded_chunks == .chunk_count and
+  .verify.decoded_bytes == .original_size and
+  .verify.original_checksum_verified == true and
+  .verify.container_checksum_status == "verified" and
+  .verify.document_index_status == "source_checked"' "$attestation_partial"
 mv -- "$attestation_partial" "$attestation"
 trap - EXIT
 ```
@@ -90,9 +98,15 @@ jobs:
           qzt pack-docs report.txt metrics.csv run.log -o run-1234.qzt.partial
           mv -- run-1234.qzt.partial run-1234.qzt
           qzt attest run-1234.qzt > run-1234.attest.json.partial
-          jq -e '.verify.level == "deep" and
+          jq -e '.attestation_schema == "qzt-attestation-v1" and
+            .verify.level == "deep" and
+            .verify.checked_chunks == .chunk_count and
+            .verify.compressed_checksum_chunks == .chunk_count and
+            .verify.decoded_chunks == .chunk_count and
             .verify.decoded_bytes == .original_size and
-            .verify.checked_chunks == .chunk_count' run-1234.attest.json.partial
+            .verify.original_checksum_verified == true and
+            .verify.container_checksum_status == "verified" and
+            .verify.document_index_status == "source_checked"' run-1234.attest.json.partial
           mv -- run-1234.attest.json.partial run-1234.attest.json
           {
             printf 'repository=%s\n' "$SOURCE_REPOSITORY"
@@ -175,8 +189,11 @@ qzt doc run-1234.qzt report.txt -o audited-report.txt
 trap - EXIT
 ```
 
-空のdiffは、現在のdeep-verified containerが同じ決定的attestation byteを再生成したことを
-示します。この例はfixation時にchecksum manifestを署名し、`minisign.pub`をtrusted channelで
+空のdiffは、現在のdeep-verified containerが同じ決定的なv1 attestation byteを
+再生成したことを示します。保存済みのversionなしlegacy v0は
+[attestation guide](attestation.md)の旧CLIで再生成してください。現CLIのv1 byteには
+新たな署名またはtimestampが必要です。
+この例はfixation時にchecksum manifestを署名し、`minisign.pub`をtrusted channelで
 取得した前提です。保護されたbaselineがなければlocal file同士の整合性しか示せず、set全体の
 差し替えや作成者identityは認証できません。
 

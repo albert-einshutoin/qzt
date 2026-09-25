@@ -94,7 +94,7 @@ qzt attest app.qzt > app.attest.json
 
 The range command prints `beta`. Search reports a hit whose source is
 `verified_original_bytes`; deep verification checks every chunk; attestation
-emits one deterministic JSON claim suitable for external signing or trusted
+emits one deterministic `qzt-attestation-v1` JSON claim suitable for external signing or trusted
 timestamping.
 
 ## Use Cases

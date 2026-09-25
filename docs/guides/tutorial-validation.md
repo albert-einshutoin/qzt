@@ -26,7 +26,7 @@ n-gram query, which writes its warning to stderr.
    returned `logical_offset` plus `byte_length`
 
 ```text
-verify: {"ok":true,"level":"deep","checked_chunks":1,"decoded_bytes":288}
+verify: {"ok":true,"level":"deep","checked_chunks":1,"compressed_checksum_chunks":1,"decoded_chunks":1,"decoded_bytes":288,"original_checksum_verified":true,"container_checksum_status":"verified","dense_line_index_status":"absent","document_index_status":"absent"}
 hit: logical_offset=200 byte_length=8 source=verified_original_bytes
 metrics: decoded_bytes=88 physical_decoded_bytes=288 verified_matches=1
 range stdout: INC-4242

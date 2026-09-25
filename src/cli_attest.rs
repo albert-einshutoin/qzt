@@ -28,7 +28,8 @@ impl Attestation<'_> {
         let _ = writeln!(
             output,
             concat!(
-                "{{\"chunk_count\":{chunk_count},",
+                "{{\"attestation_schema\":\"qzt-attestation-v1\",",
+                "\"chunk_count\":{chunk_count},",
                 "\"container_checksum\":{container_checksum},",
                 "\"container_id\":\"{container_id}\",",
                 "\"final_file_size\":{final_file_size},",
@@ -37,7 +38,14 @@ impl Attestation<'_> {
                 "\"original_checksum\":{original_checksum},",
                 "\"original_size\":{original_size},",
                 "\"verify\":{{\"checked_chunks\":{checked_chunks},",
-                "\"decoded_bytes\":{decoded_bytes},\"level\":\"{level}\"}}}}"
+                "\"compressed_checksum_chunks\":{compressed_checksum_chunks},",
+                "\"container_checksum_status\":\"{container_checksum_status}\",",
+                "\"decoded_bytes\":{decoded_bytes},",
+                "\"decoded_chunks\":{decoded_chunks},",
+                "\"dense_line_index_status\":\"{dense_line_index_status}\",",
+                "\"document_index_status\":\"{document_index_status}\",",
+                "\"level\":\"{level}\",",
+                "\"original_checksum_verified\":{original_checksum_verified}}}}}"
             ),
             chunk_count = self.info.chunk_count,
             container_checksum = container_checksum,
@@ -47,8 +55,14 @@ impl Attestation<'_> {
             original_checksum = format_checksum(self.original_checksum),
             original_size = self.info.original_size,
             checked_chunks = self.verify_report.checked_chunks,
+            compressed_checksum_chunks = self.verify_report.compressed_checksum_chunks,
+            container_checksum_status = self.verify_report.container_checksum_status.as_str(),
             decoded_bytes = self.verify_report.decoded_bytes,
+            decoded_chunks = self.verify_report.decoded_chunks,
+            dense_line_index_status = self.verify_report.dense_line_index_status.as_str(),
+            document_index_status = self.verify_report.document_index_status.as_str(),
             level = super::verify_level_as_str(self.verify_report.level),
+            original_checksum_verified = self.verify_report.original_checksum_verified,
         );
         output
     }
@@ -65,7 +79,7 @@ fn format_checksum(checksum: &Checksum) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use qzt::VerifyLevel;
+    use qzt::{IndexVerificationStatus, PrefixChecksumStatus, VerifyLevel};
 
     #[test]
     fn absent_container_checksum_is_canonical_null() {
@@ -79,7 +93,13 @@ mod tests {
         let report = VerifyReport {
             level: VerifyLevel::Deep,
             checked_chunks: 0,
+            compressed_checksum_chunks: 0,
+            decoded_chunks: 0,
             decoded_bytes: 0,
+            original_checksum_verified: true,
+            container_checksum_status: PrefixChecksumStatus::Absent,
+            dense_line_index_status: IndexVerificationStatus::Absent,
+            document_index_status: IndexVerificationStatus::Absent,
         };
         let rendered = Attestation {
             info: &info,

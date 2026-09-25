@@ -84,15 +84,105 @@ pub enum VerifyLevel {
     Deep,
 }
 
-/// Verification result.
+/// State of the optional checksum over the bytes before the Footer Payload.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PrefixChecksumStatus {
+    /// No prefix checksum is stored in the container.
+    Absent,
+    /// A checksum is stored, but this verification did not recompute it.
+    PresentUnchecked,
+    /// The stored checksum was recomputed and matched.
+    Verified,
+}
+
+impl PrefixChecksumStatus {
+    /// Stable spelling used by CLI JSON and canonical attestations.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Absent => "absent",
+            Self::PresentUnchecked => "present_unchecked",
+            Self::Verified => "verified",
+        }
+    }
+}
+
+/// Verification state of a recognized optional index block.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IndexVerificationStatus {
+    /// The index block is absent.
+    Absent,
+    /// Stored block checksum, schema, physical descriptor range, and binding passed at open.
+    /// Document logical ranges and chunk spans are not checked by this state.
+    StoredBlockVerified,
+    /// Deep verification also compared the index with decoded source bytes.
+    /// Document Index line coordinates are only bounds checked, not proven exact.
+    SourceChecked,
+}
+
+impl IndexVerificationStatus {
+    /// Stable spelling used by CLI JSON and canonical attestations.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Absent => "absent",
+            Self::StoredBlockVerified => "stored_block_verified",
+            Self::SourceChecked => "source_checked",
+        }
+    }
+}
+
+/// Verification result for the requested level on an already opened container.
+/// A later call at a weaker level does not inherit work from an earlier call.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerifyReport {
     /// Verification level that produced this report.
     pub level: VerifyLevel,
-    /// Number of chunks covered by the verification pass.
+    /// Chunk Table entries structurally validated at open, at every level.
     pub checked_chunks: u64,
+    /// Distinct chunks whose stored compressed checksum was checked in this pass.
+    pub compressed_checksum_chunks: u64,
+    /// Distinct chunks decoded and checked against their original-byte checksum.
+    pub decoded_chunks: u64,
     /// Total original bytes decoded; zero for quick and normal verification.
     pub decoded_bytes: u64,
+    /// Whether the decoded complete original was hashed and matched to metadata.
+    /// Can be true with zero decoded chunks for an empty original.
+    pub original_checksum_verified: bool,
+    /// State of the optional checksum over the prefix before the Footer Payload.
+    pub container_checksum_status: PrefixChecksumStatus,
+    /// State of the optional Dense Line Index.
+    pub dense_line_index_status: IndexVerificationStatus,
+    /// State of the optional Document Index.
+    pub document_index_status: IndexVerificationStatus,
+}
+
+fn report_for_level(details: &SkeletonDetails, level: VerifyLevel, decoded_bytes: u64) -> VerifyReport {
+    let payload_checked = level != VerifyLevel::Quick;
+    let deep = level == VerifyLevel::Deep;
+    VerifyReport {
+        level,
+        checked_chunks: details.summary.chunk_count,
+        compressed_checksum_chunks: if payload_checked { details.summary.chunk_count } else { 0 },
+        decoded_chunks: if deep { details.summary.chunk_count } else { 0 },
+        decoded_bytes,
+        original_checksum_verified: deep,
+        container_checksum_status: match (&details.footer_payload.container_checksum, payload_checked) {
+            (None, _) => PrefixChecksumStatus::Absent,
+            (Some(_), false) => PrefixChecksumStatus::PresentUnchecked,
+            (Some(_), true) => PrefixChecksumStatus::Verified,
+        },
+        dense_line_index_status: index_status(details.dense_line_index.is_some(), deep),
+        document_index_status: index_status(details.document_index.is_some(), deep),
+    }
+}
+
+fn index_status(present: bool, source_checked: bool) -> IndexVerificationStatus {
+    match (present, source_checked) {
+        (false, _) => IndexVerificationStatus::Absent,
+        (true, false) => IndexVerificationStatus::StoredBlockVerified,
+        (true, true) => IndexVerificationStatus::SourceChecked,
+    }
 }
 
 impl QztReader {
@@ -261,11 +351,7 @@ impl QztReader {
     /// resource-limit failure encountered at `level`.
     pub fn verify(&self, level: VerifyLevel) -> Result<VerifyReport> {
         match level {
-            VerifyLevel::Quick => Ok(VerifyReport {
-                level,
-                checked_chunks: self.details.summary.chunk_count,
-                decoded_bytes: 0,
-            }),
+            VerifyLevel::Quick => Ok(report_for_level(&self.details, level, 0)),
             VerifyLevel::Normal => self.verify_normal(),
             VerifyLevel::Deep => self.verify_deep(),
         }
@@ -294,11 +380,7 @@ impl QztReader {
             }
         }
 
-        Ok(VerifyReport {
-            level: VerifyLevel::Normal,
-            checked_chunks: self.details.summary.chunk_count,
-            decoded_bytes: 0,
-        })
+        Ok(report_for_level(&self.details, VerifyLevel::Normal, 0))
     }
 
     fn verify_deep(&self) -> Result<VerifyReport> {
@@ -539,11 +621,7 @@ impl<R: ReadAt> QztFileReader<R> {
     /// resource-limit, or source I/O failure encountered at `level`.
     pub fn verify(&self, level: VerifyLevel) -> Result<VerifyReport> {
         match level {
-            VerifyLevel::Quick => Ok(VerifyReport {
-                level,
-                checked_chunks: self.details.summary.chunk_count,
-                decoded_bytes: 0,
-            }),
+            VerifyLevel::Quick => Ok(report_for_level(&self.details, level, 0)),
             VerifyLevel::Normal => self.verify_normal(),
             VerifyLevel::Deep => self.verify_deep(),
         }
@@ -567,11 +645,7 @@ impl<R: ReadAt> QztFileReader<R> {
             }
         }
 
-        Ok(VerifyReport {
-            level: VerifyLevel::Normal,
-            checked_chunks: self.details.summary.chunk_count,
-            decoded_bytes: 0,
-        })
+        Ok(report_for_level(&self.details, VerifyLevel::Normal, 0))
     }
 
     fn verify_deep(&self) -> Result<VerifyReport> {
@@ -1012,11 +1086,7 @@ fn verify_deep_entries(
         )?;
     }
 
-    Ok(VerifyReport {
-        level: VerifyLevel::Deep,
-        checked_chunks: details.summary.chunk_count,
-        decoded_bytes,
-    })
+    Ok(report_for_level(details, VerifyLevel::Deep, decoded_bytes))
 }
 
 fn decode_compressed_entry(
