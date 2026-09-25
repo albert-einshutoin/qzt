@@ -48,18 +48,37 @@ def percentile(values, percentage):
     return ordered[max(0, math.ceil(percentage * len(ordered) / 100) - 1)]
 
 
-def run(command, timeout):
+def run(command, timeout, deadline=None):
     started = time.perf_counter_ns()
-    process = subprocess.Popen(command, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, start_new_session=True)
-    spawned = time.perf_counter_ns()
+    if deadline is not None and time.monotonic() >= deadline:
+        return {"command": [str(part) for part in command], "status": "deadline-exceeded",
+                "exit_code": None, "started_ns": started, "spawned_ns": None,
+                "ended_ns": started, "wall_ms": 0.0, "stdout_bytes": 0,
+                "stderr_bytes": 0, "stdout": "", "stderr": "overall deadline reached before launch"}
     try:
-        stdout, stderr = process.communicate(timeout=timeout)
+        process = subprocess.Popen(command, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, start_new_session=True)
+    except OSError as error:
+        ended = time.perf_counter_ns()
+        message = str(error)
+        return {"command": [str(part) for part in command], "status": "spawn-error",
+                "exit_code": None, "started_ns": started, "spawned_ns": None,
+                "ended_ns": ended, "wall_ms": round((ended - started) / 1e6, 6),
+                "stdout_bytes": 0, "stderr_bytes": len(message.encode()),
+                "stdout": "", "stderr": message}
+    spawned = time.perf_counter_ns()
+    remaining = None if deadline is None else max(0.0, deadline - time.monotonic())
+    wait_seconds = timeout if remaining is None else min(timeout, remaining)
+    try:
+        stdout, stderr = process.communicate(timeout=wait_seconds)
         status = "exit-0" if process.returncode == 0 else "exit-error"
     except subprocess.TimeoutExpired:
-        os.killpg(process.pid, signal.SIGKILL)
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass  # The child exited between the timeout and kill.
         stdout, stderr = process.communicate()
-        status = "timeout"
+        status = "deadline-timeout" if remaining is not None and remaining <= timeout else "timeout"
     ended = time.perf_counter_ns()
     return {"command": [str(part) for part in command], "status": status,
             "exit_code": process.returncode,
@@ -174,8 +193,9 @@ def parse_api(result, case, warmup, samples):
 
 
 def peak_overlap(results):
-    events = sorted([(item["spawned_ns"], 1) for item in results] +
-                    [(item["ended_ns"], -1) for item in results])
+    launched = [item for item in results if item["spawned_ns"] is not None]
+    events = sorted([(item["spawned_ns"], 1) for item in launched] +
+                    [(item["ended_ns"], -1) for item in launched])
     active = peak = 0
     for _, delta in events:
         active += delta
@@ -219,8 +239,9 @@ def main():
     with (options.log_dir / "records.jsonl").open("w") as log:
         def execute(kind, attempt, command, **extra):
             if time.monotonic() >= deadline:
+                record(log, "deadline", attempt, {"status": "deadline-exceeded", "kind_at_deadline": kind})
                 raise TimeoutError("overall measurement deadline exceeded")
-            return record(log, kind, attempt, run(command, options.timeout), **extra)
+            return record(log, kind, attempt, run(command, options.timeout, deadline), **extra)
 
         generated = execute("generate", "corpus", [probe, "generate", source,
                                                    str(options.bytes), str(options.seed)])
@@ -297,7 +318,8 @@ def main():
                             raise RuntimeError(f"warmup {label}: {verdict}")
                     batch_started = time.perf_counter_ns()
                     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as pool:
-                        futures = [pool.submit(run, command, options.timeout) for _ in range(options.samples)]
+                        futures = [pool.submit(run, command, options.timeout, deadline)
+                                   for _ in range(options.samples)]
                         results = [future.result() for future in futures]
                     batch_ms = (time.perf_counter_ns() - batch_started) / 1e6
                     valid = 0
