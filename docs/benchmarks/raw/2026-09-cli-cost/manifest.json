@@ -1,0 +1,98 @@
+{
+  "product_commit": "079b6adb305674abfbbb89649d101ec725ac4f84",
+  "dirty": false,
+  "binary": "/Volumes/Satechi/Developer/qzt-issue-295/target/release/qzt",
+  "binary_sha256": "cae7d34adb8f9091613f957532aef3106276caaeeba26ab1d15cc3eff70f9205",
+  "probe": "/Volumes/Satechi/Developer/qzt-issue-295/target/release/examples/cli_cost_probe",
+  "probe_sha256": "1d34eda62e9c5b4c1114b4d01fd614a81463d53457c76be9ad6222df52548d84",
+  "options": {
+    "binary": "target/release/qzt",
+    "probe": "target/release/examples/cli_cost_probe",
+    "work_dir": "/private/tmp/qzt295-full-work",
+    "log_dir": "/private/tmp/qzt295-full-raw",
+    "bytes": 104857600,
+    "seed": 295,
+    "samples": 32,
+    "api_samples": 9,
+    "warmup": 1,
+    "build_runs": 3,
+    "timeout": 120,
+    "max_wall_seconds": 3600
+  },
+  "cases": [
+    [
+      "token",
+      "rare",
+      "issue295-needle-unique",
+      10000,
+      10000
+    ],
+    [
+      "token",
+      "missing",
+      "issue295-unseen-absent",
+      10000,
+      10000
+    ],
+    [
+      "token",
+      "common-default",
+      "qzt",
+      10000,
+      10000
+    ],
+    [
+      "token",
+      "common-result",
+      "qzt",
+      10,
+      2000000
+    ],
+    [
+      "ngram",
+      "rare",
+      "issue295-needle-unique",
+      10000,
+      10000
+    ],
+    [
+      "ngram",
+      "missing",
+      "issue295-unseen-absent",
+      10000,
+      10000
+    ],
+    [
+      "ngram",
+      "common-default",
+      "qzt",
+      10000,
+      10000
+    ],
+    [
+      "ngram",
+      "common-result",
+      "qzt",
+      10,
+      2000000
+    ]
+  ],
+  "cache": "OS file cache uncontrolled; fresh CLI process for each request; API probe reuses opened objects",
+  "corpus": {
+    "bytes": 104857624,
+    "sha256": "0313a76087036f2a1784b49cdc533282166e5c0d3bb0c1bc4fa47676a30aadcb",
+    "generator_output": "corpus_bytes=104857624 lines=806580 blake3=41c15cbd86f47e89770f658f969ab9381d61c878e6503e32677eb5baf81a241a seed=295 kind=C2+marker marker_offset=104857601",
+    "missing_source_count": 0,
+    "rare_source_count": 1
+  },
+  "qzt_bytes": 5764482,
+  "sizes": {
+    "source": 104857624,
+    "qzt": 5764482,
+    "token": 38003559,
+    "ngram": 116370474,
+    "qzt_plus_token": 43768041,
+    "qzt_plus_ngram": 122134956,
+    "qzt_plus_both": 160138515
+  }
+}

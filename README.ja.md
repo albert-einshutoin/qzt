@@ -190,11 +190,15 @@ production use の前に残っている既知の制限は以下です。
   ripgrep / SQLite FTS5との正確性照合は[2026年7月 v0.1 report](docs/benchmarks/2026-07-v0.1.md)
   を参照してください。Tantivy、Lucene、seekable-zstd、production log、
   cross-tool search latencyは未計測です。
+- **開発版CLIの費用**: [2026年9月の100 MiB計測](docs/benchmarks/2026-09-cli-cost.md)では、
+  CLIの新規process検索、実ファイルのQZT/QZI open、open済みAPI検索、独立processでの
+  QZI構築時間とpeak RSS、並行検索、合計容量を区別しています。結果は記載された
+  開発commitと合成corpusのもので、公開済み`v0.1.0-pre.2`の性能やSLAではありません。
 
 ### 性能数値の再現
 
-上記の RSS 数値はローカル smoke evidence であり、SLA や production 保証では
-ありません。release benchmark と profiling は次のコマンドで再現できます。
+従来のbenchmark数値はローカルevidenceであり、SLAやproduction保証では
+ありません。以前のrelease benchmarkとprofilingは次のコマンドで再現できます。
 
 ```sh
 cargo test --test release_hardening -- --nocapture
@@ -215,6 +219,13 @@ make bench-profile-quick
 
 コーパス詳細、指標の定義、追加の profiling 対象は
 [release-hardening guide](docs/QZT_v0.1_Release_Hardening.ja.md) を参照してください。
+
+[9月のCLI費用report](docs/benchmarks/2026-09-cli-cost.md)に、開発版の実測コマンドと
+raw logを記載しています。再現には[QZT repository](https://github.com/albert-einshutoin/qzt)
+のcheckoutで`qzt`と`cli_cost_probe`をrelease buildし、reportの手順に従って
+[`scripts/cli-cost-benchmark.py`](https://github.com/albert-einshutoin/qzt/blob/main/scripts/cli-cost-benchmark.py)
+を新しいwork/log directoryで実行してください。このscriptはrepository用であり、
+crate packageには含まれません。
 
 ### 任意の competitive benchmarks
 

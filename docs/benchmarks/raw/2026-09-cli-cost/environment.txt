@@ -1,0 +1,46 @@
+Measurement date: 2026-09-25 (local Japan time)
+Product and frozen harness commit: 079b6adb305674abfbbb89649d101ec725ac4f84
+Git working tree at measurement: clean
+Binary: /Volumes/Satechi/Developer/qzt-issue-295/target/release/qzt
+Binary SHA-256: cae7d34adb8f9091613f957532aef3106276caaeeba26ab1d15cc3eff70f9205
+Probe SHA-256: 1d34eda62e9c5b4c1114b4d01fd614a81463d53457c76be9ad6222df52548d84
+Final rebuilt probe SHA-256: fd6740b4a67d455cc176262868f896a02f0846d7d445088a40c643094f7796fc
+  Only a local Clippy allowance and display-only LF-count binding changed
+  after the measurement commit. The final generator reproduced the measured
+  source SHA-256 exactly; qzt binary SHA-256 is unchanged.
+CLI version: qzt 0.1.0 (development checkout, not published pre.2)
+Build: cargo build --release --bin qzt --example cli_cost_probe (default features)
+Cargo.lock SHA-256: 2cc0af16ebb88af7ea8e1614392888ad803dcdf96e6c5ce1a024581dae3d864d
+rustc: 1.96.0 (ac68faa20 2026-05-25), aarch64-apple-darwin, LLVM 22.1.2
+cargo: 1.96.0 (30a34c682 2026-05-25)
+python: 3.14.6
+OS: macOS 27.0 (26A428), arm64
+CPU: Apple M4, 10 cores (4 performance, 6 efficiency), 10 logical CPUs
+RAM: 34,359,738,368 bytes (32 GiB)
+Measurement files: /private/tmp on internal APFS Data volume, Apple Fabric SSD
+Repository checkout: external Satechi USB SSD, APFS; binaries run from that checkout
+Concurrency: independent CLI child processes, slot limits 1, 8, 32; maximum
+  overlap of spawned-to-collected intervals for each batch is retained in
+  summary.json and records.jsonl.
+  Supplemental c32 token-common-result run observed 32 live child processes,
+  at most 770.9% CPU (percent of one core, summed across children) and
+  2,577,104 KiB summed resident memory in ps samples. This is a sampled sum,
+  not an instantaneous system peak or process maximum RSS. A separate single
+  token-common-result child was sampled 41 times by ps -M; up to one thread
+  row was observed. These resource samples are separate from latency samples.
+Cache: no OS cache reset; verification and earlier measurements warmed files.
+  Every CLI request launches a new process. API probe reuses opened objects.
+  No controlled OS-cache-cold measurement.
+Measurement command from repository root:
+  python3 scripts/cli-cost-benchmark.py \
+    --binary target/release/qzt \
+    --probe target/release/examples/cli_cost_probe \
+    --work-dir /private/tmp/qzt295-full-work \
+    --log-dir /private/tmp/qzt295-full-raw \
+    --bytes 104857600 --seed 295 --samples 32 --api-samples 9 \
+    --warmup 1 --build-runs 3 --timeout 120 --max-wall-seconds 3600
+No retry or outlier filtering. No timeout or nonzero exit in the measured run.
+MSRV check: cargo +1.87.0 check --all-features --example cli_cost_probe
+  succeeded with SDKROOT set to Xcode's MacOSX26.5.sdk, CC and Cargo linker
+  set to Xcode's clang. Without these variables on this macOS 27 machine,
+  the old toolchain could not link against the Command Line Tools 27 SDK.

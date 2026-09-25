@@ -26,8 +26,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             )?;
             corpus.extend_from_slice(MARKER);
             fs::write(&args[1], &corpus)?;
+            // One-off metadata tally does not justify a new crate dependency.
+            #[allow(clippy::naive_bytecount)]
+            let lines = corpus.iter().filter(|byte| **byte == b'\n').count();
             println!("corpus_bytes={} lines={} blake3={} seed={} kind=C2+marker marker_offset={}",
-                corpus.len(), corpus.iter().filter(|byte| **byte == b'\n').count(),
+                corpus.len(), lines,
                 blake3::hash(&corpus).to_hex(), seed, corpus.len() - MARKER.len() + 1);
         }
         Some("api") if args.len() == 8 => {
