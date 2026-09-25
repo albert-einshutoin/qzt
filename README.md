@@ -101,7 +101,7 @@ with its newline. Search returns one `error` hit at byte offset 11 with source
 The pre.2 attestation is deterministic, **versionless** JSON: it has no
 `attestation_schema` or later deep-coverage fields. `cmp` succeeds only when
 the exported file matches all original bytes. Run the
-[release-binary smoke script](scripts/smoke-release-tour.sh) with the absolute
+[release-binary smoke script](docs/guides/examples/smoke-release-tour.sh) with the absolute
 binary path for automated JSON, determinism, and byte checks (`jq` required).
 See the [measured validation record](docs/guides/tutorial-validation.md).
 

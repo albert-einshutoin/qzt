@@ -4,7 +4,7 @@
 
 This is an execution of the downloaded distribution binary, not a local build
 with the same version string. The English and Japanese README tours have the
-same command sequence; `scripts/smoke-release-tour.sh` runs it with an explicit
+same command sequence; `docs/guides/examples/smoke-release-tour.sh` runs it with an explicit
 binary path and no fallback to a checkout build.
 
 - Release: [`v0.1.0-pre.2`](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2), tag commit `be70d1c7e16d9e006069dd6eb0eced113fe8b065`.
@@ -28,7 +28,7 @@ After removing that unsupported command, the published binary ran
 Reproduce after downloading and checksum-verifying the matching asset:
 
 ```sh
-sh scripts/smoke-release-tour.sh /absolute/path/to/qzt-aarch64-apple-darwin/qzt
+sh docs/guides/examples/smoke-release-tour.sh /absolute/path/to/qzt-aarch64-apple-darwin/qzt
 ```
 
 The script rejects a missing binary (exit `2`) and does not invoke `cargo` or

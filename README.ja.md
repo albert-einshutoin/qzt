@@ -98,7 +98,7 @@ byte offset 11に`verified_original_bytes`由来の`error` hitを1件返し、ve
 `ok=true`・`level=deep`を返します。pre.2のattestationは決定的な
 **versionなし**JSONで、`attestation_schema`や後のDeep coverage fieldはありません。
 `cmp`成功はexportと原文の全byte一致を意味します。JSON・決定性・byteを自動判定する
-[配布binary smoke script](scripts/smoke-release-tour.sh)は絶対パスのbinaryと`jq`を
+[配布binary smoke script](docs/guides/examples/smoke-release-tour.sh)は絶対パスのbinaryと`jq`を
 必要とします。[実測記録](docs/guides/tutorial-validation.md)も参照してください。
 
 ## 開発版CLI

@@ -77,7 +77,7 @@ fn tour_closes_the_verified_evidence_loop_with_real_commands() {
 
     for readme in [ENGLISH, JAPANESE] {
         assert!(!readme.contains("qzt inspect-sidecar app.qzt"));
-        assert!(readme.contains("scripts/smoke-release-tour.sh"));
+        assert!(readme.contains("docs/guides/examples/smoke-release-tour.sh"));
     }
 
     for readme in [ENGLISH, JAPANESE] {

@@ -278,7 +278,7 @@ fn development_guide_numbers_match_the_source_built_cli_journeys() {
     let root = directory.path();
 
     // These development-guide fixtures are distinct from the published asset
-    // tour, which scripts/smoke-release-tour.sh runs with an explicit binary.
+    // tour, which docs/guides/examples/smoke-release-tour.sh runs with an explicit binary.
     let daily = concat!(
         "2026-07-19T01:00:00Z INFO service=api request_id=req-001 status=200\n",
         "2026-07-19T01:01:00Z WARN service=api request_id=req-002 retry=1\n",
