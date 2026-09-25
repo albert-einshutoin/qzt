@@ -103,14 +103,19 @@ const GUIDES: [(&str, &str); 6] = [
 fn every_tutorial_declares_prerequisites_validation_and_limitations() {
     for (name, guide) in GUIDES {
         for required in [
-            "qzt 0.1.0-pre.2",
+            "ad709214f1e8ae18eff6e9f0b633345e40d1617b",
             "15 minutes",
             "Limitations",
-            "docs/CLI",
             "tutorial-validation.md",
         ] {
             assert!(guide.contains(required), "{name} is missing {required}");
         }
+        let reference = if name.ends_with(".ja.md") {
+            "../CLI.ja.md"
+        } else {
+            "../CLI.md"
+        };
+        assert!(guide.contains(reference), "{name} is missing {reference}");
     }
 }
 
@@ -268,12 +273,12 @@ fn embedded_operational_templates_match_validated_files() {
 }
 
 #[test]
-fn published_validation_numbers_match_the_live_cli_journeys() {
+fn development_guide_numbers_match_the_source_built_cli_journeys() {
     let directory = TutorialTempDir::new();
     let root = directory.path();
 
-    // These bytes are the source of both language variants and the validation
-    // record. Execute them here so documentation cannot drift into invented data.
+    // These development-guide fixtures are distinct from the published asset
+    // tour, which docs/guides/examples/smoke-release-tour.sh runs with an explicit binary.
     let daily = concat!(
         "2026-07-19T01:00:00Z INFO service=api request_id=req-001 status=200\n",
         "2026-07-19T01:01:00Z WARN service=api request_id=req-002 retry=1\n",

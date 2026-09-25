@@ -1,8 +1,12 @@
-# qzt CLI Reference (v0.1)
+# qzt CLI Reference (development CLI; QZT format v0.1)
 
-This is the complete command reference and automation stability contract for
-the QZT v0.1 technical-preview CLI. Examples on this page were executed against
-the fixture described in [Reproducing the examples](#reproducing-the-examples).
+This page describes the development CLI at commit
+`ad709214f1e8ae18eff6e9f0b633345e40d1617b` and its automation contract.
+Install that exact revision from the [README development instructions](../README.md#development-cli).
+The published `v0.1.0-pre.2` binary predates several commands and JSON fields;
+use its [tag-fixed CLI reference](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.2/docs/CLI.md).
+`v0.1` identifies the container format, not the CLI distribution. Examples
+here use the fixture in [Reproducing the examples](#reproducing-the-examples).
 
 Japanese: [CLI.ja.md](CLI.ja.md)
 

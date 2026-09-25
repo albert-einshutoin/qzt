@@ -1,9 +1,11 @@
 # Fix pipeline artifacts as verified documents
 
 **Time:** 15 minutes  
-**Prerequisites:** `qzt 0.1.0-pre.2`; `jq`; `sha256sum` (or macOS
-`shasum -a 256`); optional GitHub Actions and `minisign`. The stable command
-contract is [docs/CLI.md](../CLI.md).
+**Prerequisites:** the [pinned development CLI](../../README.md#development-cli)
+at `ad709214f1e8ae18eff6e9f0b633345e40d1617b`; `jq`; `sha256sum` (or
+macOS `shasum -a 256`); optional GitHub Actions and `minisign`. The
+`qzt-attestation-v1` policy below requires this build, not published pre.2.
+See the [development CLI reference](../CLI.md).
 
 Use a Document Index when several immutable text outputs must travel together
 but still be listed and restored independently.
@@ -54,6 +56,10 @@ This complete job is also available as
 [`examples/qzt-artifact-workflow.yml`](examples/qzt-artifact-workflow.yml).
 Replace the sample input-generation step with the outputs of your pipeline.
 The action SHAs are pinned; review and update them with your dependency policy.
+This workflow installs its checked-out `github.sha`, rather than the guide's
+example revision. Use a commit with the documented v1 attestation contract;
+the `jq -e` policy fails if those fields are missing. Record that source commit
+alongside the artifact before relying on a regenerated attestation.
 
 ```yaml
 name: preserve-pipeline-artifacts

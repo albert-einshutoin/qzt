@@ -17,6 +17,12 @@
 
 ### Fixed
 
+- The English and Japanese README installation and 60-second tours now start
+  from the published `v0.1.0-pre.2` asset and use only its commands and
+  versionless attestation fields. The later CLI reference and operational
+  guides identify their pinned development revision. A standalone smoke runs
+  the downloaded binary and compares exported source bytes.
+
 - Search now checks token boundaries and same-line token AND against original
   QZT bytes, including adjacent bytes outside a candidate granule. This
   prevents partial-token and cross-line false hits from a bound QZI sidecar.

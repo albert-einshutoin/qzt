@@ -98,8 +98,10 @@ fn references_freeze_automation_boundaries_without_overclaiming_text() {
 fn readmes_link_to_the_language_matching_reference() {
     let english_readme = include_str!("../README.md");
     let japanese_readme = include_str!("../README.ja.md");
-    assert!(english_readme.contains("[docs/CLI.md](docs/CLI.md)"));
-    assert!(japanese_readme.contains("[docs/CLI.ja.md](docs/CLI.ja.md)"));
+    assert!(english_readme.contains("(docs/CLI.md)"));
+    assert!(japanese_readme.contains("(docs/CLI.ja.md)"));
+    assert!(english_readme.contains("blob/v0.1.0-pre.2/docs/CLI.md"));
+    assert!(japanese_readme.contains("blob/v0.1.0-pre.2/docs/CLI.ja.md"));
 }
 
 #[test]

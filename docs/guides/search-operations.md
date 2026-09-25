@@ -1,8 +1,12 @@
 # Operate search over a QZT archive
 
 **Time:** 15 minutes  
-**Prerequisites:** `qzt 0.1.0-pre.2`; `jq`. The stable command contract is
-[docs/CLI.md](../CLI.md).
+**Prerequisites:** the [pinned development CLI](../../README.md#development-cli)
+at `ad709214f1e8ae18eff6e9f0b633345e40d1617b`; `jq`.
+The cap options also exist in pre.2, but the `stop_reason`, index coverage,
+and `physical_decoded_chunks` fields below do not. Use this exact development
+build and the [development CLI reference](../CLI.md); a missing field must not
+be treated as a verified state.
 
 This guide builds reusable token and n-gram sidecars, applies resource caps,
 and reads search cost without confusing a returned hit with physical decode
@@ -72,13 +76,15 @@ qzt search archive.qzt ERROR \
   --max-results 1 \
   --format json > bounded.json
 
-jq '{hits, capped, stop_reason, index_complete_declared, index_coverage_verified, incomplete_reason, metrics: {
+jq -e 'if has("stop_reason") and has("index_complete_declared") and
+  has("index_coverage_verified") and (.metrics | has("physical_decoded_chunks"))
+then {hits, capped, stop_reason, index_complete_declared, index_coverage_verified, incomplete_reason, metrics: {
   candidate_granules: .metrics.candidate_granules,
   decoded_bytes: .metrics.decoded_bytes,
   physical_decoded_bytes: .metrics.physical_decoded_bytes,
   physical_decoded_chunks: .metrics.physical_decoded_chunks,
   verified_matches: .metrics.verified_matches
-}}' bounded.json
+}} else error("development search fields are missing") end' bounded.json
 ```
 
 `--max-candidates` limits candidate granules, `--max-decoded-bytes` limits
@@ -96,7 +102,7 @@ for physical decompression, posting processing, and query-key limits.
 The validated tiny sample showed one returned hit and:
 
 ```json
-{"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"verified_matches":1}}
+{"hits":[{"logical_offset":103,"byte_length":5,"chunk_start":0,"chunk_end":1,"source":"verified_original_bytes"}],"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"physical_decoded_chunks":1,"verified_matches":1}}
 ```
 
 ## 4. Read the cost metrics correctly
@@ -133,5 +139,5 @@ matched byte span and must not be presented as physical decode work.
 - QZT/QZI do not encrypt archive content or query artifacts. Apply redaction,
   access control, and storage/transport encryption for sensitive data.
 
-The commands above were executed against the release binary. See the
+The commands above are checked against the pinned development build. See the
 [tutorial validation record](tutorial-validation.md).

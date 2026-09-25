@@ -1,8 +1,11 @@
 # サーバーログを保全し、必要範囲だけ提示する
 
 **所要時間:** 15 minutes（約15分）  
-**前提:** `qzt 0.1.0-pre.2`、`jq`。Linux/systemdと`minisign`は任意です。
-安定したコマンド契約は[docs/CLI.ja.md](../CLI.ja.md)を参照してください。
+**前提:** [commit固定の開発版CLI](../../README.ja.md#開発版cli)
+`ad709214f1e8ae18eff6e9f0b633345e40d1617b`、`jq`。
+Linux/systemdと`minisign`は任意です。以下のcommandと`qzt-attestation-v1`
+判定は公開pre.2 binaryではなく、この開発版を必要とします。
+[開発版CLIリファレンス](../CLI.ja.md)を参照してください。
 
 この手順が作るのはtamper-evidentな技術記録です。固定後にbyteが変わったかは
 検証できますが、ログ事象の真実性を確定するものでも法的助言でもありません。
@@ -219,5 +222,5 @@ qzt range daily.qzt --bytes "${offset}:$((offset + length))"
   非共有の専用directory、`umask 077`、最小権限ACL、dataに合うstorage/transport
   encryptionを使います。
 
-全コマンドはrelease binaryで実行済みです。
+全コマンドは上記の開発版buildを対象に確認しています。
 [tutorial validation record](tutorial-validation.md)を参照してください。

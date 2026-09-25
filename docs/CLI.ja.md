@@ -1,7 +1,12 @@
-# qzt CLI リファレンス (v0.1)
+# qzt CLI リファレンス (開発版CLI・QZT形式v0.1)
 
-QZT v0.1 technical preview CLIの全コマンドと、自動化向け安定性契約です。
-掲載例は[例の再現方法](#例の再現方法)のfixtureで実行確認しています。
+このページはcommit `ad709214f1e8ae18eff6e9f0b633345e40d1617b`の
+開発版CLIと自動化向け契約を説明します。導入方法は
+[READMEの開発版手順](../README.ja.md#開発版cli)を参照してください。
+公開済み`v0.1.0-pre.2` binaryには一部のcommand・JSON fieldがありません。
+[公開タグ固定のCLIリファレンス](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.2/docs/CLI.ja.md)
+を参照してください。`v0.1`はCLI配布versionではなくcontainer形式です。
+掲載例は[例の再現方法](#例の再現方法)のfixtureを使います。
 
 English: [CLI.md](CLI.md)
 
