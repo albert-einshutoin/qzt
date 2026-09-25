@@ -201,11 +201,17 @@ Known limitations before production use:
   report](docs/benchmarks/2026-07-v0.1.md) for raw-zstd range evidence and
   ripgrep / SQLite FTS5 correctness checks. Tantivy, Lucene, seekable-zstd,
   production logs, and cross-tool search latency remain unmeasured.
+- **Development-code CLI costs**: the [September 2026 100 MiB
+  report](docs/benchmarks/2026-09-cli-cost.md) separately measures fresh-process
+  CLI search, file-backed QZT/QZI open, reused-object search, independent QZI
+  build time/peak RSS, concurrency, and combined storage. Its results are for
+  the cited development commit and synthetic corpus, not the published
+  `v0.1.0-pre.2` binary or a service guarantee.
 
 ### Reproducing the performance numbers
 
-The RSS figures above are local smoke evidence, not an SLA or production
-guarantee. Reproduce the release benchmark and profiling run with:
+The earlier benchmark figures are local evidence, not an SLA or production
+guarantee. Reproduce the historical release benchmark and profiling run with:
 
 ```sh
 cargo test --test release_hardening -- --nocapture
@@ -226,6 +232,14 @@ make bench-profile-quick
 
 See [the release-hardening guide](docs/QZT_v0.1_Release_Hardening.md) for corpus
 details, metric definitions, and additional profiling targets.
+
+The [September CLI cost report](docs/benchmarks/2026-09-cli-cost.md) gives the
+full command and raw log for its development-code measurement. To repeat it,
+check out the [QZT repository](https://github.com/albert-einshutoin/qzt),
+build `qzt` and `cli_cost_probe` in release mode, then run
+[`scripts/cli-cost-benchmark.py`](https://github.com/albert-einshutoin/qzt/blob/main/scripts/cli-cost-benchmark.py)
+with a new work and log directory as shown in the report. This script is a
+repository tool and is not included in the crate package.
 
 ### Optional competitive benchmarks
 
