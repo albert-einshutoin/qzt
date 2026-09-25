@@ -59,15 +59,21 @@ make coverage
 cargo run --locked --example evidence_ref
 ```
 
-parse、verify、fuzz targetを変更する場合は、`cargo-fuzz`を導入した環境で
-bounded nightly smokeも実行します。
+parse、verify、fuzz targetを変更する場合は、追跡seedを再生し、
+`cargo-fuzz`を導入した環境でbounded nightly smokeも実行します。
 
 ```sh
-cargo +nightly fuzz run open_verify -- -max_total_time=60 -timeout=10 -max_len=4096
+cargo test --manifest-path fuzz/Cargo.toml --test seed_replay --locked
+mkdir -p fuzz/corpus/open_verify fuzz/corpus/qzi_search fuzz/corpus/dli_decode
+for target in open_verify qzi_search dli_decode; do cp fuzz/seeds/$target/* fuzz/corpus/$target/; done
+cargo +nightly fuzz run --sanitizer address open_verify fuzz/corpus/open_verify -- -max_total_time=60 -timeout=10 -max_len=4096 -rss_limit_mb=1024 -malloc_limit_mb=128 -seed=294
+cargo +nightly fuzz run --sanitizer address qzi_search fuzz/corpus/qzi_search -- -max_total_time=60 -timeout=10 -max_len=256 -rss_limit_mb=1024 -malloc_limit_mb=128 -seed=294
+cargo +nightly fuzz run --sanitizer address dli_decode fuzz/corpus/dli_decode -- -max_total_time=60 -timeout=10 -max_len=256 -rss_limit_mb=1024 -malloc_limit_mb=128 -seed=294
 ```
 
-同じfuzz commandは毎週および手動dispatchで実行し、全PRでは実行しません。
-生成corpusとcrash stateはローカルに残し、CI失敗時のcrash artifactは7日保持します。
+同じtargetは毎週および手動dispatchで実行し、全PRでは実行しません。
+入力形式、seedと元Issue、予算、失敗入力の再現・最小化は[fuzz/README.md](fuzz/README.md)に記載します。
+生成corpusはローカルに残し、CIのログとcrash artifactは7日保持します。
 
 ## conformance testの追加
 
