@@ -43,9 +43,15 @@ jobs:
           qzt pack-docs report.txt metrics.csv run.log -o run-1234.qzt.partial
           mv -- run-1234.qzt.partial run-1234.qzt
           qzt attest run-1234.qzt > run-1234.attest.json.partial
-          jq -e '.verify.level == "deep" and
+          jq -e '.attestation_schema == "qzt-attestation-v1" and
+            .verify.level == "deep" and
+            .verify.checked_chunks == .chunk_count and
+            .verify.compressed_checksum_chunks == .chunk_count and
+            .verify.decoded_chunks == .chunk_count and
             .verify.decoded_bytes == .original_size and
-            .verify.checked_chunks == .chunk_count' run-1234.attest.json.partial
+            .verify.original_checksum_verified == true and
+            .verify.container_checksum_status == "verified" and
+            .verify.document_index_status == "source_checked"' run-1234.attest.json.partial
           mv -- run-1234.attest.json.partial run-1234.attest.json
           {
             printf 'repository=%s\n' "$SOURCE_REPOSITORY"

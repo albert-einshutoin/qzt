@@ -50,7 +50,8 @@ pub use error::{QztError, Result};
 pub use io::ReadAt;
 pub use limits::ResourceLimits;
 pub use reader::{
-    QztFileReader, QztInfo, QztReader, RangeReadMetrics, RangeReadReport, VerifyLevel, VerifyReport,
+    IndexVerificationStatus, PrefixChecksumStatus, QztFileReader, QztInfo, QztReader,
+    RangeReadMetrics, RangeReadReport, VerifyLevel, VerifyReport,
 };
 pub use schema::{Checksum, DocumentEntry, DocumentIndex};
 pub use search::{

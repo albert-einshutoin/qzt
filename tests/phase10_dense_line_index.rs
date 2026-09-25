@@ -291,7 +291,16 @@ fn checksum_valid_malformed_dli_reaches_decoder_in_both_readers() {
 }
 
 fn rebuilt_container(line_count: u64, dli: Option<&[u8]>) -> Vec<u8> {
+    rebuilt_container_with_original_checksum(line_count, dli, None)
+}
+
+fn rebuilt_container_with_original_checksum(
+    line_count: u64,
+    dli: Option<&[u8]>,
+    original_checksum_override: Option<Checksum>,
+) -> Vec<u8> {
     let input = b"x";
+    let original_checksum = original_checksum_override.unwrap_or_else(|| Checksum::blake3(input));
     let original =
         pack_dense_fixture(input, [0xc1; 16], support::writer_options(16, 16)).expect("pack");
     let details = open_skeleton_details(&original).expect("open original");
@@ -301,6 +310,7 @@ fn rebuilt_container(line_count: u64, dli: Option<&[u8]>) -> Vec<u8> {
     let mut metadata = details.metadata;
     metadata.line_count = line_count;
     metadata.dense_line_index = dli.is_some();
+    metadata.original_checksum = original_checksum.clone();
     let metadata_bytes = metadata.encode().expect("metadata");
     header.metadata_size = metadata_bytes.len() as u64;
     output.extend_from_slice(&metadata_bytes);
@@ -337,7 +347,7 @@ fn rebuilt_container(line_count: u64, dli: Option<&[u8]>) -> Vec<u8> {
         container_id: header.container_id,
         blocks,
         original_size: input.len() as u64,
-        original_checksum: Checksum::blake3(input),
+        original_checksum,
         chunk_count: 1,
         line_count,
     };
@@ -380,6 +390,29 @@ fn rebuilt_container(line_count: u64, dli: Option<&[u8]>) -> Vec<u8> {
 }
 
 #[test]
+fn recomputed_original_checksum_mismatch_is_deep_only_for_both_readers() {
+    let bytes = rebuilt_container_with_original_checksum(1, None, Some(Checksum::blake3(b"wrong")));
+    let memory = QztReader::open(&bytes).expect("consistent stored metadata should open");
+    let file = QztFileReader::open_read_at(&bytes[..], bytes.len() as u64)
+        .expect("consistent stored metadata should open");
+    for level in [VerifyLevel::Quick, VerifyLevel::Normal] {
+        let expected = memory
+            .verify(level)
+            .expect("payload does not contradict stored chunk checksums");
+        assert_eq!(expected, file.verify(level).unwrap());
+        assert!(!expected.original_checksum_verified);
+    }
+    assert_eq!(
+        memory.verify(VerifyLevel::Deep),
+        Err(QztError::UncompressedChunkChecksumMismatch)
+    );
+    assert_eq!(
+        file.verify(VerifyLevel::Deep),
+        Err(QztError::UncompressedChunkChecksumMismatch)
+    );
+}
+
+#[test]
 fn deep_verify_detects_dense_line_index_disagreement() {
     let input = b"alpha\nbeta\ngamma\n";
     let dense = DenseLineIndex {
@@ -396,6 +429,21 @@ fn deep_verify_detects_dense_line_index_disagreement() {
     )
     .expect("stale dense container should pack structurally");
     let reader = QztReader::open(container).expect("stale dense count should open");
+
+    assert_eq!(
+        reader
+            .verify(VerifyLevel::Quick)
+            .unwrap()
+            .dense_line_index_status,
+        qzt::IndexVerificationStatus::StoredBlockVerified
+    );
+    assert_eq!(
+        reader
+            .verify(VerifyLevel::Normal)
+            .unwrap()
+            .dense_line_index_status,
+        qzt::IndexVerificationStatus::StoredBlockVerified
+    );
 
     assert_eq!(
         reader.verify(VerifyLevel::Deep),

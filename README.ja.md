@@ -92,7 +92,7 @@ qzt attest app.qzt > app.attest.json
 
 rangeは`beta`を出力します。searchはsourceが`verified_original_bytes`のhitを返し、
 deep verifyは全chunkを検証します。attestationは外部署名や信頼できるtimestampへ
-渡せる決定的なJSON claimを1行で出力します。
+渡せるschema `qzt-attestation-v1`の決定的なJSON claimを1行で出力します。
 
 ## ユースケース
 

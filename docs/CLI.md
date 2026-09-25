@@ -300,25 +300,50 @@ Default level is normal. If more than one level flag appears, the last wins.
 | Level | Work |
 |---|---|
 | `quick` | Structural blocks, offsets, schemas, required checksums and limits. |
-| `normal` | Quick plus stored compressed-chunk checksums; decoded bytes are zero. |
+| `normal` | Quick plus every stored compressed-chunk checksum and the optional container prefix checksum; decoded bytes are zero. |
 | `deep` | Normal plus decoding, original-byte checksums, UTF-8/newline/index/document consistency. |
 
-Success JSON contains `ok`, `level`, `checked_chunks`, and `decoded_bytes`.
+Success text keeps its first three lines and appends the compressed checksum
+chunk count, decoded chunk count, original checksum state, and statuses of the
+optional prefix checksum, Dense Line Index, and Document Index. Success JSON
+keeps `ok`, `level`, `checked_chunks`, and `decoded_bytes` and adds the same
+fields: `compressed_checksum_chunks`, `decoded_chunks`,
+`original_checksum_verified`, `container_checksum_status`,
+`dense_line_index_status`, and `document_index_status`.
+`checked_chunks` always counts Chunk Table entries validated at open; it does
+not claim payload verification. Chunk counters count distinct chunks, not
+internal hash invocations. All values describe this requested pass, even if
+the same Reader previously performed a deeper pass.
+
+The prefix status is `absent`, `present_unchecked`, or `verified`. Index statuses
+are `absent`, `stored_block_verified`, or `source_checked`; the stored state
+covers saved block checksum, schema, container binding, and the block
+descriptor's physical storage range. It does not validate Document Index
+logical ranges or chunk spans. Deep checks DLI offsets against decoded bytes.
+Deep Document Index checks document hashes, logical range bounds, and chunk
+spans, but does not prove exact line coordinates.
+Unknown optional blocks are excluded. The optional prefix checksum covers
+bytes before the Footer Payload, not the entire file.
 Failure JSON contains `ok:false`, `level`, and `error`, exits `1`, and is written
 to stdout as described in the stability contract.
 
 ```json
-{"ok":true,"level":"deep","checked_chunks":1,"decoded_bytes":55}
+{"ok":true,"level":"deep","checked_chunks":1,"compressed_checksum_chunks":1,"decoded_chunks":1,"decoded_bytes":11,"original_checksum_verified":true,"container_checksum_status":"verified","dense_line_index_status":"absent","document_index_status":"absent"}
 ```
 
 ### `qzt attest [--level quick|normal|deep] <FILE>`
 
 Default level is deep. The option may precede or follow the file. QZT emits
 nothing until verification succeeds, then writes exactly one canonical JSON
-line. Top-level fields are `chunk_count`, `container_checksum`, `container_id`,
+line. The top-level `attestation_schema` is `qzt-attestation-v1`; `format` stays
+`qzt-0.1` because it identifies QZT bytes. Other top-level fields are
+`chunk_count`, `container_checksum`, `container_id`,
 `final_file_size`, `format`, `line_count`, `original_checksum`, `original_size`,
-and `verify`; the nested `verify` object contains `checked_chunks`,
-`decoded_bytes`, and `level`. See [Attestation canonical form](#attestation-canonical-form) and the
+and `verify`; the nested `verify` object has the same report fields as
+`verify --format json`, except `ok`: `checked_chunks`,
+`compressed_checksum_chunks`, `container_checksum_status`, `decoded_bytes`,
+`decoded_chunks`, `dense_line_index_status`, `document_index_status`, `level`,
+and `original_checksum_verified`. See [Attestation canonical form](#attestation-canonical-form) and the
 [signing guide](guides/attestation.md).
 
 ## Profiles
@@ -359,14 +384,20 @@ Unlike other JSON output, attest bytes are stable and signable:
   legacy missing `container_checksum`;
 - no path, host, clock, locale, or other environment-dependent value;
 - exactly one trailing LF;
-- fields: `chunk_count`, `container_checksum`, `container_id`,
+- fields: `attestation_schema`, `chunk_count`, `container_checksum`, `container_id`,
   `final_file_size`, `format`, `line_count`, `original_checksum`,
-  `original_size`, and `verify` (`checked_chunks`, `decoded_bytes`, `level`).
+  `original_size`, and `verify` (the coverage fields described above).
 
-Executed fixture output:
+Versionless canonical output from before #292 is legacy v0. Keep its original
+bytes and signature together. Recreate those bytes with the pinned old CLI
+commit noted in the [signing guide](guides/attestation.md); the current CLI
+emits v1 and requires a new signature or timestamp. Different attestation
+bytes after a CLI upgrade alone do not indicate changed QZT content.
+
+Executed `tests/vectors/valid_c1.qzt.hex` fixture output:
 
 ```json
-{"chunk_count":1,"container_checksum":{"algorithm":"blake3","value":"c0c832eeb45e889673968b846e66abd9a533ccee5c6aa229f521486e195acbd1"},"container_id":"ea4b7a560231e640c9ab0c838cc22a78","final_file_size":2536,"format":"qzt-0.1","line_count":4,"original_checksum":{"algorithm":"blake3","value":"ea4b7a560231e640c9ab0c838cc22a7813bbc864d5a9f8a850df7ca5960dff30"},"original_size":55,"verify":{"checked_chunks":1,"decoded_bytes":55,"level":"deep"}}
+{"attestation_schema":"qzt-attestation-v1","chunk_count":1,"container_checksum":{"algorithm":"blake3","value":"d05f9357b3182e0e164b508b6cdfd1a2f421559df6886ee2701b330cd5b3a32d"},"container_id":"9885af894b1ee70d8c2cda08e9c68b81","final_file_size":1854,"format":"qzt-0.1","line_count":2,"original_checksum":{"algorithm":"blake3","value":"9885af894b1ee70d8c2cda08e9c68b813aec801465b87a0c16d355d7413b32b7"},"original_size":11,"verify":{"checked_chunks":1,"compressed_checksum_chunks":1,"container_checksum_status":"verified","decoded_bytes":11,"decoded_chunks":1,"dense_line_index_status":"absent","document_index_status":"absent","level":"deep","original_checksum_verified":true}}
 ```
 
 ## Limitations

@@ -24,6 +24,18 @@ These are the intended embedding APIs for v0.1:
 - validation corpus helpers used by conformance and benchmark harnesses.
 
 Search callers should use `SearchOptions { field, ..SearchOptions::default() }`.
+Issue #292 adds fields to public `VerifyReport`: `compressed_checksum_chunks`,
+`decoded_chunks`, `original_checksum_verified`, `container_checksum_status`,
+`dense_line_index_status`, and `document_index_status`. Complete struct literals
+must initialize these fields; prefer consuming the `verify` result or use the
+crate-root `PrefixChecksumStatus` and `IndexVerificationStatus` enums when
+constructing one. Existing `checked_chunks` remains the count of structurally
+validated Chunk Table entries at every level; `decoded_bytes` remains zero
+except for Deep. CLI `verify` JSON keeps those keys and adds coverage fields.
+Canonical attestation now identifies `qzt-attestation-v1`; versionless output
+is legacy v0. Signed old bytes remain valid with their matching signature,
+but a newly generated v1 output must be signed again. QZT on-disk v0.1 bytes
+are unchanged.
 Issue #289 adds query/posting/physical-decode fields and changes the default
 `max_search_results` from unlimited to 10,000. `SearchReport::stop_reason`
 distinguishes a named runtime cap from an ordinary empty result, while

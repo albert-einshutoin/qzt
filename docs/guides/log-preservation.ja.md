@@ -63,9 +63,13 @@ test ! -e "$attestation" && test ! -e "$partial"
 trap 'rm -f -- "$partial"' EXIT
 qzt attest daily.qzt > "$partial"
 jq -e '
+  .attestation_schema == "qzt-attestation-v1" and
   .verify.level == "deep" and
+  .verify.checked_chunks == .chunk_count and
+  .verify.compressed_checksum_chunks == .chunk_count and
+  .verify.decoded_chunks == .chunk_count and
   .verify.decoded_bytes == .original_size and
-  .verify.checked_chunks == .chunk_count
+  .verify.original_checksum_verified == true
 ' "$partial"
 mv -- "$partial" "$attestation"
 trap - EXIT
@@ -74,7 +78,7 @@ trap - EXIT
 sampleでは次の安定fieldを返します（byte数は入力により変わります）。
 
 ```json
-{"ok":true,"level":"deep","checked_chunks":1,"decoded_bytes":288}
+{"ok":true,"level":"deep","checked_chunks":1,"compressed_checksum_chunks":1,"decoded_chunks":1,"decoded_bytes":288,"original_checksum_verified":true,"container_checksum_status":"verified","dense_line_index_status":"absent","document_index_status":"absent"}
 ```
 
 containerとattestationは別のfailure domainへ保存します。署名とRFC 3161は

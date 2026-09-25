@@ -30,7 +30,15 @@ printf '2026-07-19T02:00:00Z pipeline start\n2026-07-19T02:03:00Z pipeline compl
 qzt pack-docs report.txt metrics.csv run.log -o "$archive_partial"
 mv -- "$archive_partial" "$archive"
 qzt attest "$archive" > "$attestation_partial"
-jq -e '.verify.level == "deep"' "$attestation_partial"
+jq -e '.attestation_schema == "qzt-attestation-v1" and
+  .verify.level == "deep" and
+  .verify.checked_chunks == .chunk_count and
+  .verify.compressed_checksum_chunks == .chunk_count and
+  .verify.decoded_chunks == .chunk_count and
+  .verify.decoded_bytes == .original_size and
+  .verify.original_checksum_verified == true and
+  .verify.container_checksum_status == "verified" and
+  .verify.document_index_status == "source_checked"' "$attestation_partial"
 mv -- "$attestation_partial" "$attestation"
 trap - EXIT
 ```
@@ -93,9 +101,15 @@ jobs:
           qzt pack-docs report.txt metrics.csv run.log -o run-1234.qzt.partial
           mv -- run-1234.qzt.partial run-1234.qzt
           qzt attest run-1234.qzt > run-1234.attest.json.partial
-          jq -e '.verify.level == "deep" and
+          jq -e '.attestation_schema == "qzt-attestation-v1" and
+            .verify.level == "deep" and
+            .verify.checked_chunks == .chunk_count and
+            .verify.compressed_checksum_chunks == .chunk_count and
+            .verify.decoded_chunks == .chunk_count and
             .verify.decoded_bytes == .original_size and
-            .verify.checked_chunks == .chunk_count' run-1234.attest.json.partial
+            .verify.original_checksum_verified == true and
+            .verify.container_checksum_status == "verified" and
+            .verify.document_index_status == "source_checked"' run-1234.attest.json.partial
           mv -- run-1234.attest.json.partial run-1234.attest.json
           {
             printf 'repository=%s\n' "$SOURCE_REPOSITORY"
@@ -181,7 +195,10 @@ trap - EXIT
 ```
 
 An empty diff proves that the current, deep-verified container reproduces the
-same deterministic attestation bytes. The example assumes the checksum manifest
+same deterministic v1 attestation bytes. For a saved versionless legacy v0
+attestation, regenerate with the pinned pre-#292 CLI described in the
+[attestation guide](attestation.md); the current CLI's v1 bytes require a new
+signature or timestamp. The example assumes the checksum manifest
 was signed at fixation time and that `minisign.pub` arrived through a trusted
 channel. Without that protected baseline, the local files remain
 self-consistent but do not authenticate their creator or detect replacement of

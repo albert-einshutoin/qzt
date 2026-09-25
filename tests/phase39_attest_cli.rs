@@ -67,7 +67,8 @@ fn attest_output_is_deterministic_and_canonical() {
         .expect("writer fixtures include a container checksum");
     let expected = format!(
         concat!(
-            "{{\"chunk_count\":{chunk_count},",
+            "{{\"attestation_schema\":\"qzt-attestation-v1\",",
+            "\"chunk_count\":{chunk_count},",
             "\"container_checksum\":{{\"algorithm\":\"{container_algorithm}\",\"value\":\"{container_value}\"}},",
             "\"container_id\":\"{container_id}\",",
             "\"final_file_size\":{final_file_size},",
@@ -75,7 +76,14 @@ fn attest_output_is_deterministic_and_canonical() {
             "\"line_count\":{line_count},",
             "\"original_checksum\":{{\"algorithm\":\"{original_algorithm}\",\"value\":\"{original_value}\"}},",
             "\"original_size\":{original_size},",
-            "\"verify\":{{\"checked_chunks\":{checked_chunks},\"decoded_bytes\":{decoded_bytes},\"level\":\"deep\"}}}}\n"
+            "\"verify\":{{\"checked_chunks\":{checked_chunks},",
+            "\"compressed_checksum_chunks\":{checked_chunks},",
+            "\"container_checksum_status\":\"verified\",",
+            "\"decoded_bytes\":{decoded_bytes},",
+            "\"decoded_chunks\":{checked_chunks},",
+            "\"dense_line_index_status\":\"absent\",",
+            "\"document_index_status\":\"absent\",",
+            "\"level\":\"deep\",\"original_checksum_verified\":true}}}}\n"
         ),
         chunk_count = info.chunk_count,
         container_algorithm = container_checksum.algorithm,
@@ -130,8 +138,21 @@ fn attest_emits_null_for_legacy_container_without_container_checksum() {
         String::from_utf8_lossy(&output.stderr)
     );
     let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(value["attestation_schema"], "qzt-attestation-v1");
     assert_eq!(value["container_checksum"], serde_json::Value::Null);
+    assert_eq!(value["verify"]["container_checksum_status"], "absent");
     assert_eq!(value["verify"]["level"], "deep");
+    let reader = QztFileReader::open_path(&path).unwrap();
+    for level in [
+        qzt::VerifyLevel::Quick,
+        qzt::VerifyLevel::Normal,
+        qzt::VerifyLevel::Deep,
+    ] {
+        assert_eq!(
+            reader.verify(level).unwrap().container_checksum_status,
+            qzt::PrefixChecksumStatus::Absent
+        );
+    }
 }
 
 #[cfg(feature = "internal-testing")]

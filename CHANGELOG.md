@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Changed
+
+- `VerifyReport` and CLI verification output now distinguish structural Chunk
+  Table entries, compressed checksums, decoded chunks/bytes, the recomputed
+  original checksum, and optional prefix/DLI/Document Index states. The added
+  public fields require updates to complete Rust struct literals. Existing
+  `checked_chunks` and `decoded_bytes` retain their meanings.
+- Canonical `qzt attest` output now includes `attestation_schema` set to
+  `qzt-attestation-v1` and the measured verification states. Versionless output
+  is legacy v0; preserve its original bytes with its signature or regenerate
+  using the pinned pre-#292 CLI. Newly generated v1 bytes require a new
+  signature or timestamp. QZT v0.1 container bytes are unchanged.
+
 ### Fixed
 
 - Search now checks token boundaries and same-line token AND against original
