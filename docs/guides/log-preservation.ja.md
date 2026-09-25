@@ -201,8 +201,8 @@ qzt range daily.qzt --bytes "${offset}:$((offset + length))"
 
 検証sampleは`INC-4242`を返しました。hitは
 `source=verified_original_bytes`ですが、hit intervalと物理decode境界は別です。
-`decoded_bytes`は検証したcandidate byte、`physical_decoded_bytes`は物理的に展開した
-完全chunkの量として観測します。
+`decoded_bytes`は検証のために読んだcandidate byteと隣接token境界byte、
+`physical_decoded_bytes`は物理的に展開した完全chunkの量として観測します。
 
 ## Limitations（制約）
 

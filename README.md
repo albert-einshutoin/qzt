@@ -136,6 +136,10 @@ QZT is a `v0.1 technical preview` with deliberately narrow boundaries:
 QZI (`.qzi`) is a derived, rebuildable, untrusted search sidecar—not part of
 the Core container format. Review its fail-closed boundary and on-disk layout
 in the [QZI v0.1 Sidecar Spec](docs/QZI_v0.1_Sidecar_Spec.md) before adoption.
+Search rechecks each returned hit against original bytes, including token
+boundaries and same-line token AND. `index_complete_declared` reflects an index
+declaration; `index_coverage_verified` is currently false, so even an uncapped
+zero-hit search does not prove that the source contains no match.
 
 QZT v0.1 is a reference implementation focused on spec coverage and correctness.
 Known limitations before production use:
@@ -383,11 +387,13 @@ memory SLA.
 
 ### Search capped at result limit (`capped=true`)
 
-When a search hits more matches than the result cap allows, the report shows
+When a search reaches the result cap, the report shows
 `capped=true` in the metrics line (text mode) or JSON `"capped": true`. This is
 **not** a failure: the command still exits **0** with the hits found up to the
-limit. `incomplete_reason` stays `none`; unlike a too-short n-gram query, the
-index answered—the search simply reached its configured ceiling.
+limit. `stop_reason=max_search_results` names the limit. `incomplete_reason`
+remains independent: a sidecar declaring `complete=false` retains
+`index_complete_declared=false` even when hits are returned or a cap stops the
+search. A capped result does not establish whether more matches exist.
 
 Raise the cap with `--max-results <N>` when you need more hits (for example
 `qzt search file.qzt needle --max-results 100`).

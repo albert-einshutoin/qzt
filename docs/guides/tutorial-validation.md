@@ -28,7 +28,7 @@ n-gram query, which writes its warning to stderr.
 ```text
 verify: {"ok":true,"level":"deep","checked_chunks":1,"decoded_bytes":288}
 hit: logical_offset=200 byte_length=8 source=verified_original_bytes
-metrics: decoded_bytes=87 physical_decoded_bytes=288 verified_matches=1
+metrics: decoded_bytes=88 physical_decoded_bytes=288 verified_matches=1
 range stdout: INC-4242
 ```
 
@@ -51,7 +51,7 @@ Observed document IDs and byte spans were `report.txt` at `0+58`,
 4. Too-short `IN` query against the 3-gram sidecar
 
 ```text
-bounded token: capped=true, candidate_granules=2, decoded_bytes=104,
+bounded token: capped=true, candidate_granules=2, decoded_bytes=105,
                physical_decoded_bytes=452, verified_matches=1
 tight n-gram:  capped=true, decoded_bytes=0, physical_decoded_bytes=0
 short query:  incomplete_reason=query_shorter_than_ngram_n

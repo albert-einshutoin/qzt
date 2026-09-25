@@ -317,7 +317,7 @@ fn published_validation_numbers_match_the_live_cli_journeys() {
     ));
     assert_eq!(hit["hits"][0]["logical_offset"], 200);
     assert_eq!(hit["hits"][0]["byte_length"], 8);
-    assert_eq!(hit["metrics"]["decoded_bytes"], 87);
+    assert_eq!(hit["metrics"]["decoded_bytes"], 88);
     assert_eq!(hit["metrics"]["physical_decoded_bytes"], 288);
     assert_eq!(
         qzt(root, &["range", "daily.qzt", "--bytes", "200:208"], None).stdout,
@@ -431,7 +431,7 @@ fn published_validation_numbers_match_the_live_cli_journeys() {
     ));
     assert_eq!(bounded["capped"], true);
     assert_eq!(bounded["metrics"]["candidate_granules"], 2);
-    assert_eq!(bounded["metrics"]["decoded_bytes"], 104);
+    assert_eq!(bounded["metrics"]["decoded_bytes"], 105);
     assert_eq!(bounded["metrics"]["physical_decoded_bytes"], 452);
     assert_eq!(bounded["metrics"]["verified_matches"], 1);
     let lowercase = json(&qzt(

@@ -28,6 +28,14 @@ Issue #289 adds query/posting/physical-decode fields and changes the default
 `max_search_results` from unlimited to 10,000. `SearchReport::stop_reason`
 distinguishes a named runtime cap from an ordinary empty result, while
 `incomplete_reason` continues to describe semantic incompleteness.
+Issue #291 adds `SearchReport::index_complete_declared` and
+`index_coverage_verified`. The first is the raw index flag or QZI manifest
+declaration; the second remains false because coverage against the whole
+source is not verified. `source=verified_original_bytes` describes returned
+hits only. Complete `SearchReport` struct literals need both new fields.
+Search text and JSON output also gain these fields. Token hit verification now
+checks whole token boundaries and same-line AND, including adjacent source
+bytes outside a candidate granule when needed. QZT/QZI bytes are unchanged.
 `SearchMetrics::physical_decoded_chunks` counts cache misses, including a
 decompression after eviction. The `max_line_bytes` field is added to both
 `TokenIndexBuildOptions` and `NgramIndexBuildOptions` (16 MiB default), and

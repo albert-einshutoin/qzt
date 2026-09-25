@@ -70,7 +70,7 @@ an empty query or empty source remains valid where it uses no such unit.
 | Posting IDs (10,000,000) | Sum of selected lists' decoded ID counts, before file-backed fetch/decode or raw intersection | Error | `max_posting_ids_per_query` / `--max-posting-ids` |
 | Intersection work (20,000,000) | One query's first-list ID copies plus ID comparisons and output pushes, charged before each step | Error | `max_posting_work` / `--max-posting-work` |
 | Candidate granules (10,000) | Intersected candidates, before candidate decode; file-backed QZI stops before granule fetch | `max_candidate_granules` cap | `max_candidate_granules` / `--max-candidates` |
-| Logical bytes (256 MiB) | Cumulative granule byte lengths, before each granule read | `max_decoded_bytes` cap | `max_decoded_bytes` / `--max-decoded-bytes` |
+| Logical bytes (256 MiB) | Cumulative candidate granule bytes and any adjacent token-boundary bytes, checked before each read | `max_decoded_bytes` cap | `max_decoded_bytes` / `--max-decoded-bytes` |
 | Physical bytes (256 MiB) | Cumulative full uncompressed chunk sizes on cache misses, before decompression | `max_physical_decoded_bytes` cap | `max_physical_decoded_bytes` / `--max-physical-decoded-bytes` |
 | Physical chunks (10,000) | Cumulative decompression calls on cache misses, before decompression | `max_physical_decoded_chunks` cap | `max_physical_decoded_chunks` / `--max-physical-decoded-chunks` |
 | Results (10,000) | Verified hit spans retained, before further span generation | `max_search_results` cap | `max_search_results` / `--max-results` |
@@ -85,5 +85,7 @@ charged again; `physical_decoded_chunks` therefore differs from the union of
 candidate chunk ranges. A cap sets `capped=true` and `stop_reason`, retains only
 already verified hits, and exits the CLI successfully. Corruption, I/O, Reader
 limits, and query/posting/line overruns remain errors (CLI exit 1). The
-independent `incomplete_reason` describes index/query semantic incompleteness;
-the broader completeness model is tracked in #291.
+independent `incomplete_reason` describes index/query semantic incompleteness.
+`index_complete_declared` is the index's declaration;
+`index_coverage_verified` is currently false even when the declaration is true.
+Adjacent token-boundary reads use the same logical and physical budgets.

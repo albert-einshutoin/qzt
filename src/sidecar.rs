@@ -423,13 +423,17 @@ impl QziSidecar {
         validate_decoded_postings(&terms, &postings, granules.len())?;
 
         let index = match manifest.index_type.as_str() {
-            "token" => SidecarSearchIndex::Token(RawTokenIndex::from_parts(
-                manifest.source_container_id,
-                manifest.source_size_bytes,
-                granules,
-                terms,
-                postings,
-            )?),
+            "token" => {
+                let mut index = RawTokenIndex::from_parts(
+                    manifest.source_container_id,
+                    manifest.source_size_bytes,
+                    granules,
+                    terms,
+                    postings,
+                )?;
+                index.complete = manifest.complete;
+                SidecarSearchIndex::Token(index)
+            }
             "ngram" => {
                 let n = manifest.ngram_n.ok_or(QztError::ContainerCorrupt)?;
                 SidecarSearchIndex::Ngram(RawNgramIndex::from_parts(
@@ -704,6 +708,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
                 } else {
                     "query_has_no_indexable_tokens"
                 }),
+                self.manifest.complete,
             ));
         }
 
@@ -716,8 +721,9 @@ impl<R: ReadAt> QziFileSidecar<R> {
                     planner,
                     started,
                     None,
-                    (is_ngram && !self.manifest.complete)
+                    (!self.manifest.complete)
                         .then_some("missing_required_key_in_incomplete_index"),
+                    self.manifest.complete,
                 ));
             };
             metrics.posting_bytes_read = metrics
@@ -792,6 +798,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
                 started,
                 Some(reason),
                 None,
+                self.manifest.complete,
             ));
         }
 
@@ -803,7 +810,7 @@ impl<R: ReadAt> QziFileSidecar<R> {
 
         let verification = verify_candidates(
             &candidates,
-            &reader.skeleton_details().chunk_entries,
+            reader.skeleton_details(),
             &mut |granule_id| {
                 let position = candidates
                     .binary_search(&granule_id)
@@ -814,13 +821,14 @@ impl<R: ReadAt> QziFileSidecar<R> {
                     .ok_or(QztError::ContainerCorrupt)
             },
             &mut |offset, length, cache| reader.read_range_cached(offset, length, cache),
-            &mut |decoded, limit| {
+            &mut |decoded, limit, left, right| {
                 if is_ngram {
                     substring_spans(decoded, query.as_bytes(), limit)
                 } else {
-                    verified_spans(decoded, &query_keys, limit)
+                    verified_spans(decoded, &query_keys, limit, left, right)
                 }
             },
+            !is_ngram,
             options,
         )?;
 
@@ -834,6 +842,8 @@ impl<R: ReadAt> QziFileSidecar<R> {
             metrics,
             capped: verification.stop_reason.is_some(),
             stop_reason: verification.stop_reason,
+            index_complete_declared: self.manifest.complete,
+            index_coverage_verified: false,
             planner,
             incomplete_reason: None,
         })
@@ -1841,6 +1851,198 @@ mod manifest_tests {
         }
         assert_eq!(manifest_bytes.len(), manifest_len);
         sidecar[HEADER_LEN..section_start].copy_from_slice(&manifest_bytes);
+    }
+
+    fn rewrite_fixture_manifest(sidecar: &mut [u8], update: impl FnOnce(&mut SidecarManifest)) {
+        let manifest_len = usize::try_from(read_u64_le(&sidecar[8..16]).unwrap()).unwrap();
+        let section_start = HEADER_LEN + manifest_len;
+        let mut manifest = decode_manifest(&sidecar[HEADER_LEN..section_start]).unwrap();
+        update(&mut manifest);
+        let mut encoded = encode_manifest(&manifest).unwrap();
+        if manifest.format_version == SidecarFormatVersion::V1 {
+            let CborValue::Map(mut fields) = validate_deterministic(&encoded).unwrap() else {
+                panic!("manifest map")
+            };
+            fields.retain(|(key, _)| {
+                key != &CborValue::Text("granule_encoding".to_owned())
+                    && key != &CborValue::Text("term_encoding".to_owned())
+            });
+            encoded = encode_deterministic(&CborValue::Map(fields)).unwrap();
+        }
+        assert_eq!(encoded.len(), manifest_len);
+        sidecar[HEADER_LEN..section_start].copy_from_slice(&encoded);
+    }
+
+    fn retarget_fixture(sidecar: &mut [u8], target: &[u8]) {
+        let reader = QztReader::open(target).unwrap();
+        let details = reader.skeleton_details();
+        rewrite_fixture_manifest(sidecar, |manifest| {
+            manifest.source_container_id = details.summary.container_id;
+            manifest.source_original_checksum = details.metadata.original_checksum.clone();
+            manifest.source_qzt_footer_checksum = reader.footer_checksum().unwrap();
+            manifest.source_size_bytes = details.summary.original_size;
+        });
+    }
+
+    #[test]
+    fn clipped_token_granule_does_not_create_a_false_hit() {
+        let source = crate::writer::pack_bytes(b"alpha\n", crate::writer::WriterOptions::default()).unwrap();
+        let target = crate::writer::pack_bytes(b"alphabet\n", crate::writer::WriterOptions::default()).unwrap();
+        let memory_reader = QztReader::open(&target).unwrap();
+        let file_reader = QztFileReader::open_read_at(target.as_slice(), target.len() as u64).unwrap();
+        for legacy in [false, true] {
+            let mut sidecar = if legacy { legacy_fixture(&source, SidecarIndexKind::Token) }
+                else { build_search_sidecar(&source, SidecarIndexKind::Token).unwrap() };
+            retarget_fixture(&mut sidecar, &target);
+            mutate_first_granule(&mut sidecar, |record, encoding| match encoding {
+                GranuleEncoding::LegacyV1 => record[16..24].copy_from_slice(&5_u64.to_le_bytes()),
+                GranuleEncoding::LineImpliedV2 => record[8..12].copy_from_slice(&5_u32.to_le_bytes()),
+            });
+            let memory = QziSidecar::open(&target, &sidecar).unwrap();
+            let file = QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &file_reader).unwrap();
+            assert!(memory.search(&memory_reader, "alpha", SearchOptions::default()).unwrap().hits.is_empty());
+            assert!(file.search(&file_reader, "alpha", SearchOptions::default()).unwrap().hits.is_empty());
+        }
+    }
+
+    #[test]
+    fn multiline_granule_does_not_satisfy_line_local_token_and() {
+        let source = crate::writer::pack_bytes(b"alpha beta\n", crate::writer::WriterOptions::default()).unwrap();
+        let target = crate::writer::pack_bytes(b"alpha\nbeta\n", crate::writer::WriterOptions::default()).unwrap();
+        let memory_reader = QztReader::open(&target).unwrap();
+        let file_reader = QztFileReader::open_read_at(target.as_slice(), target.len() as u64).unwrap();
+        for legacy in [false, true] {
+            let mut sidecar = if legacy { legacy_fixture(&source, SidecarIndexKind::Token) }
+                else { build_search_sidecar(&source, SidecarIndexKind::Token).unwrap() };
+            retarget_fixture(&mut sidecar, &target);
+            let memory = QziSidecar::open(&target, &sidecar).unwrap();
+            let file = QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &file_reader).unwrap();
+            assert!(memory.search(&memory_reader, "alpha beta", SearchOptions::default()).unwrap().hits.is_empty());
+            assert!(file.search(&file_reader, "alpha beta", SearchOptions::default()).unwrap().hits.is_empty());
+        }
+    }
+
+    #[test]
+    fn qzi_v1_v2_reports_declaration_without_claiming_verified_coverage() {
+        type CoverageCase<'a> = (&'a [u8], &'a [u8], &'a str, bool, usize, Option<&'a str>);
+        let cases: &[CoverageCase<'_>] = &[
+            (b"bravo\n", b"alpha\n", "alpha", true, 0, None),
+            (b"bravo\n", b"alpha\n", "alpha", false, 0, Some("missing_required_key_in_incomplete_index")),
+            (b"alpha\nbravo\n", b"alpha\nalpha\n", "alpha", true, 1, None),
+            (b"alpha\n", b"alpha\n", "alpha", false, 1, None),
+            (b"alpha\n", b"bravo\n", "alpha", true, 0, None),
+        ];
+        for kind in [SidecarIndexKind::Token, SidecarIndexKind::Ngram { n: 3 }] {
+            for legacy in [false, true] {
+                for &(source, target, query, declared, expected_hits, incomplete) in cases {
+                    let source = crate::writer::pack_bytes(source, crate::writer::WriterOptions::default()).unwrap();
+                    let target = crate::writer::pack_bytes(target, crate::writer::WriterOptions::default()).unwrap();
+                    let mut sidecar = if legacy { legacy_fixture(&source, kind) }
+                        else { build_search_sidecar(&source, kind).unwrap() };
+                    retarget_fixture(&mut sidecar, &target);
+                    rewrite_fixture_manifest(&mut sidecar, |manifest| manifest.complete = declared);
+
+                    let memory_reader = QztReader::open(&target).unwrap();
+                    let file_reader = QztFileReader::open_read_at(target.as_slice(), target.len() as u64).unwrap();
+                    let memory = QziSidecar::open(&target, &sidecar).unwrap();
+                    let file = QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &file_reader).unwrap();
+                    for report in [
+                        memory.search(&memory_reader, query, SearchOptions::default()).unwrap(),
+                        file.search(&file_reader, query, SearchOptions::default()).unwrap(),
+                    ] {
+                        assert_eq!(report.hits.len(), expected_hits, "{kind:?} legacy={legacy}");
+                        assert_eq!(report.index_complete_declared, declared, "{kind:?} legacy={legacy}");
+                        assert!(!report.index_coverage_verified, "{kind:?} legacy={legacy}");
+                        assert_eq!(report.incomplete_reason, incomplete, "{kind:?} legacy={legacy}");
+                        assert!(report.hits.iter().all(|hit| hit.source == "verified_original_bytes"));
+                        assert!(!report.capped);
+                        assert_eq!(report.stop_reason, None);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn token_boundary_read_preflights_adjacent_chunk_and_logical_bytes() {
+        let source = crate::writer::pack_bytes(b"alpha\n", crate::writer::WriterOptions::default()).unwrap();
+        let options = crate::writer::WriterOptions {
+            chunker: crate::chunker::ChunkerOptions { target_chunk_size: 5, max_chunk_size: 5 },
+            ..crate::writer::WriterOptions::default()
+        };
+        let target = crate::writer::pack_bytes(b"alphabet\n", options).unwrap();
+        let mut sidecar = build_search_sidecar(&source, SidecarIndexKind::Token).unwrap();
+        retarget_fixture(&mut sidecar, &target);
+        mutate_first_granule(&mut sidecar, |record, _| {
+            record[8..12].copy_from_slice(&5_u32.to_le_bytes());
+        });
+        let file_reader = QztFileReader::open_read_at(target.as_slice(), target.len() as u64).unwrap();
+        assert!(file_reader.skeleton_details().chunk_entries.len() >= 2);
+        let file = QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &file_reader).unwrap();
+        for (options, reason) in [
+            (SearchOptions { max_decoded_bytes: 5, ..SearchOptions::default() }, "max_decoded_bytes"),
+            (SearchOptions { max_physical_decoded_chunks: 1, ..SearchOptions::default() }, "max_physical_decoded_chunks"),
+            (SearchOptions { max_physical_decoded_bytes: 5, ..SearchOptions::default() }, "max_physical_decoded_bytes"),
+        ] {
+            let report = file.search(&file_reader, "alpha", options).unwrap();
+            assert_eq!(report.stop_reason, Some(reason));
+            assert!(report.capped);
+            assert!(report.hits.is_empty());
+            assert_eq!(report.metrics.physical_decoded_chunks, 1);
+        }
+    }
+
+    #[test]
+    fn qzi_v1_v2_early_reports_keep_query_and_cap_status_independent() {
+        let container = crate::writer::pack_bytes(
+            b"alpha beta\n", crate::writer::WriterOptions::default(),
+        ).unwrap();
+        let memory_reader = QztReader::open(&container).unwrap();
+        let file_reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64).unwrap();
+        for kind in [SidecarIndexKind::Token, SidecarIndexKind::Ngram { n: 3 }] {
+            for legacy in [false, true] {
+                let mut sidecar = if legacy { legacy_fixture(&container, kind) }
+                    else { build_search_sidecar(&container, kind).unwrap() };
+                rewrite_fixture_manifest(&mut sidecar, |manifest| manifest.complete = false);
+                let memory = QziSidecar::open(&container, &sidecar).unwrap();
+                let file = QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &file_reader).unwrap();
+                let unsupported = if kind == SidecarIndexKind::Token { "!!!" } else { "a" };
+                let expected = if kind == SidecarIndexKind::Token {
+                    "query_has_no_indexable_tokens"
+                } else { "query_shorter_than_ngram_n" };
+                for report in [
+                    memory.search(&memory_reader, unsupported, SearchOptions::default()).unwrap(),
+                    file.search(&file_reader, unsupported, SearchOptions::default()).unwrap(),
+                ] {
+                    assert_eq!(report.incomplete_reason, Some(expected));
+                    assert_eq!(report.stop_reason, None);
+                    assert!(!report.capped);
+                    assert!(!report.index_complete_declared);
+                    assert!(!report.index_coverage_verified);
+                    assert!(report.hits.is_empty());
+                }
+
+                for (options, reason) in [
+                    (SearchOptions { max_candidate_granules: 0, ..SearchOptions::default() }, "max_candidate_granules"),
+                    (SearchOptions { max_search_results: 0, ..SearchOptions::default() }, "max_search_results"),
+                    (SearchOptions { max_decoded_bytes: 0, ..SearchOptions::default() }, "max_decoded_bytes"),
+                    (SearchOptions { max_physical_decoded_bytes: 0, ..SearchOptions::default() }, "max_physical_decoded_bytes"),
+                    (SearchOptions { max_physical_decoded_chunks: 0, ..SearchOptions::default() }, "max_physical_decoded_chunks"),
+                ] {
+                    for report in [
+                        memory.search(&memory_reader, "alpha", options).unwrap(),
+                        file.search(&file_reader, "alpha", options).unwrap(),
+                    ] {
+                        assert_eq!(report.stop_reason, Some(reason), "{kind:?} legacy={legacy}");
+                        assert!(report.capped);
+                        assert_eq!(report.incomplete_reason, None);
+                        assert!(!report.index_complete_declared);
+                        assert!(!report.index_coverage_verified);
+                        assert!(report.hits.is_empty());
+                    }
+                }
+            }
+        }
     }
 
     fn checksum_fixture(label: &[u8]) -> CborValue {

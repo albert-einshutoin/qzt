@@ -221,7 +221,7 @@ Search verified original UTF-8 bytes.
 | `--max-posting-ids <N>` | Selected posting IDs per query; default 10,000,000. |
 | `--max-posting-work <N>` | ID copies, comparisons, and intersection output pushes; default 20,000,000. |
 | `--max-candidates <N>` | Candidate granules; default `10000`. |
-| `--max-decoded-bytes <N|NKiB|NMiB|NGiB>` | Logical verified granule bytes; default 256 MiB. |
+| `--max-decoded-bytes <N|NKiB|NMiB|NGiB>` | Logical candidate and adjacent token-boundary bytes read; default 256 MiB. |
 | `--max-physical-decoded-bytes <N|NKiB|NMiB|NGiB>` | Full chunk decompression bytes; default 256 MiB. |
 | `--max-physical-decoded-chunks <N>` | Chunk decompression calls; default 10,000. |
 | `--max-line-bytes <N|NKiB|NMiB|NGiB>` | Source line bytes for index build without `--sidecar`; default 16 MiB. |
@@ -240,7 +240,9 @@ search may stop at a candidate cap before fetching granules; then
 `candidate_chunks` is `0` and unread granules have not been validated.
 
 JSON top-level fields are `hits` (array), `metrics` (object), `capped`
-(boolean), `stop_reason` (string or null), and `incomplete_reason` (string or null). Each hit has
+(boolean), `stop_reason` (string or null), `index_complete_declared`
+(boolean), `index_coverage_verified` (boolean), and `incomplete_reason`
+(string or null). Each hit has
 `logical_offset`, `byte_length`, `chunk_start`, `chunk_end`, and `source`
 (`verified_original_bytes`). Metrics contain `query`, `index_kind`,
 `posting_granularity`, `index_size_bytes`, `source_size_bytes`,
@@ -248,7 +250,17 @@ JSON top-level fields are `hits` (array), `metrics` (object), `capped`
 `candidate_granules`, `candidate_chunks`, `decoded_bytes`,
 `physical_decoded_bytes`, `physical_decoded_chunks`, `verified_matches`, and `query_time_ms`.
 
-Text metrics include the same `stop_reason` (`none` when absent). `capped=true`
+Text metrics include both index fields and the same `stop_reason` (`none` when
+absent). `index_complete_declared` reflects the in-memory index flag or QZI
+manifest; it is not proof of source coverage. `index_coverage_verified` is
+currently `false`, including for `complete=true` and ordinary zero-hit
+results. Section checksums and source binding do not prove that all matches
+have postings. `source=verified_original_bytes` applies only to returned hits:
+token hits require all query tokens on one original line and complete token
+boundaries, including a byte outside the granule when needed. These boundary
+reads count toward logical and physical decode budgets.
+
+`capped=true`
 always has a named stop reason; `capped=false` has none. A capped zero-hit result
 is distinct from an ordinary zero-hit result. `posting_bytes_read` is a planner
 estimate for transient n-gram search, not the actual posting-byte budget meter.
@@ -257,6 +269,8 @@ estimate for transient n-gram search, not the actual posting-byte budget meter.
 `query_has_no_indexable_tokens`, or
 `missing_required_key_in_incomplete_index`. A non-null reason means the
 empty/partial result must not be interpreted as a complete negative finding.
+Even with a null reason and no cap, an unverified index cannot establish
+absence. A result cap may stop at the limit without proving more hits exist.
 
 ### `qzt inspect-sidecar <FILE.qzt> --sidecar <FILE.qzi> [--format text|json]`
 
@@ -268,6 +282,8 @@ output and JSON output contain `index_type`, `ngram_n`, `complete`,
 mismatched sidecar exits `1` without printing a successful summary. Inspection
 does not upgrade the QZT from quick structural validation; use
 `qzt verify <FILE.qzt> --deep` for complete Core verification.
+`complete` is the sidecar manifest's declaration, not verified search
+coverage; successful inspection does not prove that every match has a posting.
 
 ### `qzt sidecar-rebuild <FILE> -o <OUTPUT.qzi> [OPTIONS]`
 

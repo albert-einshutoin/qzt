@@ -39,8 +39,8 @@ qzt search archive.qzt ERROR \
   --sidecar archive.token.qzi --format json | jq
 ```
 
-A multi-token query uses **co-occurrence**: all tokens must occur in the same
-indexed granule, but order and adjacency are not required. It is not phrase
+A multi-token query uses **co-occurrence**: all tokens must occur on the same
+original line, but order and adjacency are not required. It is not phrase
 search.
 
 N-gram search is useful for substrings of at least `n` Unicode scalar values:
@@ -72,7 +72,7 @@ qzt search archive.qzt ERROR \
   --max-results 1 \
   --format json > bounded.json
 
-jq '{hits, capped, stop_reason, incomplete_reason, metrics: {
+jq '{hits, capped, stop_reason, index_complete_declared, index_coverage_verified, incomplete_reason, metrics: {
   candidate_granules: .metrics.candidate_granules,
   decoded_bytes: .metrics.decoded_bytes,
   physical_decoded_bytes: .metrics.physical_decoded_bytes,
@@ -82,24 +82,28 @@ jq '{hits, capped, stop_reason, incomplete_reason, metrics: {
 ```
 
 `--max-candidates` limits candidate granules, `--max-decoded-bytes` limits
-logical candidate bytes verified, and `--max-results` limits returned hits.
+logical candidate and adjacent token-boundary bytes read, and `--max-results`
+limits returned hits.
 `capped=true` means work or output stopped at the named `stop_reason`; do not
-treat omitted hits as absence. `capped` and `incomplete_reason` are independent
-signals and both must be checked. See the
+treat omitted hits as absence. The result cap can stop at the limit without
+knowing whether more hits exist. `capped` and `incomplete_reason` are
+independent. Check `index_complete_declared` and `index_coverage_verified` as
+well: the former is only an index declaration, and the latter is currently
+false, so even an uncapped zero-hit result does not prove absence. See the
 [budget table](../QZT_v0.1_Memory_Guarantees.md#search-and-index-build-budgets)
 for physical decompression, posting processing, and query-key limits.
 
 The validated tiny sample showed one returned hit and:
 
 ```json
-{"capped":true,"stop_reason":"max_search_results","incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":104,"physical_decoded_bytes":452,"verified_matches":1}}
+{"capped":true,"stop_reason":"max_search_results","index_complete_declared":true,"index_coverage_verified":false,"incomplete_reason":null,"metrics":{"candidate_granules":2,"decoded_bytes":105,"physical_decoded_bytes":452,"verified_matches":1}}
 ```
 
 ## 4. Read the cost metrics correctly
 
 - `candidate_granules`: posting-list candidates considered before byte
   verification.
-- `decoded_bytes`: logical candidate bytes inspected by verification.
+- `decoded_bytes`: logical candidate and adjacent token-boundary bytes read by verification.
 - `physical_decoded_bytes`: complete QZT chunks physically decompressed; a
   cache hit is free, while decoding after eviction is charged again.
 - `physical_decoded_chunks`: number of actual chunk decompressions; this is
@@ -122,7 +126,8 @@ matched byte span and must not be presented as physical decode work.
   larger than the source. Review the measured trade-offs in the
   [v0.1 benchmark report](../benchmarks/2026-07-v0.1.md).
 - Caps intentionally permit partial results. Check `capped`,
-  `incomplete_reason`, and metrics before operational decisions.
+  `incomplete_reason`, the index coverage fields, and metrics before
+  operational decisions.
 - Sidecars are not trusted evidence. Hits are reported only after checking
   original bytes in the authoritative QZT container.
 - QZT/QZI do not encrypt archive content or query artifacts. Apply redaction,

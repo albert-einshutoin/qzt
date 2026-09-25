@@ -127,8 +127,8 @@ n-gram path rejects the sidecar.
 `granule_frequency * 1_000_000 / granule_count`. The reference writer records
 the build option in the manifest; its default is `200_000` (20%). The CLI does
 not currently expose an override. During n-gram search, keys at or above the
-threshold are marked high-DF and cause an early capped result when every
-required key is high-DF, avoiding an unbounded common-term candidate decode.
+threshold are marked high-DF for planning. This marker alone does not stop a
+query; the query, posting, candidate, decode, and result budgets still apply.
 
 ## Section payloads
 
@@ -256,6 +256,19 @@ A sidecar hit is a **candidate** only. Search MUST:
    counting chunks or reporting hit coordinates.
 3. Decode the overlapping original bytes from the **source QZT container**.
 4. Verify matches against those original bytes (token or n-gram rules).
+
+Token verification requires every query token on one actual source line and
+complete token boundaries, including bytes immediately outside a granule.
+Only returned hits carry `source = verified_original_bytes`; this does not
+prove that every possible hit was found. A QZI manifest's `complete` flag is
+an index declaration, not a verified coverage claim. Section checksums and
+source binding authenticate the sidecar structure and its source association,
+but do not prove that every source match has a posting. Search reports expose
+`index_complete_declared` from that flag and
+`index_coverage_verified = false`. An ordinary zero-hit result therefore
+does not establish absence. `capped` with `stop_reason` describes a work or
+result limit; `incomplete_reason` describes a query that cannot be answered
+with its index, independently of that limit.
 
 A sidecar alone MUST NOT be treated as proof of content. In-memory open checks
 all decoded granule spans. File-backed open checks section integrity and source

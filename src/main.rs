@@ -1349,7 +1349,7 @@ fn write_search_report_text(report: &SearchReport, output: &mut dyn Write) -> st
     let query_escaped = cli_json::escape(&report.metrics.query);
     writeln!(
         output,
-        "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} physical_decoded_chunks={} verified_matches={} query_time_ms={:.3} capped={} stop_reason={} incomplete_reason={}",
+        "metrics query={} index_kind={} posting_granularity={} index_size_bytes={} source_size_bytes={} index_size_ratio={:.6} term_lookups={} posting_bytes_read={} candidate_granules={} candidate_chunks={} decoded_bytes={} physical_decoded_bytes={} physical_decoded_chunks={} verified_matches={} query_time_ms={:.3} capped={} stop_reason={} index_complete_declared={} index_coverage_verified={} incomplete_reason={}",
         query_escaped,
         report.metrics.index_kind,
         report.metrics.posting_granularity,
@@ -1367,6 +1367,8 @@ fn write_search_report_text(report: &SearchReport, output: &mut dyn Write) -> st
         report.metrics.query_time_ms,
         report.capped,
         report.stop_reason.unwrap_or("none"),
+        report.index_complete_declared,
+        report.index_coverage_verified,
         report.incomplete_reason.unwrap_or("none")
     )?;
     if let Some(reason) = report.incomplete_reason {
@@ -1451,6 +1453,8 @@ fn write_search_report_json(report: &SearchReport, output: &mut dyn Write) -> st
             "}},",
             "\"capped\":{capped},",
             "\"stop_reason\":{stop_reason},",
+            "\"index_complete_declared\":{index_complete_declared},",
+            "\"index_coverage_verified\":{index_coverage_verified},",
             "\"incomplete_reason\":{incomplete_reason}",
             "}}"
         ),
@@ -1471,6 +1475,8 @@ fn write_search_report_json(report: &SearchReport, output: &mut dyn Write) -> st
         query_time_ms = report.metrics.query_time_ms,
         capped = report.capped,
         stop_reason = stop_json,
+        index_complete_declared = report.index_complete_declared,
+        index_coverage_verified = report.index_coverage_verified,
         incomplete_reason = incomplete_json,
     )?;
     if let Some(reason) = report.incomplete_reason {

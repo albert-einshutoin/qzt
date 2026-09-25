@@ -20,6 +20,11 @@ fn run(args: &[&str]) -> std::process::Output {
         .expect("command should run")
 }
 
+fn assert_unverified_coverage(value: &serde_json::Value, declared: bool) {
+    assert_eq!(value["index_complete_declared"].as_bool(), Some(declared));
+    assert_eq!(value["index_coverage_verified"].as_bool(), Some(false));
+}
+
 fn pack_to(input: &[u8], base: &std::path::Path) -> std::path::PathBuf {
     let input_path = base.join("input.txt");
     let packed_path = base.join("input.qzt");
@@ -62,6 +67,8 @@ fn search_json_outputs_hits_and_null_incomplete_reason() {
     );
 
     let json = String::from_utf8(out.stdout).expect("stdout is utf-8");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("search JSON");
+    assert_unverified_coverage(&value, true);
 
     // Top-level structure.
     assert!(json.trim().starts_with('{'), "must start with {{: {json}");
@@ -168,6 +175,9 @@ fn search_json_zero_hits_produces_empty_array() {
     let json = String::from_utf8(out.stdout).expect("stdout is utf-8");
     let value: serde_json::Value = serde_json::from_str(&json)
         .unwrap_or_else(|error| panic!("stdout must be one valid JSON object: {error}\n{json}"));
+    assert_unverified_coverage(&value, true);
+    assert_eq!(value["capped"], false);
+    assert!(value["stop_reason"].is_null());
     assert!(
         value.as_object().is_some(),
         "stdout must be a JSON object: {json}"
@@ -188,6 +198,48 @@ fn search_json_zero_hits_produces_empty_array() {
     );
 
     let _ = fs::remove_dir_all(base);
+}
+
+#[test]
+fn sidecar_json_does_not_promote_declared_complete_to_verified_coverage() {
+    let base = crate::support::secure_temp_root()
+        .join(format!("qzt-291-sidecar-coverage-{}", std::process::id()));
+    fs::create_dir_all(&base).expect("test directory");
+    let packed = pack_to(b"alpha\n", &base);
+    let sidecar = base.join("input.qzi");
+    let packed = packed.to_str().unwrap();
+    let sidecar = sidecar.to_str().unwrap();
+    let rebuild = run(&["sidecar-rebuild", packed, "-o", sidecar]);
+    assert!(
+        rebuild.status.success(),
+        "{}",
+        String::from_utf8_lossy(&rebuild.stderr)
+    );
+    for query in ["alpha", "absent"] {
+        let output = run(&[
+            "search",
+            packed,
+            query,
+            "--sidecar",
+            sidecar,
+            "--format",
+            "json",
+        ]);
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let value: serde_json::Value = serde_json::from_slice(&output.stdout).expect("search JSON");
+        assert_unverified_coverage(&value, true);
+        assert_eq!(
+            value["hits"].as_array().unwrap().is_empty(),
+            query == "absent"
+        );
+        assert_eq!(value["capped"], false);
+        assert!(value["stop_reason"].is_null());
+    }
+    fs::remove_dir_all(base).expect("remove test directory");
 }
 
 // ---------------------------------------------------------------------------
@@ -216,6 +268,8 @@ fn search_json_quotes_incomplete_reason_when_present() {
     );
 
     let json = String::from_utf8(out.stdout).expect("stdout is utf-8");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("search JSON");
+    assert_unverified_coverage(&value, true);
     let stderr = String::from_utf8_lossy(&out.stderr);
 
     // incomplete_reason must be a quoted string.
@@ -318,6 +372,7 @@ fn search_text_mode_unchanged() {
         text.contains("incomplete_reason=none"),
         "text mode incomplete_reason must be 'none': {text}"
     );
+    assert!(text.contains("index_complete_declared=true index_coverage_verified=false"));
     // Confirm text output does NOT start with '{' (would indicate JSON leaking).
     assert!(
         !text.trim().starts_with('{'),
@@ -392,6 +447,8 @@ fn search_text_metrics_escapes_query_control_chars() {
     let json = String::from_utf8(json_out.stdout).expect("json stdout is utf-8");
     let value: serde_json::Value = serde_json::from_str(&json)
         .unwrap_or_else(|error| panic!("stdout must be valid JSON: {error}\n{json}"));
+    assert_unverified_coverage(&value, true);
+    assert!(value["stop_reason"].is_null());
     assert_eq!(
         value
             .get("metrics")
@@ -473,6 +530,8 @@ fn search_json_max_results_zero_caps_empty_hits() {
     let json = String::from_utf8(out.stdout).expect("stdout is utf-8");
     let value: serde_json::Value = serde_json::from_str(&json)
         .unwrap_or_else(|error| panic!("stdout must be valid JSON: {error}\n{json}"));
+    assert_unverified_coverage(&value, true);
+    assert_eq!(value["stop_reason"], "max_search_results");
 
     let hits = value
         .get("hits")

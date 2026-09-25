@@ -130,6 +130,9 @@ QZTは境界を意図的に狭くした`v0.1 technical preview`です。
 QZI（`.qzi`）はCore container formatの一部ではなく、派生・再構築可能・非信頼の
 検索sidecarです。導入前にfail-closed境界とon-disk layoutを
 [QZI v0.1 Sidecar Spec](docs/QZI_v0.1_Sidecar_Spec.ja.md)で確認してください。
+返すhitは原文byteへ再照合し、token境界と同じ行でのtoken ANDも確認します。
+`index_complete_declared`はindexの宣言、`index_coverage_verified`は網羅性の
+検証結果で、現在はfalseです。上限に達していない0件も原文での不存在を証明しません。
 
 QZT v0.1 は、仕様カバレッジと正しさを重視した参照実装です。
 production use の前に残っている既知の制限は以下です。
@@ -356,11 +359,13 @@ technical preview向けの運用指針であり、production memory SLAではあ
 
 ### 検索結果が上限で打ち切られた場合（`capped=true`）
 
-hit 数が結果上限を超えると、metrics 行（text mode）または JSON の
+結果上限に達すると、metrics 行（text mode）または JSON の
 `"capped": true` に `capped=true` が出ます。これは**失敗ではありません**。
 command は上限まで見つかった hit を返して **exit 0** のままです。
-`incomplete_reason` は `none` のままで、n-gram query が短すぎるケースとは別物です
-（index は回答できており、設定された上限に達しただけです）。
+`stop_reason=max_search_results` が上限を示します。`incomplete_reason` は
+独立の情報です。`complete=false` を宣言したsidecarでは、hitが返っても
+capで停止しても`index_complete_declared=false`を保持します。cap以降に一致が
+あるかどうかは分かりません。
 
 より多くの hit が必要なら `--max-results <N>` で上限を上げてください（例:
 `qzt search file.qzt needle --max-results 100`）。
