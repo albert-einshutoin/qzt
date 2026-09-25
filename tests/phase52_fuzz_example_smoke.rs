@@ -21,14 +21,26 @@ fn fuzz_smoke_is_bounded_scheduled_manual_and_reproducible() {
     assert!(!workflow.contains("  pull_request:\n"));
     assert!(!workflow.contains("  push:\n"));
     assert!(workflow.contains("permissions:\n  contents: read"));
-    assert!(workflow.contains("timeout-minutes: 10"));
+    assert!(workflow.contains("timeout-minutes: 15"));
     assert!(workflow.contains("toolchain: nightly"));
     assert!(workflow.contains("CARGO_FUZZ_VERSION: \"0.13.2\""));
     assert!(workflow.contains("cargo +nightly metadata --manifest-path fuzz/Cargo.toml --locked"));
-    assert!(workflow.contains("cargo +nightly fuzz build open_verify"));
-    assert!(workflow.contains(
-        "cargo +nightly fuzz run open_verify -- -max_total_time=60 -timeout=10 -max_len=4096"
-    ));
+    assert!(
+        workflow.contains("cargo test --manifest-path fuzz/Cargo.toml --test seed_replay --locked")
+    );
+    for target in ["open_verify", "qzi_search", "dli_decode"] {
+        assert!(workflow.contains(&format!("target: {target}")));
+    }
+    assert!(workflow.contains("cp \"fuzz/seeds/$TARGET/\"* \"fuzz/corpus/$TARGET/\""));
+    assert!(workflow.contains("cargo +nightly fuzz build --sanitizer address"));
+    assert!(workflow.contains("cargo +nightly fuzz run --sanitizer address"));
+    assert!(workflow.contains("-max_total_time=60 -timeout=10"));
+    assert!(workflow.contains("-rss_limit_mb=1024 -malloc_limit_mb=128"));
+    assert!(workflow.contains("timeout --signal=TERM --kill-after=15s 90s"));
+    assert!(workflow.contains("exit \"$status\""));
+    assert!(workflow.contains("if: always()"));
+    assert!(workflow.contains("fuzz/run-record/${{ matrix.target }}/"));
+    assert!(workflow.contains("fuzz/run-record/$TARGET/command.txt"));
     assert!(
         workflow.contains("uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02")
     );
@@ -47,9 +59,15 @@ fn generated_fuzz_state_is_ignored_and_contributor_commands_are_documented() {
     for guide in ["CONTRIBUTING.md", "CONTRIBUTING.ja.md"] {
         let contents = repository_file(guide);
         assert!(contents.contains("cargo run --locked --example evidence_ref"));
-        assert!(contents.contains(
-            "cargo +nightly fuzz run open_verify -- -max_total_time=60 -timeout=10 -max_len=4096"
-        ));
+        assert!(
+            contents
+                .contains("cargo test --manifest-path fuzz/Cargo.toml --test seed_replay --locked")
+        );
+        for target in ["open_verify", "qzi_search", "dli_decode"] {
+            assert!(contents.contains(&format!(
+                "cargo +nightly fuzz run --sanitizer address {target}"
+            )));
+        }
     }
 }
 
@@ -57,7 +75,9 @@ fn generated_fuzz_state_is_ignored_and_contributor_commands_are_documented() {
 fn fuzz_workspace_is_licensed_versioned_and_dependency_audited() {
     let manifest = repository_file("fuzz/Cargo.toml");
     assert!(manifest.contains("license = \"MIT OR Apache-2.0\""));
-    assert!(manifest.contains("qzt = { path = \"..\", version = \"=0.1.0\" }"));
+    assert!(manifest.contains(
+        "qzt = { path = \"..\", version = \"=0.1.0\", features = [\"internal-testing\"] }"
+    ));
 
     let policy = repository_file("deny.toml");
     assert!(policy.contains("\"NCSA\""));

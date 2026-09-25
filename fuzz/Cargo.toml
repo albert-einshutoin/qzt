@@ -10,11 +10,28 @@ cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = "0.4"
-qzt = { path = "..", version = "=0.1.0" }
+qzt = { path = "..", version = "=0.1.0", features = ["internal-testing"] }
+
+[lib]
+path = "src/lib.rs"
 
 [[bin]]
 name = "open_verify"
 path = "fuzz_targets/open_verify.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "qzi_search"
+path = "fuzz_targets/qzi_search.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "dli_decode"
+path = "fuzz_targets/dli_decode.rs"
 test = false
 doc = false
 bench = false

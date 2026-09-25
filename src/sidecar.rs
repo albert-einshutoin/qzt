@@ -1769,64 +1769,112 @@ fn none_if_max(value: u64) -> Option<u64> {
     (value != u64::MAX).then_some(value)
 }
 
+// Keep historical QZI encoding available only to the internal regression and
+// fuzz harnesses; the public builder continues to produce v2.
+#[cfg(any(test, feature = "internal-testing"))]
+#[doc(hidden)]
+pub fn legacy_sidecar_for_testing(container: &[u8], kind: SidecarIndexKind) -> Result<Vec<u8>> {
+    let modern = build_search_sidecar(container, kind)?;
+    let manifest_len = u64_to_usize(read_u64_le(&modern[8..16])?)?;
+    let section_start = HEADER_LEN + manifest_len;
+    let mut manifest = decode_manifest(&modern[HEADER_LEN..section_start])?;
+    let granules = decode_granules(
+        section_slice(&modern, section_start, &manifest.granules)?,
+        manifest.granule_encoding,
+        SidecarLimits::default(),
+    )?;
+    let terms = decode_terms(
+        section_slice(&modern, section_start, &manifest.terms)?,
+        manifest.term_encoding,
+        SidecarLimits::default(),
+    )?;
+    let granule_bytes = encode_granules(&granules, GranuleEncoding::LegacyV1)?;
+    let term_bytes = encode_terms(&terms, TermEncoding::LegacyV1)?;
+    let posting_bytes = section_slice(&modern, section_start, &manifest.postings)?;
+    manifest.format_version = SidecarFormatVersion::V1;
+    manifest.granule_encoding = GranuleEncoding::LegacyV1;
+    manifest.term_encoding = TermEncoding::LegacyV1;
+    manifest.granules = SectionRef {
+        offset: 0,
+        size: granule_bytes.len() as u64,
+        checksum: Checksum::blake3(&granule_bytes),
+    };
+    manifest.terms = SectionRef {
+        offset: manifest.granules.size,
+        size: term_bytes.len() as u64,
+        checksum: Checksum::blake3(&term_bytes),
+    };
+    manifest.postings = SectionRef {
+        offset: manifest.terms.offset + manifest.terms.size,
+        size: posting_bytes.len() as u64,
+        checksum: Checksum::blake3(posting_bytes),
+    };
+    manifest.index_size_bytes = manifest.postings.offset + manifest.postings.size;
+    let CborValue::Map(mut fields) = validate_deterministic(&encode_manifest(&manifest)?)? else {
+        return Err(QztError::ContainerCorrupt);
+    };
+    fields.retain(|(key, _)| {
+        key != &CborValue::Text("granule_encoding".to_owned())
+            && key != &CborValue::Text("term_encoding".to_owned())
+    });
+    let manifest_bytes = encode_deterministic(&CborValue::Map(fields))?;
+    let mut sidecar = Vec::new();
+    sidecar.extend_from_slice(SIDECAR_MAGIC);
+    sidecar.extend_from_slice(&(manifest_bytes.len() as u64).to_le_bytes());
+    sidecar.extend_from_slice(&manifest_bytes);
+    sidecar.extend_from_slice(&granule_bytes);
+    sidecar.extend_from_slice(&term_bytes);
+    sidecar.extend_from_slice(posting_bytes);
+    Ok(sidecar)
+}
+
+/// Replace fixed-width bytes in one section and recompute only that section's
+/// checksum. The source binding and all product-side integrity checks remain in
+/// force. `section` is 0=granules, 1=terms, 2=postings.
+#[cfg(feature = "internal-testing")]
+#[doc(hidden)]
+pub fn mutate_sidecar_section_for_testing(
+    sidecar: &mut [u8], section: u8, offset: usize, replacement: &[u8],
+) -> Result<()> {
+    let manifest_len = u64_to_usize(read_u64_le(sidecar.get(8..16).ok_or(QztError::UnexpectedEof)?)?)?;
+    let section_start = HEADER_LEN.checked_add(manifest_len).ok_or(QztError::ResourceLimitExceeded)?;
+    let mut manifest = decode_manifest(sidecar.get(HEADER_LEN..section_start).ok_or(QztError::UnexpectedEof)?)?;
+    let selected = match section {
+        0 => &mut manifest.granules,
+        1 => &mut manifest.terms,
+        2 => &mut manifest.postings,
+        _ => return Err(QztError::ContainerCorrupt),
+    };
+    let start = section_start.checked_add(u64_to_usize(selected.offset)?).ok_or(QztError::ResourceLimitExceeded)?;
+    let end = start.checked_add(u64_to_usize(selected.size)?).ok_or(QztError::ResourceLimitExceeded)?;
+    let section_bytes = sidecar.get_mut(start..end).ok_or(QztError::UnexpectedEof)?;
+    let patch_end = offset.checked_add(replacement.len()).ok_or(QztError::ResourceLimitExceeded)?;
+    section_bytes.get_mut(offset..patch_end).ok_or(QztError::UnexpectedEof)?.copy_from_slice(replacement);
+    selected.checksum = Checksum::blake3(section_bytes);
+    let mut manifest_bytes = encode_manifest(&manifest)?;
+    if manifest.format_version == SidecarFormatVersion::V1 {
+        let CborValue::Map(mut fields) = validate_deterministic(&manifest_bytes)? else {
+            return Err(QztError::ContainerCorrupt);
+        };
+        fields.retain(|(key, _)| {
+            key != &CborValue::Text("granule_encoding".to_owned())
+                && key != &CborValue::Text("term_encoding".to_owned())
+        });
+        manifest_bytes = encode_deterministic(&CborValue::Map(fields))?;
+    }
+    if manifest_bytes.len() != manifest_len {
+        return Err(QztError::ContainerCorrupt);
+    }
+    sidecar[HEADER_LEN..section_start].copy_from_slice(&manifest_bytes);
+    Ok(())
+}
+
 #[cfg(test)]
 mod manifest_tests {
     use super::*;
 
     fn legacy_fixture(container: &[u8], kind: SidecarIndexKind) -> Vec<u8> {
-        let modern = build_search_sidecar(container, kind).expect("modern sidecar");
-        let manifest_len = usize::try_from(read_u64_le(&modern[8..16]).unwrap()).unwrap();
-        let section_start = HEADER_LEN + manifest_len;
-        let mut manifest = decode_manifest(&modern[HEADER_LEN..section_start]).unwrap();
-        let granules = decode_granules(
-            section_slice(&modern, section_start, &manifest.granules).unwrap(),
-            manifest.granule_encoding,
-            SidecarLimits::default(),
-        )
-        .unwrap();
-        let terms = decode_terms(
-            section_slice(&modern, section_start, &manifest.terms).unwrap(),
-            manifest.term_encoding,
-            SidecarLimits::default(),
-        )
-        .unwrap();
-        let granule_bytes = encode_granules(&granules, GranuleEncoding::LegacyV1).unwrap();
-        let term_bytes = encode_terms(&terms, TermEncoding::LegacyV1).unwrap();
-        let posting_bytes = section_slice(&modern, section_start, &manifest.postings).unwrap();
-        manifest.format_version = SidecarFormatVersion::V1;
-        manifest.granule_encoding = GranuleEncoding::LegacyV1;
-        manifest.term_encoding = TermEncoding::LegacyV1;
-        manifest.granules = SectionRef {
-            offset: 0,
-            size: granule_bytes.len() as u64,
-            checksum: Checksum::blake3(&granule_bytes),
-        };
-        manifest.terms = SectionRef {
-            offset: manifest.granules.size,
-            size: term_bytes.len() as u64,
-            checksum: Checksum::blake3(&term_bytes),
-        };
-        manifest.postings = SectionRef {
-            offset: manifest.terms.offset + manifest.terms.size,
-            size: posting_bytes.len() as u64,
-            checksum: Checksum::blake3(posting_bytes),
-        };
-        manifest.index_size_bytes = manifest.postings.offset + manifest.postings.size;
-        let value = validate_deterministic(&encode_manifest(&manifest).unwrap()).unwrap();
-        let CborValue::Map(mut fields) = value else { panic!("manifest map") };
-        fields.retain(|(key, _)| {
-            key != &CborValue::Text("granule_encoding".to_owned())
-                && key != &CborValue::Text("term_encoding".to_owned())
-        });
-        let manifest_bytes = encode_deterministic(&CborValue::Map(fields)).unwrap();
-        let mut sidecar = Vec::new();
-        sidecar.extend_from_slice(SIDECAR_MAGIC);
-        sidecar.extend_from_slice(&(manifest_bytes.len() as u64).to_le_bytes());
-        sidecar.extend_from_slice(&manifest_bytes);
-        sidecar.extend_from_slice(&granule_bytes);
-        sidecar.extend_from_slice(&term_bytes);
-        sidecar.extend_from_slice(posting_bytes);
-        sidecar
+        legacy_sidecar_for_testing(container, kind).expect("legacy sidecar")
     }
 
     fn mutate_first_granule(sidecar: &mut [u8], mutate: impl FnOnce(&mut [u8], GranuleEncoding)) {

@@ -57,16 +57,22 @@ Before changing a public example, execute its user-visible path:
 cargo run --locked --example evidence_ref
 ```
 
-Changes to parsing, verification, or fuzz targets should also run the bounded
-nightly smoke locally when `cargo-fuzz` is available:
+Changes to parsing, verification, or fuzz targets should replay the tracked
+seeds and run the bounded nightly smoke locally when `cargo-fuzz` is available:
 
 ```sh
-cargo +nightly fuzz run open_verify -- -max_total_time=60 -timeout=10 -max_len=4096
+cargo test --manifest-path fuzz/Cargo.toml --test seed_replay --locked
+mkdir -p fuzz/corpus/open_verify fuzz/corpus/qzi_search fuzz/corpus/dli_decode
+for target in open_verify qzi_search dli_decode; do cp fuzz/seeds/$target/* fuzz/corpus/$target/; done
+cargo +nightly fuzz run --sanitizer address open_verify fuzz/corpus/open_verify -- -max_total_time=60 -timeout=10 -max_len=4096 -rss_limit_mb=1024 -malloc_limit_mb=128 -seed=294
+cargo +nightly fuzz run --sanitizer address qzi_search fuzz/corpus/qzi_search -- -max_total_time=60 -timeout=10 -max_len=256 -rss_limit_mb=1024 -malloc_limit_mb=128 -seed=294
+cargo +nightly fuzz run --sanitizer address dli_decode fuzz/corpus/dli_decode -- -max_total_time=60 -timeout=10 -max_len=256 -rss_limit_mb=1024 -malloc_limit_mb=128 -seed=294
 ```
 
-The same fuzz command runs weekly and on manual dispatch, not on every pull
-request. Generated corpus and crash state remain local; CI retains crash
-artifacts for seven days when a run fails.
+The same targets run weekly and on manual dispatch, not on every pull request.
+See [fuzz/README.md](fuzz/README.md) for input modes, budgets, seed provenance,
+reproduction and minimization. Generated corpus stays local; CI retains logs
+and crash artifacts for seven days.
 
 ## Adding a conformance test
 

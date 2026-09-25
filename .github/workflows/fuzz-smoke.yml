@@ -14,13 +14,34 @@ concurrency:
 
 jobs:
   fuzz:
-    name: open and verify fuzz smoke
+    name: fuzz ${{ matrix.target }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: open_verify
+            max_len: 4096
+          - target: qzi_search
+            max_len: 256
+          - target: dli_decode
+            max_len: 256
     env:
       CARGO_FUZZ_VERSION: "0.13.2"
     steps:
       - uses: actions/checkout@v5
+      - name: Prepare evidence and tracked corpus
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          mkdir -p "fuzz/run-record/$TARGET" "fuzz/artifacts/$TARGET" "fuzz/corpus/$TARGET"
+          git rev-parse HEAD > "fuzz/run-record/$TARGET/commit.txt"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          cp "fuzz/seeds/$TARGET/"* "fuzz/corpus/$TARGET/"
+          find "fuzz/corpus/$TARGET" -type f -maxdepth 1 -print | sort > "fuzz/run-record/$TARGET/seeds.txt"
+          test -s "fuzz/run-record/$TARGET/seeds.txt"
+          sha256sum "fuzz/corpus/$TARGET/"* > "fuzz/run-record/$TARGET/seed-hashes.txt"
       - uses: dtolnay/rust-toolchain@nightly
         with:
           toolchain: nightly
@@ -31,17 +52,43 @@ jobs:
       # supply chain explicit without adding a mutable third-party installer.
       - name: Install cargo-fuzz
         run: cargo install --locked --version "$CARGO_FUZZ_VERSION" cargo-fuzz
+      - name: Record toolchain and runner
+        env:
+          TARGET: ${{ matrix.target }}
+          MAX_LEN: ${{ matrix.max_len }}
+        run: |
+          rustc +nightly -Vv > "fuzz/run-record/$TARGET/toolchain.txt"
+          cargo fuzz --version > "fuzz/run-record/$TARGET/cargo-fuzz.txt"
+          printf '%s\n' "timeout --signal=TERM --kill-after=15s 90s cargo +nightly fuzz run --sanitizer address $TARGET fuzz/corpus/$TARGET -- -max_total_time=60 -timeout=10 -max_len=$MAX_LEN -rss_limit_mb=1024 -malloc_limit_mb=128 -seed=294 -artifact_prefix=fuzz/artifacts/$TARGET/" > "fuzz/run-record/$TARGET/command.txt"
       - name: Validate locked fuzz dependencies
-        run: cargo +nightly metadata --manifest-path fuzz/Cargo.toml --locked --format-version 1 --no-deps
-      - name: Build fuzz target
-        run: cargo +nightly fuzz build open_verify
+        run: cargo +nightly metadata --manifest-path fuzz/Cargo.toml --locked --format-version 1 --no-deps > /dev/null
+      - name: Replay tracked QZI and DLI seed contracts
+        run: cargo test --manifest-path fuzz/Cargo.toml --test seed_replay --locked
+      - name: Build ASan fuzz target
+        env:
+          TARGET: ${{ matrix.target }}
+        run: cargo +nightly fuzz build --sanitizer address "$TARGET"
       - name: Run bounded fuzz smoke
-        run: cargo +nightly fuzz run open_verify -- -max_total_time=60 -timeout=10 -max_len=4096
-      - name: Preserve crash artifacts
-        if: failure()
+        env:
+          TARGET: ${{ matrix.target }}
+          MAX_LEN: ${{ matrix.max_len }}
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=15s 90s cargo +nightly fuzz run --sanitizer address "$TARGET" "fuzz/corpus/$TARGET" -- \
+            -max_total_time=60 -timeout=10 "-max_len=$MAX_LEN" -rss_limit_mb=1024 -malloc_limit_mb=128 \
+            -seed=294 "-artifact_prefix=fuzz/artifacts/$TARGET/" > "fuzz/run-record/$TARGET/run.log" 2>&1
+          status=$?
+          set -e
+          cat "fuzz/run-record/$TARGET/run.log"
+          printf '%s\n' "$status" > "fuzz/run-record/$TARGET/exit-status.txt"
+          exit "$status"
+      - name: Preserve logs and crash inputs
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: open-verify-fuzz-artifacts-${{ github.sha }}
-          path: fuzz/artifacts
-          if-no-files-found: ignore
+          name: fuzz-${{ matrix.target }}-${{ github.sha }}
+          path: |
+            fuzz/run-record/${{ matrix.target }}/
+            fuzz/artifacts/${{ matrix.target }}/
+          if-no-files-found: error
           retention-days: 7
