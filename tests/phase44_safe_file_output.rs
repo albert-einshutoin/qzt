@@ -283,6 +283,29 @@ fn replacement_preserves_existing_output_acl() {
     );
     assert_eq!(fs::read(&output).unwrap(), fs::read(&source).unwrap());
     assert_eq!(read_acl(&output), before);
+
+    #[cfg(windows)]
+    {
+        let inheritance = Command::new("icacls")
+            .arg(&output)
+            .arg("/inheritance:e")
+            .output()
+            .unwrap();
+        assert!(
+            inheritance.status.success(),
+            "{}",
+            String::from_utf8_lossy(&inheritance.stderr)
+        );
+        let inherited_acl = read_acl(&output);
+        let result = run(&["export", path(&packed), "-o", path(&output)]);
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        assert_eq!(fs::read(&output).unwrap(), fs::read(&source).unwrap());
+        assert_eq!(read_acl(&output), inherited_acl);
+    }
 }
 
 #[cfg(windows)]

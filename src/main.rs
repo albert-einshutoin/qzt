@@ -845,6 +845,9 @@ fn replace_output(temp_path: &Path, output_path: &Path) -> std::io::Result<()> {
         .collect();
     // Same-directory rename: never permit the copy-and-delete cross-volume path.
     // Request WRITE_THROUGH, but Windows has no separate portable directory sync.
+    // SAFETY: Both UTF-16 paths are NUL-terminated and live for the call;
+    // flags 0x1 and 0x8 request replacement and write-through without copy.
+    // nosemgrep: rust.lang.security.unsafe-usage.unsafe-usage -- audited MoveFileExW call; see docs/security/ffi-output-audit.md.
     let result = unsafe { MoveFileExW(existing.as_ptr(), new.as_ptr(), 0x1 | 0x8) };
     if result == 0 {
         Err(std::io::Error::last_os_error())
