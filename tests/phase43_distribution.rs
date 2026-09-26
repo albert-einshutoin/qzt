@@ -186,7 +186,7 @@ fn both_readmes_offer_installer_checksum_and_source_fallback_paths() {
 
 #[test]
 fn published_release_verification_keeps_product_and_verifier_separate() {
-    assert!(PUBLISHED_WORKFLOW.contains("permissions:\n  contents: read"));
+    assert!(PUBLISHED_WORKFLOW.contains("permissions:\n  contents: read\n  actions: read"));
     assert!(PUBLISHED_WORKFLOW.contains("verify-published-release.py global"));
     assert!(PUBLISHED_WORKFLOW.contains("verify-published-release.py local"));
     assert!(PUBLISHED_WORKFLOW.contains("retention-days: 14"));

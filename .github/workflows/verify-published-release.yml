@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: published-pre3-${{ github.event.pull_request.number || github.ref }}
