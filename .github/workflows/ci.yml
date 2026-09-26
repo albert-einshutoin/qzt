@@ -2,9 +2,15 @@ name: ci
 
 on:
   push:
-    branches: [main]
+    branches: [main, "release/**"]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
 
 jobs:
   check:
@@ -21,12 +27,68 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
-      - run: make check
+      - name: Validate CI impact tool
+        if: matrix.toolchain == 'stable'
+        run: python3 -m unittest discover -s ci/tests -v
+      # Formatting, linting, type/compile checks, and all-target compilation
+      # remain mandatory on every PR regardless of the selected test plan.
+      - run: make fmt clippy check-default
       # `make check` compiles examples; execute the public usage path once to
       # catch runtime-only regressions without duplicating it on the MSRV lane.
       - name: Run public evidence example
         if: matrix.toolchain == 'stable'
         run: cargo run --locked --example evidence_ref
+
+  tests:
+    name: tests (${{ github.event_name == 'pull_request' && 'impact-selected' || 'full' }})
+    runs-on: ubuntu-latest
+    steps:
+      # Full history is required for merge-base, rename, copy, and deletion
+      # detection. If revisions still cannot be resolved, impact.py chooses full.
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Decide test strategy
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            base_revision="$PR_BASE_SHA"
+            force_full=()
+          else
+            base_revision="$HEAD_SHA"
+            force_full=(--force-full "non-PR CI requires full validation")
+          fi
+          python3 ci/impact.py plan \
+            --repository . \
+            --base "$base_revision" \
+            --head "$HEAD_SHA" \
+            --config ci/config/impact.json \
+            --adapter ci/adapters/rust.json \
+            --output target/ci/impact-plan.json \
+            "${force_full[@]}"
+      - name: Run planned tests
+        run: >-
+          python3 ci/impact.py run
+          --repository .
+          --plan target/ci/impact-plan.json
+          --adapter ci/adapters/rust.json
+          --summary target/ci/test-summary.json
+      - name: Upload test selection evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-impact-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            target/ci/impact-plan.json
+            target/ci/test-summary.json
+          if-no-files-found: error
+          retention-days: 14
 
   docs:
     name: docs
@@ -68,6 +130,7 @@ jobs:
 
   coverage:
     name: line coverage
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

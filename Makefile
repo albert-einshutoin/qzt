@@ -1,4 +1,4 @@
-.PHONY: fmt clippy check-default test check coverage dist-check doc bench-release bench-profile bench-profile-quick bench-profile-matrix bench-partial-decompression
+.PHONY: fmt clippy check-default test ci-test check coverage dist-check doc bench-release bench-profile bench-profile-quick bench-profile-matrix bench-partial-decompression
 
 RELEASE_BENCH_QUERY_REPETITIONS ?= 500
 RELEASE_BENCH_QUERY_WARMUP_REPETITIONS ?= 20
@@ -20,7 +20,10 @@ check-default:
 test:
 	cargo test --all-targets --all-features
 
-check: fmt clippy check-default test doc
+ci-test:
+	python3 -m unittest discover -s ci/tests -v
+
+check: fmt clippy check-default test ci-test doc
 
 # The initial main-branch measurement was 92.37% lines. A whole-percent 90%
 # floor preserves roughly two points of headroom for LLVM/platform variance

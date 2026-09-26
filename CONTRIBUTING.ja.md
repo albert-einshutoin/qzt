@@ -27,6 +27,12 @@ make check
 この既定ゲートにはwarningを拒否するrustdocも含まれます。生成HTMLはgitignore済みの
 Cargo target directory内に留まります。
 
+Pull Requestでは安全側の変更影響分析により関連するRust test binaryを選びますが、
+format、lint、compile、smoke testは常時実行します。main/releaseへのpush、定期実行、
+手動実行、影響を限定できない変更では全testを継続します。影響ruleを変更する場合や、
+sourceとの関係を自動推定できないtestを追加する場合は
+[選択的テストCI](docs/Selective_Test_CI.ja.md)を確認してください。
+
 ドキュメントまたはrelease hygieneを変更した場合は、次も実行します。
 
 ```sh

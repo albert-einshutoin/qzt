@@ -25,6 +25,13 @@ make check
 This default gate includes rustdoc with warnings denied; generated HTML stays
 under the ignored Cargo target directory.
 
+Pull requests use fail-safe change impact analysis to select relevant Rust
+test binaries while keeping formatting, linting, compilation, and smoke tests
+mandatory. Main/release pushes, scheduled runs, manual runs, and uncertain
+changes continue to run the complete suite. See [Selective Test
+CI](docs/Selective_Test_CI.md) before changing impact rules or adding a test
+whose source relationship cannot be inferred.
+
 For documentation or release-hygiene changes, also run:
 
 ```sh
