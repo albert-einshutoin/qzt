@@ -1,0 +1,538 @@
+Analysis of sampling probe-after (pid 99991) every 1 millisecond
+Process:         probe-after [99991]
+Path:            /private/tmp/*/probe-after
+Load Address:    0x102e24000
+Identifier:      probe-after
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  codex [41407]
+Target Type:     live task
+
+Date/Time:       2026-09-26 23:53:49.284 +0900
+Launch Time:     2026-09-26 23:53:43.366 +0900
+OS Version:      macOS 27.0 (26A428)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         2.7G
+Physical footprint (peak):  3.2G
+Idle exit:                  untracked
+----
+
+Call graph:
+    7266 Thread_12187767   DispatchQueue_1: com.apple.main-thread  (serial)
+      7266 start  (in dyld) + 6688  [0x18e16fe80]
+        7266 main  (in probe-after) + 52  [0x102e2efd0]
+          7266 _RNvNtCsaLOjE9VYtxK_3std2rt19lang_start_internal  (in probe-after) + 952  [0x102e9e098]
+            7266 std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::hcaec1c3cc02f9a1c  (in probe-after) + 16  [0x102e2f2bc]
+              7266 std::sys::backtrace::__rust_begin_short_backtrace::h8da098b5794886a6  (in probe-after) + 12  [0x102e2f2d8]
+                6938 cli_cost_probe::main::hc3eb932a704500e9  (in probe-after) + 2344  [0x102e2d5a4]
+                + 4805 qzt::sidecar::QziFileSidecar$LT$std..fs..File$GT$::open_path::h6304c015aca67406  (in probe-after) + 1944  [0x102e2bd70]
+                + ! 2259 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 428  [0x102e36348]
+                + ! : 2056 blake3::portable::compress_in_place::hc432a331a4d53978  (in probe-after) + 3584,2096,...  [0x102e4c190,0x102e4bbc0,...]
+                + ! : 97 blake3::hash::hc88f3a17e20d6080  (in probe-after) + 92  [0x102e4a9a4]
+                + ! : | 71 blake3::ChunkState::update::hac5353af4a9623d0  (in probe-after) + 320  [0x102e4a1c8]
+                + ! : | + 55 _platform_memmove  (in libsystem_platform.dylib) + 428,452,...  [0x18e54ff0c,0x18e54ff24,...]
+                + ! : | + 16 DYLD-STUB$$memcpy  (in probe-after) + 4,8  [0x102ebec80,0x102ebec84]
+                + ! : | 26 blake3::ChunkState::update::hac5353af4a9623d0  (in probe-after) + 28,168,...  [0x102e4a0a4,0x102e4a130,...]
+                + ! : 79 blake3::hash::hc88f3a17e20d6080  (in probe-after) + 212,68,...  [0x102e4aa1c,0x102e4a98c,...]
+                + ! : 19 blake3::ChunkState::update::hac5353af4a9623d0  (in probe-after) + 344  [0x102e4a1e0]
+                + ! : 8 blake3::hash::hc88f3a17e20d6080  (in probe-after) + 256  [0x102e4aa48]
+                + ! :   8 blake3::portable::compress_in_place::hc432a331a4d53978  (in probe-after) + 4,0  [0x102e4b394,0x102e4b390]
+                + ! 543 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 360  [0x102e36304]
+                + ! : 244 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 184  [0x102e36934]
+                + ! : | 216 _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after) + 52  [0x102ebe534]
+                + ! : | + 185 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 88  [0x102ebe5b8]
+                + ! : | + ! 87 _xzm_malloc_tc  (in libsystem_malloc.dylib) + 260,92,...  [0x18e367a94,0x18e3679ec,...]
+                + ! : | + ! 69 _malloc_zone_malloc  (in libsystem_malloc.dylib) + 12,44,...  [0x18e36c4fc,0x18e36c51c,...]
+                + ! : | + ! 14 DYLD-STUB$$malloc  (in probe-after) + 4  [0x102ebec68]
+                + ! : | + ! 13 _RNvCsGIExRX8pES_7___rustc11___rdl_alloc  (in probe-after) + 0,12  [0x102e923e4,0x102e923f0]
+                + ! : | + ! 1 malloc  (in libsystem_malloc.dylib) + 0  [0x18e32dce8]
+                + ! : | + ! 1 xzm_malloc_zone_malloc_type_malloc_tc  (in libsystem_malloc.dylib) + 0  [0x18e3673cc]
+                + ! : | + 21 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 4,68,...  [0x102ebe564,0x102ebe5a4,...]
+                + ! : | + 10 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 76  [0x102ebe5ac]
+                + ! : | +   10 _RNvCsGIExRX8pES_7___rustc35___rust_no_alloc_shim_is_unstable_v2  (in probe-after) + 0  [0x102e36198]
+                + ! : | 22 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 132  [0x102ebe5e4]
+                + ! : | 6 _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after) + 44  [0x102ebe52c]
+                + ! : 193 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 252  [0x102e36978]
+                + ! : | 96 _xzm_free_tc  (in libsystem_malloc.dylib) + 4,176,...  [0x18e36987c,0x18e369928,...]
+                + ! : | 69 _free  (in libsystem_malloc.dylib) + 0,44,...  [0x18e36d110,0x18e36d13c,...]
+                + ! : | 21 DYLD-STUB$$free  (in probe-after) + 4,0  [0x102ebec20,0x102ebec1c]
+                + ! : | 6 _RNvCsGIExRX8pES_7___rustc13___rdl_dealloc  (in probe-after) + 0  [0x102e92450]
+                + ! : | 1 _RNvCsGIExRX8pES_7___rustc14___rust_dealloc  (in probe-after) + 0  [0x102e3618c]
+                + ! : 92 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 152,140,...  [0x102e36914,0x102e36908,...]
+                + ! : 14 _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after) + 76  [0x102ebe54c]
+                + ! 536 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 396  [0x102e36328]
+                + ! : 264 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 184  [0x102e36934]
+                + ! : | 228 _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after) + 52  [0x102ebe534]
+                + ! : | + 196 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 88  [0x102ebe5b8]
+                + ! : | + ! 77 _malloc_zone_malloc  (in libsystem_malloc.dylib) + 12,80,...  [0x18e36c4fc,0x18e36c540,...]
+                + ! : | + ! 75 _xzm_malloc_tc  (in libsystem_malloc.dylib) + 92,260,...  [0x18e3679ec,0x18e367a94,...]
+                + ! : | + ! 29 _RNvCsGIExRX8pES_7___rustc11___rdl_alloc  (in probe-after) + 0  [0x102e923e4]
+                + ! : | + ! 15 DYLD-STUB$$malloc  (in probe-after) + 4  [0x102ebec68]
+                + ! : | + 27 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 68,4,...  [0x102ebe5a4,0x102ebe564,...]
+                + ! : | + 5 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 76  [0x102ebe5ac]
+                + ! : | +   5 _RNvCsGIExRX8pES_7___rustc35___rust_no_alloc_shim_is_unstable_v2  (in probe-after) + 0  [0x102e36198]
+                + ! : | 36 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 132  [0x102ebe5e4]
+                + ! : 181 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 252  [0x102e36978]
+                + ! : | 95 _xzm_free_tc  (in libsystem_malloc.dylib) + 4,40,...  [0x18e36987c,0x18e3698a0,...]
+                + ! : | 52 _free  (in libsystem_malloc.dylib) + 0,44,...  [0x18e36d110,0x18e36d13c,...]
+                + ! : | 28 DYLD-STUB$$free  (in probe-after) + 4,0  [0x102ebec20,0x102ebec1c]
+                + ! : | 3 xzm_malloc_zone_try_free_default_tc  (in libsystem_malloc.dylib) + 0  [0x18e368440]
+                + ! : | 2 _RNvCsGIExRX8pES_7___rustc14___rust_dealloc  (in probe-after) + 0  [0x102e3618c]
+                + ! : | 1 _RNvCsGIExRX8pES_7___rustc13___rdl_dealloc  (in probe-after) + 0  [0x102e92450]
+                + ! : 76 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 140,152,...  [0x102e36908,0x102e36914,...]
+                + ! : 15 _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after) + 80,76  [0x102ebe550,0x102ebe54c]
+                + ! 521 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 248  [0x102e36294]
+                + ! : 261 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 184  [0x102e36934]
+                + ! : | 242 _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after) + 52  [0x102ebe534]
+                + ! : | + 207 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 88  [0x102ebe5b8]
+                + ! : | + ! 114 _xzm_malloc_tc  (in libsystem_malloc.dylib) + 260,92,...  [0x18e367a94,0x18e3679ec,...]
+                + ! : | + ! 63 _malloc_zone_malloc  (in libsystem_malloc.dylib) + 12,44,...  [0x18e36c4fc,0x18e36c51c,...]
+                + ! : | + ! 17 _RNvCsGIExRX8pES_7___rustc11___rdl_alloc  (in probe-after) + 0,12  [0x102e923e4,0x102e923f0]
+                + ! : | + ! 13 DYLD-STUB$$malloc  (in probe-after) + 4  [0x102ebec68]
+                + ! : | + 30 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 4,68,...  [0x102ebe564,0x102ebe5a4,...]
+                + ! : | + 5 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 76  [0x102ebe5ac]
+                + ! : | +   5 _RNvCsGIExRX8pES_7___rustc35___rust_no_alloc_shim_is_unstable_v2  (in probe-after) + 0  [0x102e36198]
+                + ! : | 16 _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 132  [0x102ebe5e4]
+                + ! : | 3 _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after) + 52,0  [0x102ebe534,0x102ebe500]
+                + ! : 208 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 252  [0x102e36978]
+                + ! : | 116 _xzm_free_tc  (in libsystem_malloc.dylib) + 332,344,...  [0x18e3699c4,0x18e3699d0,...]
+                + ! : | 66 _free  (in libsystem_malloc.dylib) + 0,44,...  [0x18e36d110,0x18e36d13c,...]
+                + ! : | 22 DYLD-STUB$$free  (in probe-after) + 4,0  [0x102ebec20,0x102ebec1c]
+                + ! : | 3 xzm_malloc_zone_try_free_default_tc  (in libsystem_malloc.dylib) + 0  [0x18e368440]
+                + ! : | 1 _RNvCsGIExRX8pES_7___rustc13___rdl_dealloc  (in probe-after) + 0  [0x102e92450]
+                + ! : 44 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 188,212,...  [0x102e36938,0x102e36950,...]
+                + ! : 8 _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after) + 76  [0x102ebe54c]
+                + ! 407 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 1020,1008,...  [0x102e36598,0x102e3658c,...]
+                + ! 214 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 316  [0x102e362d8]
+                + ! : 96 _xzm_malloc_tc  (in libsystem_malloc.dylib) + 92,496,...  [0x18e3679ec,0x18e367b80,...]
+                + ! : 82 _malloc_zone_malloc  (in libsystem_malloc.dylib) + 12,56,...  [0x18e36c4fc,0x18e36c528,...]
+                + ! : 21 _xzm_xzone_thread_cache_fill_and_malloc  (in libsystem_malloc.dylib) + 128  [0x18e360a1c]
+                + ! : | 18 _xzm_xzone_find_and_malloc_from_freelist_chunk  (in libsystem_malloc.dylib) + 860  [0x18e362bec]
+                + ! : | + 17 xzm_chunk_mark_used  (in libsystem_malloc.dylib) + 160  [0x18e340268]
+                + ! : | + ! 10 _xzm_reclaim_mark_used  (in libsystem_malloc.dylib) + 176  [0x18e34034c]
+                + ! : | + ! : 10 mach_vm_reclaim_update_kernel_accounting  (in libsystem_kernel.dylib) + 92  [0x18e514854]
+                + ! : | + ! :   10 mach_vm_reclaim_update_kernel_accounting_trap  (in libsystem_kernel.dylib) + 8  [0x18e500ca4]
+                + ! : | + ! 5 _xzm_reclaim_mark_used  (in libsystem_malloc.dylib) + 124  [0x18e340318]
+                + ! : | + ! : 5 _xzm_reclaim_mark_used_locked  (in libsystem_malloc.dylib) + 60  [0x18e342e24]
+                + ! : | + ! :   4 mach_vm_reclaim_try_cancel  (in libsystem_kernel.dylib) + 260  [0x18e5146b8]
+                + ! : | + ! :   | 4 mach_absolute_time  (in libsystem_kernel.dylib) + 108  [0x18e5010f8]
+                + ! : | + ! :   1 mach_vm_reclaim_try_cancel  (in libsystem_kernel.dylib) + 0  [0x18e5145b4]
+                + ! : | + ! 2 _xzm_reclaim_mark_used  (in libsystem_malloc.dylib) + 20,72  [0x18e3402b0,0x18e3402e4]
+                + ! : | + 1 xzm_chunk_mark_used  (in libsystem_malloc.dylib) + 124  [0x18e340244]
+                + ! : | 2 _xzm_xzone_find_and_malloc_from_freelist_chunk  (in libsystem_malloc.dylib) + 12,84  [0x18e36289c,0x18e3628e4]
+                + ! : | 1 _xzm_xzone_find_and_malloc_from_freelist_chunk  (in libsystem_malloc.dylib) + 340  [0x18e3629e4]
+                + ! : |   1 _xzm_xzone_malloc_from_freelist_chunk  (in libsystem_malloc.dylib) + 196  [0x18e362564]
+                + ! : 8 _RNvCsGIExRX8pES_7___rustc11___rdl_alloc  (in probe-after) + 0,12,...  [0x102e923e4,0x102e923f0,...]
+                + ! : 6 DYLD-STUB$$malloc  (in probe-after) + 4  [0x102ebec68]
+                + ! : 1 _xzm_xzone_thread_cache_fill_and_malloc  (in libsystem_malloc.dylib) + 96  [0x18e3609fc]
+                + ! :   1 _xzm_xzone_malloc_from_freelist_chunk  (in libsystem_malloc.dylib) + 240  [0x18e362590]
+                + ! 162 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 900  [0x102e36520]
+                + ! : 152 _platform_memcmp  (in libsystem_platform.dylib) + 280,272,...  [0x18e54d288,0x18e54d280,...]
+                + ! : 10 DYLD-STUB$$memcmp  (in probe-after) + 4,0  [0x102ebec74,0x102ebec70]
+                + ! 84 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 340  [0x102e362f0]
+                + ! : 75 _platform_memmove  (in libsystem_platform.dylib) + 428,452,...  [0x18e54ff0c,0x18e54ff24,...]
+                + ! : 9 DYLD-STUB$$memcpy  (in probe-after) + 4  [0x102ebec80]
+                + ! 31 qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after) + 272,268  [0x102e3698c,0x102e36988]
+                + ! 23 blake3::hash::hc88f3a17e20d6080  (in probe-after) + 272  [0x102e4aa58]
+                + ! 13 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 1132  [0x102e36608]
+                + ! : 13 alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::h23f902f947c9d1b1  (in probe-after) + 92  [0x102eb9b88]
+                + ! :   13 _realloc  (in libsystem_malloc.dylib) + 456  [0x18e36d358]
+                + ! :     13 _malloc_zone_realloc  (in libsystem_malloc.dylib) + 148  [0x18e36cb2c]
+                + ! :       8 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 676  [0x18e35d2b4]
+                + ! :       | 8 xzm_segment_group_try_realloc_huge_chunk  (in libsystem_malloc.dylib) + 236  [0x18e342778]
+                + ! :       |   8 mach_vm_reallocate  (in libsystem_kernel.dylib) + 56  [0x18e51f20c]
+                + ! :       |     7 _kernelrpc_mach_vm_reallocate  (in libsystem_kernel.dylib) + 132  [0x18e52a088]
+                + ! :       |     + 7 mach_msg2_internal  (in libsystem_kernel.dylib) + 76  [0x18e5138e0]
+                + ! :       |     +   7 mach_msg2_trap  (in libsystem_kernel.dylib) + 8  [0x18e500c20]
+                + ! :       |     1 _kernelrpc_mach_vm_reallocate  (in libsystem_kernel.dylib) + 180  [0x18e52a0b8]
+                + ! :       4 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 996  [0x18e35d3f4]
+                + ! :       | 4 _platform_memmove  (in libsystem_platform.dylib) + 76,88  [0x18e54fdac,0x18e54fdb8]
+                + ! :       1 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 896  [0x18e35d390]
+                + ! :         1 _xzm_malloc_large_huge  (in libsystem_malloc.dylib) + 968  [0x18e3604ac]
+                + ! :           1 xzm_segment_group_alloc_chunk  (in libsystem_malloc.dylib) + 248  [0x18e3407f0]
+                + ! 12 qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after) + 304  [0x102e362cc]
+                + !   12 _RNvCsGIExRX8pES_7___rustc35___rust_no_alloc_shim_is_unstable_v2  (in probe-after) + 0  [0x102e36198]
+                + 1636 qzt::sidecar::QziFileSidecar$LT$std..fs..File$GT$::open_path::h6304c015aca67406  (in probe-after) + 1552  [0x102e2bbe8]
+                + ! 1636 qzt::sidecar::verify_section_checksum::h0fd514580d128cd5  (in probe-after) + 104  [0x102e2b184]
+                + !   1343 qzt::io::hash_read_at_range::h80e6077ed3e59565  (in probe-after) + 204  [0x102e2f0a8]
+                + !   : 1338 blake3::Hasher::update::hfea481091d4a0267  (in probe-after) + 436  [0x102e4b000]
+                + !   : | 1330 blake3::compress_subtree_to_parent_node::hc22db8461dfa3608  (in probe-after) + 92  [0x102e4a7f8]
+                + !   : | + 676 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! 358 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : 178 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | 94 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | + 94 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   93 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   ! 93 blake3_hash_many_neon  (in probe-after) + 3624,864,...  [0x102e4d318,0x102e4c850,...]
+                + !   : | + ! : | +   1 blake3_hash_many_neon  (in probe-after) + 16  [0x102e4c500]
+                + !   : | + ! : | 81 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | + 81 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   81 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     81 blake3_hash_many_neon  (in probe-after) + 3624,736,...  [0x102e4d318,0x102e4c7d0,...]
+                + !   : | + ! : | 3 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! : |   3 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |     3 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |       3 blake3_hash_many_neon  (in probe-after) + 3464,3560,...  [0x102e4d278,0x102e4d2d8,...]
+                + !   : | + ! : 176 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | 84 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | + 84 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   84 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     84 blake3_hash_many_neon  (in probe-after) + 1512,2284,...  [0x102e4cad8,0x102e4cddc,...]
+                + !   : | + ! : | 84 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | + 84 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   84 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     84 blake3_hash_many_neon  (in probe-after) + 500,1948,...  [0x102e4c6e4,0x102e4cc8c,...]
+                + !   : | + ! : | 8 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! : |   8 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |     8 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |       8 blake3_hash_many_neon  (in probe-after) + 1312,1800,...  [0x102e4ca10,0x102e4cbf8,...]
+                + !   : | + ! : 4 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! :   4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! :     4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! :       4 blake3_hash_many_neon  (in probe-after) + 1312,1800,...  [0x102e4ca10,0x102e4cbf8,...]
+                + !   : | + ! 316 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : 158 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | 78 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | + 78 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   78 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     78 blake3_hash_many_neon  (in probe-after) + 2980,4096,...  [0x102e4d094,0x102e4d4f0,...]
+                + !   : | + ! : | 76 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | + 76 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   76 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     76 blake3_hash_many_neon  (in probe-after) + 2980,1456,...  [0x102e4d094,0x102e4caa0,...]
+                + !   : | + ! : | 4 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! : |   4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |     4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |       4 blake3_hash_many_neon  (in probe-after) + 720,2080,...  [0x102e4c7c0,0x102e4cd10,...]
+                + !   : | + ! : 154 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | 75 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | + 75 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   75 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     75 blake3_hash_many_neon  (in probe-after) + 2320,836,...  [0x102e4ce00,0x102e4c834,...]
+                + !   : | + ! : | 74 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | + 73 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | + ! 73 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | + !   73 blake3_hash_many_neon  (in probe-after) + 4040,548,...  [0x102e4d4b8,0x102e4c714,...]
+                + !   : | + ! : | + 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 540  [0x102e4a404]
+                + !   : | + ! : | 4 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! : | + 4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : | +   4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : | +     4 blake3_hash_many_neon  (in probe-after) + 260,512,...  [0x102e4c5f4,0x102e4c6f0,...]
+                + !   : | + ! : | 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 76  [0x102e4a234]
+                + !   : | + ! : 4 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! :   4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! :     4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! :       4 blake3_hash_many_neon  (in probe-after) + 1588,2384,...  [0x102e4cb24,0x102e4ce40,...]
+                + !   : | + ! 2 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + !   2 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + !     2 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + !       2 blake3_hash_many_neon  (in probe-after) + 1184,1240  [0x102e4c990,0x102e4c9c8]
+                + !   : | + 651 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! 327 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : 167 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | 88 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | + 87 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | + ! 87 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | + !   87 blake3_hash_many_neon  (in probe-after) + 2208,2456,...  [0x102e4cd90,0x102e4ce88,...]
+                + !   : | + ! : | + 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | 71 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | + 71 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   71 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     71 blake3_hash_many_neon  (in probe-after) + 2428,1112,...  [0x102e4ce6c,0x102e4c948,...]
+                + !   : | + ! : | 7 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! : | + 7 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : | +   7 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : | +     7 blake3_hash_many_neon  (in probe-after) + 2152,2312,...  [0x102e4cd58,0x102e4cdf8,...]
+                + !   : | + ! : | 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 152  [0x102e4a280]
+                + !   : | + ! : 156 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | 80 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | + 80 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   80 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     80 blake3_hash_many_neon  (in probe-after) + 836,1912,...  [0x102e4c834,0x102e4cc68,...]
+                + !   : | + ! : | 69 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | + 69 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   69 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     69 blake3_hash_many_neon  (in probe-after) + 3464,1512,...  [0x102e4d278,0x102e4cad8,...]
+                + !   : | + ! : | 6 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! : | + 6 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : | +   6 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : | +     6 blake3_hash_many_neon  (in probe-after) + 1340,1868,...  [0x102e4ca2c,0x102e4cc3c,...]
+                + !   : | + ! : | 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : 4 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! :   4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! :     4 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! :       4 blake3_hash_many_neon  (in probe-after) + 916,2512,...  [0x102e4c884,0x102e4cec0,...]
+                + !   : | + ! 319 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : 167 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | 82 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | + 82 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   82 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     82 blake3_hash_many_neon  (in probe-after) + 1312,584,...  [0x102e4ca10,0x102e4c738,...]
+                + !   : | + ! : | 74 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | + 73 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | + ! 73 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | + !   73 blake3_hash_many_neon  (in probe-after) + 3772,792,...  [0x102e4d3ac,0x102e4c808,...]
+                + !   : | + ! : | + 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 76  [0x102e4a234]
+                + !   : | + ! : | 10 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! : | + 10 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : | +   10 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : | +     10 blake3_hash_many_neon  (in probe-after) + 300,1700,...  [0x102e4c61c,0x102e4cb94,...]
+                + !   : | + ! : | 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 820  [0x102e4a51c]
+                + !   : | + ! : 148 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | 70 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! : | + 70 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   70 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     70 blake3_hash_many_neon  (in probe-after) + 2284,3116,...  [0x102e4cddc,0x102e4d11c,...]
+                + !   : | + ! : | 69 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                + !   : | + ! : | + 69 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +   69 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                + !   : | + ! : | +     69 blake3_hash_many_neon  (in probe-after) + 2696,3288,...  [0x102e4cf78,0x102e4d1c8,...]
+                + !   : | + ! : | 9 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! : |   9 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |     9 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |       9 blake3_hash_many_neon  (in probe-after) + 3420,1028,...  [0x102e4d24c,0x102e4c8f4,...]
+                + !   : | + ! : 3 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + ! : | 3 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |   3 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + ! : |     3 blake3_hash_many_neon  (in probe-after) + 3060,3548,...  [0x102e4d0e4,0x102e4d2cc,...]
+                + !   : | + ! : 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                + !   : | + ! 5 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | + !   5 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + !     5 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | + !       5 blake3_hash_many_neon  (in probe-after) + 1340,3032,...  [0x102e4ca2c,0x102e4d0c8,...]
+                + !   : | + 3 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+                + !   : | +   3 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | +     3 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | +       3 blake3_hash_many_neon  (in probe-after) + 1112,2108,...  [0x102e4c948,0x102e4cd2c,...]
+                + !   : | 7 blake3::compress_subtree_to_parent_node::hc22db8461dfa3608  (in probe-after) + 152  [0x102e4a834]
+                + !   : | + 7 blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+                + !   : | +   7 blake3::portable::compress_in_place::hc432a331a4d53978  (in probe-after) + 644,1040,...  [0x102e4b614,0x102e4b7a0,...]
+                + !   : | 1 blake3::compress_subtree_to_parent_node::hc22db8461dfa3608  (in probe-after) + 92  [0x102e4a7f8]
+                + !   : 5 blake3::Hasher::update::hfea481091d4a0267  (in probe-after) + 448  [0x102e4b00c]
+                + !   :   5 blake3::portable::compress_in_place::hc432a331a4d53978  (in probe-after) + 1044,2124,...  [0x102e4b7a4,0x102e4bbdc,...]
+                + !   292 qzt::io::hash_read_at_range::h80e6077ed3e59565  (in probe-after) + 184  [0x102e2f094]
+                + !   : 291 _$LT$std..fs..File$u20$as$u20$qzt..io..ReadAt$GT$::read_exact_at::h0c9c254cb3e76691  (in probe-after) + 56  [0x102e44e08]
+                + !   : | 291 _RNvXNtNtNtCsaLOjE9VYtxK_3std2os4unix2fsNtNtB8_2fs4FileNtB2_7FileExt7read_at  (in probe-after) + 32  [0x102ea3e4c]
+                + !   : |   291 pread  (in libsystem_kernel.dylib) + 8,4  [0x18e502648,0x18e502644]
+                + !   : 1 _$LT$std..fs..File$u20$as$u20$qzt..io..ReadAt$GT$::read_exact_at::h0c9c254cb3e76691  (in probe-after) + 56  [0x102e44e08]
+                + !   1 qzt::io::hash_read_at_range::h80e6077ed3e59565  (in probe-after) + 140  [0x102e2f068]
+                + !     1 _xzm_malloc_large_huge  (in libsystem_malloc.dylib) + 968  [0x18e3604ac]
+                + !       1 xzm_segment_group_alloc_chunk  (in libsystem_malloc.dylib) + 1416  [0x18e340c80]
+                + !         1 _xzm_segment_group_clear_chunk  (in libsystem_malloc.dylib) + 44  [0x18e3406a0]
+                + !           1 madvise  (in libsystem_kernel.dylib) + 8  [0x18e5039b0]
+                + 444 qzt::sidecar::QziFileSidecar$LT$std..fs..File$GT$::open_path::h6304c015aca67406  (in probe-after) + 2040  [0x102e2bdd0]
+                + ! 302 qzt::sidecar::validate_file_term_dictionary::h6ef7fb5e47e3836f  (in probe-after) + 84,76,...  [0x102e37e38,0x102e37e30,...]
+                + ! 142 qzt::sidecar::validate_file_term_dictionary::h6ef7fb5e47e3836f  (in probe-after) + 440  [0x102e37f9c]
+                + !   126 _platform_memcmp  (in libsystem_platform.dylib) + 272,280,...  [0x18e54d280,0x18e54d288,...]
+                + !   16 DYLD-STUB$$memcmp  (in probe-after) + 4  [0x102ebec74]
+                + 49 qzt::sidecar::QziFileSidecar$LT$std..fs..File$GT$::open_path::h6304c015aca67406  (in probe-after) + 1868  [0x102e2bd24]
+                + ! 43 qzt::sidecar::read_vec::hf3fad3bef25dfdba  (in probe-after) + 128  [0x102e2c104]
+                + ! : 43 _$LT$std..fs..File$u20$as$u20$qzt..io..ReadAt$GT$::read_exact_at::h0c9c254cb3e76691  (in probe-after) + 56  [0x102e44e08]
+                + ! :   43 _RNvXNtNtNtCsaLOjE9VYtxK_3std2os4unix2fsNtNtB8_2fs4FileNtB2_7FileExt7read_at  (in probe-after) + 32  [0x102ea3e4c]
+                + ! :     43 pread  (in libsystem_kernel.dylib) + 8  [0x18e502648]
+                + ! 6 qzt::sidecar::read_vec::hf3fad3bef25dfdba  (in probe-after) + 84  [0x102e2c0d8]
+                + !   6 _xzm_malloc_large_huge  (in libsystem_malloc.dylib) + 968  [0x18e3604ac]
+                + !     6 xzm_segment_group_alloc_chunk  (in libsystem_malloc.dylib) + 1492  [0x18e340ccc]
+                + !       6 __bzero  (in libsystem_platform.dylib) + 68  [0x18e54fa74]
+                + 1 qzt::sidecar::QziFileSidecar$LT$std..fs..File$GT$::open_path::h6304c015aca67406  (in probe-after) + 192  [0x102e2b698]
+                + ! 1 _RNvMs2_NtCsaLOjE9VYtxK_3std2fsNtB5_4File8metadata  (in probe-after) + 56  [0x102e95200]
+                + !   1 fstat  (in libsystem_kernel.dylib) + 8  [0x18e50f43c]
+                + 1 qzt::sidecar::QziFileSidecar$LT$std..fs..File$GT$::open_path::h6304c015aca67406  (in probe-after) + 400  [0x102e2b768]
+                + ! 1 _$LT$std..fs..File$u20$as$u20$qzt..io..ReadAt$GT$::read_exact_at::h0c9c254cb3e76691  (in probe-after) + 56  [0x102e44e08]
+                + !   1 _RNvXNtNtNtCsaLOjE9VYtxK_3std2os4unix2fsNtNtB8_2fs4FileNtB2_7FileExt7read_at  (in probe-after) + 32  [0x102ea3e4c]
+                + !     1 pread  (in libsystem_kernel.dylib) + 8  [0x18e502648]
+                + 1 qzt::sidecar::QziFileSidecar$LT$std..fs..File$GT$::open_path::h6304c015aca67406  (in probe-after) + 928  [0x102e2b978]
+                + ! 1 qzt::sidecar::decode_manifest::hf788389d4acb79aa  (in probe-after) + 88  [0x102e36c14]
+                + !   1 qzt::cbor::Parser::parse_map::hbc40599c9be68d52  (in probe-after) + 668  [0x102e46488]
+                + !     1 qzt::cbor::Parser::parse_map::hbc40599c9be68d52  (in probe-after) + 668  [0x102e46488]
+                + !       1 qzt::cbor::Parser::parse_map::hbc40599c9be68d52  (in probe-after) + 668  [0x102e46488]
+                + !         1 qzt::cbor::Parser::parse_map::hbc40599c9be68d52  (in probe-after) + 668  [0x102e46488]
+                + !           1 qzt::cbor::Parser::parse_bytes::hd55cb799072ba035  (in probe-after) + 176  [0x102e45dc8]
+                + 1 qzt::sidecar::QziFileSidecar$LT$std..fs..File$GT$::open_path::h6304c015aca67406  (in probe-after) + 1460  [0x102e2bb8c]
+                315 cli_cost_probe::main::hc3eb932a704500e9  (in probe-after) + 2416  [0x102e2d5ec]
+                + 275 core::ptr::drop_in_place$LT$qzt..sidecar..QziFileSidecar$LT$std..fs..File$GT$$GT$::h67e18050a7eeeac2  (in probe-after) + 80  [0x102e2e834]
+                + ! 94 __xzm_xzone_free_to_freelist_chunk  (in libsystem_malloc.dylib) + 0,372,...  [0x18e365684,0x18e3657f8,...]
+                + ! 93 _xzm_free_tc  (in libsystem_malloc.dylib) + 176,344,...  [0x18e369928,0x18e3699d0,...]
+                + ! 56 _free  (in libsystem_malloc.dylib) + 0,36,...  [0x18e36d110,0x18e36d134,...]
+                + ! 30 DYLD-STUB$$free  (in probe-after) + 4,0  [0x102ebec20,0x102ebec1c]
+                + ! 1 _xzm_chunk_batch_list_push  (in libsystem_malloc.dylib) + 184  [0x18e363528]
+                + ! 1 xzm_malloc_zone_try_free_default_tc  (in libsystem_malloc.dylib) + 0  [0x18e368440]
+                + 20 core::ptr::drop_in_place$LT$qzt..sidecar..QziFileSidecar$LT$std..fs..File$GT$$GT$::h67e18050a7eeeac2  (in probe-after) + 48,60,...  [0x102e2e814,0x102e2e820,...]
+                + 17 __xzm_xzone_free_to_freelist_chunk  (in libsystem_malloc.dylib) + 764,748  [0x18e365980,0x18e365970]
+                + 3 xzm_segment_group_free_chunk  (in libsystem_malloc.dylib) + 1832  [0x18e341b80]
+                +   3 _xzm_segment_group_segment_deallocate  (in libsystem_malloc.dylib) + 92  [0x18e3435e4]
+                +     3 mvm_deallocate_plat  (in libsystem_malloc.dylib) + 60  [0x18e34b1c8]
+                +       3 mach_vm_deallocate  (in libsystem_kernel.dylib) + 60  [0x18e5027e0]
+                +         3 _kernelrpc_mach_vm_deallocate_trap  (in libsystem_kernel.dylib) + 8  [0x18e500a94]
+                13 cli_cost_probe::main::hc3eb932a704500e9  (in probe-after) + 2264  [0x102e2d554]
+                  7 qzt::reader::QztFileReader$LT$std..fs..File$GT$::open_path::he710fc7954c95bf1  (in probe-after) + 252  [0x102e35c6c]
+                  ! 5 qzt::skeleton::open_skeleton_details_read_at::h09f05cc148191514  (in probe-after) + 2504  [0x102e27574]
+                  ! : 5 qzt::schema::Checksum::blake3::h8ed9fa2d7dcce131  (in probe-after) + 92  [0x102e3ea28]
+                  ! :   5 blake3::hash::hc88f3a17e20d6080  (in probe-after) + 192  [0x102e4aa08]
+                  ! :     5 blake3::compress_subtree_to_parent_node::hc22db8461dfa3608  (in probe-after) + 92  [0x102e4a7f8]
+                  ! :       3 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                  ! :       | 3 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                  ! :       |   2 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                  ! :       |   + 2 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                  ! :       |   +   2 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                  ! :       |   +     2 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                  ! :       |   +       2 blake3_hash_many_neon  (in probe-after) + 2696,2952  [0x102e4cf78,0x102e4d078]
+                  ! :       |   1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                  ! :       |     1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                  ! :       |       1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                  ! :       |         1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                  ! :       |           1 blake3_hash_many_neon  (in probe-after) + 3316  [0x102e4d1e4]
+                  ! :       2 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                  ! :         2 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                  ! :           1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+                  ! :           + 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                  ! :           +   1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                  ! :           +     1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                  ! :           +       1 blake3_hash_many_neon  (in probe-after) + 820  [0x102e4c824]
+                  ! :           1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                  ! :             1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+                  ! :               1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                  ! :                 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+                  ! :                   1 blake3_hash_many_neon  (in probe-after) + 2636  [0x102e4cf3c]
+                  ! 1 qzt::skeleton::open_skeleton_details_read_at::h09f05cc148191514  (in probe-after) + 112  [0x102e26c1c]
+                  ! : 1 _xzm_xzone_malloc_tiny  (in libsystem_malloc.dylib) + 120  [0x18e360ac4]
+                  ! 1 qzt::skeleton::open_skeleton_details_read_at::h09f05cc148191514  (in probe-after) + 848  [0x102e26efc]
+                  !   1 qzt::schema::FooterPayload::decode::hd1a377dc0ab3977b  (in probe-after) + 88  [0x102e3b790]
+                  !     1 qzt::schema::decode_prologue::h85014d5dcda658c0  (in probe-after) + 408  [0x102e3c9e8]
+                  !       1 _platform_memcmp  (in libsystem_platform.dylib) + 56  [0x18e54d1a8]
+                  6 qzt::reader::QztFileReader$LT$std..fs..File$GT$::open_path::he710fc7954c95bf1  (in probe-after) + 76  [0x102e35bbc]
+                    6 _RNvMsl_NtCsaLOjE9VYtxK_3std2fsNtB5_11OpenOptions5__open  (in probe-after) + 148  [0x102e9d4cc]
+                      6 _RNvMsi_NtNtNtCsaLOjE9VYtxK_3std3sys2fs4unixNtB5_4File6open_c  (in probe-after) + 268  [0x102e9d360]
+                        6 open  (in libsystem_kernel.dylib) + 64  [0x18e50c960]
+                          6 __open  (in libsystem_kernel.dylib) + 8  [0x18e501680]
+
+Total number in stack (recursive counted multiple, when >=5):
+        40       blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 548  [0x102e4a40c]
+        36       blake3_hash_many_neon  (in probe-after) + 0  [0x102e4c4f0]
+        31       blake3::compress_parents_parallel::h90bc932f4e0e9c82  (in probe-after) + 212  [0x102e4a694]
+        22       blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 244  [0x102e4a2dc]
+        20       blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 288  [0x102e4a308]
+        15       blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 400  [0x102e4a378]
+        8       blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after) + 0  [0x102e4a1e8]
+        6       _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after) + 0  [0x102ebe560]
+        5       _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after) + 0  [0x102ebe500]
+
+Sort by top of stack, same collapsed (when >= 5):
+        blake3::portable::compress_in_place::hc432a331a4d53978  (in probe-after)        2076
+        blake3_hash_many_neon  (in probe-after)        1327
+        qzt::sidecar::decode_terms::he89f28fd8c99c6fe  (in probe-after)        407
+        _xzm_free_tc  (in libsystem_malloc.dylib)        400
+        _xzm_malloc_tc  (in libsystem_malloc.dylib)        372
+        pread  (in libsystem_kernel.dylib)        335
+        qzt::sidecar::validate_file_term_dictionary::h6ef7fb5e47e3836f  (in probe-after)        302
+        _malloc_zone_malloc  (in libsystem_malloc.dylib)        291
+        _platform_memcmp  (in libsystem_platform.dylib)        279
+        _free  (in libsystem_malloc.dylib)        243
+        qzt::sidecar::read_varuint::hb6e41f6db1be1d20  (in probe-after)        243
+        _RNvMs4_NtCs8dnTdrJsiec_5alloc7raw_vecNtB5_11RawVecInner11finish_growB7_  (in probe-after)        152
+        _platform_memmove  (in libsystem_platform.dylib)        134
+        __xzm_xzone_free_to_freelist_chunk  (in libsystem_malloc.dylib)        111
+        blake3::hash::hc88f3a17e20d6080  (in probe-after)        102
+        DYLD-STUB$$free  (in probe-after)        101
+        _RNvCsGIExRX8pES_7___rustc11___rdl_alloc  (in probe-after)        67
+        DYLD-STUB$$malloc  (in probe-after)        48
+        _RNvMs3_NtCs8dnTdrJsiec_5alloc7raw_vecINtB5_6RawVechE8grow_oneB7_  (in probe-after)        46
+        blake3::ChunkState::update::hac5353af4a9623d0  (in probe-after)        45
+        _RNvCsGIExRX8pES_7___rustc35___rust_no_alloc_shim_is_unstable_v2  (in probe-after)        32
+        DYLD-STUB$$memcmp  (in probe-after)        26
+        DYLD-STUB$$memcpy  (in probe-after)        25
+        core::ptr::drop_in_place$LT$qzt..sidecar..QziFileSidecar$LT$std..fs..File$GT$$GT$::h67e18050a7eeeac2  (in probe-after)        20
+        mach_vm_reclaim_update_kernel_accounting_trap  (in libsystem_kernel.dylib)        10
+        _RNvCsGIExRX8pES_7___rustc13___rdl_dealloc  (in probe-after)        8
+        blake3::compress_subtree_wide::h9ebb9af415bf768b  (in probe-after)        8
+        mach_msg2_trap  (in libsystem_kernel.dylib)        7
+        xzm_malloc_zone_try_free_default_tc  (in libsystem_malloc.dylib)        7
+        __bzero  (in libsystem_platform.dylib)        6
+        __open  (in libsystem_kernel.dylib)        6
+
+Binary Images:
+       0x102e24000 -        0x102edb14b +probe-after (0) <E0AD9F83-6949-3118-A55D-C23526F283B7> /tmp/*/probe-after
+       0x18e0bc000 -        0x18e10b5f7  libobjc.A.dylib (973.1) <C0680DF6-9900-3C29-A071-95A031686EF8> /usr/lib/libobjc.A.dylib
+       0x18e10c000 -        0x18e11623f  libsharedcache.dylib (0) <117C1ED6-AE11-3D9E-B05B-844F35395552> /usr/lib/libsharedcache.dylib
+       0x18e117000 -        0x18e13dd3b  libdyld.dylib (27062) <62863BCA-DD60-3D32-A9DB-89099BA6F3D7> /usr/lib/system/libdyld.dylib
+       0x18e13e000 -        0x18e1fd6e3  dyld (1.0.0 - 27062) <D341DDCB-7969-3A9C-8E03-0CF4751398A9> /usr/lib/dyld
+       0x18e1fe000 -        0x18e20101f  libsystem_blocks.dylib (98.1) <6F304731-D95D-3501-B4AD-F2934F7F2446> /usr/lib/system/libsystem_blocks.dylib
+       0x18e202000 -        0x18e2570df  libxpc.dylib (3298.1.1) <0791121F-B5FC-3F84-BF04-115E86D2D882> /usr/lib/system/libxpc.dylib
+       0x18e258000 -        0x18e277c13  libsystem_trace.dylib (1966.1.1) <B48A8E3E-A12A-3342-8321-428B555E965E> /usr/lib/system/libsystem_trace.dylib
+       0x18e278000 -        0x18e32cf27  libcorecrypto.dylib (2109.0.22) <807AA6C9-5D8A-3CA5-B4CE-FACE5296EF6A> /usr/lib/system/libcorecrypto.dylib
+       0x18e32d000 -        0x18e382c5f  libsystem_malloc.dylib (886.0.8) <2339CB57-FE5A-3154-A206-A76059C749EB> /usr/lib/system/libsystem_malloc.dylib
+       0x18e383000 -        0x18e3c919f  libdispatch.dylib (1605.0.2) <022BF08F-0B3A-3225-9E65-16D1553CE90D> /usr/lib/system/libdispatch.dylib
+       0x18e3ca000 -        0x18e3ccd2b  libsystem_featureflags.dylib (108) <20C1CAB2-1F13-3426-8146-9CAE9FF2A33D> /usr/lib/system/libsystem_featureflags.dylib
+       0x18e3cd000 -        0x18e44fca3  libsystem_c.dylib (1786.0.3) <FBA7B23E-AA60-3A90-9AA4-A7A2E0AD63EE> /usr/lib/system/libsystem_c.dylib
+       0x18e450000 -        0x18e4e5033  libc++.1.dylib (2200.27) <1E9BA4AA-B5DA-3CF3-80AC-4B880049573F> /usr/lib/libc++.1.dylib
+       0x18e4e6000 -        0x18e4ffeff  libc++abi.dylib (2200.27) <A21743EE-6E1C-3E74-97EA-7AF793DE4BDF> /usr/lib/libc++abi.dylib
+       0x18e500000 -        0x18e53e9ab  libsystem_kernel.dylib (13432.1.9) <F63BF418-8F75-34A4-AAF1-8CAF2B9B6A05> /usr/lib/system/libsystem_kernel.dylib
+       0x18e53f000 -        0x18e54b91b  libsystem_pthread.dylib (553.0.1) <5A1828C3-CBC2-3B85-BD07-C8ED10021A41> /usr/lib/system/libsystem_pthread.dylib
+       0x18e54c000 -        0x18e5554f3  libsystem_platform.dylib (402.0.1.0.1) <080E4444-A0FB-3913-9756-4E470015F32F> /usr/lib/system/libsystem_platform.dylib
+       0x18e556000 -        0x18e584903  libsystem_info.dylib (603) <BC387AEB-1CEF-3513-92D7-D7F913596711> /usr/lib/system/libsystem_info.dylib
+       0x1926ae000 -        0x1926b7b13  libsystem_darwin.dylib (1786.0.3) <4E66C888-993C-3E6A-A8DA-A949C01C5B67> /usr/lib/system/libsystem_darwin.dylib
+       0x192b08000 -        0x192b19b8b  libsystem_notify.dylib (368) <58FD36D8-37A7-311C-80F2-8E64DD8710CF> /usr/lib/system/libsystem_notify.dylib
+       0x194c65000 -        0x194c7fd93  libsystem_networkextension.dylib (2340.1.2) <22E1D190-486F-324F-ABA4-F36AB841BFE9> /usr/lib/system/libsystem_networkextension.dylib
+       0x194d0d000 -        0x194d24247  libsystem_asl.dylib (409) <B4D449B7-A821-3A9A-8019-E917B291F10A> /usr/lib/system/libsystem_asl.dylib
+       0x195cb8000 -        0x195cb8f2f  libobjcMsgSend.dylib (973.1) <41179EDE-DC97-3BBE-8848-6400D12C1436> /usr/lib/objc/libobjcMsgSend.dylib
+       0x196e04000 -        0x196e0bedf  libsystem_symptoms.dylib (2394.0.4) <60EE7884-9F4E-3184-A6AC-FA40A7A0297D> /usr/lib/system/libsystem_symptoms.dylib
+       0x19b19c000 -        0x19b1d6aeb  libsystem_containermanager.dylib (833.0.8.0.1) <08A57205-555D-3792-8931-9D5B585AF326> /usr/lib/system/libsystem_containermanager.dylib
+       0x19c7ef000 -        0x19c7f3317  libsystem_configuration.dylib (1446) <F3EB66A7-7A24-3AE5-B6E8-9A37BB00F119> /usr/lib/system/libsystem_configuration.dylib
+       0x19c7f4000 -        0x19c7fae03  libsystem_sandbox.dylib (3051.0.52) <1E892B56-092E-3832-BDE3-DCE356D7A4FA> /usr/lib/system/libsystem_sandbox.dylib
+       0x19dcb8000 -        0x19dcb8f2f  libobjcMsgSend1.dylib (973.1) <B40D9B2A-E1EE-37ED-8004-711A1F263DE1> /usr/lib/objc/libobjcMsgSend1.dylib
+       0x19e3d8000 -        0x19e3daf93  libquarantine.dylib (217.0.4) <7FD4AE22-86EF-382B-83F5-ADF9336C1160> /usr/lib/system/libquarantine.dylib
+       0x19eaea000 -        0x19eaf01e7  libsystem_coreservices.dylib (203) <57248E07-11A5-3857-918E-4A3A63B69FE8> /usr/lib/system/libsystem_coreservices.dylib
+       0x19f0b2000 -        0x19f0efb27  libsystem_m.dylib (3326.0.1) <A3FB340F-3ED5-30F4-8B64-9D5860F64D35> /usr/lib/system/libsystem_m.dylib
+       0x19f0f1000 -        0x19f0f44f7  libmacho.dylib (27062) <50DEADEC-3E99-3519-AFC3-4A3FEB3F14C3> /usr/lib/system/libmacho.dylib
+       0x19f10e000 -        0x19f11a707  libcommonCrypto.dylib (600041) <41C99F45-C5E6-39DB-B1F2-A1BEA9D242A4> /usr/lib/system/libcommonCrypto.dylib
+       0x19f11b000 -        0x19f124c87  libunwind.dylib (2200.5) <3070AB81-B082-39E8-8A00-EF88DDE9AC47> /usr/lib/system/libunwind.dylib
+       0x19f12c000 -        0x19f1367eb  libcopyfile.dylib (260.0.3) <72D95AF9-BF5E-3A84-81A6-BCC5BDB99857> /usr/lib/system/libcopyfile.dylib
+       0x19f137000 -        0x19f13a8bf  libcompiler_rt.dylib (103.4) <DFB5CE7F-A36E-36AA-BECE-1392D3D43607> /usr/lib/system/libcompiler_rt.dylib
+       0x19f13b000 -        0x19f140077  libsystem_collections.dylib (1786.0.3) <1E8022D4-5A37-3A7A-8936-603E6FA88358> /usr/lib/system/libsystem_collections.dylib
+       0x19f141000 -        0x19f143f1f  libsystem_secinit.dylib (182) <DE037464-4C5D-3E96-A33F-2A4557CC6A20> /usr/lib/system/libsystem_secinit.dylib
+       0x19f144000 -        0x19f14697f  libremovefile.dylib (96) <E6E6DFCF-6B2C-3F30-A59D-816CAB1190CE> /usr/lib/system/libremovefile.dylib
+       0x19f147000 -        0x19f147e27  libkeymgr.dylib (31) <5EC997EF-3ADA-360B-9FCD-5F940C83FA4E> /usr/lib/system/libkeymgr.dylib
+       0x19f148000 -        0x19f150af7  libsystem_dnssd.dylib (3111.0.5.0.1) <DE22096F-1E5B-3D6E-8164-771582DD6391> /usr/lib/system/libsystem_dnssd.dylib
+       0x19f151000 -        0x19f155f1b  libcache.dylib (95) <80BAE197-E285-3F6E-A1EE-B77FE37D7E5D> /usr/lib/system/libcache.dylib
+       0x19f156000 -        0x19f1578f3  libSystem.B.dylib (1359) <4FDC9AA6-B344-37FE-B8C6-A4C94A038F57> /usr/lib/libSystem.B.dylib
+       0x1a5cb8000 -        0x1a5cb8f2f  libobjcMsgSend2.dylib (973.1) <BD27A84B-C9AE-3282-BBEA-3B6119837B5A> /usr/lib/objc/libobjcMsgSend2.dylib
+       0x1adcb8000 -        0x1adcb8f2f  libobjcMsgSend3.dylib (973.1) <C0860D68-DDFC-3BD7-8B06-DB0645CBBED4> /usr/lib/objc/libobjcMsgSend3.dylib
+       0x1b5cb8000 -        0x1b5cb8f2f  libobjcMsgSend4.dylib (973.1) <A6153BF5-622B-3B01-81B6-F64A365EF613> /usr/lib/objc/libobjcMsgSend4.dylib
+       0x1bdcb8000 -        0x1bdcb8f2f  libobjcMsgSend5.dylib (973.1) <3913A71C-B29A-3AEA-820B-BEC40AC1861A> /usr/lib/objc/libobjcMsgSend5.dylib
+       0x1c5cb8000 -        0x1c5cb8f2f  libobjcMsgSend6.dylib (973.1) <9BC523A3-E167-3F6C-8CAE-0F3EBA671791> /usr/lib/objc/libobjcMsgSend6.dylib
+       0x1cdcb8000 -        0x1cdcb8f2f  libobjcMsgSend7.dylib (973.1) <248B7BCE-5B4C-34C7-A340-43D5228628C5> /usr/lib/objc/libobjcMsgSend7.dylib
+       0x1d5cb8000 -        0x1d5cb8f2f  libobjcMsgSend8.dylib (973.1) <3E041BAD-A8E8-3069-B741-78CD1A45B176> /usr/lib/objc/libobjcMsgSend8.dylib
+       0x1ddcb8000 -        0x1ddcb8f2f  libobjcMsgSend9.dylib (973.1) <34A67969-21A0-39D6-BB81-8FDA5A2409DB> /usr/lib/objc/libobjcMsgSend9.dylib
+       0x1e5cb8000 -        0x1e5cb8f2f  libobjcMsgSend10.dylib (973.1) <678186C0-8EAD-3B35-8CBB-00285B41E4A0> /usr/lib/objc/libobjcMsgSend10.dylib
+       0x1edcb8000 -        0x1edcb8f2f  libobjcMsgSend11.dylib (973.1) <E05CB08C-E956-36FA-8967-AE8E346A8D2C> /usr/lib/objc/libobjcMsgSend11.dylib
+       0x215cb8000 -        0x215cb8f2f  libobjcMsgSend12.dylib (973.1) <10AB03AA-FF1F-3FDC-9DFB-BFC40042C501> /usr/lib/objc/libobjcMsgSend12.dylib
+       0x21dcb8000 -        0x21dcb8f2f  libobjcMsgSend13.dylib (973.1) <ABF53427-FA6F-3D0D-8F9D-7AD795CA5C92> /usr/lib/objc/libobjcMsgSend13.dylib
+       0x225cb8000 -        0x225cb8f2f  libobjcMsgSend14.dylib (973.1) <9A844C46-A6DA-34D4-8EBF-2AD775C30684> /usr/lib/objc/libobjcMsgSend14.dylib
+       0x22dcb8000 -        0x22dcb8f2f  libobjcMsgSend15.dylib (973.1) <7C995666-2B2D-3284-AA0A-EBF7C922838E> /usr/lib/objc/libobjcMsgSend15.dylib
+       0x235cb8000 -        0x235cb8f2f  libobjcMsgSend16.dylib (973.1) <B6C0E14B-53AE-3E22-9ED5-1729C49F46F2> /usr/lib/objc/libobjcMsgSend16.dylib
+       0x23dcb8000 -        0x23dcb8f2f  libobjcMsgSend17.dylib (973.1) <07B4CF85-251B-301B-832B-20B315A59E19> /usr/lib/objc/libobjcMsgSend17.dylib
+       0x245cb8000 -        0x245cb8f2f  libobjcMsgSend18.dylib (973.1) <43E575B7-04DB-3999-A633-1A3B638BA6E3> /usr/lib/objc/libobjcMsgSend18.dylib
+       0x24dcb8000 -        0x24dcb8f2f  libobjcMsgSend19.dylib (973.1) <736F4D85-76F7-3B28-8D87-C07E8F7A0EF4> /usr/lib/objc/libobjcMsgSend19.dylib
+       0x255cb8000 -        0x255cb8f2f  libobjcMsgSend20.dylib (973.1) <74E67C8B-6BCA-3184-A18E-A97F370052C6> /usr/lib/objc/libobjcMsgSend20.dylib
+       0x25dcb8000 -        0x25dcb8f2f  libobjcMsgSend21.dylib (973.1) <CC0D732F-98E7-3888-9E15-70984DA2FB04> /usr/lib/objc/libobjcMsgSend21.dylib
+       0x265cb8000 -        0x265cb8f2f  libobjcMsgSend22.dylib (973.1) <85A60286-5DE3-32BA-B18C-2A498B065C88> /usr/lib/objc/libobjcMsgSend22.dylib
+       0x26dcb8000 -        0x26dcb8f2f  libobjcMsgSend23.dylib (973.1) <5452A0D2-6B19-39BE-ADDD-80B7BCDE3A98> /usr/lib/objc/libobjcMsgSend23.dylib
+       0x275cb8000 -        0x275cb8f2f  libobjcMsgSend24.dylib (973.1) <94BBF2D6-722B-350D-8557-4D25A8E8D53A> /usr/lib/objc/libobjcMsgSend24.dylib
+       0x27dcb8000 -        0x27dcb8f2f  libobjcMsgSend25.dylib (973.1) <35481387-5A8E-3AE4-86A6-94CEB3CC8726> /usr/lib/objc/libobjcMsgSend25.dylib
+       0x295cb8000 -        0x295cb8f2f  libobjcMsgSend26.dylib (973.1) <9E0C8664-E7F4-39D1-AAFC-BD92B255E4E8> /usr/lib/objc/libobjcMsgSend26.dylib
+       0x29dcb8000 -        0x29dcb8f2f  libobjcMsgSend27.dylib (973.1) <FD424935-55A9-3650-955A-EED3441A1D19> /usr/lib/objc/libobjcMsgSend27.dylib
+       0x2a5cb8000 -        0x2a5cb8f2f  libobjcMsgSend28.dylib (973.1) <09BA7B97-7DF7-3C7F-932A-B6847662FC49> /usr/lib/objc/libobjcMsgSend28.dylib
+       0x2adcb8000 -        0x2adcb8f2f  libobjcMsgSend29.dylib (973.1) <36D5BA3F-2139-30B0-8558-556764BE9813> /usr/lib/objc/libobjcMsgSend29.dylib
+       0x2b5cb8000 -        0x2b5cb8f2f  libobjcMsgSend30.dylib (973.1) <9F05564A-9D12-372C-98FC-E9F0E6BE4F04> /usr/lib/objc/libobjcMsgSend30.dylib
+       0x2ba9d2000 -        0x2ba9d8fe5  libRosetta.dylib (385) <E359944B-D230-33F9-A04E-0C3B17C3326E> /usr/lib/libRosetta.dylib
+       0x2bb3c1000 -        0x2bb3c475b  libsystem_darwindirectory.dylib (129.0.1) <61264923-2AA5-3658-B8C4-550C71E9D4B3> /usr/lib/system/libsystem_darwindirectory.dylib
+       0x2bb3c5000 -        0x2bb3cfd9b  libsystem_eligibility.dylib (446.1.3) <EDDE8E9C-A2CF-3931-BBB3-321CB852EB30> /usr/lib/system/libsystem_eligibility.dylib
+       0x2bb3d0000 -        0x2bb3d942b  libsystem_sanitizers.dylib (32) <7138ED99-7AA0-34EA-B35B-20EF6ADB1EED> /usr/lib/system/libsystem_sanitizers.dylib
+       0x2bb3da000 -        0x2bb3daa13  libsystem_trial.dylib (511) <6AE48824-EC44-3A8C-B501-BE57DBE892E7> /usr/lib/system/libsystem_trial.dylib
+       0x2bdcb8000 -        0x2bdcb8f2f  libobjcMsgSend31.dylib (973.1) <0985E20F-78C3-3466-A2B2-DBB95F7104A3> /usr/lib/objc/libobjcMsgSend31.dylib
+       0x2c5cb8000 -        0x2c5cb8f2f  libobjcMsgSend32.dylib (973.1) <0D309D58-D576-3E5D-AD4B-6D55AB491702> /usr/lib/objc/libobjcMsgSend32.dylib
+       0x2cdcb8000 -        0x2cdcb8f2f  libobjcMsgSend33.dylib (973.1) <346E0484-48FA-369B-8A64-93B5F5341CFE> /usr/lib/objc/libobjcMsgSend33.dylib
+       0x2d5cb8000 -        0x2d5cb8f2f  libobjcMsgSend34.dylib (973.1) <6A31F809-BCBE-3E01-A367-E91FDACCE324> /usr/lib/objc/libobjcMsgSend34.dylib

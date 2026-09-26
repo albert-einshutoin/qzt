@@ -1,0 +1,32 @@
+{
+  "harness_commit": "7eee0e8f85ca28f88a673afd03d6ec989b5b1ac1",
+  "samples": 32,
+  "warmup": 1,
+  "timeout_seconds": 15,
+  "max_wall_seconds": 900,
+  "binary_hashes": {
+    "before": {
+      "qzt": "04b51aa42fc31499e8e724bb090b8406fe97b097699d59923f81ce43afcd4f9a",
+      "probe": "e57fdbe307331131b533b8c6e8e7c810ea75100b66b6e4df94acab20dcf942f2"
+    },
+    "after": {
+      "qzt": "dd55f93247d60a85bcd22f46cd3cc4cd708aa83665676fa018ac395bfa5fdd9b",
+      "probe": "79f18572227380b20d2165f4773f2c9e4fd8f07d158c6d871873ce739eb8051c"
+    }
+  },
+  "input_hashes": {
+    "large": {
+      "qzt": "065b619f8ca14f1d39e692b9d819fca45db2967c48ad57aa12207bb4bb3b810b",
+      "qzi": "337b72854aff054ea3942d048c77467e79233fa2be888aafd66eb14cc1953ea6",
+      "source": "0313a76087036f2a1784b49cdc533282166e5c0d3bb0c1bc4fa47676a30aadcb"
+    },
+    "small": {
+      "qzt": "79f3091ee5593cc8c83f0b692e41cfadaae73288428a22189dde0c50615e4291",
+      "qzi": "565519f2ae65ac7e75a32757299e0321de25ec97eb2af1a7dc54484717454290",
+      "source": "e230e3615cf5fe7266137a4cefbbc525b8e7dc9cebc3c07b805724e556c6ef95"
+    }
+  },
+  "cache": "uncontrolled OS file cache; process is new for every open and CLI observation",
+  "order": "per case and ordinal, before/after on even ordinals, after/before on odd ordinals",
+  "exclusions": "none; failures, timeouts and outliers remain in raw records"
+}

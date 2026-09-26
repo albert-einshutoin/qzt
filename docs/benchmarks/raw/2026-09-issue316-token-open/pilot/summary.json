@@ -1,0 +1,98 @@
+{
+  "before/large/rare/qzi_open_ms": {
+    "observed": 4,
+    "median": 137.396479,
+    "min": 133.901291,
+    "max": 140.266458
+  },
+  "before/large/rare/qzt_open_ms": {
+    "observed": 4,
+    "median": 0.11504149999999999,
+    "min": 0.105959,
+    "max": 0.125
+  },
+  "before/large/rare/api_ms": {
+    "observed": 4,
+    "median": 0.095,
+    "min": 0.081834,
+    "max": 0.112167
+  },
+  "before/large/rare/wall_ms": {
+    "observed": 4,
+    "median": 145.851583,
+    "min": 142.226875,
+    "max": 148.084167
+  },
+  "before/large/missing/qzi_open_ms": {
+    "observed": 4,
+    "median": 136.906542,
+    "min": 135.045292,
+    "max": 145.328916
+  },
+  "before/large/missing/qzt_open_ms": {
+    "observed": 4,
+    "median": 0.117709,
+    "min": 0.105625,
+    "max": 0.131334
+  },
+  "before/large/missing/api_ms": {
+    "observed": 4,
+    "median": 0.0221875,
+    "min": 0.019542,
+    "max": 0.0255
+  },
+  "before/large/missing/wall_ms": {
+    "observed": 4,
+    "median": 146.510312,
+    "min": 144.278292,
+    "max": 187.538333
+  },
+  "before/small/rare/qzi_open_ms": {
+    "observed": 4,
+    "median": 2.2763955,
+    "min": 2.041416,
+    "max": 3.016125
+  },
+  "before/small/rare/qzt_open_ms": {
+    "observed": 4,
+    "median": 0.081875,
+    "min": 0.0715,
+    "max": 0.087167
+  },
+  "before/small/rare/api_ms": {
+    "observed": 4,
+    "median": 0.0296665,
+    "min": 0.024375,
+    "max": 0.089166
+  },
+  "before/small/rare/wall_ms": {
+    "observed": 4,
+    "median": 7.1340205,
+    "min": 6.63125,
+    "max": 11.934
+  },
+  "before/small/missing/qzi_open_ms": {
+    "observed": 4,
+    "median": 2.4427085,
+    "min": 2.12775,
+    "max": 6.881583
+  },
+  "before/small/missing/qzt_open_ms": {
+    "observed": 4,
+    "median": 0.0707505,
+    "min": 0.065125,
+    "max": 0.225583
+  },
+  "before/small/missing/api_ms": {
+    "observed": 4,
+    "median": 0.009021,
+    "min": 0.00725,
+    "max": 0.014333
+  },
+  "before/small/missing/wall_ms": {
+    "observed": 4,
+    "median": 7.6510205,
+    "min": 7.256333,
+    "max": 8.182
+  }
+}
