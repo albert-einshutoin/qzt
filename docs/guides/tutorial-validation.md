@@ -9,11 +9,24 @@ The read-only [verification workflow](../../.github/workflows/verify-published-r
 records the actual public URL, SHA-256, native archive smoke, installer result,
 and verifier commit separately for each of four targets in
 [Issue #313](https://github.com/albert-einshutoin/qzt/issues/313).
-The native macOS ARM public archive and installer were run locally: archive
-SHA-256 `0e51e0a1945b984500ae27a21e56930ba4b06a744a639feffa696307b1255b20`,
-binary SHA-256 `2e77275b033d498fdd61e97352fdfb06ac80aa95f3ea790f2b5727aa3512872b`,
-version `qzt 0.1.0-pre.3`, and full smoke passed in both cases. The other
-three native executions remain pending until the workflow reports them.
+The native macOS ARM public archive and installer also passed a separate local
+smoke. [Published verification run 36238702884](https://github.com/albert-einshutoin/qzt/actions/runs/36238702884)
+downloaded all 14 public assets and succeeded on all four native targets. Each
+archive matched its published sidecar before extraction. Both extracted and
+installer-placed binaries reported `qzt 0.1.0-pre.3`, passed the complete
+candidate smoke, and had the same binary SHA-256 within each target.
+
+| Native target | Published archive SHA-256 | Published binary SHA-256 | Compared with #311 candidate |
+| --- | --- | --- | --- |
+| macOS ARM64 | `0e51e0a1945b984500ae27a21e56930ba4b06a744a639feffa696307b1255b20` | `2e77275b033d498fdd61e97352fdfb06ac80aa95f3ea790f2b5727aa3512872b` | archive differs; binary matches |
+| macOS Intel | `ba6c9043101aa54ec4039a0e83060300ef80ead6aebdecaf717dba45c1fc02bc` | `2d95bd920f920178a86b557a6596217e479e53ddac73ddf27be862fd03daefc1` | archive differs; binary matches |
+| Linux x64 | `a82b18c86d13f31b7d1ec4545f88dd4328a180de67c2c53ea87f18eb62ebdbab` | `c9e61dc1cb55bcf047592125c1898b8d829318b7a3e52c42384286f4a272b1aa` | archive differs; binary matches |
+| Windows x64 | `4c8152fbfd0468cb796e531ac2ad728fff6fa267e6b142c725acf136f894a945` | `dad7b757ae12c8c66459f2365a3662257b0a3f2c6dff8ce2246a6a539320f072` | archive and binary differ; published smoke passes |
+
+The [run artifacts](https://github.com/albert-einshutoin/qzt/actions/runs/36238702884)
+retain the installer URL, selected target, temporary installed path, runner,
+toolchain, archive and installed binary hashes, and per-flow smoke outcomes.
+Linux dynamically needs only `libc.so.6` and `libgcc_s.so.1`, not `libzstd`.
 The published `sha256.sum` lists exactly the four archives and `source.tar.gz`;
 the unpublished #311 candidate had a source-only aggregate checksum. These
 are distinct builds. Release build toolchain versions were not recorded by

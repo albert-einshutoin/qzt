@@ -106,7 +106,7 @@ searchはbyte offset 11の`error` hitを1件返し、
 `cmp`成功はexportの全byteが原文と一致したことを示します。
 絶対パスのbinaryと`jq`でJSON・決定性・byte一致を確認する
 [pre.3配布binary smoke](docs/guides/examples/smoke-pre3-release-tour.sh)、
-[4 targetの公開物検証予定と結果](https://github.com/albert-einshutoin/qzt/issues/313)を参照してください。
+[4 targetの公開物検証結果](https://github.com/albert-einshutoin/qzt/issues/313)を参照してください。
 [pre.2のsmokeと実測記録](docs/guides/tutorial-validation.md)は履歴として保持します。
 
 ## CLIの版と形式

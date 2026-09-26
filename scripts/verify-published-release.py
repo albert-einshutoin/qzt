@@ -138,6 +138,8 @@ def install_and_smoke(assets, directory, work, target, archive_binary_hash, vect
     windows = target.endswith("windows-msvc")
     name = "qzt-installer.ps1" if windows else "qzt-installer.sh"
     installer = download(assets, name, directory)
+    require(ARCHIVES[target] in installer.read_text(encoding="utf-8"),
+            "published installer does not contain the expected target archive")
     install_root = work / "install"
     env = os.environ.copy()
     env["QZT_INSTALL_DIR"] = str(install_root)
@@ -149,6 +151,7 @@ def install_and_smoke(assets, directory, work, target, archive_binary_hash, vect
                             timeout=180, check=False)
     log = (result.stdout + b"\n" + result.stderr).decode("utf-8", errors="replace")
     require(result.returncode == 0, f"published installer failed: {log[-3000:]}")
+    require(target in log, "published installer did not report the expected target")
     binary = (install_root / "bin" / ("qzt.exe" if windows else "qzt")).resolve()
     require(binary.is_file(), f"installer did not place the expected binary: {binary}")
     installed_hash = candidate.sha256(binary)

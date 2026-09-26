@@ -111,7 +111,7 @@ export restored every byte. Run the
 [pre.3 release-binary smoke](docs/guides/examples/smoke-pre3-release-tour.sh)
 with the absolute binary path for automated JSON, determinism, and byte checks
 (`jq` required). The [published-asset verification record](https://github.com/albert-einshutoin/qzt/issues/313)
-will record results for all four native targets. The
+records successful results for all four native targets. The
 [pre.2 smoke and measured record](docs/guides/tutorial-validation.md) remain
 historical evidence.
 
