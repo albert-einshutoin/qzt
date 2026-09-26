@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       candidate_sha:
-        description: Full 40-character main HEAD SHA to build and verify
+        description: Full 40-character SHA in main history to build and verify
         required: true
         type: string
 
