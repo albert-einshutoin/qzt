@@ -1,0 +1,16 @@
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Record the toolchain used by the global dist build
+        shell: bash
+        run: |
+          set -euo pipefail
+          toolchain="$(rustup show active-toolchain | awk '{ print $1 }')"
+          test -n "$toolchain"
+          echo "RUSTUP_TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          export RUSTUP_TOOLCHAIN="$toolchain"
+          python scripts/record-build-environment.py record \
+            --source-sha "$(git rev-parse HEAD)" --target global \
+            --profile 'global artifacts; no Rust compile' --features 'not applicable' \
+            --build-command 'dist build ${{ needs.plan.outputs.tag-flag }} --allow-dirty --output-format=json --artifacts=global' \
+            --output "$BUILD_ENV_NAME"

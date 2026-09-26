@@ -339,7 +339,7 @@ dependencies = [
 
 [[package]]
 name = "qzt"
-version = "0.1.0-pre.3"
+version = "0.1.0-pre.4"
 dependencies = [
  "blake3",
  "libc",

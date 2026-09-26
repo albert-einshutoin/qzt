@@ -10,7 +10,6 @@ import platform
 import re
 import subprocess
 import sys
-import tarfile
 import tempfile
 import urllib.request
 from pathlib import Path
@@ -18,6 +17,7 @@ from pathlib import Path
 PRODUCT_SHA = "017d4d19739800773ab6a54adf636ff5a43ec1fc"
 RELEASE_RUN = 36237333455
 TAG = "v0.1.0-pre.3"
+VERSION = "qzt 0.1.0-pre.3"
 API = "https://api.github.com/repos/albert-einshutoin/qzt"
 BASE = f"https://github.com/albert-einshutoin/qzt/releases/download/{TAG}"
 TARGETS = {
@@ -124,13 +124,10 @@ def source_and_checksums(assets, directory):
             and manifest["dist_version"] == "0.31.0", "published dist manifest differs from plan")
     require(set(manifest["artifacts"]) == EXPECTED_ASSETS - {"dist-manifest.json"},
             "published dist manifest has missing or unexpected artifacts")
-    with tarfile.open(directory / "source.tar.gz", "r:gz") as archive:
-        member = archive.extractfile("qzt-0.1.0-pre.3/Cargo.toml")
-        require(member is not None and b'version = "0.1.0-pre.3"' in member.read(),
-                "published source archive has wrong version")
+    candidate.check_source_archive_version(directory / "source.tar.gz", TAG)
     for name in ("qzt-installer.sh", "qzt-installer.ps1"):
         content = (directory / name).read_text(encoding="utf-8")
-        require(f"/releases/download/{TAG}" in content, f"installer has wrong release URL: {name}")
+        candidate.check_installer_tag(content, TAG)
     return {"assets": records, "aggregate_checksum_entries": sorted(listed)}
 
 
@@ -156,18 +153,18 @@ def install_and_smoke(assets, directory, work, target, archive_binary_hash, vect
     require(binary.is_file(), f"installer did not place the expected binary: {binary}")
     installed_hash = candidate.sha256(binary)
     require(installed_hash == archive_binary_hash, "installed binary differs from published archive")
-    require(candidate.command(binary, work, "--version")[0].strip() == candidate.VERSION.encode(),
+    require(candidate.command(binary, work, "--version")[0].strip() == VERSION.encode(),
             "installed binary reports the wrong version")
     installed_work = work / "installed-smoke"
     installed_work.mkdir()
-    installed_smoke = candidate.smoke(binary, installed_work, vectors_dir, target)
+    installed_smoke = candidate.smoke(binary, installed_work, vectors_dir, target, TAG)
     return {
         "installer_url": f"{BASE}/{name}",
         "selected_target": target,
         "selected_archive_url": f"{BASE}/{ARCHIVES[target]}",
         "installed_binary_path": str(binary),
         "installed_binary_sha256": installed_hash,
-        "installed_binary_version": candidate.VERSION,
+        "installed_binary_version": VERSION,
         "installed_smoke": installed_smoke,
         "installer_output": log[-3000:],
     }
@@ -193,7 +190,7 @@ def verify_local(assets, target, vectors_dir, directory):
             linkage = sorted(needed)
         smoke_work = work / "archive-smoke"
         smoke_work.mkdir()
-        smoke = candidate.smoke(binary, smoke_work, vectors_dir, target)
+        smoke = candidate.smoke(binary, smoke_work, vectors_dir, target, TAG)
         binary_hash = candidate.sha256(binary)
         install = install_and_smoke(assets, directory, work, target, binary_hash, vectors_dir)
     return {

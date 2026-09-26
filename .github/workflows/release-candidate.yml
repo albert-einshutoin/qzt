@@ -1,4 +1,4 @@
-name: Verify v0.1.0-pre.3 candidate
+name: Verify v0.1.0-pre.4 candidate
 
 # The release workflow remains tag-only. This job builds unpublished artifacts
 # only for this workflow's review and for an explicitly selected main SHA.
@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pre3-candidate-${{ github.event.pull_request.number || inputs.candidate_sha }}
+  group: pre4-candidate-${{ github.event.pull_request.number || inputs.candidate_sha }}
   cancel-in-progress: true
 
 jobs:
@@ -52,8 +52,8 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = '${{ steps.source.outputs.sha }}'
           test -z "$(git status --porcelain)"
-          test "$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)" = '0.1.0-pre.3'
-          test -z "$(git ls-remote --tags origin refs/tags/v0.1.0-pre.3)"
+          test "$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)" = '0.1.0-pre.4'
+          test -z "$(git ls-remote --tags origin refs/tags/v0.1.0-pre.4)"
           if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
             git fetch --no-tags origin main:refs/remotes/origin/main
             if ! git merge-base --is-ancestor '${{ steps.source.outputs.sha }}' refs/remotes/origin/main; then
@@ -71,8 +71,8 @@ jobs:
           set -euo pipefail
           test "$(dist --version)" = 'cargo-dist 0.31.0'
           mkdir -p target/candidate
-          dist plan --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > target/candidate/dist-plan.json
-          test "$(jq -r .announcement_tag target/candidate/dist-plan.json)" = 'v0.1.0-pre.3'
+          dist plan --tag=v0.1.0-pre.4 --allow-dirty --output-format=json > target/candidate/dist-plan.json
+          test "$(jq -r .announcement_tag target/candidate/dist-plan.json)" = 'v0.1.0-pre.4'
           for target in aarch64-apple-darwin x86_64-apple-darwin x86_64-unknown-linux-gnu x86_64-pc-windows-msvc; do
             if [ "$target" = x86_64-pc-windows-msvc ]; then extension=zip; else extension=tar.xz; fi
             jq -e --arg name "qzt-${target}.${extension}" '.artifacts[$name].kind == "executable-zip"' target/candidate/dist-plan.json >/dev/null
@@ -81,7 +81,7 @@ jobs:
           test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: pre3-plan-${{ steps.source.outputs.sha }}
+          name: pre4-plan-${{ steps.source.outputs.sha }}
           path: target/candidate/dist-plan.json
           if-no-files-found: error
           retention-days: 14
@@ -149,15 +149,29 @@ jobs:
           $destination = Join-Path $env:RUNNER_TEMP "cargo-dist"
           Expand-Archive -Path $path -DestinationPath $destination
           Copy-Item (Join-Path $destination "dist.exe") (Join-Path $env:USERPROFILE ".cargo\bin\dist.exe") -Force
+      - name: Pin the Rust toolchain inherited by cargo-dist
+        shell: bash
+        run: |
+          set -euo pipefail
+          toolchain="$(rustup show active-toolchain | awk '{ print $1 }')"
+          test -n "$toolchain"
+          echo "RUSTUP_TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
       - name: Build the native target and run extracted archive smoke
         shell: bash
         run: |
           set -euo pipefail
           test "$(dist --version)" = 'cargo-dist 0.31.0'
           mkdir -p target/candidate
-          dist build --artifacts=local --target='${{ matrix.target }}' --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > target/candidate/dist-manifest.json
+          python scripts/record-build-environment.py record \
+            --source-sha '${{ needs.plan.outputs.source_sha }}' --target '${{ matrix.target }}' \
+            --profile 'dist (release with thin LTO)' --features 'default; no feature override' \
+            --build-command 'dist build --artifacts=local --target=${{ matrix.target }} --tag=v0.1.0-pre.4 --allow-dirty --output-format=json' \
+            --output target/candidate/build-environment.json
+          dist build --artifacts=local --target='${{ matrix.target }}' --tag=v0.1.0-pre.4 --allow-dirty --output-format=json > target/candidate/dist-manifest.json
+          python scripts/record-build-environment.py verify --input target/candidate/build-environment.json
           python scripts/verify-release-candidate.py local \
-            --manifest target/candidate/dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' \
+            --manifest target/candidate/dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' --expected-tag v0.1.0-pre.4 \
+            --build-env target/candidate/build-environment.json \
             --target '${{ matrix.target }}' \
             --archive 'target/distrib/${{ matrix.archive }}' \
             --checksum 'target/distrib/${{ matrix.archive }}.sha256' \
@@ -165,11 +179,12 @@ jobs:
           test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: pre3-${{ matrix.target }}-${{ needs.plan.outputs.source_sha }}
+          name: pre4-${{ matrix.target }}-${{ needs.plan.outputs.source_sha }}
           path: |
             target/distrib/${{ matrix.archive }}
             target/distrib/${{ matrix.archive }}.sha256
             target/candidate/dist-manifest.json
+            target/candidate/build-environment.json
             target/candidate/evidence.json
           if-no-files-found: error
           retention-days: 14
@@ -195,20 +210,34 @@ jobs:
       - name: Install digest-pinned cargo-dist
         shell: bash
         run: scripts/install-cargo-dist-linux.sh
+      - name: Pin the Rust toolchain inherited by cargo-dist
+        shell: bash
+        run: |
+          set -euo pipefail
+          toolchain="$(rustup show active-toolchain | awk '{ print $1 }')"
+          test -n "$toolchain"
+          echo "RUSTUP_TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
       - name: Build and inspect unpublished global artifacts
         shell: bash
         run: |
           set -euo pipefail
           test "$(dist --version)" = 'cargo-dist 0.31.0'
           mkdir -p target/candidate
-          dist build --artifacts=global --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > target/candidate/dist-manifest.json
+          python scripts/record-build-environment.py record \
+            --source-sha '${{ needs.plan.outputs.source_sha }}' --target global \
+            --profile 'global artifacts; no Rust compile' --features 'not applicable' \
+            --build-command 'dist build --artifacts=global --tag=v0.1.0-pre.4 --allow-dirty --output-format=json' \
+            --output target/candidate/build-environment.json
+          dist build --artifacts=global --tag=v0.1.0-pre.4 --allow-dirty --output-format=json > target/candidate/dist-manifest.json
+          python scripts/record-build-environment.py verify --input target/candidate/build-environment.json
           python scripts/verify-release-candidate.py global \
-            --manifest target/candidate/dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' \
+            --manifest target/candidate/dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' --expected-tag v0.1.0-pre.4 \
+            --build-env target/candidate/build-environment.json \
             --distrib target/distrib --output target/candidate/evidence.json
           test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: pre3-global-${{ needs.plan.outputs.source_sha }}
+          name: pre4-global-${{ needs.plan.outputs.source_sha }}
           path: |
             target/distrib/qzt-installer.sh
             target/distrib/qzt-installer.ps1
@@ -216,6 +245,7 @@ jobs:
             target/distrib/source.tar.gz.sha256
             target/distrib/sha256.sum
             target/candidate/dist-manifest.json
+            target/candidate/build-environment.json
             target/candidate/evidence.json
           if-no-files-found: error
           retention-days: 14

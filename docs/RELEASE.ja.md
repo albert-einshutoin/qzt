@@ -6,6 +6,11 @@ English: [RELEASE.md](RELEASE.md)
 QZT v0.1.0 を公開するためのものです。QZT v0.1 は本番対応製品ではなく、
 technical preview として説明します。
 
+次の[pre.4候補](releases/v0.1.0-pre.4-candidate.ja.md)は#318で扱う
+**未公開**の準備です。公開Install/README導線はpre.3のまま維持します。
+後日の公開判断には#318に記録するmerge済みsource SHAと候補証拠を使い、
+以下の履歴上のpre.3公開コマンドをpre.4に流用しません。
+
 ## 公開済みpre.3 GitHub prerelease（2026-09-26）
 
 [`v0.1.0-pre.3` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)は
