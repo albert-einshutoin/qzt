@@ -1572,6 +1572,7 @@ fn decode_terms(
         if term.granule_frequency == 0
             || term.posting_size == 0
             || term.flags != 0
+            || (encoding == TermEncoding::LegacyV1 && term.key_hash != key_hash(&term.key))
             || terms
                 .last()
                 .is_some_and(|previous: &TermDictionaryEntry| previous.key >= term.key)
@@ -2421,6 +2422,30 @@ mod manifest_tests {
         assert_eq!(
             QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &reader)
                 .map(|_| ()),
+            Err(QztError::ContainerCorrupt)
+        );
+    }
+
+    #[test]
+    fn legacy_bad_first_hash_stops_before_later_malformed_record() {
+        let entry = |key: &[u8]| TermDictionaryEntry {
+            key: key.to_vec(),
+            key_hash: key_hash(key),
+            document_frequency: 0,
+            granule_frequency: 1,
+            posting_offset: 0,
+            posting_size: 1,
+            skip_offset: 0,
+            skip_size: 0,
+            flags: 0,
+        };
+        let mut bytes = encode_terms(&[entry(b"alpha"), entry(b"beta")], TermEncoding::LegacyV1)
+            .expect("legacy terms should encode");
+        bytes[8 + 8 + 5] ^= 1;
+        let second_key_len = 8 + 8 + 5 + 16 + 7 * 8;
+        bytes[second_key_len..second_key_len + 8].fill(0xff);
+        assert_eq!(
+            decode_terms(&bytes, TermEncoding::LegacyV1, SidecarLimits::default()),
             Err(QztError::ContainerCorrupt)
         );
     }
