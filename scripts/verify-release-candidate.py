@@ -75,8 +75,10 @@ def extract_archive(archive, destination, target):
 
     if archive.suffix == ".zip":
         with zipfile.ZipFile(archive) as zipped:
-            for member in zipped.infolist():
-                safe_name(member.filename)
+            names = [member.filename for member in zipped.infolist()]
+            require(set(names) == {"qzt.exe", "README.md", "CHANGELOG.md",
+                                   "LICENSE-APACHE", "LICENSE-MIT"} and len(names) == 5,
+                    f"unexpected Windows archive contents: {names}")
             zipped.extractall(destination)
     else:
         with tarfile.open(archive, "r:xz") as tarred:
@@ -85,7 +87,8 @@ def extract_archive(archive, destination, target):
                 require(member.isfile() or member.isdir(), "archive contains a link or special file")
             tarred.extractall(destination, filter="data")
 
-    binary = destination / root / ("qzt.exe" if target.endswith("windows-msvc") else "qzt")
+    binary = (destination / "qzt.exe" if target.endswith("windows-msvc")
+              else destination / root / "qzt")
     require(binary.is_file(), f"archive does not contain its expected binary: {binary}")
     return binary.resolve()
 
