@@ -1,6 +1,6 @@
 [package]
 name = "qzt"
-version = "0.1.0"
+version = "0.1.0-pre.3"
 edition = "2024"
 rust-version = "1.87"
 description = "Cold evidence container for seekable, verifiable UTF-8 text archives"

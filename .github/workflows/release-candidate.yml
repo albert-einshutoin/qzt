@@ -1,0 +1,221 @@
+name: Verify v0.1.0-pre.3 candidate
+
+# The release workflow remains tag-only. This job builds unpublished artifacts
+# only for this workflow's review and for an explicitly selected main SHA.
+on:
+  pull_request:
+    branches: [main]
+    paths: [.github/workflows/release-candidate.yml]
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Full 40-character SHA in main history to build and verify
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pre3-candidate-${{ github.event.pull_request.number || inputs.candidate_sha }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-22.04
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
+    steps:
+      - name: Select the exact candidate source
+        id: source
+        shell: bash
+        env:
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+          REQUEST_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            source_sha="$PR_SHA"
+          else
+            source_sha="$REQUEST_SHA"
+          fi
+          [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]
+          echo "sha=$source_sha" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify source, version, and publication boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ steps.source.outputs.sha }}'
+          test -z "$(git status --porcelain)"
+          test "$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)" = '0.1.0-pre.3'
+          test -z "$(git ls-remote --tags origin refs/tags/v0.1.0-pre.3)"
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            git fetch --no-tags origin main:refs/remotes/origin/main
+            if ! git merge-base --is-ancestor '${{ steps.source.outputs.sha }}' refs/remotes/origin/main; then
+              echo 'candidate SHA is not in main history' >&2
+              exit 1
+            fi
+          fi
+          echo "candidate source SHA: $(git rev-parse HEAD)"
+      - name: Install digest-pinned cargo-dist
+        shell: bash
+        run: scripts/install-cargo-dist-linux.sh
+      - name: Plan unpublished artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(dist --version)" = 'cargo-dist 0.31.0'
+          mkdir -p target/candidate
+          dist plan --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > target/candidate/dist-plan.json
+          test "$(jq -r .announcement_tag target/candidate/dist-plan.json)" = 'v0.1.0-pre.3'
+          for target in aarch64-apple-darwin x86_64-apple-darwin x86_64-unknown-linux-gnu x86_64-pc-windows-msvc; do
+            if [ "$target" = x86_64-pc-windows-msvc ]; then extension=zip; else extension=tar.xz; fi
+            jq -e --arg name "qzt-${target}.${extension}" '.artifacts[$name].kind == "executable-zip"' target/candidate/dist-plan.json >/dev/null
+            jq -e --arg name "qzt-${target}.${extension}.sha256" '.artifacts[$name].kind == "checksum"' target/candidate/dist-plan.json >/dev/null
+          done
+          test -z "$(git status --porcelain)"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: pre3-plan-${{ steps.source.outputs.sha }}
+          path: target/candidate/dist-plan.json
+          if-no-files-found: error
+          retention-days: 14
+
+  build-local:
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            runner: macos-14
+            archive: qzt-aarch64-apple-darwin.tar.xz
+          - target: x86_64-apple-darwin
+            runner: macos-15-intel
+            archive: qzt-x86_64-apple-darwin.tar.xz
+          - target: x86_64-unknown-linux-gnu
+            runner: ubuntu-22.04
+            archive: qzt-x86_64-unknown-linux-gnu.tar.xz
+          - target: x86_64-pc-windows-msvc
+            runner: windows-2022
+            archive: qzt-x86_64-pc-windows-msvc.zip
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ needs.plan.outputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Verify checked-out source and runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ needs.plan.outputs.source_sha }}'
+          test -z "$(git status --porcelain)"
+          echo "source=$(git rev-parse HEAD) runner=${RUNNER_NAME} os=${RUNNER_OS} arch=${RUNNER_ARCH}"
+          rustc --version
+      - name: Install digest-pinned cargo-dist (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${RUNNER_OS}-${RUNNER_ARCH}" in
+            Linux-X64) archive=cargo-dist-x86_64-unknown-linux-gnu.tar.xz; expected=cd355dab0b4c02fb59038fef87655550021d07f45f1d82f947a34ef98560abb8 ;;
+            macOS-X64) archive=cargo-dist-x86_64-apple-darwin.tar.xz; expected=fd4d8f9f07802359cbcdc52bac3abd7d5201c4b73a7cbcdd6faca2232a389f0c ;;
+            macOS-ARM64) archive=cargo-dist-aarch64-apple-darwin.tar.xz; expected=decb01c64c12501931c3cac3111b368a7f48adf8d9e65455c08e5757b9a1fd6f ;;
+            *) echo "unsupported cargo-dist runner: ${RUNNER_OS}-${RUNNER_ARCH}" >&2; exit 1 ;;
+          esac
+          path="${RUNNER_TEMP}/${archive}"
+          curl --proto '=https' --tlsv1.2 -fsSL "https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/${archive}" -o "$path"
+          test "$(shasum -a 256 "$path" | awk '{ print $1 }')" = "$expected"
+          tar -xJf "$path" -C "$RUNNER_TEMP"
+          install -m 0755 "${RUNNER_TEMP}/${archive%.tar.xz}/dist" "${HOME}/.cargo/bin/dist"
+      - name: Install digest-pinned cargo-dist (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $archive = "cargo-dist-x86_64-pc-windows-msvc.zip"
+          $expected = "a14e17557b269b101405e0cc6b647581d56313c954a51c7fddd423bba21e17b2"
+          $path = Join-Path $env:RUNNER_TEMP $archive
+          Invoke-WebRequest "https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/$archive" -OutFile $path
+          if ((Get-FileHash -Algorithm SHA256 $path).Hash.ToLowerInvariant() -ne $expected) { throw "cargo-dist SHA-256 mismatch" }
+          $destination = Join-Path $env:RUNNER_TEMP "cargo-dist"
+          Expand-Archive -Path $path -DestinationPath $destination
+          Copy-Item (Join-Path $destination "dist.exe") (Join-Path $env:USERPROFILE ".cargo\bin\dist.exe") -Force
+      - name: Build the native target and run extracted archive smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(dist --version)" = 'cargo-dist 0.31.0'
+          mkdir -p target/candidate
+          dist build --artifacts=local --target='${{ matrix.target }}' --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > target/candidate/dist-manifest.json
+          python scripts/verify-release-candidate.py local \
+            --manifest target/candidate/dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' \
+            --target '${{ matrix.target }}' \
+            --archive 'target/distrib/${{ matrix.archive }}' \
+            --checksum 'target/distrib/${{ matrix.archive }}.sha256' \
+            --vectors-dir tests/vectors --output target/candidate/evidence.json
+          test -z "$(git status --porcelain)"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: pre3-${{ matrix.target }}-${{ needs.plan.outputs.source_sha }}
+          path: |
+            target/distrib/${{ matrix.archive }}
+            target/distrib/${{ matrix.archive }}.sha256
+            target/candidate/dist-manifest.json
+            target/candidate/evidence.json
+          if-no-files-found: error
+          retention-days: 14
+
+  build-global:
+    needs: plan
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ needs.plan.outputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Verify checked-out source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ needs.plan.outputs.source_sha }}'
+          test -z "$(git status --porcelain)"
+          echo "source=$(git rev-parse HEAD) runner=${RUNNER_NAME} os=${RUNNER_OS} arch=${RUNNER_ARCH}"
+      - name: Install digest-pinned cargo-dist
+        shell: bash
+        run: scripts/install-cargo-dist-linux.sh
+      - name: Build and inspect unpublished global artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(dist --version)" = 'cargo-dist 0.31.0'
+          mkdir -p target/candidate
+          dist build --artifacts=global --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > target/candidate/dist-manifest.json
+          python scripts/verify-release-candidate.py global \
+            --manifest target/candidate/dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' \
+            --distrib target/distrib --output target/candidate/evidence.json
+          test -z "$(git status --porcelain)"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: pre3-global-${{ needs.plan.outputs.source_sha }}
+          path: |
+            target/distrib/qzt-installer.sh
+            target/distrib/qzt-installer.ps1
+            target/distrib/source.tar.gz
+            target/distrib/source.tar.gz.sha256
+            target/distrib/sha256.sum
+            target/candidate/dist-manifest.json
+            target/candidate/evidence.json
+          if-no-files-found: error
+          retention-days: 14

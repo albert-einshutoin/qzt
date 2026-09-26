@@ -20,6 +20,8 @@ translations where available.
 
 ## Release and validation evidence
 
+- Unpublished pre.3 candidate: [notes](releases/v0.1.0-pre.3-candidate.md) / [日本語](releases/v0.1.0-pre.3-candidate.ja.md)
+- Published pre.2 to pre.3 candidate migration: [English](releases/v0.1.0-pre.3-migration.md) / [日本語](releases/v0.1.0-pre.3-migration.ja.md)
 - Release process: [English](RELEASE.md) / [日本語](RELEASE.ja.md)
 - Release hardening: [English](QZT_v0.1_Release_Hardening.md) / [日本語](QZT_v0.1_Release_Hardening.ja.md)
 - Validation corpus: [English](QZT_v0.1_Validation_Corpus.md) / [日本語](QZT_v0.1_Validation_Corpus.ja.md)

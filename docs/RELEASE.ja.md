@@ -6,6 +6,58 @@ English: [RELEASE.md](RELEASE.md)
 QZT v0.1.0 を公開するためのものです。QZT v0.1 は本番対応製品ではなく、
 technical preview として説明します。
 
+## 現行pre.3候補の準備（未公開）
+
+Issue #311ではpackage version `0.1.0-pre.3`のGitHub prerelease候補
+`v0.1.0-pre.3`を準備します。tag、Release、crates.io公開は許可しません。
+[候補ノート](releases/v0.1.0-pre.3-candidate.ja.md)と
+[pre.2からの移行](releases/v0.1.0-pre.3-migration.ja.md)は公開済みpre.2 tag
+からの変更を説明します。下のpre.2とstableの節は過去の記録または将来のowner gateで、
+そこにあるversion commandは今回の候補準備に使いません。
+
+cleanな候補commitから、読み取り権限だけの
+[`release-candidate.yml`](../.github/workflows/release-candidate.yml)で
+`dist plan`、4 targetのnative `dist build --artifacts=local`、global buildを
+行います。verifierは各archiveのSHA-256 sidecarを照合し、展開したbinaryを
+対象OS/architectureで小さなE2E smokeに通します。PR runは予行です。
+merge後にはmainの正確なmerge SHAを指定して同workflowをdispatchし、14日保持の
+artifactを#311へ記録します。将来のinstaller downloadや公開assetのbyte一致は
+この予行では証明できません。
+
+## pre3候補のowner承認後の公開
+
+これは#311に正確なmain merge SHA、通常・security CI、4 targetの証拠を
+記録した**後日のowner操作**です。tagとReleaseが未使用であることを確認し、
+検証済みSHAがHEADのclean checkoutでownerが不変のannotated tagを作成・push
+できます。
+
+```sh
+git fetch origin main --tags
+git switch --detach <検証済みの完全なmerge SHA>
+git status --porcelain
+git rev-parse HEAD
+git merge-base --is-ancestor HEAD origin/main
+git ls-remote --tags origin refs/tags/v0.1.0-pre.3
+git tag -a v0.1.0-pre.3 -m "qzt v0.1.0-pre.3"
+git push origin v0.1.0-pre.3
+```
+
+`ls-remote`は空でなければ停止します。保護されたtag-onlyの
+[release workflow](../.github/workflows/release.yml)がtagの版とmain ancestryを
+検査し、write権限を持つhost jobの前にrelease ownerが保護された`release`
+environmentを承認します。承認設定を回避・緩和しません。このGitHub previewに
+`cargo publish`は含めません。
+
+公開後、実Releaseがprereleaseであること、4 archive、対応する4つの`.sha256`、
+installer、source archive/checksumが揃うことを確認します。**公開された実asset**
+を新規directoryへ取得し、checksumを照合し、各native OS/architectureで
+展開binaryを実行して`qzt --version`が`qzt 0.1.0-pre.3`であることと
+[候補smoke](../scripts/verify-release-candidate.py)相当の動作を確認します。
+Linux linkageとinstallerの実downloadもURLが利用可能になってから検査します。
+release workflowはtagから再buildするため、公開archiveのhashは候補CIと
+同じbyte列とは限りません。公開hashとrun IDを記録した後、README Install/tourの
+linkを別の公開後変更で更新します。pre.2の証拠は残します。
+
 ## 公開権限
 
 `publish = false`を削除する専用PRの承認と実際の`cargo publish`はrelease owner
