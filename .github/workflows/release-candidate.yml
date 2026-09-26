@@ -56,7 +56,10 @@ jobs:
           test -z "$(git ls-remote --tags origin refs/tags/v0.1.0-pre.3)"
           if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
             git fetch --no-tags origin main:refs/remotes/origin/main
-            test "$(git rev-parse refs/remotes/origin/main)" = '${{ steps.source.outputs.sha }}'
+            if ! git merge-base --is-ancestor '${{ steps.source.outputs.sha }}' refs/remotes/origin/main; then
+              echo 'candidate SHA is not in main history' >&2
+              exit 1
+            fi
           fi
           echo "candidate source SHA: $(git rev-parse HEAD)"
       - name: Install digest-pinned cargo-dist

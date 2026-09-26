@@ -25,7 +25,7 @@ reports a skip.
 
 The candidate workflow is separate from the protected, tag-only
 `.github/workflows/release.yml`. It runs on changes to its own workflow file
-in a PR, or by manual dispatch with a full main SHA. It has read-only repository
+in a PR, or by manual dispatch with a full SHA in main history. It has read-only repository
 permission, uses `dist plan`/`dist build` without hosting or publishing, and
 smokes the binary extracted from each target archive on its native runner.
 Run it again for the exact merge SHA; PR artifacts are not final-candidate

@@ -126,7 +126,7 @@ fn candidate_workflow_builds_exact_unpublished_source_on_native_runners() {
     assert!(CANDIDATE_WORKFLOW.contains("workflow_dispatch:"));
     assert!(CANDIDATE_WORKFLOW.contains("candidate_sha:"));
     assert!(CANDIDATE_WORKFLOW.contains("test -z \"$(git status --porcelain)\""));
-    assert!(CANDIDATE_WORKFLOW.contains("git rev-parse refs/remotes/origin/main"));
+    assert!(CANDIDATE_WORKFLOW.contains("git merge-base --is-ancestor"));
     assert!(CANDIDATE_WORKFLOW.contains("dist plan --tag=v0.1.0-pre.3"));
     assert!(CANDIDATE_WORKFLOW.contains("dist build --artifacts=local"));
     assert!(CANDIDATE_WORKFLOW.contains("dist build --artifacts=global"));
