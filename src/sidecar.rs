@@ -1572,7 +1572,7 @@ fn decode_terms(
         if term.granule_frequency == 0
             || term.posting_size == 0
             || term.flags != 0
-            || term.key_hash != key_hash(&term.key)
+            || (encoding == TermEncoding::LegacyV1 && term.key_hash != key_hash(&term.key))
             || terms
                 .last()
                 .is_some_and(|previous: &TermDictionaryEntry| previous.key >= term.key)
@@ -1644,7 +1644,11 @@ fn validate_file_term_dictionary(
     let mut expected_posting_offset = 0_u64;
     let mut expected_skip_offset = 0_u64;
     for term in terms {
-        if term.key.is_empty() || term.key_hash != key_hash(&term.key) {
+        // V2 derives this hash from the decoded key; only V1 stores a hash
+        // supplied by the sidecar and needs a comparison.
+        if term.key.is_empty()
+            || (encoding == TermEncoding::LegacyV1 && term.key_hash != key_hash(&term.key))
+        {
             return Err(QztError::ContainerCorrupt);
         }
         if term.flags != 0 {
@@ -2391,6 +2395,57 @@ mod manifest_tests {
         assert_eq!(
             QziFileSidecar::open_read_at(tampered.as_slice(), tampered.len() as u64, &reader)
                 .map(|_| ()),
+            Err(QztError::ContainerCorrupt)
+        );
+    }
+
+    #[cfg(feature = "internal-testing")]
+    #[test]
+    fn legacy_saved_key_hash_is_checked_with_valid_section_checksum() {
+        let container = crate::writer::pack_bytes_with_container_id(
+            b"alpha\n",
+            [0x93; 16],
+            crate::writer::WriterOptions::default(),
+        )
+        .expect("container should pack");
+        let mut sidecar = legacy_fixture(&container, SidecarIndexKind::Token);
+        let wrong_hash = [key_hash(b"alpha")[0] ^ 1];
+        mutate_sidecar_section_for_testing(&mut sidecar, 1, 8 + 8 + 5, &wrong_hash)
+            .expect("legacy key hash should be patched with a valid section checksum");
+        let reader = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
+            .expect("file reader should open");
+
+        assert_eq!(
+            QziSidecar::open(&container, &sidecar).map(|_| ()),
+            Err(QztError::ContainerCorrupt)
+        );
+        assert_eq!(
+            QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &reader)
+                .map(|_| ()),
+            Err(QztError::ContainerCorrupt)
+        );
+    }
+
+    #[test]
+    fn legacy_bad_first_hash_stops_before_later_malformed_record() {
+        let entry = |key: &[u8]| TermDictionaryEntry {
+            key: key.to_vec(),
+            key_hash: key_hash(key),
+            document_frequency: 0,
+            granule_frequency: 1,
+            posting_offset: 0,
+            posting_size: 1,
+            skip_offset: 0,
+            skip_size: 0,
+            flags: 0,
+        };
+        let mut bytes = encode_terms(&[entry(b"alpha"), entry(b"beta")], TermEncoding::LegacyV1)
+            .expect("legacy terms should encode");
+        bytes[8 + 8 + 5] ^= 1;
+        let second_key_len = 8 + 8 + 5 + 16 + 7 * 8;
+        bytes[second_key_len..second_key_len + 8].fill(0xff);
+        assert_eq!(
+            decode_terms(&bytes, TermEncoding::LegacyV1, SidecarLimits::default()),
             Err(QztError::ContainerCorrupt)
         );
     }

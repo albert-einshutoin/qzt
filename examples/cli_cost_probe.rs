@@ -2,11 +2,14 @@
 use std::env;
 use std::ffi::OsString;
 use std::fs;
+use std::io::{self, Read, Seek, SeekFrom};
 use std::path::Path;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 use qzt::{
-    CorpusKind, QziFileSidecar, QztFileReader, SearchOptions, ValidationCorpusOptions,
+    CorpusKind, QziFileSidecar, QztFileReader, ReadAt, SearchOptions, ValidationCorpusOptions,
     generate_validation_corpus,
 };
 
@@ -65,9 +68,66 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     report.index_coverage_verified);
             }
         }
-        _ => return Err("usage: cli_cost_probe generate PATH TARGET_BYTES SEED | api QZT QZI QUERY MAX_RESULTS MAX_CANDIDATES WARMUP SAMPLES".into()),
+        Some("profile") if args.len() == 4 => {
+            let repeats = utf8_arg(&args[3])?.parse::<usize>()?;
+            if repeats == 0 || repeats > 1000 {
+                return Err("repeats must be within 1..=1000".into());
+            }
+            let (qzt_source, qzt_len, qzt_reads, qzt_bytes) = CountingFile::open(Path::new(&args[1]))?;
+            let reader = QztFileReader::open_read_at(qzt_source, qzt_len)?;
+            let (qzi_source, qzi_len, qzi_reads, qzi_bytes) = CountingFile::open(Path::new(&args[2]))?;
+            let sidecar = QziFileSidecar::open_read_at(qzi_source, qzi_len, &reader)?;
+            println!("profile qzt_reads={} qzt_requested_bytes={} qzi_reads={} qzi_requested_bytes={} terms={} postings_size={} pid={}",
+                qzt_reads.load(Ordering::Relaxed), qzt_bytes.load(Ordering::Relaxed),
+                qzi_reads.load(Ordering::Relaxed), qzi_bytes.load(Ordering::Relaxed),
+                sidecar.term_count(), sidecar.postings_size_bytes(), std::process::id());
+            for _ in 0..repeats {
+                let reader = QztFileReader::open_path(Path::new(&args[1]))?;
+                std::hint::black_box(QziFileSidecar::open_path(Path::new(&args[2]), &reader)?);
+            }
+        }
+        _ => return Err("usage: cli_cost_probe generate PATH TARGET_BYTES SEED | api QZT QZI QUERY MAX_RESULTS MAX_CANDIDATES WARMUP SAMPLES | profile QZT QZI REPEATS".into()),
     }
     Ok(())
+}
+
+struct CountingFile {
+    file: Mutex<fs::File>,
+    reads: Arc<AtomicU64>,
+    bytes: Arc<AtomicU64>,
+}
+
+impl CountingFile {
+    fn open(path: &Path) -> io::Result<(Self, u64, Arc<AtomicU64>, Arc<AtomicU64>)> {
+        let file = fs::File::open(path)?;
+        let len = file.metadata()?.len();
+        let reads = Arc::new(AtomicU64::new(0));
+        let bytes = Arc::new(AtomicU64::new(0));
+        Ok((
+            Self {
+                file: Mutex::new(file),
+                reads: reads.clone(),
+                bytes: bytes.clone(),
+            },
+            len,
+            reads,
+            bytes,
+        ))
+    }
+}
+
+impl ReadAt for CountingFile {
+    fn read_exact_at(&self, offset: u64, buf: &mut [u8]) -> io::Result<()> {
+        let mut file = self
+            .file
+            .lock()
+            .map_err(|_| io::Error::other("counting file lock poisoned"))?;
+        file.seek(SeekFrom::Start(offset))?;
+        file.read_exact(buf)?;
+        self.reads.fetch_add(1, Ordering::Relaxed);
+        self.bytes.fetch_add(buf.len() as u64, Ordering::Relaxed);
+        Ok(())
+    }
 }
 
 fn utf8_arg(value: &OsString) -> Result<&str, Box<dyn std::error::Error>> {
