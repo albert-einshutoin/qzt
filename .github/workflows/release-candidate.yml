@@ -67,18 +67,19 @@ jobs:
         run: |
           set -euo pipefail
           test "$(dist --version)" = 'cargo-dist 0.31.0'
-          dist plan --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > dist-plan.json
-          test "$(jq -r .announcement_tag dist-plan.json)" = 'v0.1.0-pre.3'
+          mkdir -p target/candidate
+          dist plan --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > target/candidate/dist-plan.json
+          test "$(jq -r .announcement_tag target/candidate/dist-plan.json)" = 'v0.1.0-pre.3'
           for target in aarch64-apple-darwin x86_64-apple-darwin x86_64-unknown-linux-gnu x86_64-pc-windows-msvc; do
             if [ "$target" = x86_64-pc-windows-msvc ]; then extension=zip; else extension=tar.xz; fi
-            jq -e --arg name "qzt-${target}.${extension}" '.artifacts[$name].kind == "executable-zip"' dist-plan.json >/dev/null
-            jq -e --arg name "qzt-${target}.${extension}.sha256" '.artifacts[$name].kind == "checksum"' dist-plan.json >/dev/null
+            jq -e --arg name "qzt-${target}.${extension}" '.artifacts[$name].kind == "executable-zip"' target/candidate/dist-plan.json >/dev/null
+            jq -e --arg name "qzt-${target}.${extension}.sha256" '.artifacts[$name].kind == "checksum"' target/candidate/dist-plan.json >/dev/null
           done
           test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: pre3-plan-${{ steps.source.outputs.sha }}
-          path: dist-plan.json
+          path: target/candidate/dist-plan.json
           if-no-files-found: error
           retention-days: 14
 
@@ -150,13 +151,14 @@ jobs:
         run: |
           set -euo pipefail
           test "$(dist --version)" = 'cargo-dist 0.31.0'
-          dist build --artifacts=local --target='${{ matrix.target }}' --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > dist-manifest.json
+          mkdir -p target/candidate
+          dist build --artifacts=local --target='${{ matrix.target }}' --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > target/candidate/dist-manifest.json
           python scripts/verify-release-candidate.py local \
-            --manifest dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' \
+            --manifest target/candidate/dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' \
             --target '${{ matrix.target }}' \
             --archive 'target/distrib/${{ matrix.archive }}' \
             --checksum 'target/distrib/${{ matrix.archive }}.sha256' \
-            --vectors-dir tests/vectors --output evidence.json
+            --vectors-dir tests/vectors --output target/candidate/evidence.json
           test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
@@ -164,8 +166,8 @@ jobs:
           path: |
             target/distrib/${{ matrix.archive }}
             target/distrib/${{ matrix.archive }}.sha256
-            dist-manifest.json
-            evidence.json
+            target/candidate/dist-manifest.json
+            target/candidate/evidence.json
           if-no-files-found: error
           retention-days: 14
 
@@ -195,10 +197,11 @@ jobs:
         run: |
           set -euo pipefail
           test "$(dist --version)" = 'cargo-dist 0.31.0'
-          dist build --artifacts=global --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > dist-manifest.json
+          mkdir -p target/candidate
+          dist build --artifacts=global --tag=v0.1.0-pre.3 --allow-dirty --output-format=json > target/candidate/dist-manifest.json
           python scripts/verify-release-candidate.py global \
-            --manifest dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' \
-            --distrib target/distrib --output evidence.json
+            --manifest target/candidate/dist-manifest.json --source-sha '${{ needs.plan.outputs.source_sha }}' \
+            --distrib target/distrib --output target/candidate/evidence.json
           test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
@@ -209,7 +212,7 @@ jobs:
             target/distrib/source.tar.gz
             target/distrib/source.tar.gz.sha256
             target/distrib/sha256.sum
-            dist-manifest.json
-            evidence.json
+            target/candidate/dist-manifest.json
+            target/candidate/evidence.json
           if-no-files-found: error
           retention-days: 14

@@ -278,6 +278,10 @@ def main():
             sub.add_argument("--distrib", type=Path, required=True)
     args = parser.parse_args()
     require(re.fullmatch(r"[0-9a-f]{40}", args.source_sha), "source SHA must be full and explicit")
+    actual_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    require(actual_sha == args.source_sha, "source SHA differs from the checked-out commit")
+    require(not subprocess.check_output(["git", "status", "--porcelain"]),
+            "candidate source checkout is not clean")
     evidence = local(args) if args.kind == "local" else global_artifacts(args)
     evidence.update({"source_sha": args.source_sha, "tag": TAG, "dist_version": "0.31.0",
                      "build_profile": "dist", "rustc": subprocess.check_output(["rustc", "--version"], text=True).strip(),
