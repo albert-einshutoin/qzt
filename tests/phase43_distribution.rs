@@ -1,4 +1,5 @@
 const MANIFEST: &str = include_str!("../Cargo.toml");
+const FUZZ_MANIFEST: &str = include_str!("../fuzz/Cargo.toml");
 const DIST_CONFIG: &str = include_str!("../dist-workspace.toml");
 const RELEASE_WORKFLOW: &str = include_str!("../.github/workflows/release.yml");
 const CANDIDATE_WORKFLOW: &str = include_str!("../.github/workflows/release-candidate.yml");
@@ -23,6 +24,7 @@ fn distribution_is_reproducibly_pinned_for_the_preview_candidate() {
             "missing package distribution contract: {requirement}"
         );
     }
+    assert!(FUZZ_MANIFEST.contains("qzt = { path = \"..\", version = \"=0.1.0-pre.3\""));
 
     for requirement in [
         "cargo-dist-version = \"0.31.0\"",
