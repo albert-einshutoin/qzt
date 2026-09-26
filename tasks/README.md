@@ -1,12 +1,25 @@
 # QZT Implementation Tasks
 
-This directory is the execution plan for the QZT reference implementation.
+[日本語](README.ja.md)
 
-The reference implementation SHOULD be written in Rust unless a project decision changes this file first. Rust fits QZT because the format needs precise binary layout, checked arithmetic, explicit errors, streaming I/O, bounded decompression, and strong testable invariants.
+This directory keeps the completed Phase 0–23 implementation plans and the
+2026-06 [Post-Phase23 proposal](PostPhase23.md). For current priorities,
+issue boundaries, and deferred work, start with [#31](https://github.com/albert-einshutoin/qzt/issues/31);
+for a short snapshot use [status.md](status.md). Each child issue and PR owns
+its detailed acceptance evidence. Development commands are in
+[AGENTS.md](../AGENTS.md) and [CONTRIBUTING.md](../CONTRIBUTING.md); publication
+conditions are in the [release checklist](../docs/RELEASE.md).
 
-## Operating Rules
+Except for the current status and roadmap pointers, rule-style language below
+records the completed Phase plan; it does not govern new issues. The reference
+implementation was planned in Rust because the format needs precise binary
+layout, checked arithmetic, explicit errors, streaming I/O, bounded
+decompression, and testable invariants.
 
-Every phase uses TDD:
+## Historical Phase Workflow
+
+The completed phases used this workflow. It does not add requirements to the
+current #31 work queue:
 
 ```text
 1. write or update failing tests
@@ -22,9 +35,9 @@ Every phase uses TDD:
 
 Do not mark a phase complete until tests, self-review, code review, architecture review, review fixes, and status updates are done.
 
-## Implementation Flow
+## Historical Implementation Flow
 
-Use this loop for every meaningful change:
+The Phase plans used this loop:
 
 ```text
 implement -> self-review -> code review -> architecture review -> fix -> verify -> update status
@@ -43,7 +56,7 @@ Self-review MUST check:
 
 
 
-## Review Gates
+## Historical Review Gates
 
 Every phase MUST include both review gates before completion.
 
@@ -105,9 +118,11 @@ Each `PhaseN.md` contains:
 Minimum MVP is the smallest useful increment that should land first.
 Goal MVP is the phase's intended stopping point before the next phase starts.
 
-## Status Tracking
+## Current Status Tracking
 
-`tasks/status.md` is the single progress summary.
+`tasks/status.md` is the short current progress summary. #31 is authoritative
+for priority, order, and deferrals; child issues and PRs hold tests and
+completion evidence. The following was the Phase-era update checklist:
 
 When work starts or finishes:
 
@@ -119,7 +134,7 @@ When work starts or finishes:
 - keep the next action concrete
 ```
 
-## Phase Order
+## Historical Phase Order
 
 ```text
 Phase0  Project foundation and quality gates
@@ -142,7 +157,7 @@ Do not start Search Extension implementation before Core conformance is stable, 
 
 Optional indexes and extension profiles MUST NOT block Core release readiness unless a phase explicitly says the release target includes them.
 
-## Product Completeness Track (post-v0.1)
+## Product Completeness Track (completed Phase 14–23 history)
 
 Phase0-Phase13 deliver a format-complete v0.1 reference implementation. The
 Product Completeness Track raises maturity from "reference implementation /
@@ -185,7 +200,7 @@ and what result counts as meeting expectations (HARD invariants vs SOFT target
 bands). Phase23 makes that doc executable and owns the corpus generators that
 Phase18 and Phase22 reuse.
 
-Dependency order:
+Historical dependency order:
 
 ```text
 Phase14 -> independent, land first
@@ -201,21 +216,21 @@ Phase23a -> depends on Phase15; builds C1-C6 generators and HARD invariants that
 Phase23b -> depends on Phase21; adds C1 evidence-retrieval invariants to the same harness
 ```
 
-Recommended sequence: Phase14, then Phase15, then the sub-tracks proceed in
+The recommended sequence was Phase14, then Phase15, then the sub-tracks in
 parallel. Engine: Phase16 and Phase17 in either order, then Phase18 (after
 Phase23a corpora exist), then Phase19. Consumer: Phase20, then Phase21, then
 Phase22. Validation: Phase23a right after Phase15; Phase23b extends it once
 Phase21 lands.
 
-These phases MUST NOT change container format bytes. Any change that would
-alter the byte layout belongs in a new format version, not in this track.
+These phases did not change container format bytes. Format-version decisions
+for new work belong to the current issue and format-stability contracts.
 
-## Post-Phase23 Execution (post-v0.1 roadmaps)
+## After Phase 23: Current Roadmap and Historical Plan
 
-Phase0-Phase23 are complete. Execution continues on two GitHub-issue
-roadmaps: the refactoring roadmap (issue #31, issues #2-#30) and the product
-value roadmap (issue #47, issues #33-#46). Their cross-track ordering, wave
-plan, parallelism constraints, milestones, and release gates are fixed in
-[PostPhase23.md](PostPhase23.md). Detailed steps and acceptance criteria live
-on the issues; the rules in this README (TDD loop, review gates, no format
-byte changes) continue to apply to every issue PR.
+Phase 0–23 are complete for their historical scope. [Value roadmap #47](https://github.com/albert-einshutoin/qzt/issues/47)
+and its child issues #33–#46 are complete. The ten preview-hardening issues in
+[#31](https://github.com/albert-einshutoin/qzt/issues/31) and the [#307 FFI
+audit](https://github.com/albert-einshutoin/qzt/issues/307) are complete; ten
+P2 maintenance issues remain deferred. Use #31 for the next decision and the
+child issues for evidence. [PostPhase23.md](PostPhase23.md) preserves the old
+wave and dependency proposal, not today's work order or release gate.

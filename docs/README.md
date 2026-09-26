@@ -25,11 +25,19 @@ translations where available.
 - Validation corpus: [English](QZT_v0.1_Validation_Corpus.md) / [日本語](QZT_v0.1_Validation_Corpus.ja.md)
 - Competitive benchmark method: [English](QZT_v0.1_Competitive_Benchmarks.md) / [日本語](QZT_v0.1_Competitive_Benchmarks.ja.md)
 - Published benchmark evidence: [July 2026 v0.1](benchmarks/2026-07-v0.1.md) / [partial decompression](benchmarks/2026-07-partial-decompression.md)
+- Development CLI cost measurement: [September 2026 report](benchmarks/2026-09-cli-cost.md) (macOS synthetic corpora; not a published pre.2 or production benchmark)
 
 ## Security and operations
 
 - Security CI playbook: [English](Security_CI_Playbook.md) / [日本語](Security_CI_Playbook.ja.md)
+- Reviewed CLI output FFI exceptions: [#307 audit](security/ffi-output-audit.md)
 - Artifact fixation: [English](guides/artifact-fixation.md) / [日本語](guides/artifact-fixation.ja.md)
 - Log preservation: [English](guides/log-preservation.md) / [日本語](guides/log-preservation.ja.md)
 - Search operations: [English](guides/search-operations.md) / [日本語](guides/search-operations.ja.md)
 - Attestation signing and anchoring: [English](guides/attestation.md)
+
+## Current work
+
+- Current priority and deferred decisions: [roadmap #31](https://github.com/albert-einshutoin/qzt/issues/31)
+- Short progress summary: [English](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md) / [日本語](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)
+- Historical Phase and wave plans: [English](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.md) / [日本語](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.ja.md)

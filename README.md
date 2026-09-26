@@ -485,12 +485,14 @@ required.
 - Attestation signing and anchoring: [docs/guides/attestation.md](docs/guides/attestation.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.md](docs/QZT_v0.1_Core_Readiness.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.md](docs/QZT_v0.1_Release_Hardening.md)
-- Implementation phases: [tasks/README.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.md)
-- Progress: [tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)
+- Current priorities and deferred work: [roadmap #31](https://github.com/albert-einshutoin/qzt/issues/31)
+- Current progress summary: [tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)
+- Historical implementation phases: [tasks/README.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.md)
 
 ## Development
 
-Implementation proceeded in two tracks, all phases complete:
+Implementation proceeded in two tracks; Phase 0–23 are complete for their
+original scope:
 
 - **v0.1 Core (Phase 0–13)**: deterministic CBOR, fixed structures, UTF-8
   chunker, no-dictionary zstd writer, reader open/info/export, verify levels,
@@ -502,7 +504,14 @@ Implementation proceeded in two tracks, all phases complete:
   retrieval, and portable conformance vectors with a frozen format-stability
   statement.
 
-Phase docs live in [tasks/](https://github.com/albert-einshutoin/qzt/tree/main/tasks); Japanese versions are available as
-`*.ja.md` files in the same directory. Current progress is tracked in
-[tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md) and
-[tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md).
+The [value roadmap #47](https://github.com/albert-einshutoin/qzt/issues/47),
+all its child issues #33–#46, the ten preview-hardening issues in #31, and the
+[#307 FFI audit](https://github.com/albert-einshutoin/qzt/issues/307) are
+complete. Core remains a release candidate; QZI search and the product remain
+a technical preview. The published [v0.1.0-pre.2](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
+binary does not include later main changes. [#31](https://github.com/albert-einshutoin/qzt/issues/31)
+owns current priorities and deferred work; child issues and PRs hold evidence.
+The English/Japanese [status](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)
+and [status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)
+summarize progress. [Phase documents](https://github.com/albert-einshutoin/qzt/tree/main/tasks)
+and the 2026-06 Post-Phase23 wave plan are historical references.
