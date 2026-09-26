@@ -421,7 +421,10 @@ qzt sidecar-rebuild file.qzt -o file.qzt.qzi
 `qzt sidecar-rebuild` decodes the source a chunk at a time, but the v0.1
 builder still retains the full term dictionary and posting map while producing
 the sidecar. Peak memory therefore grows with corpus vocabulary and posting
-volume, and may be much larger than one decoded chunk.
+volume, and may be much larger than one decoded chunk. The n-gram builder now
+stores postings in growing vectors; a [bounded local measurement](docs/benchmarks/2026-09-issue27-ngram-build.md)
+found lower peak RSS and build time without changing QZI bytes, but this is not
+a fixed memory limit.
 
 Build the sidecar on a machine sized for the corpus, then reuse it for repeated
 queries. `qzt search --sidecar <file.qzi>` uses the file-backed reader and

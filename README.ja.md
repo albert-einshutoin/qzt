@@ -387,6 +387,9 @@ qzt sidecar-rebuild file.qzt -o file.qzt.qzi
 `qzt sidecar-rebuild` はsourceをchunk単位でdecodeしますが、v0.1 builderは
 sidecar生成中にterm dictionaryとposting map全体を保持します。そのためpeak memoryは
 corpusの語彙量とposting量に応じて増え、1 chunkのdecode量を大きく上回る場合があります。
+n-gram builderはpostingを伸長するvectorに保持するようになり、
+[限定したローカル計測](docs/benchmarks/2026-09-issue27-ngram-build.md)ではQZIバイトを変えずに
+peak RSSと構築時間が低下しました。ただし固定のメモリ上限を設ける変更ではありません。
 
 corpusに見合ったマシンでsidecarを構築し、繰り返しqueryでは再利用してください。
 `qzt search --sidecar <file.qzi>` はfile-backed readerを使い、posting map全体を

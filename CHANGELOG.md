@@ -4,6 +4,16 @@
 
 Future work after the GitHub `v0.1.0-pre.3` prerelease belongs here.
 
+### Changed
+
+- N-gram sidecar construction now keeps each key's increasing granule IDs in
+  a vector instead of a per-key tree set. Repeated keys on the same line still
+  yield one posting, and tested QZI bytes remain identical. On the recorded
+  100 MiB C2Logs corpus, the median independent-process peak RSS fell from
+  3,172,859,904 to 1,306,198,016 bytes (three runs each); see the
+  [#27 measurement](docs/benchmarks/2026-09-issue27-ngram-build.md). This does
+  not impose a fixed memory ceiling on sidecar construction.
+
 ## 0.1.0-pre.3 - 2026-09-26
 
 These changes are measured against the published `v0.1.0-pre.2` tag commit,
