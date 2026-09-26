@@ -6,61 +6,47 @@ This runbook prepares and publishes QZT v0.1.0 without blurring the boundary
 between reversible validation and the irreversible crates.io upload. QZT v0.1
 must be described as a technical preview, not as production-ready software.
 
-## Current pre.3 candidate preparation (unpublished)
+## Published pre.3 GitHub prerelease (2026-09-26)
 
-Issue #311 prepares GitHub prerelease candidate `v0.1.0-pre.3` with package
-version `0.1.0-pre.3`. It does not authorize a tag, Release, or crates.io
-publication. The [candidate notes](releases/v0.1.0-pre.3-candidate.md) and
-[pre.2 migration guide](releases/v0.1.0-pre.3-migration.md) describe the
-change from the published pre.2 tag. Older pre.2 and stable sections below are
-historical or future owner gates; their version commands are not instructions
-for this candidate preparation.
+The [`v0.1.0-pre.3` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)
+is a technical preview built from product commit
+`017d4d19739800773ab6a54adf636ff5a43ec1fc`. It is not a crates.io
+publication. [#311](https://github.com/albert-einshutoin/qzt/issues/311)
+preserves the earlier unpublished candidate evidence; the
+[release run](https://github.com/albert-einshutoin/qzt/actions/runs/36237333455)
+built the actual published assets after protected `release` environment
+approval. [#313](https://github.com/albert-einshutoin/qzt/issues/313)
+records published archive, checksum, native smoke, and installer evidence.
 
-From a clean, exact candidate commit, the separate read-only
-[`release-candidate.yml`](../.github/workflows/release-candidate.yml) runs
-`dist plan`, four native `dist build --artifacts=local` jobs, and a global
-build. Its verifier checks each archive's SHA-256 sidecar, extracts its binary,
-and runs a small end-to-end smoke on that target OS/architecture. PR runs are
-rehearsals; after merge, dispatch the same workflow with the full main merge
-SHA and record that run's artifacts (14-day retention) in #311. This does not
-test the future installer download or prove published-asset bytes.
-
-## Pre.3 candidate publication after owner approval
-
-This is a **later owner action**, after #311 has recorded the exact validated
-main merge SHA, normal/security CI, and four target evidence. Verify the tag
-and Release do not already exist. In a clean checkout with that SHA as HEAD,
-the owner may create and push the immutable annotated tag:
+The owner explicitly created and pushed only the annotated tag from the
+reviewed merge commit:
 
 ```sh
-git fetch origin main --tags
-git switch --detach <validated-full-merge-SHA>
-git status --porcelain
-git rev-parse HEAD
-git merge-base --is-ancestor HEAD origin/main
-git ls-remote --tags origin refs/tags/v0.1.0-pre.3
-git tag -a v0.1.0-pre.3 -m "qzt v0.1.0-pre.3"
-git push origin v0.1.0-pre.3
+git tag -a v0.1.0-pre.3 017d4d19739800773ab6a54adf636ff5a43ec1fc -m "qzt v0.1.0-pre.3"
+git push origin refs/tags/v0.1.0-pre.3
 ```
 
-The `ls-remote` command must print nothing; stop if it does. The protected,
-tag-only [release workflow](../.github/workflows/release.yml) validates the
-tag's version and main ancestry. The release owner reviews its protected
-`release` environment before the write-enabled host job creates the GitHub
-prerelease. Do not bypass or weaken that approval. No `cargo publish` is part
-of this GitHub preview.
+These are historical commands; do not rerun them or move the published tag.
+The tag-only [release workflow](../.github/workflows/release.yml) checked the
+manifest version and main ancestry, built four native archives and global
+assets with read-only build jobs, and used a write-enabled host job only after
+the protected environment review. The Release is marked prerelease and has 14
+assets, including four archive/sidecar pairs, Unix and PowerShell installers,
+source archive/checksum, aggregate checksum, and dist manifest.
 
-After publication, check the actual Release is marked prerelease and has four
-archives, four matching `.sha256` sidecars, the generated installers, and the
-source archive/checksum. Download those **published** assets into a fresh
-directory; verify each checksum, extract and run each binary on its native
-OS/architecture, check `qzt --version` is `qzt 0.1.0-pre.3`, and repeat the
-small assertions in the [candidate smoke](../scripts/verify-release-candidate.py)
-against the downloaded binaries. Confirm Linux linkage and exercise installer downloads
-only after the URLs exist. The release workflow rebuilds from the tag, so its
-actual published archive hashes need not match candidate CI artifacts. Record
-the published hashes and run IDs, then update README Install/tour links in a
-separate post-publication change; never replace the preserved pre.2 evidence.
+The separate read-only [published verifier](../.github/workflows/verify-published-release.yml)
+downloads the actual Release URLs on macOS ARM/Intel, Linux x64, and Windows
+x64. It checks every downloaded asset against its GitHub SHA-256 digest,
+compares each archive with its independent published sidecar **before** extraction,
+executes the extracted binary, and runs only a digest-checked public installer into
+an isolated temporary directory. The [verification script](../scripts/verify-published-release.py)
+reuses the small [candidate smoke](../scripts/verify-release-candidate.py)
+without rerunning `dist build`. The candidate workflow checks tag absence and
+must not be rerun after publication. Product source, release build, verifier
+commit, and native runner are distinct evidence. Actual published archive
+hashes can differ from the #311 candidate because the release workflow
+rebuilt them; compare both archive and binary hashes. Keep pre.2-specific
+smoke, previous benchmarks, and old attestations as historical records.
 
 ## Gate ownership
 

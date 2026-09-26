@@ -1,11 +1,10 @@
 # pipeline成果物を検証可能なdocumentとして固定する
 
 **所要時間:** 15 minutes（約15分）  
-**前提:** [commit固定の開発版CLI](../../README.ja.md#開発版cli)
-`ad709214f1e8ae18eff6e9f0b633345e40d1617b`、`jq`、`sha256sum`
+**前提:** [公開済みpre.3 CLI](../../README.ja.md)、`jq`、`sha256sum`
 （macOSは`shasum -a 256`）。GitHub Actionsと`minisign`は任意です。
-以下の`qzt-attestation-v1`判定は公開pre.2 binaryではなく、この開発版が
-必要です。[開発版CLIリファレンス](../CLI.ja.md)を参照してください。
+以下の`qzt-attestation-v1`判定はこの公開版で利用できます。
+[CLIリファレンス](../CLI.ja.md)を参照してください。
 
 複数のimmutableなtext出力を一緒に保存しながら、後から個別に一覧・復元したい場合に
 Document Indexを使います。

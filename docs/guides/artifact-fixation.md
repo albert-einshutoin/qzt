@@ -1,11 +1,10 @@
 # Fix pipeline artifacts as verified documents
 
 **Time:** 15 minutes  
-**Prerequisites:** the [pinned development CLI](../../README.md#development-cli)
-at `ad709214f1e8ae18eff6e9f0b633345e40d1617b`; `jq`; `sha256sum` (or
-macOS `shasum -a 256`); optional GitHub Actions and `minisign`. The
-`qzt-attestation-v1` policy below requires this build, not published pre.2.
-See the [development CLI reference](../CLI.md).
+**Prerequisites:** the [published pre.3 CLI](../../README.md#install);
+`jq`; `sha256sum` (or macOS `shasum -a 256`); optional GitHub Actions and
+`minisign`. The `qzt-attestation-v1` policy below is supported by this
+release. See the [CLI reference](../CLI.md).
 
 Use a Document Index when several immutable text outputs must travel together
 but still be listed and restored independently.

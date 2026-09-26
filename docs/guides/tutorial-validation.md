@@ -1,5 +1,24 @@
 # Tutorial validation records
 
+## Published pre.3 Release asset: measured 2026-09-26
+
+The [published prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)
+was built by [Release run 36237333455](https://github.com/albert-einshutoin/qzt/actions/runs/36237333455)
+from product commit `017d4d19739800773ab6a54adf636ff5a43ec1fc`.
+The read-only [verification workflow](../../.github/workflows/verify-published-release.yml)
+records the actual public URL, SHA-256, native archive smoke, installer result,
+and verifier commit separately for each of four targets in
+[Issue #313](https://github.com/albert-einshutoin/qzt/issues/313).
+The native macOS ARM public archive and installer were run locally: archive
+SHA-256 `0e51e0a1945b984500ae27a21e56930ba4b06a744a639feffa696307b1255b20`,
+binary SHA-256 `2e77275b033d498fdd61e97352fdfb06ac80aa95f3ea790f2b5727aa3512872b`,
+version `qzt 0.1.0-pre.3`, and full smoke passed in both cases. The other
+three native executions remain pending until the workflow reports them.
+The published `sha256.sum` lists exactly the four archives and `source.tar.gz`;
+the unpublished #311 candidate had a source-only aggregate checksum. These
+are distinct builds. Release build toolchain versions were not recorded by
+the release workflow; verifier runner toolchains do not establish them.
+
 ## Published pre.2 Release asset: measured 2026-09-25
 
 This is an execution of the downloaded distribution binary, not a local build

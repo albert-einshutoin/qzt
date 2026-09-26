@@ -15,14 +15,15 @@
 ## Install
 
 The currently published CLI is the
-[`v0.1.0-pre.2` Release](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2).
-Download its archive and `.sha256` asset for your OS/architecture, verify the
-checksum, then extract it. For Apple silicon (use `x86_64-apple-darwin` or
-`x86_64-unknown-linux-gnu` for those hosts):
+[`v0.1.0-pre.3` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3).
+QZT v0.1 remains a technical preview. Download the archive and matching
+`.sha256` asset for your OS/architecture, verify the checksum, then extract.
+For Apple silicon (use `x86_64-apple-darwin` or
+`x86_64-unknown-linux-gnu` on those hosts):
 
 ```sh
 set -eu
-release=v0.1.0-pre.2
+release=v0.1.0-pre.3
 target=aarch64-apple-darwin
 archive="qzt-${target}.tar.xz"
 base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
@@ -40,17 +41,18 @@ QZT_BIN="$(pwd)/qzt-${target}/qzt"
 "$QZT_BIN" --version
 ```
 
-Run the tour below with this absolute `QZT_BIN` path. The published CLI reports
-`qzt 0.1.0-pre.2`. The archive checksum is provided by the Release; verify its
-authenticity through the Release and repository channel you trust.
+The published CLI reports `qzt 0.1.0-pre.3`. Verify the sidecar's
+authenticity through the Release and repository channel you trust. Set
+`QZT_BIN` to the extracted binary's absolute path for the tour below.
 
 <details>
 <summary>Windows, installer, and source build options</summary>
 
 <br>
 
-Windows users can download the matching `.zip` and `.zip.sha256` assets and
-verify them before extraction:
+Windows users can download `qzt-x86_64-pc-windows-msvc.zip` and its
+`.zip.sha256` sidecar from the same Release, verify before extraction, and run
+the extracted `qzt.exe`:
 
 ```powershell
 $archive = "qzt-x86_64-pc-windows-msvc.zip"
@@ -59,24 +61,25 @@ $actual = (Get-FileHash -Algorithm SHA256 $archive).Hash
 if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
 ```
 
-Alternatively, use `qzt-installer.sh` or `qzt-installer.ps1` from the same
-Release. To build **the published version** from source instead of using its
-binary:
+The published [shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.3/qzt-installer.sh)
+and [PowerShell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.3/qzt-installer.ps1)
+are alternatives. To build **this published version** from its source tag with
+Rust 1.87+:
 
 ```sh
-cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked qzt
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.3 --locked qzt
 ```
 
-`cargo install qzt --version 0.1.0 --locked` becomes an option only after that
-version is published on crates.io; it is not the current installation path.
+`cargo install qzt --version 0.1.0 --locked` is only an option after stable
+`0.1.0` is published on crates.io; it is not this prerelease's install path.
 
 </details>
 
 ## 60-second Tour
 
-Use the verified pre.2 binary from above (`QZT_BIN` must be its absolute path).
-Run this in a POSIX shell with `mktemp` and `cmp`. It creates a new disposable
-directory, independent of existing files:
+Use the verified pre.3 binary from above (`QZT_BIN` must be its absolute
+path). Run this in a POSIX shell with `mktemp` and `cmp`. It creates a
+disposable directory:
 
 ```sh
 set -eu
@@ -88,40 +91,39 @@ printf 'alpha\nbeta\nerror gamma\n' > app.log
 "$QZT_BIN" info app.qzt --format json
 "$QZT_BIN" range app.qzt --lines 2:2
 "$QZT_BIN" sidecar-rebuild app.qzt -o app.qzt.qzi
-"$QZT_BIN" search app.qzt "error" --sidecar app.qzt.qzi --format json
+"$QZT_BIN" inspect-sidecar app.qzt --sidecar app.qzt.qzi --format json
+"$QZT_BIN" search app.qzt error --sidecar app.qzt.qzi --format json
 "$QZT_BIN" verify app.qzt --deep --format json
 "$QZT_BIN" attest app.qzt > app.attest.json
 "$QZT_BIN" export app.qzt -o restored.log
 cmp app.log restored.log
 ```
 
-`info` reports 23 original bytes and 3 lines; the line range prints `beta`
-with its newline. Search returns one `error` hit at byte offset 11 with source
-`verified_original_bytes`; `verify` reports `ok=true` and `level=deep`.
-The pre.2 attestation is deterministic, **versionless** JSON: it has no
-`attestation_schema` or later deep-coverage fields. `cmp` succeeds only when
-the exported file matches all original bytes. Run the
-[release-binary smoke script](docs/guides/examples/smoke-release-tour.sh) with the absolute
-binary path for automated JSON, determinism, and byte checks (`jq` required).
-See the [measured validation record](docs/guides/tutorial-validation.md).
+`info` reports 23 original bytes and 3 lines; `range` prints `beta` with
+its newline. Search returns one `error` hit at byte offset 11 with
+`source=verified_original_bytes`, `capped=false`, and
+`index_coverage_verified=false`; this last field does not prove that every
+source match was indexed. Deep verification reports `ok=true` and recomputes
+the original checksum. The deterministic attestation has
+`attestation_schema=qzt-attestation-v1`; keep any pre.2 versionless
+attestation with its original signature/timestamp. `cmp` succeeds only if
+export restored every byte. Run the
+[pre.3 release-binary smoke](docs/guides/examples/smoke-pre3-release-tour.sh)
+with the absolute binary path for automated JSON, determinism, and byte checks
+(`jq` required). The [published-asset verification record](https://github.com/albert-einshutoin/qzt/issues/313)
+will record results for all four native targets. The
+[pre.2 smoke and measured record](docs/guides/tutorial-validation.md) remain
+historical evidence.
 
-## Development CLI
+## CLI version and format
 
-The current [CLI reference](docs/CLI.md) and the operational guides below
-describe the development implementation at commit
-`ad709214f1e8ae18eff6e9f0b633345e40d1617b`, which adds commands,
-search budgets, safety fixes, and `qzt-attestation-v1` coverage fields that
-pre.2 does not provide. Install that exact source revision with Rust 1.87+:
-
-```sh
-cargo install --git https://github.com/albert-einshutoin/qzt \
-  --rev ad709214f1e8ae18eff6e9f0b633345e40d1617b --locked qzt
-```
-
-Its QZT container format is still `v0.1`; that is separate from the CLI
-distribution version. Do not apply the development attestation policy to a
-pre.2 JSON document. Feature and limit descriptions below apply to this
-development revision unless they explicitly say otherwise.
+The [CLI reference](docs/CLI.md) and operational guides below describe the
+published `v0.1.0-pre.3` binary. The QZT container format remains `qzt-0.1`,
+independent of the CLI distribution version. Search hits are checked against
+original bytes, but a sidecar's completeness claim does not establish exhaustive
+coverage; named caps return verified partial results and hard limits are errors.
+See the [pre.2 migration guide](docs/releases/v0.1.0-pre.3-migration.md)
+before changing attestation or resource-limit automation.
 
 ## Use Cases
 
@@ -206,7 +208,7 @@ Known limitations before production use:
   CLI search, file-backed QZT/QZI open, reused-object search, independent QZI
   build time/peak RSS, concurrency, and combined storage. Its results are for
   the cited development commit and synthetic corpus, not the published
-  `v0.1.0-pre.2` binary or a service guarantee.
+  `v0.1.0-pre.3` binary or a service guarantee.
 
 ### Reproducing the performance numbers
 
@@ -312,10 +314,10 @@ No output from `diff` means the restored bytes match the source.
 
 ## CLI Reference
 
-This command map and [the current CLI reference](docs/CLI.md) describe the
-[pinned development build](#development-cli). For the published pre.2 binary,
-use the [CLI reference at the release tag](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.2/docs/CLI.md)
-and the release tour above. QZT format `v0.1` is not a CLI version.
+This command map and [the CLI reference](docs/CLI.md) describe the
+published pre.3 binary and its automation contract. The
+[release-tag reference](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.3/docs/CLI.md)
+is fixed to the binary source commit. QZT format `v0.1` is not a CLI version.
 
 ```sh
 qzt pack input.txt -o output.qzt
@@ -508,8 +510,9 @@ The [value roadmap #47](https://github.com/albert-einshutoin/qzt/issues/47),
 all its child issues #33–#46, the ten preview-hardening issues in #31, and the
 [#307 FFI audit](https://github.com/albert-einshutoin/qzt/issues/307) are
 complete. Core remains a release candidate; QZI search and the product remain
-a technical preview. The published [v0.1.0-pre.2](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
-binary does not include later main changes. [#31](https://github.com/albert-einshutoin/qzt/issues/31)
+a technical preview. The published [v0.1.0-pre.3](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)
+binary comes from the fixed tag commit `017d4d19739800773ab6a54adf636ff5a43ec1fc`;
+later documentation and verification commits do not change that binary. [#31](https://github.com/albert-einshutoin/qzt/issues/31)
 owns current priorities and deferred work; child issues and PRs hold evidence.
 The English/Japanese [status](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)
 and [status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)

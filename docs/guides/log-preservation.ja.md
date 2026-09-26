@@ -1,11 +1,9 @@
 # サーバーログを保全し、必要範囲だけ提示する
 
 **所要時間:** 15 minutes（約15分）  
-**前提:** [commit固定の開発版CLI](../../README.ja.md#開発版cli)
-`ad709214f1e8ae18eff6e9f0b633345e40d1617b`、`jq`。
-Linux/systemdと`minisign`は任意です。以下のcommandと`qzt-attestation-v1`
-判定は公開pre.2 binaryではなく、この開発版を必要とします。
-[開発版CLIリファレンス](../CLI.ja.md)を参照してください。
+**前提:** [公開済みpre.3 CLI](../../README.ja.md)、`jq`。
+Linux/systemdと`minisign`は任意です。以下の`qzt-attestation-v1`判定は
+この公開版で利用できます。[CLIリファレンス](../CLI.ja.md)を参照してください。
 
 この手順が作るのはtamper-evidentな技術記録です。固定後にbyteが変わったかは
 検証できますが、ログ事象の真実性を確定するものでも法的助言でもありません。

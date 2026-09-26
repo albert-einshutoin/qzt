@@ -2,15 +2,18 @@
 
 ## Unreleased
 
-Future work after the unpublished `v0.1.0-pre.3` candidate belongs here.
+Future work after the GitHub `v0.1.0-pre.3` prerelease belongs here.
 
-## 0.1.0-pre.3 - Candidate (unpublished)
+## 0.1.0-pre.3 - 2026-09-26
 
 These changes are measured against the published `v0.1.0-pre.2` tag commit,
 including work that predates the entries below. QZT v0.1 remains a technical
-preview; no pre.3 tag, Release, or crates.io publication is implied. See the
-[candidate notes](docs/releases/v0.1.0-pre.3-candidate.md) and
-[pre.2 migration guide](docs/releases/v0.1.0-pre.3-migration.md).
+preview. The [GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)
+contains binaries built from `017d4d19739800773ab6a54adf636ff5a43ec1fc`;
+no crates.io publication is implied. See the
+[candidate preparation record](docs/releases/v0.1.0-pre.3-candidate.md),
+[pre.2 migration guide](docs/releases/v0.1.0-pre.3-migration.md), and
+[published-asset verification](https://github.com/albert-einshutoin/qzt/issues/313).
 
 ### Added
 
@@ -39,11 +42,11 @@ preview; no pre.3 tag, Release, or crates.io publication is implied. See the
 
 ### Fixed
 
-- The English and Japanese README installation and 60-second tours now start
-  from the published `v0.1.0-pre.2` asset and use only its commands and
-  versionless attestation fields. The later CLI reference and operational
-  guides identify their pinned development revision. A standalone smoke runs
-  the downloaded binary and compares exported source bytes.
+- Before pre.3 publication, the English and Japanese README tours were corrected
+  to the published pre.2 asset and its versionless attestation fields; that
+  pre.2 smoke and its measured record remain available as historical evidence.
+  After publication, the current Install and tour moved to the verified pre.3
+  assets, with a separate package-included smoke for canonical v1 attestation.
 
 - Search now checks token boundaries and same-line token AND against original
   QZT bytes, including adjacent bytes outside a candidate granule. This

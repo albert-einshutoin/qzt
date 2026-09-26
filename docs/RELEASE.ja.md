@@ -6,57 +6,42 @@ English: [RELEASE.md](RELEASE.md)
 QZT v0.1.0 を公開するためのものです。QZT v0.1 は本番対応製品ではなく、
 technical preview として説明します。
 
-## 現行pre.3候補の準備（未公開）
+## 公開済みpre.3 GitHub prerelease（2026-09-26）
 
-Issue #311ではpackage version `0.1.0-pre.3`のGitHub prerelease候補
-`v0.1.0-pre.3`を準備します。tag、Release、crates.io公開は許可しません。
-[候補ノート](releases/v0.1.0-pre.3-candidate.ja.md)と
-[pre.2からの移行](releases/v0.1.0-pre.3-migration.ja.md)は公開済みpre.2 tag
-からの変更を説明します。下のpre.2とstableの節は過去の記録または将来のowner gateで、
-そこにあるversion commandは今回の候補準備に使いません。
+[`v0.1.0-pre.3` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)は
+製品commit `017d4d19739800773ab6a54adf636ff5a43ec1fc`から作った
+technical previewです。crates.ioへの公開ではありません。
+[#311](https://github.com/albert-einshutoin/qzt/issues/311)は未公開候補の
+証拠を保持し、[release run](https://github.com/albert-einshutoin/qzt/actions/runs/36237333455)は
+保護された`release` environmentの承認後に実公開assetを生成しました。
+公開archive・checksum・native smoke・installerの証拠は
+[#313](https://github.com/albert-einshutoin/qzt/issues/313)に記録します。
 
-cleanな候補commitから、読み取り権限だけの
-[`release-candidate.yml`](../.github/workflows/release-candidate.yml)で
-`dist plan`、4 targetのnative `dist build --artifacts=local`、global buildを
-行います。verifierは各archiveのSHA-256 sidecarを照合し、展開したbinaryを
-対象OS/architectureで小さなE2E smokeに通します。PR runは予行です。
-merge後にはmainの正確なmerge SHAを指定して同workflowをdispatchし、14日保持の
-artifactを#311へ記録します。将来のinstaller downloadや公開assetのbyte一致は
-この予行では証明できません。
-
-## pre3候補のowner承認後の公開
-
-これは#311に正確なmain merge SHA、通常・security CI、4 targetの証拠を
-記録した**後日のowner操作**です。tagとReleaseが未使用であることを確認し、
-検証済みSHAがHEADのclean checkoutでownerが不変のannotated tagを作成・push
-できます。
+ownerはreview済みmerge commitを明示してannotated tagだけを作成・pushしました。
 
 ```sh
-git fetch origin main --tags
-git switch --detach <検証済みの完全なmerge SHA>
-git status --porcelain
-git rev-parse HEAD
-git merge-base --is-ancestor HEAD origin/main
-git ls-remote --tags origin refs/tags/v0.1.0-pre.3
-git tag -a v0.1.0-pre.3 -m "qzt v0.1.0-pre.3"
-git push origin v0.1.0-pre.3
+git tag -a v0.1.0-pre.3 017d4d19739800773ab6a54adf636ff5a43ec1fc -m "qzt v0.1.0-pre.3"
+git push origin refs/tags/v0.1.0-pre.3
 ```
 
-`ls-remote`は空でなければ停止します。保護されたtag-onlyの
-[release workflow](../.github/workflows/release.yml)がtagの版とmain ancestryを
-検査し、write権限を持つhost jobの前にrelease ownerが保護された`release`
-environmentを承認します。承認設定を回避・緩和しません。このGitHub previewに
-`cargo publish`は含めません。
+これは実行済みの履歴で、再実行や公開tagの移動を指示しません。
+tag-onlyの[release workflow](../.github/workflows/release.yml)はmanifest版と
+main ancestryを確認し、読み取り権限のbuild jobで4 native archiveとglobal assetを
+生成し、保護environmentのreview後に限りwrite権限を持つhostが公開しました。
+Releaseはprereleaseで、4 archiveと各sidecar、Unix/PowerShell installer、
+source archive/checksum、集約checksum、dist manifestの14 assetを持ちます。
 
-公開後、実Releaseがprereleaseであること、4 archive、対応する4つの`.sha256`、
-installer、source archive/checksumが揃うことを確認します。**公開された実asset**
-を新規directoryへ取得し、checksumを照合し、各native OS/architectureで
-展開binaryを実行して`qzt --version`が`qzt 0.1.0-pre.3`であることと
-[候補smoke](../scripts/verify-release-candidate.py)相当の動作を確認します。
-Linux linkageとinstallerの実downloadもURLが利用可能になってから検査します。
-release workflowはtagから再buildするため、公開archiveのhashは候補CIと
-同じbyte列とは限りません。公開hashとrun IDを記録した後、README Install/tourの
-linkを別の公開後変更で更新します。pre.2の証拠は残します。
+別の読み取り専用[公開物verifier](../.github/workflows/verify-published-release.yml)は
+macOS ARM/Intel、Linux x64、Windows x64で実Release URLから取得し、
+全assetのGitHub SHA-256 digestとarchiveの独立した**公開sidecarを照合してから**
+展開binaryを実行し、digest照合済みの公開installerで隔離した一時先へ
+導入します。[検証script](../scripts/verify-published-release.py)は小さな
+[候補smoke](../scripts/verify-release-candidate.py)を再利用し、`dist build`は
+繰り返しません。候補workflowはtag不存在を検査するため公開後に再実行しません。
+製品source、release build、検証script commit、native runnerを別々に記録します。
+release workflowは再buildするので候補と公開archiveのhashが異なる場合があります。
+archiveとbinaryを別々に比較し、pre.2専用smoke・旧実測・旧attestationは
+履歴として保持します。
 
 ## 公開権限
 

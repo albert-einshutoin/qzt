@@ -1,10 +1,10 @@
 # Preserve and selectively disclose server logs
 
 **Time:** 15 minutes  
-**Prerequisites:** the [pinned development CLI](../../README.md#development-cli)
-at `ad709214f1e8ae18eff6e9f0b633345e40d1617b`; `jq`; optional Linux/systemd
-and `minisign`. Commands and the `qzt-attestation-v1` checks below require that
-build, not the published pre.2 binary. See [development CLI reference](../CLI.md).
+**Prerequisites:** the [published pre.3 CLI](../../README.md#install);
+`jq`; optional Linux/systemd and `minisign`. The
+`qzt-attestation-v1` checks below are supported by this release. See the
+[CLI reference](../CLI.md).
 
 This workflow creates tamper-evident technical records. It can show whether
 stored bytes changed after fixation; it does not establish that a log event was

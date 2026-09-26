@@ -1,12 +1,10 @@
 # Operate search over a QZT archive
 
 **Time:** 15 minutes  
-**Prerequisites:** the [pinned development CLI](../../README.md#development-cli)
-at `ad709214f1e8ae18eff6e9f0b633345e40d1617b`; `jq`.
-The cap options also exist in pre.2, but the `stop_reason`, index coverage,
-and `physical_decoded_chunks` fields below do not. Use this exact development
-build and the [development CLI reference](../CLI.md); a missing field must not
-be treated as a verified state.
+**Prerequisites:** the [published pre.3 CLI](../../README.md#install);
+`jq`. This release includes the `stop_reason`, index coverage, and
+`physical_decoded_chunks` fields below. A missing field must not be treated
+as a verified state; see the [CLI reference](../CLI.md).
 
 This guide builds reusable token and n-gram sidecars, applies resource caps,
 and reads search cost without confusing a returned hit with physical decode
