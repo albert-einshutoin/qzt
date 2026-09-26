@@ -6,6 +6,12 @@ This runbook prepares and publishes QZT v0.1.0 without blurring the boundary
 between reversible validation and the irreversible crates.io upload. QZT v0.1
 must be described as a technical preview, not as production-ready software.
 
+The next [pre.4 candidate](releases/v0.1.0-pre.4-candidate.md) is an
+**unpublished** preparation tracked by #318. The published Install/README
+path stays on pre.3. Use the exact merged source SHA and candidate evidence
+recorded on #318 for a later publication decision; do not reuse the historical
+pre.3 release command below for pre.4.
+
 ## Published pre.3 GitHub prerelease (2026-09-26)
 
 The [`v0.1.0-pre.3` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)

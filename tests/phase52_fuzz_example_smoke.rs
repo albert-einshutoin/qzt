@@ -76,7 +76,7 @@ fn fuzz_workspace_is_licensed_versioned_and_dependency_audited() {
     let manifest = repository_file("fuzz/Cargo.toml");
     assert!(manifest.contains("license = \"MIT OR Apache-2.0\""));
     assert!(manifest.contains(
-        "qzt = { path = \"..\", version = \"=0.1.0-pre.3\", features = [\"internal-testing\"] }"
+        "qzt = { path = \"..\", version = \"=0.1.0-pre.4\", features = [\"internal-testing\"] }"
     ));
 
     let policy = repository_file("deny.toml");

@@ -38,7 +38,7 @@ fn preview_candidate_manifest_preserves_package_metadata() {
         .expect("cargo metadata must contain the qzt package");
     assert_eq!(
         package["version"],
-        serde_json::json!("0.1.0-pre.3"),
+        serde_json::json!("0.1.0-pre.4"),
         "the GitHub preview candidate must use its declared package version"
     );
     assert_eq!(

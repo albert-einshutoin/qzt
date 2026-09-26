@@ -1,0 +1,50 @@
+{
+  "candidate_binary_sha256": "12e02b21c28368df07536aa4a6356f5d1e1f1a9c97638a4f30d83c9ef9765158",
+  "containers": {
+    "pre3": {
+      "bytes": 1864,
+      "deep_attestation_byte_equal": true,
+      "deep_attestation_sha256": "aadfd74b2052c257e6aca0a7a95654f95a010e40ede760f1bb1c650405a883c3",
+      "sha256": "7162a16240aa2ac501f1461f7e1c2d221050d1afade1941d8657ff6784eecc54"
+    },
+    "pre4_candidate": {
+      "bytes": 1864,
+      "deep_attestation_byte_equal": true,
+      "deep_attestation_sha256": "aadfd74b2052c257e6aca0a7a95654f95a010e40ede760f1bb1c650405a883c3",
+      "sha256": "7162a16240aa2ac501f1461f7e1c2d221050d1afade1941d8657ff6784eecc54"
+    }
+  },
+  "cross_version_deep_verify_export_search": "passed",
+  "pre3_binary_sha256": "2e77275b033d498fdd61e97352fdfb06ac80aa95f3ea790f2b5727aa3512872b",
+  "provenance": {
+    "comparison_command": "python3 scripts/verify-pre4-compatibility.py --pre3-bin <verified published pre.3 qzt> --candidate-bin <pre.4 release-profile qzt> --output <result.json>",
+    "host": "Apple M4 macOS ARM64; local compatibility check, not final native candidate artifact",
+    "pre4_build_command": "cargo build --release --locked --bin qzt",
+    "pre4_cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "pre4_code_base_main_sha": "f5a38d49447edd6ef95b7610bce3ae2d3be612bc",
+    "pre4_local_state": "pre.4 Cargo/fuzz version edits plus unchanged product source from starting main; pre-commit auxiliary comparison",
+    "pre4_rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+    "published_pre3_archive_sha256": "0e51e0a1945b984500ae27a21e56930ba4b06a744a639feffa696307b1255b20",
+    "published_pre3_product_sha": "017d4d19739800773ab6a54adf636ff5a43ec1fc"
+  },
+  "same_qzt_token_ngram_qzi_byte_equal": true,
+  "sidecars": {
+    "pre3-ngram": {
+      "bytes": 920,
+      "sha256": "4e297ba1c75208b218e0abaed2d06382026cfa7e38ea9fced80bfd453037c2dc"
+    },
+    "pre3-token": {
+      "bytes": 867,
+      "sha256": "771300991448262181938739395e262fdaced92672531be2938e6cc2e982a428"
+    },
+    "pre4_candidate-ngram": {
+      "bytes": 920,
+      "sha256": "4e297ba1c75208b218e0abaed2d06382026cfa7e38ea9fced80bfd453037c2dc"
+    },
+    "pre4_candidate-token": {
+      "bytes": 867,
+      "sha256": "771300991448262181938739395e262fdaced92672531be2938e6cc2e982a428"
+    }
+  },
+  "source_sha256": "925eb99a334b23b9de76084cdb6ef9b252e644668a7f49a4a05178986c49f35f"
+}

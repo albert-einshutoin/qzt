@@ -128,6 +128,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       BUILD_MANIFEST_NAME: target/distrib/${{ join(matrix.targets, '-') }}-dist-manifest.json
+      BUILD_ENV_NAME: target/distrib/${{ join(matrix.targets, '-') }}-build-environment.json
     steps:
       - name: enable windows longpaths
         run: |
@@ -193,11 +194,31 @@ jobs:
       - name: Install dependencies
         run: |
           ${{ matrix.packages_install }}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Record the toolchain used by the local dist build
+        shell: bash
+        run: |
+          set -euo pipefail
+          toolchain="$(rustup show active-toolchain | awk '{ print $1 }')"
+          test -n "$toolchain"
+          echo "RUSTUP_TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          export RUSTUP_TOOLCHAIN="$toolchain"
+          python scripts/record-build-environment.py record \
+            --source-sha "$(git rev-parse HEAD)" \
+            --target '${{ join(matrix.targets, ',') }}' \
+            --profile 'dist (release with thin LTO)' --features 'default; no feature override' \
+            --build-command 'dist build ${{ needs.plan.outputs.tag-flag }} --print=linkage --allow-dirty --output-format=json ${{ matrix.dist_args }}' \
+            --output "$BUILD_ENV_NAME"
       - name: Build artifacts
         run: |
           # Actually do builds and make zips and whatnot
           dist build ${{ needs.plan.outputs.tag-flag }} --print=linkage --allow-dirty --output-format=json ${{ matrix.dist_args }} > dist-manifest.json
           echo "dist ran successfully"
+      - name: Verify the dist build kept its selected toolchain
+        shell: bash
+        run: python scripts/record-build-environment.py verify --input "$BUILD_ENV_NAME"
       - id: cargo-dist
         name: Post-build
         # We force bash here just because github makes it really hard to get values up
@@ -218,6 +239,7 @@ jobs:
           path: |
             ${{ steps.cargo-dist.outputs.paths }}
             ${{ env.BUILD_MANIFEST_NAME }}
+            ${{ env.BUILD_ENV_NAME }}
 
   # Build and package all the platform-agnostic(ish) things
   build-global-artifacts:
@@ -228,6 +250,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       BUILD_MANIFEST_NAME: target/distrib/global-dist-manifest.json
+      BUILD_ENV_NAME: target/distrib/global-build-environment.json
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
@@ -246,6 +269,22 @@ jobs:
           pattern: artifacts-*
           path: target/distrib/
           merge-multiple: true
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - name: Record the toolchain used by the global dist build
+        shell: bash
+        run: |
+          set -euo pipefail
+          toolchain="$(rustup show active-toolchain | awk '{ print $1 }')"
+          test -n "$toolchain"
+          echo "RUSTUP_TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"
+          export RUSTUP_TOOLCHAIN="$toolchain"
+          python scripts/record-build-environment.py record \
+            --source-sha "$(git rev-parse HEAD)" --target global \
+            --profile 'global artifacts; no Rust compile' --features 'not applicable' \
+            --build-command 'dist build ${{ needs.plan.outputs.tag-flag }} --allow-dirty --output-format=json --artifacts=global' \
+            --output "$BUILD_ENV_NAME"
       - id: cargo-dist
         shell: bash
         run: |
@@ -258,6 +297,9 @@ jobs:
           echo "EOF" >> "$GITHUB_OUTPUT"
 
           cp dist-manifest.json "$BUILD_MANIFEST_NAME"
+      - name: Verify the dist build kept its selected toolchain
+        shell: bash
+        run: python scripts/record-build-environment.py verify --input "$BUILD_ENV_NAME"
       - name: "Upload artifacts"
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
@@ -265,6 +307,7 @@ jobs:
           path: |
             ${{ steps.cargo-dist.outputs.paths }}
             ${{ env.BUILD_MANIFEST_NAME }}
+            ${{ env.BUILD_ENV_NAME }}
   # Determines if we should publish/announce
   host:
     # Only the job that creates the GitHub Release receives write access.
@@ -325,6 +368,7 @@ jobs:
         run: |
           # Remove the granular manifests
           rm -f artifacts/*-dist-manifest.json
+          rm -f artifacts/*-build-environment.json
       - name: Create GitHub Release
         env:
           PRERELEASE_FLAG: "${{ fromJson(steps.host.outputs.manifest).announcement_is_prerelease && '--prerelease' || '' }}"

@@ -1,0 +1,3 @@
+      - name: Verify the dist build kept its selected toolchain
+        shell: bash
+        run: python scripts/record-build-environment.py verify --input "$BUILD_ENV_NAME"

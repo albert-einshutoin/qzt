@@ -2,7 +2,15 @@
 
 ## Unreleased
 
-Future work after the GitHub `v0.1.0-pre.3` prerelease belongs here.
+Future work after the unpublished pre.4 candidate belongs here.
+
+## 0.1.0-pre.4 candidate (unpublished) - 2026-09-27
+
+This candidate includes changes since the published `v0.1.0-pre.3` product
+commit `017d4d19739800773ab6a54adf636ff5a43ec1fc`. The tag, GitHub Release,
+crates.io publication, and public README install switch have not happened.
+See the [English](docs/releases/v0.1.0-pre.4-candidate.md) and
+[Japanese](docs/releases/v0.1.0-pre.4-candidate.ja.md) candidate notes.
 
 ### Changed
 
@@ -11,8 +19,18 @@ Future work after the GitHub `v0.1.0-pre.3` prerelease belongs here.
   yield one posting, and tested QZI bytes remain identical. On the recorded
   100 MiB C2Logs corpus, the median independent-process peak RSS fell from
   3,172,859,904 to 1,306,198,016 bytes (three runs each); see the
-  [#27 measurement](docs/benchmarks/2026-09-issue27-ngram-build.md). This does
-  not impose a fixed memory ceiling on sidecar construction.
+  [#27 measurement](docs/benchmarks/2026-09-issue27-ngram-build.md).
+- CompactV2 token QZI file-backed open no longer repeats derived term-key hash
+  comparisons. LegacyV1 still validates its stored key hash during decoding,
+  rejecting a bad term before subsequent records. Section checksums, QZT
+  binding, dictionary/resource validation, and lazy query reads are retained.
+  The [#316 measurement](docs/benchmarks/2026-09-issue316-token-open.md)
+  records the effect on new-process open and CLI search.
+
+Both measurements used development binaries and fixed synthetic inputs on an
+Apple M4/macOS host without OS-cache control. They do not measure this
+candidate or published binary, Linux/Windows, real logs, or concurrent search;
+they set neither a fixed RSS ceiling nor a production SLA.
 
 ## 0.1.0-pre.3 - 2026-09-26
 

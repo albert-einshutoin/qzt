@@ -8,8 +8,9 @@
 | Documentation gate | `make doc` | local and CI Linux |
 | Package gate | `cargo package --allow-dirty` | local and CI Linux |
 | Preview distribution contract | `cargo test --locked --test phase42_release_readiness --test phase43_distribution` | local and CI Linux |
-| Candidate workflow syntax | `actionlint .github/workflows/release-candidate.yml` | local before candidate PR |
-| Candidate artifacts | `.github/workflows/release-candidate.yml` PR run, then manual dispatch with the exact main merge SHA | native macOS ARM/Intel, Linux x64, Windows x64 runners; 14-day CI artifacts |
+| Candidate/published verifier version boundaries | `python3 -m unittest discover -s scripts -p 'test_release_candidate_verifier.py'` | local and CI Linux (Python 3.12+) |
+| Candidate/release workflow syntax | `actionlint -shellcheck= .github/workflows/release-candidate.yml .github/workflows/release.yml .github/workflows/verify-published-release.yml .github/workflows/ci.yml` | local before candidate PR; generated release shell blocks retain pre-existing ShellCheck warnings |
+| Candidate artifacts and build provenance | `.github/workflows/release-candidate.yml` PR run, then manual dispatch with the exact main merge SHA; `scripts/record-build-environment.py` records and checks the selected build toolchain around `dist build` | native macOS ARM/Intel, Linux x64, Windows x64 runners; 14-day CI artifacts |
 | Published pre.3 assets and installers | `.github/workflows/verify-published-release.yml` on its PR; `scripts/verify-published-release.py` downloads actual Release URLs | native macOS ARM/Intel, Linux x64, Windows x64 runners; read-only; 14-day evidence artifacts |
 | QZI/DLI seed replay | `cargo test --manifest-path fuzz/Cargo.toml --test seed_replay --locked` | local and CI Linux fuzz job |
 | Bounded ASan fuzz | `cargo +nightly fuzz run --sanitizer address <target> fuzz/corpus/<target> -- -max_total_time=60 -timeout=10 -max_len=256 -rss_limit_mb=1024 -malloc_limit_mb=128 -seed=294` | weekly/manual CI Linux; `<target>` is `qzi_search` or `dli_decode` |
@@ -24,7 +25,7 @@ file-output jobs exercise filesystem-specific behavior. Linux's targeted job
 installs `acl` so its ACL regression test runs; without that tool, the test
 reports a skip.
 
-The candidate workflow is separate from the protected, tag-only
+The pre.4 candidate workflow is separate from the protected, tag-only
 `.github/workflows/release.yml`. It runs on changes to its own workflow file
 in a PR, or by manual dispatch with a full SHA in main history. It has read-only repository
 permission, uses `dist plan`/`dist build` without hosting or publishing, and

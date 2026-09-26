@@ -22,13 +22,13 @@ const RELEASE_TARGETS: [&str; 4] = [
 fn distribution_is_reproducibly_pinned_for_the_preview_candidate() {
     // Distribution remains explicitly configured instead of inferring release
     // intent from crates.io publication eligibility.
-    for requirement in ["version = \"0.1.0-pre.3\"", "dist = true"] {
+    for requirement in ["version = \"0.1.0-pre.4\"", "dist = true"] {
         assert!(
             MANIFEST.contains(requirement),
             "missing package distribution contract: {requirement}"
         );
     }
-    assert!(FUZZ_MANIFEST.contains("qzt = { path = \"..\", version = \"=0.1.0-pre.3\""));
+    assert!(FUZZ_MANIFEST.contains("qzt = { path = \"..\", version = \"=0.1.0-pre.4\""));
 
     for requirement in [
         "cargo-dist-version = \"0.31.0\"",
@@ -79,12 +79,20 @@ fn generated_release_workflow_has_no_branch_or_pull_request_trigger() {
     assert!(RELEASE_WORKFLOW.contains("permissions:\n      \"contents\": \"write\"\n    needs:"));
     assert!(RELEASE_WORKFLOW.contains("environment: release"));
     assert!(RELEASE_WORKFLOW.contains("Validate release tag and main ancestry"));
+    assert!(RELEASE_WORKFLOW.contains("record-build-environment.py record"));
+    assert!(RELEASE_WORKFLOW.contains("record-build-environment.py verify"));
+    assert!(RELEASE_WORKFLOW.contains("env.BUILD_ENV_NAME"));
+    assert!(RELEASE_WORKFLOW.contains("rm -f artifacts/*-build-environment.json"));
     assert!(RELEASE_WORKFLOW.contains("git merge-base --is-ancestor"));
     assert!(!RELEASE_WORKFLOW.contains("cargo-dist-installer.sh | sh"));
     assert!(!RELEASE_WORKFLOW.contains("matrix.install_dist.run"));
     assert_eq!(
         RELEASE_WORKFLOW
-            .matches("--allow-dirty --output-format=json")
+            .lines()
+            .filter(|line| {
+                line.trim_start().starts_with("dist ")
+                    && line.contains("--allow-dirty --output-format=json")
+            })
             .count(),
         4,
         "every cargo-dist CI command must acknowledge the reviewed hardening delta"
@@ -131,11 +139,15 @@ fn candidate_workflow_builds_exact_unpublished_source_on_native_runners() {
     assert!(CANDIDATE_WORKFLOW.contains("candidate_sha:"));
     assert!(CANDIDATE_WORKFLOW.contains("test -z \"$(git status --porcelain)\""));
     assert!(CANDIDATE_WORKFLOW.contains("git merge-base --is-ancestor"));
-    assert!(CANDIDATE_WORKFLOW.contains("dist plan --tag=v0.1.0-pre.3"));
+    assert!(CANDIDATE_WORKFLOW.contains("dist plan --tag=v0.1.0-pre.4"));
+    assert!(CANDIDATE_WORKFLOW.contains("--expected-tag v0.1.0-pre.4"));
     assert!(CANDIDATE_WORKFLOW.contains("dist build --artifacts=local"));
     assert!(CANDIDATE_WORKFLOW.contains("dist build --artifacts=global"));
     assert!(CANDIDATE_WORKFLOW.contains("verify-release-candidate.py local"));
     assert!(CANDIDATE_WORKFLOW.contains("verify-release-candidate.py global"));
+    assert!(CANDIDATE_WORKFLOW.contains("record-build-environment.py record"));
+    assert!(CANDIDATE_WORKFLOW.contains("record-build-environment.py verify"));
+    assert!(CANDIDATE_WORKFLOW.contains("--build-env target/candidate/build-environment.json"));
     assert!(CANDIDATE_WORKFLOW.contains("retention-days: 14"));
     for (target, runner) in [
         ("aarch64-apple-darwin", "macos-14"),
@@ -212,6 +224,8 @@ fn published_release_verification_keeps_product_and_verifier_separate() {
     );
     assert!(PUBLISHED_VERIFIER.contains("candidate.checksum_matches(archive, sidecar)"));
     assert!(PUBLISHED_VERIFIER.contains("candidate.smoke(binary, smoke_work"));
+    assert!(PUBLISHED_VERIFIER.contains("VERSION = \"qzt 0.1.0-pre.3\""));
+    assert!(CI_WORKFLOW.contains("python -m unittest discover -s scripts"));
     assert!(PUBLISHED_VERIFIER.contains("QZT_INSTALL_DIR"));
     assert!(PRE2_SMOKE.contains("qzt 0.1.0-pre.2"));
     assert!(PRE2_SMOKE.contains("(has(\"attestation_schema\") | not)"));

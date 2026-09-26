@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify unpublished pre.3 cargo-dist artifacts without using a release URL."""
+"""Verify unpublished cargo-dist artifacts against an explicit expected tag."""
 
 import argparse
 import hashlib
@@ -11,12 +11,11 @@ import stat
 import subprocess
 import tarfile
 import tempfile
+import tomllib
 import zipfile
 from pathlib import Path, PurePosixPath
 
 
-TAG = "v0.1.0-pre.3"
-VERSION = "qzt 0.1.0-pre.3"
 TARGETS = {
     "aarch64-apple-darwin": ("Darwin", "arm64"),
     "x86_64-apple-darwin": ("Darwin", "x86_64"),
@@ -29,6 +28,12 @@ SOURCE = b"alpha\nbeta\nerror gamma\nerror delta\n"
 def require(condition, message):
     if not condition:
         raise RuntimeError(message)
+
+
+def expected_version(tag):
+    require(re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+-pre\.[0-9]+", tag) is not None,
+            "expected tag must be an explicit prerelease version")
+    return f"qzt {tag[1:]}"
 
 
 def sha256(path):
@@ -57,13 +62,67 @@ def checksum_matches(archive, sidecar):
     return actual
 
 
-def check_manifest(path, expected_artifacts):
+def check_manifest(path, expected_artifacts, expected_tag):
     manifest = json.loads(path.read_text(encoding="utf-8"))
-    require(manifest["announcement_tag"] == TAG, "dist manifest has wrong tag")
+    require(manifest["announcement_tag"] == expected_tag, "dist manifest has wrong tag")
+    require(manifest["announcement_is_prerelease"] is True,
+            "dist manifest is not a prerelease")
     require(manifest["dist_version"] == "0.31.0", "dist manifest has wrong version")
-    for name in expected_artifacts:
-        require(name in manifest["artifacts"], f"dist manifest omits {name}")
+    require(set(manifest["artifacts"]) == set(expected_artifacts),
+            "dist manifest has unexpected artifacts")
     return manifest
+
+
+def check_source_archive_version(path, expected_tag):
+    version = expected_tag[1:]
+    with tarfile.open(path, "r:gz") as source:
+        matches = [member for member in source.getmembers()
+                   if member.name == f"qzt-{version}/Cargo.toml"]
+        require(len(matches) == 1 and matches[0].isfile(),
+                "source archive contains the wrong package version")
+        manifest = source.extractfile(matches[0])
+        require(manifest is not None and
+                tomllib.loads(manifest.read().decode("utf-8"))["package"]["version"] == version,
+                "source archive contains the wrong package version")
+
+
+def check_source_archive_commit(path, expected_tag, source_sha):
+    """Compare every packaged file to the selected Git tree, including executable bits."""
+    require(subprocess.check_output(["git", "rev-parse", "--show-object-format"],
+                                    text=True).strip() == "sha1", "unsupported Git object format")
+    listing = subprocess.check_output(["git", "ls-tree", "-r", "-z", source_sha])
+    expected = {}
+    for entry in listing.rstrip(b"\0").split(b"\0"):
+        metadata, name = entry.split(b"\t", 1)
+        mode, kind, object_id = metadata.split()
+        require(kind == b"blob" and mode in (b"100644", b"100755"),
+                "source tree contains an unsupported entry")
+        expected[name.decode("utf-8")] = (mode, object_id.decode("ascii"))
+    actual = {}
+    prefix = f"qzt-{expected_tag[1:]}/"
+    with tarfile.open(path, "r:gz") as source:
+        for member in source.getmembers():
+            if member.isdir():
+                continue
+            require(member.isfile() and member.name.startswith(prefix),
+                    "source archive contains an unsafe entry")
+            name = member.name[len(prefix):]
+            require(name and name == PurePosixPath(name).as_posix() and
+                    name not in actual and name in expected and
+                    all(part not in ("", ".", "..") for part in PurePosixPath(name).parts),
+                    "source archive file set differs from source commit")
+            content = source.extractfile(member).read()
+            object_id = hashlib.sha1(b"blob " + str(len(content)).encode() + b"\0" + content).hexdigest()
+            mode, selected_id = expected[name]
+            require(object_id == selected_id and bool(member.mode & 0o111) == (mode == b"100755"),
+                    f"source archive differs from source commit: {name}")
+            actual[name] = object_id
+    require(actual.keys() == expected.keys(), "source archive file set differs from source commit")
+
+
+def check_installer_tag(content, expected_tag):
+    tags = set(re.findall(r"/releases/download/([^/\s\"'`]+)", content))
+    require(tags == {expected_tag}, "installer targets wrong version")
 
 
 def extract_archive(archive, destination, target):
@@ -93,8 +152,33 @@ def extract_archive(archive, destination, target):
     return binary.resolve()
 
 
-def smoke(binary, work, vectors_dir, target):
-    require(command(binary, work, "--version")[0].strip() == VERSION.encode(), "wrong binary version")
+def smoke_repeated_keys(binary, work):
+    source = b"echo echo echo\r\necho echo\n"
+    positions = [0, 5, 10, 16, 21]
+    (work / "repeated.log").write_bytes(source)
+    command(binary, work, "pack", "repeated.log", "-o", "repeated.qzt")
+    for kind in ("token", "ngram"):
+        sidecar = f"repeated-{kind}.qzi"
+        options = ("--ngram", "3") if kind == "ngram" else ()
+        command(binary, work, "sidecar-rebuild", "repeated.qzt", "-o", sidecar,
+                "--index", kind, *options)
+        inspected = json.loads(command(binary, work, "inspect-sidecar", "repeated.qzt",
+                                       "--sidecar", sidecar, "--format", "json")[0])
+        require(inspected["index_type"] == kind and inspected["complete"],
+                f"repeated {kind} sidecar is incomplete")
+        report = json.loads(command(binary, work, "search", "repeated.qzt", "echo",
+                                    "--sidecar", sidecar, "--format", "json")[0])
+        hits = report["hits"]
+        require([hit["logical_offset"] for hit in hits] == positions and
+                all(hit["byte_length"] == 4 and hit["source"] == "verified_original_bytes" and
+                    source[hit["logical_offset"]:hit["logical_offset"] + 4] == b"echo"
+                    for hit in hits), f"repeated {kind} search differs from source")
+    return "passed"
+
+
+def smoke(binary, work, vectors_dir, target, expected_tag):
+    require(command(binary, work, "--version")[0].strip() == expected_version(expected_tag).encode(),
+            "wrong binary version")
     (work / "app.log").write_bytes(SOURCE)
     command(binary, work, "pack", "app.log", "-o", "app.qzt")
     container = work / "app.qzt"
@@ -198,9 +282,13 @@ def smoke(binary, work, vectors_dir, target):
 
     require((work / "app.log").read_bytes() == SOURCE and container.read_bytes() == container_bytes,
             "smoke changed its source input")
+    repeated = work / "repeated"
+    repeated.mkdir()
+    repeated_result = smoke_repeated_keys(binary, repeated)
     return {"normal_tour": "passed", "result_cap": "passed", "hard_error": "passed",
             "self_overwrite": "passed", "failed_export_preservation": "passed",
-            "v0_1_vectors": ["valid_c1", "valid_crlf"], "readonly": readonly}
+            "v0_1_vectors": ["valid_c1", "valid_crlf"], "readonly": readonly,
+            "repeated_token_ngram": repeated_result}
 
 
 def local(args):
@@ -212,8 +300,8 @@ def local(args):
             "wrong target archive name")
     require(args.checksum.resolve().name == archive.name + ".sha256", "wrong checksum sidecar name")
     digest = checksum_matches(archive, args.checksum)
-    check_manifest(args.manifest, (archive.name, args.checksum.name))
-    with tempfile.TemporaryDirectory(prefix="qzt-pre3-candidate-") as directory:
+    check_manifest(args.manifest, (archive.name, args.checksum.name), args.expected_tag)
+    with tempfile.TemporaryDirectory(prefix="qzt-candidate-") as directory:
         root = Path(directory)
         binary = extract_archive(archive, root / "extracted", args.target)
         linkage = "not applicable outside Linux"
@@ -225,28 +313,30 @@ def local(args):
             linkage = "libc.so.6 and libgcc_s.so.1 only; no dynamic libzstd"
         work = root / "smoke"
         work.mkdir()
-        result = smoke(binary, work, args.vectors_dir.resolve(), args.target)
+        result = smoke(binary, work, args.vectors_dir.resolve(), args.target, args.expected_tag)
         binary_digest = sha256(binary)
         binary_size = binary.stat().st_size
     return {"kind": "local", "target": args.target, "archive": archive.name,
             "archive_size": archive.stat().st_size, "archive_sha256": digest,
+            "checksum_sidecar_sha256": sha256(args.checksum),
+            "checksum_sidecar_size": args.checksum.stat().st_size,
             "binary_sha256": binary_digest, "binary_size": binary_size,
-            "binary_version": VERSION, "linux_linkage": linkage, "smoke": result}
+            "binary_version": expected_version(args.expected_tag), "linux_linkage": linkage,
+            "smoke": result}
 
 
 def global_artifacts(args):
     root = args.distrib.resolve()
     names = ("qzt-installer.sh", "qzt-installer.ps1", "source.tar.gz",
              "source.tar.gz.sha256", "sha256.sum")
-    check_manifest(args.manifest, names)
+    check_manifest(args.manifest, names, args.expected_tag)
     digest = checksum_matches(root / "source.tar.gz", root / "source.tar.gz.sha256")
     require((root / "sha256.sum").read_text(encoding="ascii") ==
             (root / "source.tar.gz.sha256").read_text(encoding="ascii"),
             "unified checksum does not cover the generated source archive")
     for installer in names[:2]:
         content = (root / installer).read_text(encoding="utf-8")
-        require(f"/releases/download/{TAG}" in content, f"{installer} targets wrong version")
-        require("v0.1.0-pre.2" not in content, f"{installer} contains old release URL")
+        check_installer_tag(content, args.expected_tag)
     shell = (root / "qzt-installer.sh").read_text(encoding="utf-8")
     windows = (root / "qzt-installer.ps1").read_text(encoding="utf-8")
     for target in TARGETS:
@@ -254,10 +344,8 @@ def global_artifacts(args):
         require(archive in shell, f"shell installer omits {target}")
         if "windows" in target:
             require(archive in windows, "PowerShell installer omits Windows archive")
-    with tarfile.open(root / "source.tar.gz", "r:gz") as source:
-        member = source.extractfile("qzt-0.1.0-pre.3/Cargo.toml")
-        require(member is not None and b'version = "0.1.0-pre.3"' in member.read(),
-                "source archive contains the wrong package version")
+    check_source_archive_version(root / "source.tar.gz", args.expected_tag)
+    check_source_archive_commit(root / "source.tar.gz", args.expected_tag, args.source_sha)
     return {"kind": "global", "source_sha256": digest,
             "artifacts": {name: {"size": (root / name).stat().st_size,
                                   "sha256": sha256(root / name)} for name in names},
@@ -271,6 +359,8 @@ def main():
         sub = subcommands.add_parser(kind)
         sub.add_argument("--manifest", type=Path, required=True)
         sub.add_argument("--source-sha", required=True)
+        sub.add_argument("--expected-tag", required=True)
+        sub.add_argument("--build-env", type=Path, required=True)
         sub.add_argument("--output", type=Path, required=True)
         if kind == "local":
             sub.add_argument("--target", choices=TARGETS, required=True)
@@ -280,14 +370,24 @@ def main():
         else:
             sub.add_argument("--distrib", type=Path, required=True)
     args = parser.parse_args()
+    expected_version(args.expected_tag)
     require(re.fullmatch(r"[0-9a-f]{40}", args.source_sha), "source SHA must be full and explicit")
     actual_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     require(actual_sha == args.source_sha, "source SHA differs from the checked-out commit")
     require(not subprocess.check_output(["git", "status", "--porcelain"]),
             "candidate source checkout is not clean")
+    build_environment = json.loads(args.build_env.read_text(encoding="utf-8"))
+    require(build_environment["schema"] == "qzt-build-environment-v1" and
+            build_environment["source_sha"] == args.source_sha and
+            build_environment["target"] == (args.target if args.kind == "local" else "global") and
+            build_environment["cargo_dist"] == "cargo-dist 0.31.0",
+            "build environment does not identify this source and target")
     evidence = local(args) if args.kind == "local" else global_artifacts(args)
-    evidence.update({"source_sha": args.source_sha, "tag": TAG, "dist_version": "0.31.0",
-                     "build_profile": "dist", "rustc": subprocess.check_output(["rustc", "--version"], text=True).strip(),
+    evidence.update({"source_sha": args.source_sha, "verifier_sha": args.source_sha,
+                     "tag": args.expected_tag,
+                     "dist_version": "0.31.0",
+                     "build_environment_sha256": sha256(args.build_env),
+                     "build_environment": build_environment,
                      "runner": os.environ.get("RUNNER_NAME", platform.node()),
                      "os": platform.system(), "architecture": platform.machine(),
                      "artifact_retention_days": 14})
