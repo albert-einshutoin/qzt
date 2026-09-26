@@ -1,0 +1,67 @@
+{
+  "baseline_commit": "fbef491d6f01d7ab5711dbe81eb01cea70168f62",
+  "build": {
+    "before_binary_sha256": "90c7fdb2c877c1cc79914417c62cc974179f1de3f15d9eec4efa9033c2c5b1e3",
+    "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "cargo_build_env": {},
+    "cargo_profile_env": {},
+    "command": "cargo build --release --locked --bin qzt --example cli_cost_probe",
+    "features": "default",
+    "lock_sha256": "f9a502b004998279454cb5cc6aaa76318dec7a9bff784fc561d23baf64a67192",
+    "probe_sha256": "d8f2a32913047277a04199951dac6072e5d0962bbdf38a6e44ec342a979050e9",
+    "profile": "release",
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+    "rustflags": "<unset>"
+  },
+  "corpus": {
+    "actual_bytes": 104857624,
+    "blake3_from_generator": "41c15cbd86f47e89770f658f969ab9381d61c878e6503e32677eb5baf81a241a",
+    "kind": "C2Logs+issue295-needle-unique marker",
+    "lines": 806580,
+    "seed": 295,
+    "sha256": "0313a76087036f2a1784b49cdc533282166e5c0d3bb0c1bc4fa47676a30aadcb",
+    "target_base_bytes": 104857600
+  },
+  "frozen_at_utc": "2026-09-26T12:38:46Z",
+  "host": {
+    "arch": "arm64",
+    "chip": "Apple M4",
+    "filesystem": "internal APFS Apple Fabric SSD for /private/tmp; checkout and build binary on internal APFS",
+    "memory_bytes": 34359738368,
+    "model": "Mac16,10",
+    "os": "27.0",
+    "os_build": "26A428"
+  },
+  "measurement": {
+    "cache": "OS cache uncontrolled; no cold claim",
+    "command_template": "/usr/bin/time -l <binary> sidecar-rebuild <same-qzt> -o <fresh-qzi> --index ngram --ngram 3",
+    "individual_timeout_seconds": 120,
+    "measured_order": [
+      "before",
+      "after",
+      "after",
+      "before",
+      "before",
+      "after"
+    ],
+    "outputs": "one new output pathname per trial; compare SHA256 of QZI bytes",
+    "overall_deadline_seconds": 1800,
+    "primary": "child maximum resident set size from macOS /usr/bin/time -l, bytes",
+    "retries": "none; all failures, timeouts, and values retained",
+    "secondary": "parent Python monotonic clock from fresh process launch through exit including QZT open, build, serialize, atomic output, sync",
+    "trials_per_binary": 3,
+    "warmup": "one unmeasured fresh output per binary; retained in raw records"
+  },
+  "profile": {
+    "allocation_live": "macOS Allocations/heap/vmmap on a smaller baseline run, separate from adoption measurements",
+    "cpu": "macOS sample or Instruments Time Profiler on baseline binary, separate from adoption measurements"
+  },
+  "qzt": {
+    "bytes": 5764482,
+    "chunk_size": 262144,
+    "deep_verify": "passed",
+    "full_export_cmp": "passed",
+    "max_chunk_size": 262144,
+    "sha256": "065b619f8ca14f1d39e692b9d819fca45db2967c48ad57aa12207bb4bb3b810b"
+  }
+}

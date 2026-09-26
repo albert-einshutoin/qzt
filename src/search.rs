@@ -1163,7 +1163,7 @@ fn build_line_index_streaming(
     mut decode: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
     mut keys_for_line: impl FnMut(&[u8]) -> Result<Vec<Vec<u8>>>,
 ) -> Result<LineIndexParts> {
-    let mut postings_by_key: BTreeMap<Vec<u8>, BTreeSet<u64>> = BTreeMap::new();
+    let mut postings_by_key: BTreeMap<Vec<u8>, Vec<u64>> = BTreeMap::new();
     let mut granules: Vec<SearchGranule> = Vec::new();
     let mut carry: Vec<u8> = Vec::new();
     let mut line_start = 0_u64;
@@ -1234,7 +1234,7 @@ fn build_line_index_streaming(
 
     let mut terms = Vec::with_capacity(postings_by_key.len());
     let mut postings = Vec::with_capacity(postings_by_key.len());
-    for (key, posting_set) in postings_by_key {
+    for (key, posting_list) in postings_by_key {
         terms.push(TermDictionaryEntry {
             key: key.clone(),
             key_hash: key_hash(&key),
@@ -1246,7 +1246,7 @@ fn build_line_index_streaming(
             skip_size: 0,
             flags: 0,
         });
-        postings.push(posting_set.into_iter().collect());
+        postings.push(posting_list);
     }
     Ok((granules, terms, postings))
 }
@@ -1257,7 +1257,7 @@ fn emit_line_granule(
     line_end: u64,
     line_bytes: &[u8],
     granules: &mut Vec<SearchGranule>,
-    postings_by_key: &mut BTreeMap<Vec<u8>, BTreeSet<u64>>,
+    postings_by_key: &mut BTreeMap<Vec<u8>, Vec<u64>>,
     keys_for_line: &mut impl FnMut(&[u8]) -> Result<Vec<Vec<u8>>>,
 ) -> Result<()> {
     let granule_id = usize_to_u64(granules.len())?;
@@ -1275,7 +1275,12 @@ fn emit_line_granule(
         line_count: Some(1),
     });
     for key in keys_for_line(line_bytes)? {
-        postings_by_key.entry(key).or_default().insert(granule_id);
+        let posting_list = postings_by_key.entry(key).or_default();
+        // Lines are emitted in granule-id order, so only repeated keys in this
+        // line can duplicate the last posting.
+        if posting_list.last() != Some(&granule_id) {
+            posting_list.push(granule_id);
+        }
     }
     Ok(())
 }

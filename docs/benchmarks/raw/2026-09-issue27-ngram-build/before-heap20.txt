@@ -1,0 +1,49 @@
+Process:         qzt-before [269]
+Path:            /private/tmp/*/qzt-before
+Load Address:    0x102b9c000
+Identifier:      qzt-before
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  Python [100]
+Target Type:     live task
+
+Date/Time:       2026-09-26 21:44:14.840 +0900
+Launch Time:     2026-09-26 21:44:12.827 +0900
+OS Version:      macOS 27.0 (26A428)
+Report Version:  7
+Analysis Tool:   /usr/bin/heap
+
+Physical footprint:         297.3M
+Physical footprint (peak):  297.3M
+Idle exit:                  untracked
+----
+
+Process 269: 2 zones
+
+All zones: 2347296 nodes malloced - Sizes: 9216KB[1] 256KB[1] 12KB[1] 3KB[1] 1.5KB[1] 1.25KB[1] 1KB[1] 640[214] 224[333899] 192[1] 128[1] 112[2011400] 96[2] 80[2] 64[10] 48[14] 32[78] 16[1668]
+
+Found:  68 ObjC classes
+Type names for non-objects could be derived from allocation backtraces if the process used MallocStackLogging
+
+-----------------------------------------------------------------------
+All zones: 2347296 nodes (309956832 bytes)
+
+   COUNT      BYTES       AVG   CLASS_NAME                                        TYPE    BINARY
+   =====      =====       ===   ==========                                        ====    ======
+ 2347137  309951104     132.1   non-object
+      68       2176      32.0   Metaclass.data (metaclass_rw_v2_t)                C       libobjc.A.dylib
+       5       1392     278.4   xpc_string_t (Storage)                            C       libxpc.dylib
+      68       1088      16.0   Class.data (class_rw_v2_t)                        C       libobjc.A.dylib
+       5        256      51.2   xpc_dictionary_t (Storage)                        C       libxpc.dylib
+       5        240      48.0   xpc_string_t                                      ObjC    libxpc.dylib
+       2        192      96.0   xpc_dictionary_t                                  ObjC    libxpc.dylib
+       1        128     128.0   dispatch_queue_t (serial)                         ObjC    libdispatch.dylib
+       1         64      64.0   pthread_mutex_t                                   C       libpthread.dylib
+       1         64      64.0   xpc_pipe_t                                        ObjC    libxpc.dylib
+       1         48      48.0   Class.data.extended (class_rw_ext_t)              C       libobjc.A.dylib
+       1         48      48.0   xpc_array_t                                       ObjC    libxpc.dylib
+       1         32      32.0   Class.methodCache._buckets (bucket_t)             C       libobjc.A.dylib
+
+
+STDERR

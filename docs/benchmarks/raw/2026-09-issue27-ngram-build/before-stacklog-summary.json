@@ -1,0 +1,16 @@
+{
+  "by_size": {
+    "code": 0,
+    "bytes": 37629,
+    "stderr": "error acquiring stack with identifier: 18446744073709551615 (frame count 0)\n"
+  },
+  "class112": {
+    "code": 0,
+    "bytes": 13070,
+    "stderr": ""
+  },
+  "child": {
+    "exit": 0,
+    "stderr": ""
+  }
+}
