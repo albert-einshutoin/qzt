@@ -1,6 +1,6 @@
-Process:         probe-after [99991]
+Process:         probe-after [30076]
 Path:            /private/tmp/*/probe-after
-Load Address:    0x102e24000
+Load Address:    0x104a2c000
 Identifier:      probe-after
 Version:         0
 Code Type:       ARM64
@@ -8,30 +8,30 @@ Platform:        macOS
 Parent Process:  codex [41407]
 Target Type:     live task
 
-Date/Time:       2026-09-26 23:53:59.476 +0900
-Launch Time:     2026-09-26 23:53:43.366 +0900
+Date/Time:       2026-09-27 00:07:49.982 +0900
+Launch Time:     2026-09-27 00:07:45.273 +0900
 OS Version:      macOS 27.0 (26A428)
 Report Version:  7
 Analysis Tool:   /usr/bin/heap
 
-Physical footprint:         2.7G
-Physical footprint (peak):  3.2G
+Physical footprint:         1.4G
+Physical footprint (peak):  1.9G
 Idle exit:                  untracked
 ----
 
-Process 99991: 2 zones
+Process 30076: 2 zones
 
-All zones: 783658 nodes malloced - Sizes: 98304KB[1] 24576KB[1] 7024KB[1] 64KB[2] 1.5KB[1] 1.25KB[1] 1KB[2] 896[1] 640[2] 128[1] 112[1] 96[3] 80[1] 64[10] 48[15] 32[84] 16[783531]
+All zones: 828537 nodes malloced - Sizes: 98304KB[1] 49152KB[1] 7024KB[1] 64KB[2] 1.5KB[1] 1.25KB[1] 1KB[2] 896[1] 640[2] 128[1] 112[1] 96[3] 80[1] 64[10] 48[15] 32[84] 16[828410]
 
 Found:  68 ObjC classes
 Type names for non-objects could be derived from allocation backtraces if the process used MallocStackLogging
 
 -----------------------------------------------------------------------
-All zones: 783658 nodes (145700960 bytes)
+All zones: 828537 nodes (171584848 bytes)
 
    COUNT      BYTES       AVG   CLASS_NAME                                        TYPE    BINARY
    =====      =====       ===   ==========                                        ====    ======
-  783499  145695168     186.0   non-object
+  828378  171579056     207.1   non-object
       68       2176      32.0   Metaclass.data (metaclass_rw_v2_t)                C       libobjc.A.dylib
        4       1376     344.0   xpc_string_t (Storage)                            C       libxpc.dylib
       68       1088      16.0   Class.data (class_rw_v2_t)                        C       libobjc.A.dylib

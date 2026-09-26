@@ -2,15 +2,16 @@ Measurement date: 2026-09-26 Japan time
 Issue: https://github.com/albert-einshutoin/qzt/issues/316
 Starting main and before product: eacc627a15dd8e6a11a00ff971934d596c7af7de
 Harness introduced/frozen: e49442deba49364a023457d71f035200d2127df0
-After product measured: 7eee0e8f85ca28f88a673afd03d6ec989b5b1ac1
-Final benchmark was invoked at 7eee0e8; only report/raw documentation changed later.
+The final manifest's harness_commit is the checkout HEAD at invocation (381e501); harness source was unchanged from e49442d.
+After product measured: 381e501f49c7a93058f525dc199404a4a7e57fd0
+The first paired run at 7eee0e8 was superseded after a review fix restored early LegacyV1 hash rejection. The complete paired run was repeated at 381e501; only report/raw documentation changed later. Prior data remain in commit 7c97e11, not in the final comparison.
 Build: cargo build --release --locked --bin qzt --example cli_cost_probe
 Features: default; release profile; no RUSTFLAGS, Cargo profile or target override
 Cargo.lock SHA-256: f9a502b004998279454cb5cc6aaa76318dec7a9bff784fc561d23baf64a67192
 Before qzt SHA-256: 04b51aa42fc31499e8e724bb090b8406fe97b097699d59923f81ce43afcd4f9a
-After qzt SHA-256: dd55f93247d60a85bcd22f46cd3cc4cd708aa83665676fa018ac395bfa5fdd9b
+After qzt SHA-256: 0afcafa17ec46313cfafd98256e48bfebb26af451b01b9fcb1be93f50869d90e
 Before probe SHA-256: e57fdbe307331131b533b8c6e8e7c810ea75100b66b6e4df94acab20dcf942f2
-After probe SHA-256: 79f18572227380b20d2165f4773f2c9e4fd8f07d158c6d871873ce739eb8051c
+After probe SHA-256: 85f0f567d6986a104e73251116d8eb6c23c6d46cb994dceec88888d3fadaccbb
 OS: macOS 27.0 (26A428), aarch64-apple-darwin
 CPU: Apple M4, 10 logical/physical cores; memory: 34,359,738,368 bytes (32 GiB)
 Filesystem: /private/tmp fixtures and worktree/binaries on internal APFS Data (/dev/disk3s5); physical device Apple Fabric
@@ -38,5 +39,5 @@ Replay from checkout after building old and new binaries and generating/packing 
     --small-qzt /private/tmp/qzt316-open/small.qzt --small-qzi /private/tmp/qzt316-open/small-token.qzi --small-source /private/tmp/qzt316-open/small.txt \
     --before-bin /private/tmp/qzt316-open/qzt-before --before-probe /private/tmp/qzt316-open/probe-harness \
     --after-bin /private/tmp/qzt316-open/qzt-after --after-probe /private/tmp/qzt316-open/probe-after \
-    --out /private/tmp/qzt316-final --samples 32 --warmup 1 --timeout 15 --max-wall-seconds 900
+    --out /private/tmp/qzt316-final2 --samples 32 --warmup 1 --timeout 15 --max-wall-seconds 900
 The --out directory must not exist before replay. The recorded /private/tmp paths are scratch inputs; use new paths if unavailable.
