@@ -1,6 +1,7 @@
 const MANIFEST: &str = include_str!("../Cargo.toml");
 const DIST_CONFIG: &str = include_str!("../dist-workspace.toml");
 const RELEASE_WORKFLOW: &str = include_str!("../.github/workflows/release.yml");
+const CANDIDATE_WORKFLOW: &str = include_str!("../.github/workflows/release-candidate.yml");
 const CI_WORKFLOW: &str = include_str!("../.github/workflows/ci.yml");
 const README: &str = include_str!("../README.md");
 const JAPANESE_README: &str = include_str!("../README.ja.md");
@@ -13,10 +14,10 @@ const RELEASE_TARGETS: [&str; 4] = [
 ];
 
 #[test]
-fn distribution_is_reproducibly_pinned_for_the_stable_release() {
+fn distribution_is_reproducibly_pinned_for_the_preview_candidate() {
     // Distribution remains explicitly configured instead of inferring release
     // intent from crates.io publication eligibility.
-    for requirement in ["version = \"0.1.0\"", "dist = true"] {
+    for requirement in ["version = \"0.1.0-pre.3\"", "dist = true"] {
         assert!(
             MANIFEST.contains(requirement),
             "missing package distribution contract: {requirement}"
@@ -113,6 +114,43 @@ fn generated_release_workflow_has_no_branch_or_pull_request_trigger() {
         assert!(
             !RELEASE_WORKFLOW.contains(floating_action),
             "generated workflow must not use floating Action tag: {floating_action}"
+        );
+    }
+}
+
+#[test]
+fn candidate_workflow_builds_exact_unpublished_source_on_native_runners() {
+    assert!(CANDIDATE_WORKFLOW.contains("permissions:\n  contents: read"));
+    assert!(CANDIDATE_WORKFLOW.contains("workflow_dispatch:"));
+    assert!(CANDIDATE_WORKFLOW.contains("candidate_sha:"));
+    assert!(CANDIDATE_WORKFLOW.contains("test -z \"$(git status --porcelain)\""));
+    assert!(CANDIDATE_WORKFLOW.contains("git rev-parse refs/remotes/origin/main"));
+    assert!(CANDIDATE_WORKFLOW.contains("dist plan --tag=v0.1.0-pre.3"));
+    assert!(CANDIDATE_WORKFLOW.contains("dist build --artifacts=local"));
+    assert!(CANDIDATE_WORKFLOW.contains("dist build --artifacts=global"));
+    assert!(CANDIDATE_WORKFLOW.contains("verify-release-candidate.py local"));
+    assert!(CANDIDATE_WORKFLOW.contains("verify-release-candidate.py global"));
+    assert!(CANDIDATE_WORKFLOW.contains("retention-days: 14"));
+    for (target, runner) in [
+        ("aarch64-apple-darwin", "macos-14"),
+        ("x86_64-apple-darwin", "macos-15-intel"),
+        ("x86_64-unknown-linux-gnu", "ubuntu-22.04"),
+        ("x86_64-pc-windows-msvc", "windows-2022"),
+    ] {
+        assert!(CANDIDATE_WORKFLOW.contains(target));
+        assert!(CANDIDATE_WORKFLOW.contains(runner));
+    }
+    for forbidden in [
+        "contents: write",
+        "dist host",
+        "gh release create",
+        "cargo publish",
+        "environment: release",
+        "secrets.",
+    ] {
+        assert!(
+            !CANDIDATE_WORKFLOW.contains(forbidden),
+            "candidate workflow contains {forbidden}"
         );
     }
 }

@@ -10,7 +10,7 @@ const VECTOR_README: &str = include_str!("vectors/README.md");
 const CONTRIBUTING: &str = include_str!("../CONTRIBUTING.md");
 
 #[test]
-fn owner_approved_release_manifest_is_stable_and_publishable() {
+fn preview_candidate_manifest_preserves_package_metadata() {
     for metadata in [
         "description = \"Cold evidence container for seekable, verifiable UTF-8 text archives\"",
         "documentation = \"https://docs.rs/qzt\"",
@@ -38,13 +38,13 @@ fn owner_approved_release_manifest_is_stable_and_publishable() {
         .expect("cargo metadata must contain the qzt package");
     assert_eq!(
         package["version"],
-        serde_json::json!("0.1.0"),
-        "the owner-approved release manifest must use the stable version"
+        serde_json::json!("0.1.0-pre.3"),
+        "the GitHub preview candidate must use its declared package version"
     );
     assert_eq!(
         package["publish"],
         serde_json::Value::Null,
-        "the owner-approved release manifest must not block crates.io publication"
+        "candidate preparation must not change the existing crates.io eligibility policy"
     );
 }
 
@@ -133,8 +133,8 @@ fn release_guide_preserves_owner_gate_and_dependency_checks() {
         .find("cargo publish` succeeds")
         .expect("guide must identify the successful publish event");
     let tag = RELEASE_GUIDE
-        .find("git tag -a v0.1.0")
-        .expect("guide must document the release tag");
+        .find("git tag -a v0.1.0 -m")
+        .expect("guide must document the stable release tag");
     assert!(
         publish < tag,
         "the immutable tag must identify the exact commit that was published"

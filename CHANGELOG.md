@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+Future work after the unpublished `v0.1.0-pre.3` candidate belongs here.
+
+## 0.1.0-pre.3 - Candidate (unpublished)
+
+These changes are measured against the published `v0.1.0-pre.2` tag commit,
+including work that predates the entries below. QZT v0.1 remains a technical
+preview; no pre.3 tag, Release, or crates.io publication is implied. See the
+[candidate notes](docs/releases/v0.1.0-pre.3-candidate.md) and
+[pre.2 migration guide](docs/releases/v0.1.0-pre.3-migration.md).
+
+### Added
+
+- The CLI gained `inspect-sidecar` and a `version` alias. Both language CLI
+  references, a reproducible pre.2 release tour, and a bounded synthetic CLI
+  cost report were added after the pre.2 tag. That report measures development
+  code under its recorded conditions; it is not a pre.3 binary benchmark.
+- A read-only, unpublished cargo-dist candidate workflow builds four native
+  macOS/Linux/Windows archives and global assets, then records archive and
+  extracted-binary hashes and an end-to-end smoke from an exact source SHA.
+  Its artifacts expire after 14 days; publication remains a separate owner
+  operation.
+
 ### Changed
 
 - `VerifyReport` and CLI verification output now distinguish structural Chunk
