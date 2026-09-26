@@ -34,6 +34,29 @@ fn ngram_declaration_uses_raw_unicode_scalar_without_normalization() {
 }
 
 #[test]
+fn repeated_ngrams_have_one_posting_per_line_in_increasing_order() {
+    let container =
+        pack_bytes_with_container_id(b"aaaaa\naaa\nbbb\n", [0xd9; 16], writer_options(4, 4))
+            .expect("container should pack");
+    let index = RawNgramIndex::build_from_container(
+        &container,
+        NgramIndexBuildOptions {
+            n: 3,
+            ..NgramIndexBuildOptions::default()
+        },
+    )
+    .expect("ngram index should build");
+
+    let term_index = index
+        .terms
+        .iter()
+        .position(|term| term.key == b"aaa")
+        .expect("repeated ngram should be indexed");
+    assert_eq!(index.postings[term_index], vec![0, 1]);
+    assert_eq!(index.terms[term_index].granule_frequency, 2);
+}
+
+#[test]
 fn normalized_ngram_index_is_rejected_without_mapping_metadata() {
     let container = pack_bytes_with_container_id(b"alpha\n", [0xd1; 16], writer_options(64, 64))
         .expect("container should pack");
