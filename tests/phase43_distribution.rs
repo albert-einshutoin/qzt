@@ -3,6 +3,10 @@ const FUZZ_MANIFEST: &str = include_str!("../fuzz/Cargo.toml");
 const DIST_CONFIG: &str = include_str!("../dist-workspace.toml");
 const RELEASE_WORKFLOW: &str = include_str!("../.github/workflows/release.yml");
 const CANDIDATE_WORKFLOW: &str = include_str!("../.github/workflows/release-candidate.yml");
+const PUBLISHED_WORKFLOW: &str = include_str!("../.github/workflows/verify-published-release.yml");
+const PUBLISHED_VERIFIER: &str = include_str!("../scripts/verify-published-release.py");
+const PRE2_SMOKE: &str = include_str!("../docs/guides/examples/smoke-release-tour.sh");
+const PRE3_SMOKE: &str = include_str!("../docs/guides/examples/smoke-pre3-release-tour.sh");
 const CI_WORKFLOW: &str = include_str!("../.github/workflows/ci.yml");
 const README: &str = include_str!("../README.md");
 const JAPANESE_README: &str = include_str!("../README.ja.md");
@@ -164,12 +168,13 @@ fn both_readmes_offer_installer_checksum_and_source_fallback_paths() {
             "## Install",
             "cargo install qzt --version 0.1.0 --locked",
             "qzt-installer.sh",
-            "v0.1.0-pre.2",
+            "v0.1.0-pre.3",
             ".sha256",
             "set -eu",
             "shasum -a 256",
             "Get-FileHash -Algorithm SHA256",
-            "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.2 --locked",
+            "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.3 --locked",
+            "docs/guides/examples/smoke-pre3-release-tour.sh",
         ] {
             assert!(
                 readme.contains(requirement),
@@ -177,4 +182,39 @@ fn both_readmes_offer_installer_checksum_and_source_fallback_paths() {
             );
         }
     }
+}
+
+#[test]
+fn published_release_verification_keeps_product_and_verifier_separate() {
+    assert!(PUBLISHED_WORKFLOW.contains("permissions:\n  contents: read\n  actions: read"));
+    assert!(PUBLISHED_WORKFLOW.contains("verify-published-release.py global"));
+    assert!(PUBLISHED_WORKFLOW.contains("verify-published-release.py local"));
+    assert!(PUBLISHED_WORKFLOW.contains("retention-days: 14"));
+    for (target, runner) in [
+        ("aarch64-apple-darwin", "macos-14"),
+        ("x86_64-apple-darwin", "macos-15-intel"),
+        ("x86_64-unknown-linux-gnu", "ubuntu-22.04"),
+        ("x86_64-pc-windows-msvc", "windows-2022"),
+    ] {
+        assert!(PUBLISHED_WORKFLOW.contains(target));
+        assert!(PUBLISHED_WORKFLOW.contains(runner));
+    }
+    for forbidden in [
+        "contents: write",
+        "dist build",
+        "gh release create",
+        "cargo publish",
+    ] {
+        assert!(!PUBLISHED_WORKFLOW.contains(forbidden));
+    }
+    assert!(
+        PUBLISHED_VERIFIER.contains("PRODUCT_SHA = \"017d4d19739800773ab6a54adf636ff5a43ec1fc\"")
+    );
+    assert!(PUBLISHED_VERIFIER.contains("candidate.checksum_matches(archive, sidecar)"));
+    assert!(PUBLISHED_VERIFIER.contains("candidate.smoke(binary, smoke_work"));
+    assert!(PUBLISHED_VERIFIER.contains("QZT_INSTALL_DIR"));
+    assert!(PRE2_SMOKE.contains("qzt 0.1.0-pre.2"));
+    assert!(PRE2_SMOKE.contains("(has(\"attestation_schema\") | not)"));
+    assert!(PRE3_SMOKE.contains("qzt 0.1.0-pre.3"));
+    assert!(PRE3_SMOKE.contains("qzt-attestation-v1"));
 }

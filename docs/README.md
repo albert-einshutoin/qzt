@@ -20,14 +20,15 @@ translations where available.
 
 ## Release and validation evidence
 
-- Unpublished pre.3 candidate: [notes](releases/v0.1.0-pre.3-candidate.md) / [日本語](releases/v0.1.0-pre.3-candidate.ja.md)
-- Published pre.2 to pre.3 candidate migration: [English](releases/v0.1.0-pre.3-migration.md) / [日本語](releases/v0.1.0-pre.3-migration.ja.md)
+- Published [v0.1.0-pre.3 GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3) and [published-asset verification](https://github.com/albert-einshutoin/qzt/issues/313)
+- Pre.2 to pre.3 migration: [English](releases/v0.1.0-pre.3-migration.md) / [日本語](releases/v0.1.0-pre.3-migration.ja.md)
+- Preserved unpublished pre.3 candidate evidence: [notes](releases/v0.1.0-pre.3-candidate.md) / [日本語](releases/v0.1.0-pre.3-candidate.ja.md)
 - Release process: [English](RELEASE.md) / [日本語](RELEASE.ja.md)
 - Release hardening: [English](QZT_v0.1_Release_Hardening.md) / [日本語](QZT_v0.1_Release_Hardening.ja.md)
 - Validation corpus: [English](QZT_v0.1_Validation_Corpus.md) / [日本語](QZT_v0.1_Validation_Corpus.ja.md)
 - Competitive benchmark method: [English](QZT_v0.1_Competitive_Benchmarks.md) / [日本語](QZT_v0.1_Competitive_Benchmarks.ja.md)
 - Published benchmark evidence: [July 2026 v0.1](benchmarks/2026-07-v0.1.md) / [partial decompression](benchmarks/2026-07-partial-decompression.md)
-- Development CLI cost measurement: [September 2026 report](benchmarks/2026-09-cli-cost.md) (macOS synthetic corpora; not a published pre.2 or production benchmark)
+- Development CLI cost measurement: [September 2026 report](benchmarks/2026-09-cli-cost.md) (macOS synthetic corpora; not a published pre.3 or production benchmark)
 
 ## Security and operations
 

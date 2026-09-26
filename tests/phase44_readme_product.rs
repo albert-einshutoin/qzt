@@ -6,7 +6,7 @@ fn readmes_lead_with_product_value_and_live_distribution() {
     for readme in [ENGLISH, JAPANESE] {
         for requirement in [
             "actions/workflows/ci.yml/badge.svg?branch=main",
-            "v0.1.0-pre.2",
+            "v0.1.0-pre.3",
             "qzt-installer.sh",
             "checksum",
             "technical preview",
@@ -62,7 +62,7 @@ fn tour_closes_the_verified_evidence_loop_with_real_commands() {
             "\"$QZT_BIN\" info app.qzt --format json",
             "\"$QZT_BIN\" range app.qzt --lines 2:2",
             "\"$QZT_BIN\" sidecar-rebuild app.qzt -o app.qzt.qzi",
-            "\"$QZT_BIN\" search app.qzt \"error\" --sidecar app.qzt.qzi --format json",
+            "\"$QZT_BIN\" search app.qzt error --sidecar app.qzt.qzi --format json",
             "\"$QZT_BIN\" verify app.qzt --deep --format json",
             "\"$QZT_BIN\" attest app.qzt > app.attest.json",
             "\"$QZT_BIN\" export app.qzt -o restored.log",
@@ -77,7 +77,7 @@ fn tour_closes_the_verified_evidence_loop_with_real_commands() {
 
     for readme in [ENGLISH, JAPANESE] {
         assert!(!readme.contains("qzt inspect-sidecar app.qzt"));
-        assert!(readme.contains("docs/guides/examples/smoke-release-tour.sh"));
+        assert!(readme.contains("docs/guides/examples/smoke-pre3-release-tour.sh"));
     }
 
     for readme in [ENGLISH, JAPANESE] {

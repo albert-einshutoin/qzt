@@ -23,6 +23,8 @@ coverage-*/
 /fuzz/corpus/
 /fuzz/coverage/
 /fuzz/target/
+__pycache__/
+*.pyc
 
 # Local automation state
 /.devloop/

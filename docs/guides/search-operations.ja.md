@@ -1,11 +1,10 @@
 # QZT archiveの検索を運用する
 
 **所要時間:** 15 minutes（約15分）  
-**前提:** [commit固定の開発版CLI](../../README.ja.md#開発版cli)
-`ad709214f1e8ae18eff6e9f0b633345e40d1617b`、`jq`。
-cap optionはpre.2にもありますが、以下の`stop_reason`、index coverage、
-`physical_decoded_chunks` fieldはありません。欠けたfieldの`null`を検証済みと
-解釈せず、[開発版CLIリファレンス](../CLI.ja.md)の対象buildを使ってください。
+**前提:** [公開済みpre.3 CLI](../../README.ja.md)、`jq`。
+この公開版には以下の`stop_reason`、index coverage、
+`physical_decoded_chunks` fieldがあります。欠けたfieldを検証済みと
+解釈しないでください。[CLIリファレンス](../CLI.ja.md)も参照してください。
 
 再利用可能なtoken/ngram sidecarを構築し、resource capを適用し、返却hitと物理decode量を
 混同せずにcostを読みます。

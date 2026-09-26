@@ -10,6 +10,7 @@
 | Preview distribution contract | `cargo test --locked --test phase42_release_readiness --test phase43_distribution` | local and CI Linux |
 | Candidate workflow syntax | `actionlint .github/workflows/release-candidate.yml` | local before candidate PR |
 | Candidate artifacts | `.github/workflows/release-candidate.yml` PR run, then manual dispatch with the exact main merge SHA | native macOS ARM/Intel, Linux x64, Windows x64 runners; 14-day CI artifacts |
+| Published pre.3 assets and installers | `.github/workflows/verify-published-release.yml` on its PR; `scripts/verify-published-release.py` downloads actual Release URLs | native macOS ARM/Intel, Linux x64, Windows x64 runners; read-only; 14-day evidence artifacts |
 | QZI/DLI seed replay | `cargo test --manifest-path fuzz/Cargo.toml --test seed_replay --locked` | local and CI Linux fuzz job |
 | Bounded ASan fuzz | `cargo +nightly fuzz run --sanitizer address <target> fuzz/corpus/<target> -- -max_total_time=60 -timeout=10 -max_len=256 -rss_limit_mb=1024 -malloc_limit_mb=128 -seed=294` | weekly/manual CI Linux; `<target>` is `qzi_search` or `dli_decode` |
 
@@ -30,3 +31,5 @@ permission, uses `dist plan`/`dist build` without hosting or publishing, and
 smokes the binary extracted from each target archive on its native runner.
 Run it again for the exact merge SHA; PR artifacts are not final-candidate
 evidence. Its artifacts expire after 14 days.
+After publication, use the separate read-only published verifier. The candidate
+workflow checks tag absence and cannot serve as post-publication evidence.
