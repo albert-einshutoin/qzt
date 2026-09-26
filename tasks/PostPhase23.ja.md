@@ -1,29 +1,36 @@
-# Post-Phase23 実行計画 (post-v0.1)
+# Post-Phase23計画（2026年6月の履歴）
 
 [English](PostPhase23.md)
 
-日付: 2026-06-12
+計画日: 2026-06-12。以下は履歴です。現状確認日: 2026-09-26、基準main:
+`4d9ceed420918faed3871fa47b86511dee9afff5`。
 
-Phase0-Phase23 は完了しています。この文書は Phase23 以降の実行計画です。
-詳細な作業項目は GitHub issue にあり、この文書はトラック横断の順序、
-並走ルール、マイルストーン、リリースゲートを固定します。
+Phase0–Phase23は当時の実装スコープに対して完了しました。以下のwave、依存関係、
+milestone、数値目標、release gateは、後に完了・保留・方針変更された作業を含む
+**2026年6月の提案履歴**です。現在の実行指示や公開ゲートではありません。
+現在の優先度と担当境界は[#31](https://github.com/albert-einshutoin/qzt/issues/31)、
+短い進捗は[status.ja.md](status.ja.md)、公開条件は[release checklist](../docs/RELEASE.ja.md)を参照してください。
+[#47](https://github.com/albert-einshutoin/qzt/issues/47)と子Issue #33–#46、#31の
+preview hardening 10件は完了し、P2保守Issue 10件は保留中です。公開済みGitHub
+Releaseは[v0.1.0-pre.2](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)であり、
+その後のmain修正は配布済みとは限りません。
 
-Source of truth:
+当時の参照先:
 
 ```text
 - リファクタリング・ロードマップ: issue #31 (24 issue、#2-#30、label refactor / phase-1..5)
 - プロダクト価値ロードマップ: issue #47 (14 issue、#33-#46、label product / value-1..4)
-- このファイル: トラック横断の順序、wave 計画、マイルストーン、リリースゲート
+- このファイル: 当時のトラック横断順、wave、milestone、提案されたrelease gate
 ```
 
 各 issue にはジュニアエンジニアが単独で完走できる粒度で手順・受け入れ基準・
 落とし穴が記載済みです。この文書にその内容を複製しないこと。スコープが
 変わったら issue 側を更新します。
 
-## ゴール
+## 当時のゴール (2026-06)
 
-2 トラックは 1 つのゴールに向かいます: QZT v0.1.0 を信頼できる
-technical preview として出荷する。
+2トラックは信頼できるv0.1.0 technical previewを目指す計画でした。
+以下の数値目標と作業区分は当時の案で、現在の受入条件やv0.1.0公開済みの主張ではありません。
 
 ```text
 - リファクタリング・トラック (#31): 内部実装を一本化して保守可能にする
@@ -36,7 +43,11 @@ technical preview として出荷する。
 どちらのトラックもコンテナ format bytes を変更しません。byte layout の
 変更は新しい format version に属し、これらのトラックでは行いません。
 
-## 運用ルール (共通)
+## 当時の運用前提
+
+以下は2026年6月の提案に属します。現行の開発コマンド・レビュー条件は
+[AGENTS.md](../AGENTS.md)、[CONTRIBUTING.ja.md](../CONTRIBUTING.ja.md)、#31、
+公開条件は[release checklist](../docs/RELEASE.ja.md)を参照してください。
 
 ```text
 1. 1 issue = 1 PR。マージ条件は make check green。
@@ -50,7 +61,7 @@ technical preview として出荷する。
    検索すること。
 ```
 
-## トラック横断の制約
+## 当時のトラック横断制約
 
 ```text
 - #33-#37 (CLI issue) と #25 (main.rs 構造化) は同時進行しない。
@@ -68,10 +79,10 @@ technical preview として出荷する。
   ライブラリに触るのは #31、CLI/docs に触るのは #47」。
 ```
 
-## Wave 計画
+## 当時のWave計画
 
-wave はマージのまとまりです。wave 内ではレーンが並走し、各 issue は
-依存先 issue のマージ後にのみ着手します。
+waveは当時提案したマージのまとまりです。現在の着手順ではありません。
+実施済み・保留・方針変更は#31と子Issueで判断してください。
 
 ### Wave 0 - インフライト
 
@@ -155,7 +166,9 @@ wave はマージのまとまりです。wave 内ではレーンが並走し、�
   3. #43 のパイプラインで GitHub Release バイナリ、その後アナウンス
 ```
 
-## マイルストーン
+## 当時のmilestone（現在のrelease gateではない）
+
+以下の定義は提案履歴として残します。旧waveが過ぎただけで全件完了扱いにはしません。
 
 | マイルストーン | 完了条件 | Issues |
 |---|---|---|
@@ -166,9 +179,11 @@ wave はマージのまとまりです。wave 内ではレーンが並走し、�
 | M5 配布可能 | crates.io 準備完了、プリビルトバイナリ、README 刷新、仕上げ完了 | #27-#30, #42-#44 |
 | M6 v0.1.0 technical preview 出荷 | ベンチとチュートリアル公開、オーナー承認済みタグと publish | #45, #46 + リリースゲート |
 
-## これらのトラック外の繰り越し (v0.2 候補)
+## 当時の繰り越し候補 (2026-06)
 
-どちらのロードマップでも閉じない既知の制限。着手前に format / extension
+以下は計画当時の制限です。数値と対象範囲は変化し得るため、現在の事実として
+引用する前に#31と[#295の費用レポート](../docs/benchmarks/2026-09-cli-cost.md)を確認してください。
+当時の案では、着手前にformat / extension
 version の判断と新たなオーナー判断が必要です。
 
 ```text
@@ -186,8 +201,9 @@ version の判断と新たなオーナー判断が必要です。
   split zstd frames
 ```
 
-## 進捗管理
+## 現在の進捗管理
 
-issue 単位の進捗は GitHub issue 側 (#31 と #47 のチェックリスト) で
-管理します。`tasks/status.md` にはトラックレベルのサマリと具体的な
-next action のみを保持します。
+現在の優先度と保留判断は#31、受入証拠は各子IssueとPRで管理します。
+#47と子Issueは完了済みです。[status.ja.md](status.ja.md)は実装・検証・公開の
+要約と次の判断先を示し、Issueの詳細を複写しません。この履歴やPhase完了は
+releaseの許可ではありません。

@@ -1,16 +1,14 @@
 # QZT Task Status
 
-Last updated: 2026-06-13 (Value Phase 1)
+Checked: 2026-09-26 against main `4d9ceed420918faed3871fa47b86511dee9afff5`.
 
-## Current Rule
+[日本語](status.ja.md)
 
-Implementation must proceed with TDD and the loop:
+## Where to Find Current Decisions
 
-```text
-implement -> self-review -> code review -> architecture review -> fix -> verify -> update status
-```
+The current priority, issue boundaries, and deferrals are in [roadmap #31](https://github.com/albert-einshutoin/qzt/issues/31). Each child issue and PR owns its acceptance evidence. This page is a short progress snapshot; [AGENTS.md](../AGENTS.md) and [CONTRIBUTING.md](../CONTRIBUTING.md) define development commands, while the [release checklist](../docs/RELEASE.md) governs publication preparation.
 
-## Phase Summary
+## Phase Summary (completed historical scope)
 
 | Phase | Name | State | Minimum MVP | Goal MVP |
 |---:|---|---|---|---|
@@ -29,7 +27,7 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 | 12 | N-gram index, planner, and benchmark reporting | Complete | Raw n-gram candidate search | Rarest-first planner and performance reports |
 | 13 | Search sidecar and high-performance search goal MVP | Complete | `.qzi` sidecar validation | Memory-mappable high-performance search flow |
 
-## Product Completeness Track (post-v0.1)
+## Product Completeness Track (completed historical scope)
 
 These phases raise maturity toward the spec's product goal: the Cold Evidence Container embedded by Memory Pager and AI memory systems. None change container format bytes. The track has an engine sub-track (14-19) and a consumer sub-track (20-22).
 
@@ -58,39 +56,21 @@ Validation (cross-cutting):
 |---:|---|---|---|---|
 | 23 | Acceptance threshold harness | Complete | Phase23a deterministic C1-C6 corpora, HARD invariants asserted, SOFT targets recorded | Phase23b evidence invariants on C1 after Phase21; shared generators for Phase18/22 |
 
-Dependency order: 14 (independent) -> 15 (foundation). Then sub-tracks in parallel. Engine: 15 -> 16, 17 -> 18 -> 19 (18 reuses Phase23a corpora). Consumer: 20 -> 21 -> 22, where 20 depends on 14, 21 depends on 15 and 20, and 22 depends on 20, Phase23a, and the Phase9 conformance map. Validation: 23a right after 15 for corpus generators and non-evidence HARD invariants; 23b after 21 for C1 evidence invariants. Acceptance thresholds are defined in docs/QZT_v0.1_Validation_Corpus.md.
+The dependency order below describes how these completed phases were planned; it is not the current work queue. Engine: 14 -> 15 -> 16/17 -> 18 -> 19. Consumer: 14 -> 20 -> 21 -> 22. Validation: 15 -> 23a, then 21 -> 23b. The historical detail and acceptance thresholds remain in [the Phase plan](README.md) and [the validation corpus](../docs/QZT_v0.1_Validation_Corpus.md).
 
-## Post-Phase23 Execution Track (post-v0.1)
+## Current Snapshot
 
-Phase0-Phase23 are complete; execution continues on two GitHub-issue roadmaps.
-Their cross-track ordering, wave plan, milestones, and release gates are fixed
-in [PostPhase23.md](PostPhase23.md). Per-issue progress lives on the GitHub
-issue checklists.
+Phase 0–23 are complete for their original implementation scope. [Value roadmap #47](https://github.com/albert-einshutoin/qzt/issues/47) and all child issues #33–#46 are closed. All ten preview-hardening issues listed in [#31](https://github.com/albert-einshutoin/qzt/issues/31) have implementation and verification evidence on their issues and PRs. Phase completion alone does not establish production readiness or a new release.
 
-| Track | Scope | State | Source |
-|---|---|---|---|
-| Refactoring (5 phases, 24 issues #2-#30) | error type and helpers, duplicate removal, trait unification, structural consolidation, perf/CI polish; 1 real bug fix (#8) | In progress (Phase 1 complete: #2-#9 merged; Phase 2 next) | issue #31, [PostPhase23.md](PostPhase23.md) |
-| Product value (4 phases, 14 issues #33-#46) | CLI evidence loop with JSON output, attest and conformance kit, crates.io and binary distribution, benchmarks and tutorials | In progress (Value Phase 1 complete: #33-#37 merged; #38 waits for #22) | issue #47, [PostPhase23.md](PostPhase23.md) |
+The [#307 FFI audit](https://github.com/albert-einshutoin/qzt/issues/307) is complete: three product-code corrections, ten reviewed local Semgrep exceptions, and zero unresolved *known* findings. [Security CI](https://github.com/albert-einshutoin/qzt/actions/runs/36177692759) passed on main `4d9ceed420918faed3871fa47b86511dee9afff5`; this is evidence for that scan and audit, not the removal of all `unsafe` or a claim of zero vulnerabilities. The corresponding [main CI](https://github.com/albert-einshutoin/qzt/actions/runs/36177692136) also passed. Other issue-specific fuzz, OS, and CI results remain tied to the commits and environments recorded on those issues, rather than being reruns for this snapshot.
 
-## Current Focus
+The published GitHub Release is [v0.1.0-pre.2](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2). Later main changes are not part of that published binary. Core is a **release candidate**; QZI search and the overall product remain a **technical preview**, not production-ready. The [#295 CLI cost report](../docs/benchmarks/2026-09-cli-cost.md) measures synthetic corpora on one macOS/Apple M4 host; it is not a measurement of the published pre.2 binary or a production SLA.
 
-Phase0 through Phase13 are complete. QZT v0.1 Core is release-candidate ready, with optional Dense Line Index, Document Index, memory profile support, raw token search, raw n-gram planner support, and QZI sidecar validation complete.
+Ten P2 maintenance issues remain deferred under [#31](https://github.com/albert-einshutoin/qzt/issues/31), outside the next preview's required gate. [PR #286](https://github.com/albert-einshutoin/qzt/pull/286) remains open for a separate disposition; [#27](https://github.com/albert-einshutoin/qzt/issues/27) needs a separate profiling and adoption decision. This document sync is tracked in [#309](https://github.com/albert-einshutoin/qzt/issues/309).
 
-The Product Completeness Track (Phase14-Phase23) is complete. The engine sub-track (14-19) closes the I/O, hygiene, and competitive-validation gaps. The consumer sub-track (20-22) makes QZT a stable, verifiable dependency an external system can embed: a curated public API, verified evidence retrieval with a proven Memory Pager integration, and portable conformance vectors with a frozen format-stability statement. Phase23 supplies the shared acceptance corpus and threshold harness.
+## Next Decision
 
-Post-Phase23 execution is planned: the refactoring roadmap (issue #31) and the
-product value roadmap (issue #47) are sequenced in
-[PostPhase23.md](PostPhase23.md) toward a v0.1.0 technical-preview release.
-
-Next action:
-
-```text
-Execute tasks/PostPhase23.md Wave 2 refactor lane: Phase 2 duplicate removal
-#10 -> #11; #12, #13, #16 in parallel; #14 (needs #3, #5); #15 (needs #4).
-Value lane: #38 (pack-docs) still waits for #22; #39 (attest) is a Wave 4
-item (needs #33, #34 - both merged). Release gates (v0.1.0 tag, crates.io
-publish) remain owner-approved decisions.
-```
+Choose the next work explicitly in #31 after this sync: disposition of PR #286, profiling and decision for #27, or preparation for a future preview. None starts automatically. Use the child issues for acceptance evidence, [CLI contracts](../docs/CLI.md) and [search operations](../docs/guides/search-operations.md) for search behavior, [#293](https://github.com/albert-einshutoin/qzt/issues/293) for the Writer contract, [#290](https://github.com/albert-einshutoin/qzt/issues/290) and the [FFI audit](../docs/security/ffi-output-audit.md) for file output, and the [release checklist](../docs/RELEASE.md) for publication conditions. The [Post-Phase23 plan](PostPhase23.md) records the 2026-06 proposal, not today's issue order or release gate.
 
 ## Completion Tracks
 
@@ -105,7 +85,10 @@ publish) remain owner-approved decisions.
 | Product Completeness: consumer | Phase20-Phase22 | Complete | Curated public API, verified evidence retrieval with Memory Pager integration proof, and portable conformance vectors with a frozen format-stability statement. Closes the embedded-dependency gaps so an external system can adopt QZT. |
 | Product Completeness: validation | Phase23 | Complete | Acceptance threshold harness over the C1-C6 corpora defined in docs/QZT_v0.1_Validation_Corpus.md. Makes "meets expectations" measurable via HARD invariants and SOFT target bands. |
 
-## Verification Log
+## Historical Verification Log
+
+The dated rows below record what was run at the time. They are not a rerun on the checked main commit. Current issue and CI evidence is linked above.
+
 
 | Date | Phase | Commands | Result | Notes |
 |---|---:|---|---|---|
@@ -136,7 +119,10 @@ publish) remain owner-approved decisions.
 | 2026-06-13 | refactor phase 1 | `make check`; `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features` | Pass | Refactor Phase 1 (#3-#9 on top of merged #2): real bug #8 fixed (profile validation moved into `pack_bytes_internal` so every pack path validates; `"memory"` requires a DocumentIndex on all paths), `QztError` Display humanized with new `Io(ErrorKind)` / `UnsupportedIndexMode` variants replacing `NotImplemented` (#3), `usize_to_u64`/`u64_to_usize` helpers replace ~155 boilerplate conversion sites (#4), `Checksum::from_hasher`/`from_raw_bytes` remove inline constructions (#5), lib.rs module declarations collapsed into `internal_module!` macro (#6), dead `QztWriter`/`format::VERSION` removed (#7), `[lints]` clippy pedantic baseline established with documented allows (#9; public `pack_bytes_with_document_index`/`pack_bytes_with_memory_profile` now take `&DocumentIndex`, `run_release_benchmark_with_corpus` takes `&[u8]`). 169 tests pass (+8). |
 | 2026-06-13 | value phase 1 | `make check`; `RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features`; manual stdin-pipe pack + info/verify/search `--format json` smoke | Pass | Value Phase 1 (#33-#37): `qzt info` shows `container_id`/`original_checksum`/`newline_mode` and gains `--format json` plus the bin-only `cli_json` RFC 8259 escaping helpers (#33); `qzt verify` surfaces `VerifyReport` (checked chunks / decoded bytes), gains `--format json` (`{"ok":true,...}` / `{"ok":false,"error":...}` on stdout, exit 1) and the documented 0/1/2 exit-code contract (#34); new `qzt docs` (tab-separated or JSON Document Index listing, 1-based first_line) and `qzt doc` (BLAKE3-verified extraction by default, `--no-verify`, `-o`) commands (#35); `qzt search --format json` with escaped hit/metrics output and `SearchReport`/`SearchHit`/`SearchMetrics`/`PlannerDecision` re-exported from the crate root (#36); `qzt pack -` streams stdin on the bounded-memory `QztFileWriter` path, rejecting non-core/dense combinations with exit 2 (#37). 216 tests pass (+47). |
 
-## Review Follow-ups
+## Historical Review Follow-ups
+
+These dispositions were recorded during the earlier phase work; use #31 for current deferred issues and priorities.
+
 
 | Item | State | Notes |
 |---|---|---|
@@ -157,7 +143,7 @@ publish) remain owner-approved decisions.
 | P2 Metadata decode indexes/integrity | Fixed | `Metadata::decode` now validates fixed boolean values for all indexes fields and verifies all integrity algorithm fields equal `"blake3"`. |
 | P0/P2 README limitations | Fixed | English README now contains a "v0.1 Technical Preview — Limitations" section covering in-memory reader, transient search, token co-occurrence semantics, normalized search, and benchmark gaps. |
 
-## Design Review Follow-ups (2026-06-08)
+## Historical Design Review Follow-ups (2026-06-08)
 
 Applied from the combined design + product review. No container format bytes change; all are read-path / verify-path / docs / test improvements behind the unchanged public API.
 
@@ -171,7 +157,10 @@ Applied from the combined design + product review. No container format bytes cha
 | DR-6 thin property coverage + dead param | Fixed | Added `tests/property_roundtrip.rs` (`export(pack(x)) == x`, `read_range == slice`). Removed the unused `StreamingTextAnalysis::new` parameter. |
 | DR-7 search uses in-memory reader (P-2) | Fixed | 2026-06-10: `search_file` / `build_from_file` / `build_search_sidecar_from_file` / `QziFileSidecar` wire search and sidecar lookup to `QztFileReader` with lazy posting/granule fetch; the CLI search/info/sidecar-rebuild paths use them. Existing `&[u8]` / `&QztReader` entry points remain and delegate to the file-backed implementations. |
 
-## Open Decisions
+## Historical Open Decisions
+
+This table preserves earlier decisions and revisit suggestions. It does not override the current #31 queue or release checklist.
+
 
 | Decision | Current Position | When To Revisit |
 |---|---|---|

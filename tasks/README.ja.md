@@ -2,13 +2,22 @@
 
 [English](README.md)
 
-このディレクトリは QZT 参照実装の実行計画です。
+このディレクトリには、完了済みPhase 0–23の実装計画と2026年6月の
+[Post-Phase23提案](PostPhase23.ja.md)を残します。現在の優先度、担当境界、
+保留判断は[#31](https://github.com/albert-einshutoin/qzt/issues/31)、短い現状は
+[status.ja.md](status.ja.md)を参照してください。詳細な受入証拠は子IssueとPR、
+開発コマンドは[AGENTS.md](../AGENTS.md)と[CONTRIBUTING.ja.md](../CONTRIBUTING.ja.md)、
+公開条件は[release checklist](../docs/RELEASE.ja.md)が参照先です。
 
-参照実装は Rust で書きます。QZT は binary layout、checked arithmetic、明示的 error、bounded decompression、testable invariant が重要なため、Rust の型と所有権モデルが適しています。
+以下の命令形の記述は、現在の進捗・ロードマップへの案内を除き、完了したPhaseの
+計画履歴です。新しいIssueの要件ではありません。参照実装にRustを選んだのは、
+QZTでbinary layout、checked arithmetic、明示的error、bounded decompression、
+testable invariantが重要だからです。
 
-## 運用ルール
+## 当時のPhase運用
 
-すべての Phase は TDD で進めます。
+完了済みPhaseでは次の手順を使いました。現在の#31作業に新しい要件を
+加えるものではありません。
 
 ```text
 1. failing test を書く、または更新する
@@ -24,7 +33,7 @@
 
 tests、self-review、code review、architecture review、review fix、status update が完了するまで Phase を Complete にしてはいけません。
 
-## 実装フロー
+## 当時の実装フロー
 
 ```text
 implement -> self-review -> code review -> architecture review -> fix -> verify -> update status
@@ -41,7 +50,7 @@ Self-review では以下を確認します。
 - Core に extension behavior を混ぜていないか
 ```
 
-## Review gates
+## 当時のReview gates
 
 すべての Phase は完了前に code review と architecture review を含めます。
 
@@ -100,11 +109,12 @@ Parser、verifier、reader では hidden panic を避けます。壊れた file 
 
 Minimum MVP は最初に land すべき最小の有用 increment です。Goal MVP は次 Phase に進む前の intended stopping point です。
 
-## Status tracking
+## 現在の進捗管理
 
-進捗の single summary は [status.md](status.md) / [status.ja.md](status.ja.md) です。
+短い進捗の入口は[status.md](status.md) / [status.ja.md](status.ja.md)です。
+優先度・着手順・保留は#31、詳細なテストと完了証拠は子IssueとPRで管理します。
 
-## Phase order
+## 当時のPhase順
 
 ```text
 Phase0  Project foundation and quality gates
@@ -127,7 +137,7 @@ Core conformance が安定するまで Search Extension 実装は開始しませ
 
 Optional indexes と extension profiles は、Phase が release target に含むと明示しない限り、Core release readiness を block してはいけません。
 
-## Product Completeness Track (post-v0.1)
+## Product Completeness Track（完了済みPhase 14–23の履歴）
 
 Phase0-Phase13 は format-complete な v0.1 reference implementation を届けます。Product Completeness
 Track は maturity を "reference implementation / technical preview" から spec の product goal、
@@ -169,7 +179,7 @@ expectations を満たすものと判定するかを定義します（HARD invar
 Phase23a はその doc を executable にし、Phase18 と Phase22 が再利用する corpus generators を所有します。
 Phase23b は Phase21 の verified evidence API が land した後に evidence invariants を追加します。
 
-Dependency order:
+当時の依存順:
 
 ```text
 Phase14 -> independent, land first
@@ -185,19 +195,19 @@ Phase23a -> depends on Phase15; builds C1-C6 generators and HARD invariants that
 Phase23b -> depends on Phase21; adds C1 evidence-retrieval invariants to the same harness
 ```
 
-Recommended sequence: Phase14、次に Phase15。その後は sub-tracks を parallel に進めます。
+当時の推奨順はPhase14、次にPhase15で、その後sub-trackを並走させる案でした。
 Engine は Phase16 と Phase17 をどちらの順でも進め、Phase23a corpora が存在した後に Phase18、
 その後 Phase19。Consumer は Phase20、Phase21、Phase22 の順。Validation は Phase15 の直後に
 Phase23a を実行し、Phase21 が land したら Phase23b で拡張します。
 
-これらの Phase は container format bytes を変更してはいけません。byte layout を変える必要がある変更は、
-この track ではなく新しい format version に属します。
+これらのPhaseではcontainer format bytesを変更しませんでした。新しい作業のformat version判断は
+現在のIssueとformat-stability契約に従います。
 
-## Post-Phase23 実行 (post-v0.1 ロードマップ)
+## Phase 23後の現在のロードマップと当時の計画
 
-Phase0-Phase23 は完了しています。実行は 2 本の GitHub issue ロードマップで継続します。
-リファクタリング・ロードマップ（issue #31、issue #2-#30）とプロダクト価値ロードマップ
-（issue #47、issue #33-#46）です。トラック横断の順序、wave 計画、並走制約、
-マイルストーン、リリースゲートは [PostPhase23.ja.md](PostPhase23.ja.md) で固定します。
-詳細な手順と受け入れ基準は issue 側にあります。この README のルール（TDD loop、
-review gates、format bytes 変更禁止）はすべての issue PR に引き続き適用されます。
+Phase 0–23は当時のスコープで完了しました。[価値ロードマップ #47](https://github.com/albert-einshutoin/qzt/issues/47)
+と子Issue #33–#46、[#31](https://github.com/albert-einshutoin/qzt/issues/31)の
+preview hardening 10件、[FFI監査 #307](https://github.com/albert-einshutoin/qzt/issues/307)は
+完了済みです。P2保守Issue 10件は保留中です。次の判断は#31、証拠は子Issueを
+参照してください。[PostPhase23.ja.md](PostPhase23.ja.md)は旧wave・依存関係の
+提案履歴で、現在の作業順やrelease gateではありません。

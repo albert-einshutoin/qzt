@@ -1,18 +1,20 @@
 # Contributing
 
+[日本語](CONTRIBUTING.ja.md)
+
 QZT is developed with GitHub Flow on short-lived feature branches. Keep changes
-small, reviewable, and tied to the phase plan in `tasks/`.
+small, reviewable, and tied to the current [roadmap #31](https://github.com/albert-einshutoin/qzt/issues/31)
+or the relevant child issue. The `tasks/` Phase and Post-Phase23 plans are
+historical; [tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)
+summarizes current progress.
 
 ## Development Contract
 
-Every implementation change follows:
-
-```text
-implement -> self-review -> code review -> architecture review -> fix -> verify -> update status
-```
-
-Do not mark a phase complete until tests, two self-review passes, code review,
-architecture review, review fixes, and `tasks/status.md` updates are complete.
+Follow [AGENTS.md](AGENTS.md), #31, and the relevant issue for the verification
+and review appropriate to the change. The old Phase workflow and its fixed
+review-pass count do not queue new work or require a status edit for every PR.
+Record detailed acceptance evidence on the child issue and PR; update the
+status summary when the current state changes.
 
 ## Local Gate
 
@@ -128,10 +130,10 @@ Actions template, see `docs/Security_CI_Playbook.md` and
 `docs/Security_CI_Playbook.ja.md`.
 
 Semgrep uses `semgrep scan --config p/rust --error` so findings fail the job.
-Tune the scan by changing the ruleset, adding a `.semgrepignore`, or filtering
-with Semgrep severity levels (`INFO`, `WARNING`, `ERROR`) after the first
-baseline is reviewed. The Semgrep container image is pinned; update it
-deliberately when refreshing the security toolchain.
+The pinned scanner and the ten reviewed, call-local unsafe exceptions are
+documented in the [#307 audit](docs/security/ffi-output-audit.md). A successful
+scan does not mean that all `unsafe` has been removed or that vulnerabilities
+cannot exist.
 
 OSV Scanner checks `Cargo.lock` for known dependency vulnerabilities and fails
 on reported vulnerabilities. This covers Rust dependency SCA; OWASP CVE Lite
@@ -143,11 +145,14 @@ Gitleaks scans the full Git history with the default rule set. This repository
 is under a personal GitHub account, so `GITLEAKS_LICENSE` is not required; add
 that secret if the repository is moved to an organization.
 
-`cargo publish` and crates.io publish dry-runs are deferred until after Phase20
-stabilizes the public API.
+The Phase20 prerequisite is historical and complete. Reversible release
+preparation and any publication decision now follow the [release checklist](docs/RELEASE.md);
+completing a Phase or making the manifest publishable is not approval to upload.
 
 ## Release Convention
 
-Use annotated tags named `vMAJOR.MINOR.PATCH`. The first public line is
-`v0.1.0` and remains a technical preview until Product Completeness Track
-Phase14-Phase23 are complete.
+Use annotated tags named `vMAJOR.MINOR.PATCH` for stable releases. The
+published GitHub prerelease is [v0.1.0-pre.2](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2);
+later main changes are not in that binary. Core is a release candidate; QZI
+search and the overall product remain a technical preview. Publication is a
+separate owner-approved operation under the release checklist.

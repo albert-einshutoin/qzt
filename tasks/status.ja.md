@@ -2,17 +2,13 @@
 
 [English](status.md)
 
-最終更新: 2026-06-13（Value Phase 1）
+確認日: 2026-09-26。基準main: `4d9ceed420918faed3871fa47b86511dee9afff5`。
 
-## 現在のルール
+## 現在の判断先
 
-実装は TDD と以下の loop で進めます。
+現在の優先度、Issue間の担当境界、保留判断は[ロードマップ #31](https://github.com/albert-einshutoin/qzt/issues/31)が正本です。各子IssueとPRに受入条件と完了証拠を置き、このページは進捗の短い入口とします。開発コマンドは[AGENTS.md](../AGENTS.md)と[CONTRIBUTING.ja.md](../CONTRIBUTING.ja.md)、公開準備は[release checklist](../docs/RELEASE.ja.md)を参照してください。
 
-```text
-implement -> self-review -> code review -> architecture review -> fix -> verify -> update status
-```
-
-## Phase summary
+## Phase summary（当時のスコープで完了）
 
 | Phase | 名前 | 状態 | Minimum MVP | Goal MVP |
 |---:|---|---|---|---|
@@ -31,7 +27,7 @@ implement -> self-review -> code review -> architecture review -> fix -> verify 
 | 12 | N-gram index, planner, benchmark reporting | Complete | Raw n-gram candidate search | rarest-first planner と performance reports |
 | 13 | Search sidecar and high-performance search goal MVP | Complete | `.qzi` sidecar validation | memory-mappable high-performance search flow |
 
-## Product Completeness Track (post-v0.1)
+## Product Completeness Track（当時のスコープで完了）
 
 これらの Phase は、Memory Pager や AI memory systems に embed される Cold Evidence Container という
 spec の product goal に向けて maturity を上げます。container format bytes は変更しません。この track は
@@ -62,42 +58,21 @@ Validation (cross-cutting):
 |---:|---|---|---|---|
 | 23 | Acceptance threshold harness | Complete | Phase23a deterministic C1-C6 corpora、HARD invariants asserted、SOFT targets recorded | Phase23b evidence invariants on C1 after Phase21、shared generators for Phase18/22 |
 
-Dependency order: 14 (independent) -> 15 (foundation)。その後 sub-tracks を parallel に進めます。Engine は 15 -> 16, 17 -> 18 -> 19（18 は Phase23a corpora を再利用）。Consumer は 20 -> 21 -> 22。20 は 14 に依存し、21 は 15 と 20 に依存し、22 は 20、Phase23a、Phase9 conformance map に依存します。Validation は 15 直後に 23a で corpus generators と non-evidence HARD invariants を作り、21 後に 23b で C1 evidence invariants を追加します。Acceptance thresholds は docs/QZT_v0.1_Validation_Corpus.md で定義します。
+当時の依存順は、完了済みPhaseの計画履歴であり、現在の作業キューではありません。Engine: 14 -> 15 -> 16/17 -> 18 -> 19。Consumer: 14 -> 20 -> 21 -> 22。Validation: 15 -> 23a、21 -> 23b。詳細は[Phase資料](README.ja.md)、受入閾値は[validation corpus](../docs/QZT_v0.1_Validation_Corpus.ja.md)を参照してください。
 
-## Post-Phase23 実行トラック (post-v0.1)
+## 現在地
 
-Phase0-Phase23 は完了済みで、実行は 2 本の GitHub issue ロードマップで継続します。
-トラック横断の順序、wave 計画、マイルストーン、リリースゲートは
-[PostPhase23.ja.md](PostPhase23.ja.md) で固定します。issue 単位の進捗は GitHub issue の
-チェックリストで管理します。
+Phase 0–23は当時の実装スコープに対して完了しています。[価値ロードマップ #47](https://github.com/albert-einshutoin/qzt/issues/47)と子Issue #33–#46もclose済みです。[#31](https://github.com/albert-einshutoin/qzt/issues/31)のpreview hardening対象10件は、それぞれのIssue・PRに実装と検証の証拠があります。Phase完了だけでproduction-readyや新しい公開版とは判断しません。
 
-| Track | スコープ | 状態 | Source |
-|---|---|---|---|
-| リファクタリング (5 フェーズ、24 issue #2-#30) | エラー型とヘルパー、重複排除、trait 統一、構造集約、性能/CI 仕上げ。実バグ 1 件修正 (#8) | In progress (Phase 1 完了: #2-#9 マージ済み、次は Phase 2) | issue #31、[PostPhase23.ja.md](PostPhase23.ja.md) |
-| プロダクト価値 (4 フェーズ、14 issue #33-#46) | JSON 出力付き CLI エビデンスループ、attest と適合性キット、crates.io とバイナリ配布、ベンチとチュートリアル | In progress (Value Phase 1 完了: #33-#37 マージ済み、#38 は #22 待ち) | issue #47、[PostPhase23.ja.md](PostPhase23.ja.md) |
+[FFI監査 #307](https://github.com/albert-einshutoin/qzt/issues/307)は完了しました。製品コード修正3件、監査済みの局所Semgrep例外10件、既知の未解決検出0件です。main `4d9ceed420918faed3871fa47b86511dee9afff5`の[security CI](https://github.com/albert-einshutoin/qzt/actions/runs/36177692759)と[通常CI](https://github.com/albert-einshutoin/qzt/actions/runs/36177692136)は成功しました。これは対象SHAのscan・監査の証拠であり、`unsafe`全廃や脆弱性ゼロを意味しません。他のfuzz、OS別テスト、CIの証拠は各Issue記録のcommit・環境に紐付き、今回の基準mainで全項目を再実行したとは扱いません。
 
-## Current focus
+公開済みGitHub Releaseは[v0.1.0-pre.2](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)です。その後のmain修正は配布済みbinaryには含まれません。Coreは**release candidate**、QZI検索と製品全体は**technical preview**で、production-readyではありません。[#295のCLI費用レポート](../docs/benchmarks/2026-09-cli-cost.md)はmacOS/Apple M4 1台の合成corpusに対する計測で、公開pre.2 binaryの性能や本番SLAではありません。
 
-Phase0 から Phase13 は完了しています。QZT v0.1 Core は release candidate ready です。Dense Line Index、Document Index、memory profile、raw token search、raw n-gram planner、QZI sidecar validation も完了しています。
+P2保守Issue 10件は[#31](https://github.com/albert-einshutoin/qzt/issues/31)で保留中であり、次回previewの必須ゲートには含めません。[PR #286](https://github.com/albert-einshutoin/qzt/pull/286)はopenで採否を別途判断します。[#27](https://github.com/albert-einshutoin/qzt/issues/27)は別途profileと採否判断が必要です。この文書同期は[#309](https://github.com/albert-einshutoin/qzt/issues/309)で追跡します。
 
-Product Completeness Track (Phase14-Phase23) も完了済みです。engine sub-track (14-19) は I/O、
-hygiene、competitive-validation gaps を閉じます。consumer sub-track (20-22) は QZT を外部 system が
-embed できる stable / verifiable dependency にします。Phase23 は shared acceptance corpus と threshold
-harness を提供します。
+## 次の判断
 
-Post-Phase23 の実行計画は策定済みです。リファクタリング・ロードマップ (issue #31) と
-プロダクト価値ロードマップ (issue #47) を [PostPhase23.ja.md](PostPhase23.ja.md) で
-v0.1.0 technical-preview release に向けて順序付けています。
-
-Next action:
-
-```text
-tasks/PostPhase23.ja.md の Wave 2 リファクタレーンを実行する: Phase 2 重複排除
-#10 -> #11、#12/#13/#16 は並走、#14 (#3, #5 の後)、#15 (#4 の後)。
-価値レーン: #38 (pack-docs) は引き続き #22 待ち。#39 (attest) は Wave 4 項目
-(#33, #34 はともにマージ済み)。
-リリースゲート (v0.1.0 タグ、crates.io publish) は引き続きオーナー承認制。
-```
+この同期後の作業は#31で明示的に選びます。候補はPR #286の扱い、#27のprofileと採否、将来のpreview公開準備です。自動的には着手しません。受入証拠は子Issue、検索の契約は[CLIリファレンス](../docs/CLI.ja.md)と[検索運用](../docs/guides/search-operations.ja.md)、Writer契約は[#293](https://github.com/albert-einshutoin/qzt/issues/293)、ファイル出力は[#290](https://github.com/albert-einshutoin/qzt/issues/290)と[FFI監査](../docs/security/ffi-output-audit.md)、公開条件は[release checklist](../docs/RELEASE.ja.md)を参照してください。[Post-Phase23計画](PostPhase23.ja.md)は2026年6月の提案履歴で、現在の着手順やrelease gateではありません。
 
 ## Completion tracks
 
@@ -112,7 +87,10 @@ tasks/PostPhase23.ja.md の Wave 2 リファクタレーンを実行する: Phas
 | Product Completeness: consumer | Complete | Phase20-Phase22。curated public API、Memory Pager integration proof 付き verified evidence retrieval、portable conformance vectors と frozen format-stability statement。 |
 | Product Completeness: validation | Complete | Phase23。docs/QZT_v0.1_Validation_Corpus.md の C1-C6 corpora に対する acceptance threshold harness。HARD invariants と provisional SOFT target bands で「期待値を満たす」を測定可能にする。 |
 
-## Verification summary
+## 過去の検証記録
+
+以下の記録は当時実行した範囲の履歴です。基準mainでの再実行を示すものではありません。現在のIssue・CI証拠は上記リンクを参照してください。
+
 
 すべての Phase は `make check` または targeted tests で検証されています。2026-06-08 の Phase14-Phase23 完了時点では、`make check`、`RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --all-features`、`cargo package --offline --allow-dirty` が通っています。通常の `cargo package --allow-dirty` は sandbox から crates.io に到達できず失敗しました。
 
@@ -150,7 +128,10 @@ Phase14-Phase23 のセルフレビューでは以下を修正済みです。
 - placeholder streaming writer API の doc hidden 化
 ```
 
-## Review follow-ups
+## 過去のレビュー指摘
+
+以下は当時の判断です。現在の保留Issueと優先度は#31を参照してください。
+
 
 Fixed:
 
@@ -178,7 +159,7 @@ Deferred:
 - post-v0.1 cleanup: technical-preview API の missing_docs warning を全 item docs に落とし込む
 ```
 
-## Design Review Follow-ups (2026-06-08)
+## 過去の設計レビュー指摘 (2026-06-08)
 
 combined design + product review から適用しました。コンテナ format bytes の変更なし。すべて変更されていない public API の背後にある read-path / verify-path / docs / test の改善です。
 
@@ -192,7 +173,10 @@ combined design + product review から適用しました。コンテナ format 
 | DR-6 プロパティカバレッジ薄さ + 不使用パラメータ | Fixed | `tests/property_roundtrip.rs` を追加（`export(pack(x)) == x`、`read_range == slice`）。未使用の `StreamingTextAnalysis::new` パラメータを削除。 |
 | DR-7 search でメモリ読み込みリーダー使用 (P-2) | Fixed | 2026-06-10: `search_file` / `build_from_file` / `build_search_sidecar_from_file` / `QziFileSidecar` により search と sidecar lookup を `QztFileReader` へ接続（posting/granule は遅延 fetch）。CLI の search/info/sidecar-rebuild が file-backed パスを使用。既存の `&[u8]` / `&QztReader` エントリポイントは維持され、file-backed 実装へ委譲。 |
 
-## Open decisions
+## 過去の未決事項
+
+当時の見直し案を残します。現在の#31の作業キューやrelease checklistを上書きしません。
+
 
 ```text
 - repack / merge / compact は post-Core maintenance phase

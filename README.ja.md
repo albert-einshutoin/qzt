@@ -449,12 +449,13 @@ Document Indexが不要なら`core`など別のprofileを選んでください�
 - attestationの署名とanchor: [docs/guides/attestation.md](docs/guides/attestation.md)
 - Core readiness: [docs/QZT_v0.1_Core_Readiness.ja.md](docs/QZT_v0.1_Core_Readiness.ja.md)
 - Release hardening: [docs/QZT_v0.1_Release_Hardening.ja.md](docs/QZT_v0.1_Release_Hardening.ja.md)
-- 実装 Phase: [tasks/README.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.ja.md)
-- 進捗: [tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)
+- 現在の優先度と保留: [ロードマップ #31](https://github.com/albert-einshutoin/qzt/issues/31)
+- 現在の進捗要約: [tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)
+- 過去の実装Phase: [tasks/README.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/README.ja.md)
 
 ## 開発
 
-実装は 2 トラックで進み、全 Phase が完了しています。
+実装は2トラックで進み、Phase 0–23は当時のスコープに対して完了しています。
 
 - **v0.1 Core (Phase 0–13)**: deterministic CBOR、fixed structures、UTF-8 chunker、
   no-dictionary zstd writer、reader open/info/export、verify levels、sparse/dense line
@@ -465,6 +466,13 @@ Document Indexが不要なら`core`など別のprofileを選んでください�
   resource governance、curated public API、verified evidence retrieval、portable
   conformance vectors と frozen format-stability statement。
 
-Phase ドキュメントは [tasks/](https://github.com/albert-einshutoin/qzt/tree/main/tasks) にあり、日本語版は同じディレクトリの `*.ja.md` です。
-進捗は [tasks/status.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md) と
-[tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md) で管理します。
+[価値ロードマップ #47](https://github.com/albert-einshutoin/qzt/issues/47)と
+子Issue #33–#46、#31のpreview hardening対象10件、[FFI監査 #307](https://github.com/albert-einshutoin/qzt/issues/307)は
+完了しています。Coreはrelease candidate、QZI検索と製品全体はtechnical previewです。
+公開済み[v0.1.0-pre.2](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)
+binaryには、その後のmain変更は含まれません。現在の優先度と保留判断は
+[#31](https://github.com/albert-einshutoin/qzt/issues/31)、証拠は子Issue・PRに置きます。
+英日の[status](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)と
+[status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)は要約です。
+[Phase資料](https://github.com/albert-einshutoin/qzt/tree/main/tasks)と2026年6月の
+Post-Phase23 wave計画は履歴として参照してください。

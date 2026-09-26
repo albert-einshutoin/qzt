@@ -3,18 +3,16 @@
 [English](CONTRIBUTING.md)
 
 QZTは短命なfeature branchを使うGitHub Flowで開発します。変更は小さく、review可能にし、
-`tasks/`のphase planまたは対象Issueへ結び付けてください。
+現在の[ロードマップ #31](https://github.com/albert-einshutoin/qzt/issues/31)または
+対象の子Issueへ結び付けてください。`tasks/`のPhase/Post-Phase23計画は履歴で、
+[tasks/status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)が
+現在の進捗要約です。
 
 ## 開発契約
 
-実装変更は次の順序で進めます。
-
-```text
-implement -> self-review -> code review -> architecture review -> fix -> verify -> update status
-```
-
-test、2回のself-review、code review、architecture review、指摘修正、
-`tasks/status.md`更新が終わるまでphaseを完了扱いにしません。
+[AGENTS.md](AGENTS.md)、#31、対象Issueに従い、変更に必要な検証とレビューを
+選びます。旧Phaseの固定review回数や毎PRのstatus更新を現在の要件にしません。
+受入証拠は子Issue・PRに記録し、現在地が変わったときにstatus要約を更新します。
 
 ## ローカル品質ゲート
 
@@ -127,11 +125,17 @@ Gitleaksを実行します。選定基準と再利用可能なGitHub Actions tem
 
 scan除外はfindingを確認したうえで最小範囲に限定し、理由をコメントで残してください。
 tokenや個人環境の値をsource、Issue、PR、CI logへ含めてはいけません。
+監査済みの局所unsafe例外10件は[#307の監査記録](docs/security/ffi-output-audit.md)を
+参照してください。scan成功はunsafe全廃や脆弱性ゼロを意味しません。
 
 ## release規約
 
 annotated tagは`vMAJOR.MINOR.PATCH`形式を使います。QZT 0.1は公開後も
 `technical preview`であり、production-readyとは表現しません。
+
+公開済みGitHub prereleaseは[v0.1.0-pre.2](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2)です。
+その後のmain変更は配布済みbinaryには含まれません。Coreはrelease candidate、
+QZI検索と製品全体はtechnical previewです。
 
 crates.ioの実際の`cargo publish`は非可逆なrelease owner専用操作です。
 準備、package review、dry-run、公開後確認は[release checklist](docs/RELEASE.md)に

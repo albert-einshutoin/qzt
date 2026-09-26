@@ -1,30 +1,39 @@
-# Post-Phase23 Execution Plan (post-v0.1)
+# Post-Phase23 Plan (2026-06 Archive)
 
 [日本語](PostPhase23.ja.md)
 
-Date: 2026-06-12
+Planning date: 2026-06-12. Historical plan; status checked 2026-09-26 against
+main `4d9ceed420918faed3871fa47b86511dee9afff5`.
 
-Phase0-Phase23 are complete. This document is the execution plan that follows
-Phase23. The detailed work items live as GitHub issues; this document fixes
-their cross-track order, the parallelism rules, the milestones, and the
-release gates.
+Phase0–Phase23 are complete for their original implementation scope. The
+waves, dependencies, milestones, numerical targets, and release gates below
+record the **2026-06 proposal**, including work subsequently completed,
+deferred, or changed. They are not current instructions or publication gates.
+For today's priority and issue boundaries use [#31](https://github.com/albert-einshutoin/qzt/issues/31);
+for a short status use [status.md](status.md); for actual publication conditions
+use the [release checklist](../docs/RELEASE.md). [#47](https://github.com/albert-einshutoin/qzt/issues/47)
+and its child issues #33–#46 are complete, the ten preview-hardening issues in
+#31 are complete, and its ten P2 maintenance issues remain deferred. The
+published GitHub Release is [v0.1.0-pre.2](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.2);
+later main changes are not thereby published.
 
-Source of truth:
+Sources at planning time:
 
 ```text
 - Refactoring roadmap: issue #31 (24 issues, #2-#30, labels refactor / phase-1..5)
 - Product value roadmap: issue #47 (14 issues, #33-#46, labels product / value-1..4)
-- This file: cross-track ordering, wave plan, milestones, release gates
+- This file: historical cross-track ordering, waves, milestones, proposed release gates
 ```
 
 Each issue already contains steps, acceptance criteria, and pitfalls at a
 granularity a junior engineer can complete alone. Do not duplicate that
 content here; when scope changes, update the issue.
 
-## Goal
+## Historical Goal (2026-06)
 
-Two tracks run toward one goal: ship QZT v0.1.0 as a credible technical
-preview.
+The two tracks were proposed toward a credible v0.1.0 technical preview.
+Their numerical targets and work packages below are historical proposals, not
+today's acceptance criteria or a claim that v0.1.0 was published.
 
 ```text
 - Refactoring track (#31): make internals single-sourced and maintainable
@@ -37,7 +46,12 @@ preview.
 Neither track changes container format bytes. Byte-layout changes belong to a
 new format version, never to these tracks.
 
-## Operating Rules (shared)
+## Historical Operating Assumptions
+
+The following rules belonged to the 2026-06 proposal. Current development
+commands and review requirements are in [AGENTS.md](../AGENTS.md),
+[CONTRIBUTING.md](../CONTRIBUTING.md), and #31; current release conditions are
+in the [release checklist](../docs/RELEASE.md).
 
 ```text
 1. 1 issue = 1 PR. Merge condition: make check green.
@@ -52,7 +66,7 @@ new format version, never to these tracks.
    by line number.
 ```
 
-## Cross-Track Constraints
+## Historical Cross-Track Constraints
 
 ```text
 - #33-#37 (CLI issues) and #25 (main.rs restructuring) must not be in flight
@@ -70,10 +84,10 @@ new format version, never to these tracks.
   to #31, CLI/docs work to #47.
 ```
 
-## Wave Plan
+## Historical Wave Plan
 
-Waves are merge batches. Inside a wave, lanes run in parallel; an issue
-starts only after the issues it depends on are merged.
+These waves were proposed merge batches. Their ordering no longer queues work;
+use #31 and the child issues to judge what was completed or deferred.
 
 ### Wave 0 - in flight
 
@@ -154,7 +168,10 @@ Release gates, in order, each owner-approved:
   3. GitHub Release binaries via the #43 pipeline, then announce
 ```
 
-## Milestones
+## Historical Milestones (not current release gates)
+
+The definitions below preserve the proposal; they are not a current checklist
+and should not be marked complete solely because the original waves passed.
 
 | Milestone | Definition of done | Issues |
 |---|---|---|
@@ -165,9 +182,11 @@ Release gates, in order, each owner-approved:
 | M5 Distributable | crates.io ready, prebuilt binaries, README revamp, polish done | #27-#30, #42-#44 |
 | M6 v0.1.0 technical preview shipped | benchmarks and tutorials published, owner-approved tag and publish | #45, #46 + release gates |
 
-## Deferred Beyond These Tracks (v0.2 candidates)
+## Historical Deferred Candidates (2026-06)
 
-Known limitations that neither roadmap closes. Each needs a format or
+These were the limitations recorded at planning time. Their measurements and
+scope may have changed; consult #31 and the [#295 cost report](../docs/benchmarks/2026-09-cli-cost.md)
+before adopting any as current facts. Each proposed item needs a format or
 extension version decision and a new owner decision before work starts.
 
 ```text
@@ -185,8 +204,10 @@ extension version decision and a new owner decision before work starts.
   split zstd frames
 ```
 
-## Status Tracking
+## Current Status Tracking
 
-Per-issue progress is tracked on the GitHub issues themselves (checklists in
-#31 and #47). `tasks/status.md` keeps only the track-level summary and the
-concrete next action.
+Current priorities and deferrals are tracked in #31; child issues and PRs
+hold acceptance evidence. #47 and its children are complete. [status.md](status.md)
+summarizes implementation, verification, and publication without copying the
+issue checklists. Neither this historical plan nor Phase completion authorizes
+a release.
