@@ -307,6 +307,12 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: '3.12'
+      - name: Verify clean assembly source before artifact download
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = '${{ needs.plan.outputs.source_sha }}'
+          test -z "$(git status --porcelain)"
       - name: Fetch the plan, native, and global artifacts as the release host does
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
@@ -322,8 +328,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = '${{ needs.plan.outputs.source_sha }}'
-          test -z "$(git status --porcelain)"
           mkdir -p target/candidate/staged
           cp artifacts/* target/candidate/staged/
           rm -f target/candidate/staged/*-dist-manifest.json
@@ -333,7 +337,6 @@ jobs:
             --plan target/candidate/plan-dist-manifest.json \
             --source-sha '${{ needs.plan.outputs.source_sha }}' \
             --output target/candidate/assembly-evidence.json
-          test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: pre5-assembly-evidence-${{ needs.plan.outputs.source_sha }}
