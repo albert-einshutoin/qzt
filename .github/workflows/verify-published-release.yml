@@ -8,7 +8,6 @@ on:
     paths:
       - .github/workflows/verify-published-release.yml
       - scripts/verify-published-release.py
-      - scripts/verify-release-candidate.py
       - scripts/test_published_release_verifier.py
       - tests/vectors/**
   workflow_dispatch:

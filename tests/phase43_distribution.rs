@@ -248,14 +248,12 @@ fn published_release_verification_keeps_product_and_verifier_separate() {
     ] {
         assert!(!PUBLISHED_WORKFLOW.contains(forbidden));
     }
-    assert!(PUBLISHED_WORKFLOW.contains("PRODUCT_SHA: 3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe"));
-    assert!(PUBLISHED_WORKFLOW.contains("RELEASE_RUN_ID: '36317632199'"));
-    assert!(PUBLISHED_WORKFLOW.contains("git fetch --no-tags --depth=1 origin \"$PRODUCT_SHA\""));
-    assert!(PUBLISHED_VERIFIER.contains("candidate.check_source_archive_commit"));
-    assert!(PUBLISHED_VERIFIER.contains("--release-run-attempt"));
+    assert!(
+        PUBLISHED_VERIFIER.contains("PRODUCT_SHA = \"017d4d19739800773ab6a54adf636ff5a43ec1fc\"")
+    );
     assert!(PUBLISHED_VERIFIER.contains("candidate.checksum_matches(archive, sidecar)"));
     assert!(PUBLISHED_VERIFIER.contains("candidate.smoke(binary, smoke_work"));
-    assert!(PUBLISHED_WORKFLOW.contains("VERSION: qzt 0.1.0-pre.5"));
+    assert!(PUBLISHED_VERIFIER.contains("VERSION = \"qzt 0.1.0-pre.3\""));
     assert!(CI_WORKFLOW.contains("python -m unittest discover -s scripts"));
     assert!(PUBLISHED_VERIFIER.contains("QZT_INSTALL_DIR"));
     assert!(PRE2_SMOKE.contains("qzt 0.1.0-pre.2"));

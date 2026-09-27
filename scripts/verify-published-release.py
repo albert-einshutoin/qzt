@@ -12,9 +12,14 @@ import subprocess
 import sys
 import tempfile
 import urllib.request
+from contextlib import contextmanager
 from pathlib import Path
 
 API = "https://api.github.com/repos/albert-einshutoin/qzt"
+# Preserve the pre.3 publication tuple while requiring explicit inputs for every run.
+PRODUCT_SHA = "017d4d19739800773ab6a54adf636ff5a43ec1fc"
+VERSION = "qzt 0.1.0-pre.3"
+PRE3_RELEASE_RUN = 36237333455
 TARGETS = {
     "aarch64-apple-darwin": ("Darwin", "arm64"),
     "x86_64-apple-darwin": ("Darwin", "x86_64"),
@@ -59,6 +64,20 @@ def execution_env(work):
     for key in ("TMPDIR", "TMP", "TEMP"):
         env[key] = str(temp)
     return env
+
+
+@contextmanager
+def isolated_binary_env(work):
+    """The reused candidate smoke runner inherits this process environment."""
+    previous = os.environ.copy()
+    safe = execution_env(work)
+    os.environ.clear()
+    os.environ.update(safe)
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(previous)
 
 
 def get_json(url):
@@ -175,12 +194,12 @@ def install_and_smoke(assets, directory, work, target, archive_binary_hash, vect
     require(binary.is_file(), f"installer did not place the expected binary: {binary}")
     installed_hash = candidate.sha256(binary)
     require(installed_hash == archive_binary_hash, "installed binary differs from published archive")
-    require(candidate.command(binary, work, "--version", env=env)[0].strip() == version.encode(),
-            "installed binary reports the wrong version")
     installed_work = work / "installed-smoke"
     installed_work.mkdir()
-    installed_smoke = candidate.smoke(binary, installed_work, vectors_dir, target, tag_name,
-                                     env=env)
+    with isolated_binary_env(work):
+        require(candidate.command(binary, work, "--version")[0].strip() == version.encode(),
+                "installed binary reports the wrong version")
+        installed_smoke = candidate.smoke(binary, installed_work, vectors_dir, target, tag_name)
     return {
         "installer_url": f"{base}/{name}",
         "selected_target": target,
@@ -204,7 +223,6 @@ def verify_local(assets, target, vectors_dir, directory, tag_name, version, base
     archive_hash = candidate.checksum_matches(archive, sidecar)
     with tempfile.TemporaryDirectory(prefix="qzt-published-") as temp:
         work = Path(temp)
-        env = execution_env(work)
         binary = candidate.extract_archive(archive, work / "extracted", target)
         linkage = "not applicable outside Linux"
         if target.endswith("linux-gnu"):
@@ -215,7 +233,8 @@ def verify_local(assets, target, vectors_dir, directory, tag_name, version, base
             linkage = sorted(needed)
         smoke_work = work / "archive-smoke"
         smoke_work.mkdir()
-        smoke = candidate.smoke(binary, smoke_work, vectors_dir, target, tag_name, env=env)
+        with isolated_binary_env(work):
+            smoke = candidate.smoke(binary, smoke_work, vectors_dir, target, tag_name)
         binary_hash = candidate.sha256(binary)
         install = install_and_smoke(assets, directory, work, target, binary_hash, vectors_dir,
                                     tag_name, version, base)
@@ -245,6 +264,10 @@ def main():
     require(re.fullmatch(r"[0-9a-f]{40}", args.product_sha), "product SHA must be full")
     require(args.release_run_id > 0 and args.release_run_attempt > 0,
             "release run ID and attempt must be positive")
+    if args.tag == "v0.1.0-pre.3":
+        require((args.product_sha, args.version, args.release_run_id, args.release_run_attempt) ==
+                (PRODUCT_SHA, VERSION, PRE3_RELEASE_RUN, 1),
+                "historical pre.3 publication expectations differ")
     require(re.fullmatch(r"[0-9a-f]{40}", args.verifier_sha), "verifier SHA must be full")
     actual_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     require(actual_sha == args.verifier_sha, "verifier checkout is not the recorded commit")

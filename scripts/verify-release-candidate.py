@@ -41,9 +41,9 @@ def sha256(path):
         return hashlib.file_digest(source, "sha256").hexdigest()
 
 
-def command(binary, cwd, *args, exit_code=0, env=None):
+def command(binary, cwd, *args, exit_code=0):
     result = subprocess.run(
-        [str(binary), *args], cwd=cwd, env=env, capture_output=True, timeout=30, check=False
+        [str(binary), *args], cwd=cwd, capture_output=True, timeout=30, check=False
     )
     require(
         result.returncode == exit_code,
@@ -153,23 +153,21 @@ def extract_archive(archive, destination, target):
     return binary.resolve()
 
 
-def smoke_repeated_keys(binary, work, env=None):
-    def run(*args, **kwargs):
-        return command(*args, env=env, **kwargs)
+def smoke_repeated_keys(binary, work):
     source = b"echo echo echo\r\necho echo\n"
     positions = [0, 5, 10, 16, 21]
     (work / "repeated.log").write_bytes(source)
-    run(binary, work, "pack", "repeated.log", "-o", "repeated.qzt")
+    command(binary, work, "pack", "repeated.log", "-o", "repeated.qzt")
     for kind in ("token", "ngram"):
         sidecar = f"repeated-{kind}.qzi"
         options = ("--ngram", "3") if kind == "ngram" else ()
-        run(binary, work, "sidecar-rebuild", "repeated.qzt", "-o", sidecar,
+        command(binary, work, "sidecar-rebuild", "repeated.qzt", "-o", sidecar,
                 "--index", kind, *options)
-        inspected = json.loads(run(binary, work, "inspect-sidecar", "repeated.qzt",
+        inspected = json.loads(command(binary, work, "inspect-sidecar", "repeated.qzt",
                                        "--sidecar", sidecar, "--format", "json")[0])
         require(inspected["index_type"] == kind and inspected["complete"],
                 f"repeated {kind} sidecar is incomplete")
-        report = json.loads(run(binary, work, "search", "repeated.qzt", "echo",
+        report = json.loads(command(binary, work, "search", "repeated.qzt", "echo",
                                     "--sidecar", sidecar, "--format", "json")[0])
         hits = report["hits"]
         require([hit["logical_offset"] for hit in hits] == positions and
@@ -179,28 +177,26 @@ def smoke_repeated_keys(binary, work, env=None):
     return "passed"
 
 
-def smoke(binary, work, vectors_dir, target, expected_tag, env=None):
-    def run(*args, **kwargs):
-        return command(*args, env=env, **kwargs)
-    require(run(binary, work, "--version")[0].strip() == expected_version(expected_tag).encode(),
+def smoke(binary, work, vectors_dir, target, expected_tag):
+    require(command(binary, work, "--version")[0].strip() == expected_version(expected_tag).encode(),
             "wrong binary version")
     (work / "app.log").write_bytes(SOURCE)
-    run(binary, work, "pack", "app.log", "-o", "app.qzt")
+    command(binary, work, "pack", "app.log", "-o", "app.qzt")
     container = work / "app.qzt"
     container_bytes = container.read_bytes()
 
-    info = json.loads(run(binary, work, "info", "app.qzt", "--format", "json")[0])
+    info = json.loads(command(binary, work, "info", "app.qzt", "--format", "json")[0])
     require((info["format"], info["original_size"], info["line_count"], info["chunk_count"]) ==
             ("qzt-0.1", len(SOURCE), 4, 1), "incorrect packed metadata")
-    require(run(binary, work, "range", "app.qzt", "--lines", "2:2")[0] == b"beta\n", "wrong range")
+    require(command(binary, work, "range", "app.qzt", "--lines", "2:2")[0] == b"beta\n", "wrong range")
 
-    run(binary, work, "sidecar-rebuild", "app.qzt", "-o", "app.qzi")
-    sidecar = json.loads(run(binary, work, "inspect-sidecar", "app.qzt", "--sidecar", "app.qzi", "--format", "json")[0])
+    command(binary, work, "sidecar-rebuild", "app.qzt", "-o", "app.qzi")
+    sidecar = json.loads(command(binary, work, "inspect-sidecar", "app.qzt", "--sidecar", "app.qzi", "--format", "json")[0])
     require(sidecar["index_type"] == "token" and sidecar["complete"] and
             sidecar["source_size_bytes"] == len(SOURCE) and sidecar["granule_count"] == 4,
             "incorrect inspected sidecar")
     search_args = ("search", "app.qzt", "error", "--sidecar", "app.qzi")
-    full = json.loads(run(binary, work, *search_args, "--format", "json")[0])
+    full = json.loads(command(binary, work, *search_args, "--format", "json")[0])
     hits = full["hits"]
     require([(hit["logical_offset"], hit["byte_length"], hit["source"])
              for hit in hits] == [(11, 5, "verified_original_bytes"),
@@ -214,32 +210,32 @@ def smoke(binary, work, vectors_dir, target, expected_tag, env=None):
     require(full["metrics"]["physical_decoded_bytes"] == len(SOURCE) and
             full["metrics"]["physical_decoded_chunks"] == 1 and
             full["metrics"]["verified_matches"] == 2, "incorrect physical search work")
-    capped = json.loads(run(binary, work, *search_args, "--max-results", "1", "--format", "json")[0])
+    capped = json.loads(command(binary, work, *search_args, "--max-results", "1", "--format", "json")[0])
     require(capped["capped"] is True and capped["stop_reason"] == "max_search_results" and
             len(capped["hits"]) == 1 and capped["hits"][0]["logical_offset"] == 11 and
             capped["index_coverage_verified"] is False, "incorrect verified partial result")
-    out, err = run(binary, work, *search_args, "--max-posting-bytes", "0", "--format", "json", exit_code=1)
+    out, err = command(binary, work, *search_args, "--max-posting-bytes", "0", "--format", "json", exit_code=1)
     require(not out and b"resource limit" in err, "posting hard error became a report")
 
-    verified = json.loads(run(binary, work, "verify", "app.qzt", "--deep", "--format", "json")[0])
+    verified = json.loads(command(binary, work, "verify", "app.qzt", "--deep", "--format", "json")[0])
     require(verified["ok"] is True and verified["level"] == "deep" and
             verified["checked_chunks"] == verified["compressed_checksum_chunks"] ==
             verified["decoded_chunks"] == 1 and verified["decoded_bytes"] == len(SOURCE) and
             verified["original_checksum_verified"] is True and
             verified["container_checksum_status"] == "verified", "incorrect deep verification")
-    attested = run(binary, work, "attest", "app.qzt")[0]
-    require(attested == run(binary, work, "attest", "app.qzt")[0], "attestation bytes changed on retry")
+    attested = command(binary, work, "attest", "app.qzt")[0]
+    require(attested == command(binary, work, "attest", "app.qzt")[0], "attestation bytes changed on retry")
     attestation = json.loads(attested)
     require(attestation["attestation_schema"] == "qzt-attestation-v1" and
             attestation["format"] == "qzt-0.1" and
             attestation["verify"]["decoded_bytes"] == len(SOURCE) and
             attestation["verify"]["original_checksum_verified"] is True,
             "incorrect canonical attestation")
-    run(binary, work, "export", "app.qzt", "-o", "restored.log")
+    command(binary, work, "export", "app.qzt", "-o", "restored.log")
     require((work / "restored.log").read_bytes() == SOURCE, "export changed original bytes")
 
     before = {path.name for path in work.iterdir()}
-    out, err = run(binary, work, "export", "app.qzt", "-o", "app.qzt", exit_code=1)
+    out, err = command(binary, work, "export", "app.qzt", "-o", "app.qzt", exit_code=1)
     require(not out and b"same file" in err and container.read_bytes() == container_bytes,
             "self-overwrite damaged input or lacked a clear error")
     require({path.name for path in work.iterdir()} == before, "self-overwrite left a temporary file")
@@ -247,7 +243,7 @@ def smoke(binary, work, vectors_dir, target, expected_tag, env=None):
     (work / "corrupt.qzt").write_bytes(corrupted)
     (work / "existing.log").write_bytes(b"existing-output")
     before = {path.name for path in work.iterdir()}
-    out, _ = run(binary, work, "export", "corrupt.qzt", "-o", "existing.log", exit_code=1)
+    out, _ = command(binary, work, "export", "corrupt.qzt", "-o", "existing.log", exit_code=1)
     require(not out and (work / "corrupt.qzt").read_bytes() == corrupted and
             (work / "existing.log").read_bytes() == b"existing-output", "failed export lost data")
     require({path.name for path in work.iterdir()} == before, "failed export left a temporary file")
@@ -255,10 +251,10 @@ def smoke(binary, work, vectors_dir, target, expected_tag, env=None):
     for name, expected in (("valid_c1", b"alpha\nbeta\n"), ("valid_crlf", b"a\r\nb\r\n")):
         vector = bytes.fromhex((vectors_dir / f"{name}.qzt.hex").read_text(encoding="ascii").strip())
         (work / f"{name}.qzt").write_bytes(vector)
-        report = json.loads(run(binary, work, "verify", f"{name}.qzt", "--deep", "--format", "json")[0])
+        report = json.loads(command(binary, work, "verify", f"{name}.qzt", "--deep", "--format", "json")[0])
         require(report["ok"] is True and report["original_checksum_verified"] is True,
                 f"valid v0.1 vector rejected: {name}")
-        run(binary, work, "export", f"{name}.qzt", "-o", f"{name}.txt")
+        command(binary, work, "export", f"{name}.qzt", "-o", f"{name}.txt")
         require((work / f"{name}.txt").read_bytes() == expected, f"vector bytes changed: {name}")
 
     readonly = "passed" if target.endswith("windows-msvc") else "not applicable outside Windows"
@@ -270,7 +266,7 @@ def smoke(binary, work, vectors_dir, target, expected_tag, env=None):
             attributes = path.stat().st_file_attributes
             require(attributes & stat.FILE_ATTRIBUTE_READONLY, "Windows readonly attribute was not set")
             before = {item.name for item in work.iterdir()}
-            out, err = run(binary, work, "export", "app.qzt", "-o", "readonly.log", exit_code=1)
+            out, err = command(binary, work, "export", "app.qzt", "-o", "readonly.log", exit_code=1)
             require(not out and b"read-only" in err.lower() and
                     path.read_bytes() == b"readonly-existing" and
                     path.stat().st_file_attributes == attributes,
@@ -278,18 +274,18 @@ def smoke(binary, work, vectors_dir, target, expected_tag, env=None):
             require({item.name for item in work.iterdir()} == before, "readonly rejection created a temporary file")
         finally:
             path.chmod(stat.S_IWRITE | stat.S_IREAD)
-        run(binary, work, "export", "app.qzt", "-o", "readonly.log")
+        command(binary, work, "export", "app.qzt", "-o", "readonly.log")
         require(path.read_bytes() == SOURCE, "writable replacement failed after readonly rejection")
     else:
         (work / "existing.log").write_bytes(b"replace-me")
-        run(binary, work, "export", "app.qzt", "-o", "existing.log")
+        command(binary, work, "export", "app.qzt", "-o", "existing.log")
         require((work / "existing.log").read_bytes() == SOURCE, "writable replacement failed")
 
     require((work / "app.log").read_bytes() == SOURCE and container.read_bytes() == container_bytes,
             "smoke changed its source input")
     repeated = work / "repeated"
     repeated.mkdir()
-    repeated_result = smoke_repeated_keys(binary, repeated, env=env)
+    repeated_result = smoke_repeated_keys(binary, repeated)
     return {"normal_tour": "passed", "result_cap": "passed", "hard_error": "passed",
             "self_overwrite": "passed", "failed_export_preservation": "passed",
             "v0_1_vectors": ["valid_c1", "valid_crlf"], "readonly": readonly,

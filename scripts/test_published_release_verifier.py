@@ -78,6 +78,10 @@ class PublishedReleaseTests(unittest.TestCase):
             env = verifier.execution_env(Path(directory))
             self.assertFalse({"GH_TOKEN", "GITHUB_TOKEN", "AWS_SECRET_ACCESS_KEY"} & env.keys())
             self.assertEqual(env["HOME"], str(Path(directory) / "home"))
+            with verifier.isolated_binary_env(Path(directory)):
+                self.assertFalse({"GH_TOKEN", "GITHUB_TOKEN", "AWS_SECRET_ACCESS_KEY"} &
+                                 verifier.os.environ.keys())
+            self.assertEqual(verifier.os.environ["GH_TOKEN"], "secret")
 
 
 if __name__ == "__main__":
