@@ -1,0 +1,80 @@
+{
+  "schema": "qzt-ci-log-handoff-oracle-v1",
+  "index": "ngram",
+  "ngram_n": 3,
+  "document_starts_from_source_lengths": {
+    "ci/pre4-linux.log": 0,
+    "ci/pre5-linux.log": 34063
+  },
+  "queries": [
+    {
+      "query": "RuntimeError: build checkout is dirty",
+      "hits": [
+        {
+          "doc_id": "ci/pre4-linux.log",
+          "doc_offset": 32023,
+          "logical_offset": 32023,
+          "byte_length": 37,
+          "context_doc_offset": 31220,
+          "context_byte_length": 915,
+          "context_utf8": "2026-09-26T17:08:51.3167991Z Traceback (most recent call last):\n2026-09-26T17:08:51.3176505Z   File \"/home/runner/work/qzt/qzt/scripts/record-build-environment.py\", line 100, in <module>\n2026-09-26T17:08:51.3177354Z     main()\n2026-09-26T17:08:51.3178108Z   File \"/home/runner/work/qzt/qzt/scripts/record-build-environment.py\", line 92, in main\n2026-09-26T17:08:51.3179104Z     current = snapshot(saved[\"source_sha\"], saved[\"target\"], saved[\"build_profile\"],\n2026-09-26T17:08:51.3180131Z               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-09-26T17:08:51.3181064Z   File \"/home/runner/work/qzt/qzt/scripts/record-build-environment.py\", line 33, in snapshot\n2026-09-26T17:08:51.3181971Z     raise RuntimeError(\"build checkout is dirty\")\n2026-09-26T17:08:51.3190333Z RuntimeError: build checkout is dirty\n2026-09-26T17:08:51.3242608Z ##[error]Process completed with exit code 1.\n"
+        }
+      ]
+    },
+    {
+      "query": "build environment unchanged:",
+      "hits": [
+        {
+          "doc_id": "ci/pre5-linux.log",
+          "doc_offset": 31281,
+          "logical_offset": 65344,
+          "byte_length": 28,
+          "context_doc_offset": 31129,
+          "context_byte_length": 457,
+          "context_utf8": "2026-09-27T12:02:49.7942512Z   RUSTUP_TOOLCHAIN: stable-x86_64-unknown-linux-gnu\n2026-09-27T12:02:49.7942818Z ##[endgroup]\n2026-09-27T12:02:49.9149209Z build environment unchanged: 3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe x86_64-unknown-linux-gnu\n2026-09-27T12:02:49.9232787Z ##[group]Run # Parse out what we just built and upload it to scratch storage\n2026-09-27T12:02:49.9233314Z \u001b[36;1m# Parse out what we just built and upload it to scratch storage\u001b[0m\n"
+        }
+      ]
+    },
+    {
+      "query": "dist ran successfully",
+      "hits": [
+        {
+          "doc_id": "ci/pre4-linux.log",
+          "doc_offset": 25026,
+          "logical_offset": 25026,
+          "byte_length": 21,
+          "context_doc_offset": 24703,
+          "context_byte_length": 441,
+          "context_utf8": "2026-09-26T17:08:15.0996274Z \u001b[36;1m# Actually do builds and make zips and whatnot\u001b[0m\n2026-09-26T17:08:15.0997031Z \u001b[36;1mdist build --tag=v0.1.0-pre.4 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=x86_64-unknown-linux-gnu > dist-manifest.json\u001b[0m\n2026-09-26T17:08:15.0997730Z \u001b[36;1mecho \"dist ran successfully\"\u001b[0m\n2026-09-26T17:08:15.1074324Z shell: /usr/bin/bash -e {0}\n2026-09-26T17:08:15.1074612Z env:\n"
+        },
+        {
+          "doc_id": "ci/pre4-linux.log",
+          "doc_offset": 29906,
+          "logical_offset": 29906,
+          "byte_length": 21,
+          "context_doc_offset": 29555,
+          "context_byte_length": 607,
+          "context_utf8": "2026-09-26T17:08:51.2498439Z │ Other              ┆                                         │\n2026-09-26T17:08:51.2499110Z └────────────────────┴─────────────────────────────────────────┘\n2026-09-26T17:08:51.2500933Z dist ran successfully\n2026-09-26T17:08:51.2538550Z ##[group]Run python scripts/record-build-environment.py verify --input \"$BUILD_ENV_NAME\"\n2026-09-26T17:08:51.2539215Z \u001b[36;1mpython scripts/record-build-environment.py verify --input \"$BUILD_ENV_NAME\"\u001b[0m\n"
+        },
+        {
+          "doc_id": "ci/pre5-linux.log",
+          "doc_offset": 25027,
+          "logical_offset": 59090,
+          "byte_length": 21,
+          "context_doc_offset": 24696,
+          "context_byte_length": 480,
+          "context_utf8": "2026-09-27T12:02:12.2566990Z \u001b[36;1m# Actually do builds and make zips and whatnot\u001b[0m\n2026-09-27T12:02:12.2567734Z \u001b[36;1mscripts/release-workflow-build.sh build --tag=v0.1.0-pre.5 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=x86_64-unknown-linux-gnu\u001b[0m\n2026-09-27T12:02:12.2568430Z \u001b[36;1mecho \"dist ran successfully\"\u001b[0m\n2026-09-27T12:02:12.2606866Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}\n2026-09-27T12:02:12.2607205Z env:\n"
+        },
+        {
+          "doc_id": "ci/pre5-linux.log",
+          "doc_offset": 29938,
+          "logical_offset": 64001,
+          "byte_length": 21,
+          "context_doc_offset": 29587,
+          "context_byte_length": 607,
+          "context_utf8": "2026-09-27T12:02:49.7857854Z │ Other              ┆                                         │\n2026-09-27T12:02:49.7858796Z └────────────────────┴─────────────────────────────────────────┘\n2026-09-27T12:02:49.7859552Z dist ran successfully\n2026-09-27T12:02:49.7893759Z ##[group]Run python scripts/record-build-environment.py verify --input \"$BUILD_ENV_NAME\"\n2026-09-27T12:02:49.7894499Z \u001b[36;1mpython scripts/record-build-environment.py verify --input \"$BUILD_ENV_NAME\"\u001b[0m\n"
+        }
+      ]
+    }
+  ]
+}

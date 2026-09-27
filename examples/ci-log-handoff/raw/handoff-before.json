@@ -1,0 +1,31 @@
+{
+  "directory": "separate recipient; no original logs, no QZI, no GitHub access",
+  "before_files": {
+    "qzt": {
+      "bytes": 1681408,
+      "sha256": "989e6f21d80c5f14ee90b27aabe156760f0c6992bc6a5520aaa1400ba20b29be"
+    },
+    "run.py": {
+      "bytes": 12867,
+      "sha256": "3ac6b0b629d59bcaec4a20bf23340c3c1ca98ee66a0135198a18a6a859f8e766"
+    },
+    "source.json": {
+      "bytes": 6748,
+      "sha256": "bd5b49e7dfce14a48936d0928021987b5e82fe7cce67cc56fcb4f1461a1fd0e3"
+    },
+    "evidence.attest.json": {
+      "bytes": 695,
+      "sha256": "589f22255f9bd40fd810512d9ca926d859d35103d0cc5f398a240ccc98c10df5"
+    },
+    "queries.json": {
+      "bytes": 5696,
+      "sha256": "aad54b253b1efad189fd6e02358736c067e3387a79e97c710e331726b9228075"
+    },
+    "evidence.qzt": {
+      "bytes": 15569,
+      "sha256": "c6480ab32f41ae4f42c2c359dd89e2c75015054cdb6f64fb1261d4a66d65fedc"
+    }
+  },
+  "original_log_files_present": false,
+  "qzi_present": false
+}

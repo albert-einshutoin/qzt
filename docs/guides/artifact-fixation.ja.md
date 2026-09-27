@@ -8,6 +8,8 @@
 
 複数のimmutableなtext出力を一緒に保存しながら、後から個別に一覧・復元したい場合に
 Document Indexを使います。
+公開CLIと実CIログ2件で受取側まで再実行する例は
+[CIログ引き渡し事例](../../examples/ci-log-handoff/CASE_STUDY.ja.md)を参照してください。
 
 ## 1. 3つの成果物を作りpackする
 

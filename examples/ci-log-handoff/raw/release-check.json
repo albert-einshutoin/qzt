@@ -1,0 +1,21 @@
+{
+  "release": "https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5",
+  "product_source": "3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe",
+  "retrieval_method": "gh release download v0.1.0-pre.5 -p qzt-aarch64-apple-darwin.tar.xz -p qzt-aarch64-apple-darwin.tar.xz.sha256",
+  "retrieved_at_utc": "2026-09-27T16:45:03.860964Z",
+  "archive_bytes": 522792,
+  "archive_sha256": "3cbcab43f1c79ff11b756af292524715d1ca618c0445e4157e775876e454a9d1",
+  "sidecar_bytes": 99,
+  "sidecar_sha256": "6a934a5897a14f7009b6d33aa9f5ce1ad8734a8d3fdfa056e40e703c0712726a",
+  "sidecar_content": "3cbcab43f1c79ff11b756af292524715d1ca618c0445e4157e775876e454a9d1 *qzt-aarch64-apple-darwin.tar.xz\n\n",
+  "sidecar_matches_archive": true,
+  "target": "aarch64-apple-darwin",
+  "binary_version": "qzt 0.1.0-pre.5",
+  "binary_bytes": 1681408,
+  "binary_sha256": "989e6f21d80c5f14ee90b27aabe156760f0c6992bc6a5520aaa1400ba20b29be",
+  "environment": {
+    "os": "macOS 27.0 (26A428)",
+    "cpu": "Apple M4",
+    "architecture": "arm64"
+  }
+}

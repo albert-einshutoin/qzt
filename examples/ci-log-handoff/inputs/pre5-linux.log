@@ -1,0 +1,438 @@
+﻿2026-09-27T12:02:03.4404700Z Current runner version: '2.337.0'
+2026-09-27T12:02:03.4429354Z ##[group]Runner Image Provisioner
+2026-09-27T12:02:03.4430166Z Hosted Compute Agent
+2026-09-27T12:02:03.4430691Z Version: 20260828.587
+2026-09-27T12:02:03.4431702Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-27T12:02:03.4432377Z Build Date: 2026-08-28T16:44:25Z
+2026-09-27T12:02:03.4433396Z Worker ID: {c394065f-5532-4b8d-b305-0b6db4a3b78e}
+2026-09-27T12:02:03.4434084Z Azure Region: westus3
+2026-09-27T12:02:03.4434627Z ##[endgroup]
+2026-09-27T12:02:03.4436095Z ##[group]Operating System
+2026-09-27T12:02:03.4436673Z Ubuntu
+2026-09-27T12:02:03.4437212Z 22.04.5
+2026-09-27T12:02:03.4437684Z LTS
+2026-09-27T12:02:03.4438140Z ##[endgroup]
+2026-09-27T12:02:03.4438698Z ##[group]Runner Image
+2026-09-27T12:02:03.4439253Z Image: ubuntu-22.04
+2026-09-27T12:02:03.4439783Z Version: 20260920.303.1
+2026-09-27T12:02:03.4441068Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20260920.303/images/ubuntu/Ubuntu2204-Readme.md
+2026-09-27T12:02:03.4442478Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20260920.303
+2026-09-27T12:02:03.4443351Z ##[endgroup]
+2026-09-27T12:02:03.4444434Z ##[group]GITHUB_TOKEN Permissions
+2026-09-27T12:02:03.4446283Z Contents: read
+2026-09-27T12:02:03.4446922Z Metadata: read
+2026-09-27T12:02:03.4447438Z ##[endgroup]
+2026-09-27T12:02:03.4449895Z Secret source: Actions
+2026-09-27T12:02:03.4450814Z Cache mode: write
+2026-09-27T12:02:03.4451745Z Prepare workflow directory
+2026-09-27T12:02:03.5060750Z Prepare all required actions
+2026-09-27T12:02:03.5109862Z Getting action download info
+2026-09-27T12:02:03.8489330Z Download action repository 'actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10' (SHA:df4cb1c069e1874edd31b4311f1884172cec0e10)
+2026-09-27T12:02:03.9709450Z Download action repository 'actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131' (SHA:37930b1c2abaa49bbe596cd826c3c89aef350131)
+2026-09-27T12:02:04.5385431Z Download action repository 'actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1' (SHA:ece7cb06caefa5fff74198d8649806c4678c61a1)
+2026-09-27T12:02:04.6282442Z Download action repository 'actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f' (SHA:b7c566a772e6b6bfb58ed0dc250532a479d7789f)
+2026-09-27T12:02:04.8356947Z Complete job name: build-local-artifacts (x86_64-unknown-linux-gnu)
+2026-09-27T12:02:04.9056936Z ##[group]Run git config --global core.longpaths true
+2026-09-27T12:02:04.9057756Z [36;1mgit config --global core.longpaths true[0m
+2026-09-27T12:02:04.9327597Z shell: /usr/bin/bash -e {0}
+2026-09-27T12:02:04.9328448Z env:
+2026-09-27T12:02:04.9332739Z   GH_TOKEN: ***
+2026-09-27T12:02:04.9333410Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:04.9334361Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:04.9335084Z ##[endgroup]
+2026-09-27T12:02:04.9759781Z ##[group]Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+2026-09-27T12:02:04.9760576Z with:
+2026-09-27T12:02:04.9761146Z   persist-credentials: false
+2026-09-27T12:02:04.9761643Z   submodules: recursive
+2026-09-27T12:02:04.9762133Z   repository: albert-einshutoin/qzt
+2026-09-27T12:02:04.9765858Z   token: ***
+2026-09-27T12:02:04.9766253Z   ssh-strict: true
+2026-09-27T12:02:04.9766661Z   ssh-user: git
+2026-09-27T12:02:04.9767054Z   clean: true
+2026-09-27T12:02:04.9767477Z   sparse-checkout-cone-mode: true
+2026-09-27T12:02:04.9767977Z   fetch-depth: 1
+2026-09-27T12:02:04.9768382Z   fetch-tags: false
+2026-09-27T12:02:04.9768805Z   show-progress: true
+2026-09-27T12:02:04.9769220Z   lfs: false
+2026-09-27T12:02:04.9769617Z   set-safe-directory: true
+2026-09-27T12:02:04.9770051Z env:
+2026-09-27T12:02:04.9773797Z   GH_TOKEN: ***
+2026-09-27T12:02:04.9774452Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:04.9775493Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:04.9776494Z ##[endgroup]
+2026-09-27T12:02:05.0768389Z Syncing repository: albert-einshutoin/qzt
+2026-09-27T12:02:05.0771736Z ##[group]Getting Git version info
+2026-09-27T12:02:05.0772453Z Working directory is '/home/runner/work/qzt/qzt'
+2026-09-27T12:02:05.0773449Z [command]/usr/bin/git version
+2026-09-27T12:02:05.0775138Z git version 2.55.0
+2026-09-27T12:02:05.0803933Z ##[endgroup]
+2026-09-27T12:02:05.0818474Z Copying '/home/runner/.gitconfig' to '/home/runner/work/_temp/8254c652-c70f-447b-b69e-3bd74f052d33/.gitconfig'
+2026-09-27T12:02:05.0829578Z Temporarily overriding HOME='/home/runner/work/_temp/8254c652-c70f-447b-b69e-3bd74f052d33' before making global git config changes
+2026-09-27T12:02:05.0832075Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-27T12:02:05.0835673Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/qzt/qzt
+2026-09-27T12:02:05.0874452Z Deleting the contents of '/home/runner/work/qzt/qzt'
+2026-09-27T12:02:05.0878816Z ##[group]Determining repository object format
+2026-09-27T12:02:05.0880818Z ##[endgroup]
+2026-09-27T12:02:05.0882468Z ##[group]Initializing the repository
+2026-09-27T12:02:05.0885646Z [command]/usr/bin/git init /home/runner/work/qzt/qzt
+2026-09-27T12:02:05.0995810Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-27T12:02:05.0997867Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-27T12:02:05.1000077Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-27T12:02:05.1001939Z hint: call:
+2026-09-27T12:02:05.1003085Z hint:
+2026-09-27T12:02:05.1004657Z hint: 	git config --global init.defaultBranch <name>
+2026-09-27T12:02:05.1006032Z hint:
+2026-09-27T12:02:05.1007328Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-27T12:02:05.1009387Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-27T12:02:05.1011238Z hint:
+2026-09-27T12:02:05.1012227Z hint: 	git branch -m <name>
+2026-09-27T12:02:05.1013334Z hint:
+2026-09-27T12:02:05.1014742Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-27T12:02:05.1016957Z Initialized empty Git repository in /home/runner/work/qzt/qzt/.git/
+2026-09-27T12:02:05.1020605Z [command]/usr/bin/git remote add origin https://github.com/albert-einshutoin/qzt
+2026-09-27T12:02:05.1043521Z ##[endgroup]
+2026-09-27T12:02:05.1044837Z ##[group]Disabling automatic garbage collection
+2026-09-27T12:02:05.1047933Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-27T12:02:05.1079454Z ##[endgroup]
+2026-09-27T12:02:05.1080711Z ##[group]Setting up auth
+2026-09-27T12:02:05.1082110Z Removing SSH command configuration
+2026-09-27T12:02:05.1088297Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-27T12:02:05.1120565Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-27T12:02:05.1455395Z Removing HTTP extra header
+2026-09-27T12:02:05.1461295Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-27T12:02:05.1524716Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-27T12:02:05.1738328Z Removing includeIf entries pointing to credentials config files
+2026-09-27T12:02:05.1744034Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-27T12:02:05.1777597Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-27T12:02:05.1982963Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-27T12:02:05.2021120Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/qzt/qzt/.git.path /home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:05.2051655Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/qzt/qzt/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:05.2080299Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:05.2112229Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:05.2149559Z ##[endgroup]
+2026-09-27T12:02:05.2150391Z ##[group]Fetching the repository
+2026-09-27T12:02:05.2158044Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +refs/tags/v0.1.0-pre.5:refs/tags/v0.1.0-pre.5
+2026-09-27T12:02:06.3185331Z From https://github.com/albert-einshutoin/qzt
+2026-09-27T12:02:06.3188226Z  * [new tag]         v0.1.0-pre.5 -> v0.1.0-pre.5
+2026-09-27T12:02:06.3197579Z [command]/usr/bin/git tag --list v0.1.0-pre.5
+2026-09-27T12:02:06.3225129Z v0.1.0-pre.5
+2026-09-27T12:02:06.3235923Z [command]/usr/bin/git rev-parse refs/tags/v0.1.0-pre.5^{commit}
+2026-09-27T12:02:06.3261777Z 3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe
+2026-09-27T12:02:06.3266141Z ##[endgroup]
+2026-09-27T12:02:06.3267637Z ##[group]Determining the checkout info
+2026-09-27T12:02:06.3269636Z ##[endgroup]
+2026-09-27T12:02:06.3271640Z [command]/usr/bin/git sparse-checkout disable
+2026-09-27T12:02:06.3318999Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-27T12:02:06.3352058Z ##[group]Checking out the ref
+2026-09-27T12:02:06.3354821Z [command]/usr/bin/git checkout --progress --force refs/tags/v0.1.0-pre.5
+2026-09-27T12:02:06.3647182Z Note: switching to 'refs/tags/v0.1.0-pre.5'.
+2026-09-27T12:02:06.3648705Z 
+2026-09-27T12:02:06.3649996Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-27T12:02:06.3653300Z changes and commit them, and you can discard any commits you make in this
+2026-09-27T12:02:06.3656614Z state without impacting any branches by switching back to a branch.
+2026-09-27T12:02:06.3658555Z 
+2026-09-27T12:02:06.3659819Z If you want to create a new branch to retain commits you create, you may
+2026-09-27T12:02:06.3663219Z do so (now or later) by using -c with the switch command. Example:
+2026-09-27T12:02:06.3664931Z 
+2026-09-27T12:02:06.3665484Z   git switch -c <new-branch-name>
+2026-09-27T12:02:06.3666354Z 
+2026-09-27T12:02:06.3666884Z Or undo this operation with:
+2026-09-27T12:02:06.3667665Z 
+2026-09-27T12:02:06.3668149Z   git switch -
+2026-09-27T12:02:06.3668759Z 
+2026-09-27T12:02:06.3670211Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-27T12:02:06.3671895Z 
+2026-09-27T12:02:06.3673085Z HEAD is now at 3bc7d25 Merge pull request #322 from albert-einshutoin/release/pre5-candidate
+2026-09-27T12:02:06.3678021Z ##[endgroup]
+2026-09-27T12:02:06.3679937Z ##[group]Setting up auth for fetching submodules
+2026-09-27T12:02:06.3683963Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-27T12:02:06.3714415Z [command]/usr/bin/git config --global include.path /home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:06.3737978Z [command]/usr/bin/git config --global --unset-all url.https://github.com/.insteadOf
+2026-09-27T12:02:06.3771246Z [command]/usr/bin/git config --global --add url.https://github.com/.insteadOf git@github.com:
+2026-09-27T12:02:06.3807427Z [command]/usr/bin/git config --global --add url.https://github.com/.insteadOf org-75466198@github.com:
+2026-09-27T12:02:06.3838574Z ##[endgroup]
+2026-09-27T12:02:06.3840696Z ##[group]Fetching submodules
+2026-09-27T12:02:06.3842456Z [command]/usr/bin/git submodule sync --recursive
+2026-09-27T12:02:06.4059881Z [command]/usr/bin/git -c protocol.version=2 submodule update --init --force --depth=1 --recursive
+2026-09-27T12:02:06.4270401Z [command]/usr/bin/git submodule foreach --recursive git config --local gc.auto 0
+2026-09-27T12:02:06.4472255Z ##[endgroup]
+2026-09-27T12:02:06.4509889Z [command]/usr/bin/git log -1 --format=%H
+2026-09-27T12:02:06.4538886Z 3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe
+2026-09-27T12:02:06.4548243Z ##[group]Removing auth
+2026-09-27T12:02:06.4549421Z Removing SSH command configuration
+2026-09-27T12:02:06.4554192Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-27T12:02:06.4587755Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-27T12:02:06.4808153Z Removing HTTP extra header
+2026-09-27T12:02:06.4810199Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-27T12:02:06.4838183Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-27T12:02:06.5033285Z Removing includeIf entries pointing to credentials config files
+2026-09-27T12:02:06.5036237Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-27T12:02:06.5062395Z includeif.gitdir:/home/runner/work/qzt/qzt/.git.path
+2026-09-27T12:02:06.5065122Z includeif.gitdir:/home/runner/work/qzt/qzt/.git/worktrees/*.path
+2026-09-27T12:02:06.5066919Z includeif.gitdir:/github/workspace/.git.path
+2026-09-27T12:02:06.5068765Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-09-27T12:02:06.5073118Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/qzt/qzt/.git.path
+2026-09-27T12:02:06.5092145Z /home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:06.5101546Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/qzt/qzt/.git.path /home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:06.5136089Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/qzt/qzt/.git/worktrees/*.path
+2026-09-27T12:02:06.5158519Z /home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:06.5168665Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/qzt/qzt/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:06.5204145Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-09-27T12:02:06.5224348Z /github/runner_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:06.5235558Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:06.5271229Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-09-27T12:02:06.5293832Z /github/runner_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:06.5303911Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config
+2026-09-27T12:02:06.5338989Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-27T12:02:06.5535995Z Removing credentials config '/home/runner/work/_temp/git-credentials-6b74e01c-8eb9-462b-956e-d2f8f55998f9.config'
+2026-09-27T12:02:06.5544047Z ##[endgroup]
+2026-09-27T12:02:06.5726524Z ##[group]Run set -euo pipefail
+2026-09-27T12:02:06.5727680Z [36;1mset -euo pipefail[0m
+2026-09-27T12:02:06.5728764Z [36;1mcase "${RUNNER_OS}-${RUNNER_ARCH}" in[0m
+2026-09-27T12:02:06.5729948Z [36;1m  Linux-X64)[0m
+2026-09-27T12:02:06.5731340Z [36;1m    archive="cargo-dist-x86_64-unknown-linux-gnu.tar.xz"[0m
+2026-09-27T12:02:06.5733310Z [36;1m    expected="cd355dab0b4c02fb59038fef87655550021d07f45f1d82f947a34ef98560abb8"[0m
+2026-09-27T12:02:06.5734993Z [36;1m    ;;[0m
+2026-09-27T12:02:06.5735826Z [36;1m  macOS-X64)[0m
+2026-09-27T12:02:06.5736942Z [36;1m    archive="cargo-dist-x86_64-apple-darwin.tar.xz"[0m
+2026-09-27T12:02:06.5738850Z [36;1m    expected="fd4d8f9f07802359cbcdc52bac3abd7d5201c4b73a7cbcdd6faca2232a389f0c"[0m
+2026-09-27T12:02:06.5740544Z [36;1m    ;;[0m
+2026-09-27T12:02:06.5741445Z [36;1m  macOS-ARM64)[0m
+2026-09-27T12:02:06.5742622Z [36;1m    archive="cargo-dist-aarch64-apple-darwin.tar.xz"[0m
+2026-09-27T12:02:06.5744592Z [36;1m    expected="decb01c64c12501931c3cac3111b368a7f48adf8d9e65455c08e5757b9a1fd6f"[0m
+2026-09-27T12:02:06.5746266Z [36;1m    ;;[0m
+2026-09-27T12:02:06.5747704Z [36;1m  *) echo "unsupported cargo-dist runner: ${RUNNER_OS}-${RUNNER_ARCH}" >&2; exit 1 ;;[0m
+2026-09-27T12:02:06.5749395Z [36;1mesac[0m
+2026-09-27T12:02:06.5750859Z [36;1murl="https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/${archive}"[0m
+2026-09-27T12:02:06.5752742Z [36;1mpath="${RUNNER_TEMP}/${archive}"[0m
+2026-09-27T12:02:06.5754173Z [36;1mcurl --proto '=https' --tlsv1.2 -fsSL "${url}" -o "${path}"[0m
+2026-09-27T12:02:06.5755842Z [36;1mactual="$(shasum -a 256 "${path}" | awk '{ print $1 }')"[0m
+2026-09-27T12:02:06.5757234Z [36;1mtest "${expected}" = "${actual}"[0m
+2026-09-27T12:02:06.5758430Z [36;1mtar -xJf "${path}" -C "${RUNNER_TEMP}"[0m
+2026-09-27T12:02:06.5760128Z [36;1minstall -m 0755 "${RUNNER_TEMP}/${archive%.tar.xz}/dist" "${HOME}/.cargo/bin/dist"[0m
+2026-09-27T12:02:06.5808627Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-27T12:02:06.5809933Z env:
+2026-09-27T12:02:06.5818728Z   GH_TOKEN: ***
+2026-09-27T12:02:06.5820076Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:06.5822214Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:06.5823747Z ##[endgroup]
+2026-09-27T12:02:07.9175703Z ##[group]Run actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+2026-09-27T12:02:07.9176146Z with:
+2026-09-27T12:02:07.9176345Z   pattern: artifacts-*
+2026-09-27T12:02:07.9176563Z   path: target/distrib/
+2026-09-27T12:02:07.9176773Z   merge-multiple: true
+2026-09-27T12:02:07.9177003Z   repository: albert-einshutoin/qzt
+2026-09-27T12:02:07.9177250Z   run-id: 36317632199
+2026-09-27T12:02:07.9177444Z env:
+2026-09-27T12:02:07.9179953Z   GH_TOKEN: ***
+2026-09-27T12:02:07.9180366Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:07.9180911Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:07.9181500Z ##[endgroup]
+2026-09-27T12:02:08.2961371Z Found 2 artifact(s)
+2026-09-27T12:02:08.2962905Z Filtering artifacts by pattern 'artifacts-*'
+2026-09-27T12:02:08.2982460Z Preparing to download the following artifacts:
+2026-09-27T12:02:08.2983813Z - artifacts-plan-dist-manifest (ID: 10931446598, Size: 2675, Expected Digest: sha256:f3ecf19d50386879818157ca9f3b453b56ae1ec8c59172e7e5c062d05b84815c)
+2026-09-27T12:02:08.7360647Z Redirecting to blob download url: https://productionresultssa6.blob.core.windows.net/actions-results/edebfc18-8888-4d25-b7b1-215f5fd988ae/workflow-job-run-39c602dc-d6f2-51fe-a446-71be3f999db5/artifacts/df7ed1f4fa5d247257f11cf6bef2ceca59d58e372ecd92c424df2261d6942f64.zip
+2026-09-27T12:02:08.7363496Z Starting download of artifact to: /home/runner/work/qzt/qzt/target/distrib
+2026-09-27T12:02:08.9482002Z (node:2383) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-09-27T12:02:08.9484790Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-27T12:02:08.9521422Z SHA256 digest of downloaded artifact is f3ecf19d50386879818157ca9f3b453b56ae1ec8c59172e7e5c062d05b84815c
+2026-09-27T12:02:08.9523259Z Artifact download completed successfully.
+2026-09-27T12:02:08.9524310Z Total of 1 artifact(s) downloaded
+2026-09-27T12:02:08.9528525Z Download artifact has finished successfully
+2026-09-27T12:02:08.9609173Z ##[group]Run 
+2026-09-27T12:02:08.9609423Z [36;1m[0m
+2026-09-27T12:02:08.9647349Z shell: /usr/bin/bash -e {0}
+2026-09-27T12:02:08.9647633Z env:
+2026-09-27T12:02:08.9650156Z   GH_TOKEN: ***
+2026-09-27T12:02:08.9650559Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:08.9651395Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:08.9651855Z ##[endgroup]
+2026-09-27T12:02:08.9783491Z ##[group]Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+2026-09-27T12:02:08.9783896Z with:
+2026-09-27T12:02:08.9784103Z   python-version: 3.12
+2026-09-27T12:02:08.9784322Z   check-latest: false
+2026-09-27T12:02:08.9786790Z   token: ***
+2026-09-27T12:02:08.9786999Z   update-environment: true
+2026-09-27T12:02:08.9787240Z   allow-prereleases: false
+2026-09-27T12:02:08.9787483Z   freethreaded: false
+2026-09-27T12:02:08.9787685Z env:
+2026-09-27T12:02:08.9789950Z   GH_TOKEN: ***
+2026-09-27T12:02:08.9790302Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:08.9876227Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:08.9876903Z ##[endgroup]
+2026-09-27T12:02:09.1210294Z ##[group]Installed versions
+2026-09-27T12:02:09.1909338Z Successfully set up CPython (3.12.14)
+2026-09-27T12:02:09.1910280Z ##[endgroup]
+2026-09-27T12:02:09.2006941Z ##[group]Run set -euo pipefail
+2026-09-27T12:02:09.2007486Z [36;1mset -euo pipefail[0m
+2026-09-27T12:02:09.2008116Z [36;1mtoolchain="$(rustup show active-toolchain | awk '{ print $1 }')"[0m
+2026-09-27T12:02:09.2008808Z [36;1mtest -n "$toolchain"[0m
+2026-09-27T12:02:09.2009346Z [36;1mecho "RUSTUP_TOOLCHAIN=$toolchain" >> "$GITHUB_ENV"[0m
+2026-09-27T12:02:09.2010025Z [36;1mexport RUSTUP_TOOLCHAIN="$toolchain"[0m
+2026-09-27T12:02:09.2010718Z [36;1mpython scripts/record-build-environment.py record \[0m
+2026-09-27T12:02:09.2011613Z [36;1m  --source-sha "$(git rev-parse HEAD)" \[0m
+2026-09-27T12:02:09.2012205Z [36;1m  --target 'x86_64-unknown-linux-gnu' \[0m
+2026-09-27T12:02:09.2013046Z [36;1m  --profile 'dist (release with thin LTO)' --features 'default; no feature override' \[0m
+2026-09-27T12:02:09.2014641Z [36;1m  --build-command 'dist build --tag=v0.1.0-pre.5 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=x86_64-unknown-linux-gnu' \[0m
+2026-09-27T12:02:09.2015885Z [36;1m  --output "$BUILD_ENV_NAME"[0m
+2026-09-27T12:02:09.2201298Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-27T12:02:09.2201839Z env:
+2026-09-27T12:02:09.2206483Z   GH_TOKEN: ***
+2026-09-27T12:02:09.2207087Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:09.2208017Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:09.2208803Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:09.2209686Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-27T12:02:09.2210445Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:09.2211262Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:09.2211857Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:09.2212622Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-27T12:02:09.2213364Z ##[endgroup]
+2026-09-27T12:02:12.2566544Z ##[group]Run # Actually do builds and make zips and whatnot
+2026-09-27T12:02:12.2566990Z [36;1m# Actually do builds and make zips and whatnot[0m
+2026-09-27T12:02:12.2567734Z [36;1mscripts/release-workflow-build.sh build --tag=v0.1.0-pre.5 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=x86_64-unknown-linux-gnu[0m
+2026-09-27T12:02:12.2568430Z [36;1mecho "dist ran successfully"[0m
+2026-09-27T12:02:12.2606866Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-27T12:02:12.2607205Z env:
+2026-09-27T12:02:12.2609927Z   GH_TOKEN: ***
+2026-09-27T12:02:12.2610279Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:12.2610814Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:12.2611436Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:12.2611851Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-27T12:02:12.2612325Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:12.2612703Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:12.2613069Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:12.2613443Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-27T12:02:12.2613794Z   RUSTUP_TOOLCHAIN: stable-x86_64-unknown-linux-gnu
+2026-09-27T12:02:12.2614087Z ##[endgroup]
+2026-09-27T12:02:14.3313452Z building artifacts:
+2026-09-27T12:02:14.3313969Z   qzt-x86_64-unknown-linux-gnu.tar.xz
+2026-09-27T12:02:14.3314502Z   qzt-x86_64-unknown-linux-gnu.tar.xz.sha256
+2026-09-27T12:02:14.3314864Z 
+2026-09-27T12:02:14.3315261Z building x86_64-unknown-linux-gnu target, using cargo profile dist --workspace)
+2026-09-27T12:02:14.4058635Z    Compiling libc v0.2.186
+2026-09-27T12:02:14.4059129Z    Compiling shlex v2.0.1
+2026-09-27T12:02:14.4059563Z    Compiling find-msvc-tools v0.1.9
+2026-09-27T12:02:14.4060082Z    Compiling pkg-config v0.3.33
+2026-09-27T12:02:17.5489885Z    Compiling zstd-safe v7.2.4
+2026-09-27T12:02:17.5491793Z    Compiling cfg-if v1.0.4
+2026-09-27T12:02:17.6563086Z    Compiling cpufeatures v0.3.0
+2026-09-27T12:02:17.6653861Z    Compiling arrayref v0.3.9
+2026-09-27T12:02:17.6819919Z    Compiling arrayvec v0.7.6
+2026-09-27T12:02:17.6855712Z    Compiling constant_time_eq v0.4.2
+2026-09-27T12:02:17.9343860Z    Compiling same-file v1.0.6
+2026-09-27T12:02:20.4622744Z    Compiling jobserver v0.1.34
+2026-09-27T12:02:20.6359659Z    Compiling cc v1.2.63
+2026-09-27T12:02:21.5649399Z    Compiling zstd-sys v2.0.16+zstd.1.5.7
+2026-09-27T12:02:21.5649928Z    Compiling blake3 v1.8.5
+2026-09-27T12:02:35.7402917Z    Compiling zstd v0.13.3
+2026-09-27T12:02:35.9103696Z    Compiling qzt v0.1.0-pre.5 (/home/runner/work/qzt/qzt)
+2026-09-27T12:02:43.7694344Z     Finished `dist` profile [optimized] target(s) in 29.43s
+2026-09-27T12:02:49.7842751Z qzt (x86_64-unknown-linux-gnu)
+2026-09-27T12:02:49.7843128Z 
+2026-09-27T12:02:49.7847515Z ┌────────────────────┬─────────────────────────────────────────┐
+2026-09-27T12:02:49.7848580Z │ Category           ┆ Libraries                               │
+2026-09-27T12:02:49.7849565Z ╞════════════════════╪═════════════════════════════════════════╡
+2026-09-27T12:02:49.7850463Z │ System             ┆ /usr/lib/x86_64-linux-gnu/libc.so.6     │
+2026-09-27T12:02:49.7851521Z │                    ┆ /usr/lib/x86_64-linux-gnu/libgcc_s.so.1 │
+2026-09-27T12:02:49.7852353Z ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+2026-09-27T12:02:49.7852904Z │ Homebrew           ┆                                         │
+2026-09-27T12:02:49.7853501Z ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+2026-09-27T12:02:49.7854070Z │ Public (unmanaged) ┆                                         │
+2026-09-27T12:02:49.7854648Z ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+2026-09-27T12:02:49.7855383Z │ Frameworks         ┆                                         │
+2026-09-27T12:02:49.7856953Z ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┤
+2026-09-27T12:02:49.7857854Z │ Other              ┆                                         │
+2026-09-27T12:02:49.7858796Z └────────────────────┴─────────────────────────────────────────┘
+2026-09-27T12:02:49.7859552Z dist ran successfully
+2026-09-27T12:02:49.7893759Z ##[group]Run python scripts/record-build-environment.py verify --input "$BUILD_ENV_NAME"
+2026-09-27T12:02:49.7894499Z [36;1mpython scripts/record-build-environment.py verify --input "$BUILD_ENV_NAME"[0m
+2026-09-27T12:02:49.7935548Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-27T12:02:49.7935886Z env:
+2026-09-27T12:02:49.7938506Z   GH_TOKEN: ***
+2026-09-27T12:02:49.7938859Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:49.7939391Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:49.7939849Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.7940305Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-27T12:02:49.7940715Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.7941336Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.7941774Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.7942151Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-27T12:02:49.7942512Z   RUSTUP_TOOLCHAIN: stable-x86_64-unknown-linux-gnu
+2026-09-27T12:02:49.7942818Z ##[endgroup]
+2026-09-27T12:02:49.9149209Z build environment unchanged: 3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe x86_64-unknown-linux-gnu
+2026-09-27T12:02:49.9232787Z ##[group]Run # Parse out what we just built and upload it to scratch storage
+2026-09-27T12:02:49.9233314Z [36;1m# Parse out what we just built and upload it to scratch storage[0m
+2026-09-27T12:02:49.9233702Z [36;1mecho "paths<<EOF" >> "$GITHUB_OUTPUT"[0m
+2026-09-27T12:02:49.9234123Z [36;1mscripts/release-workflow-build.sh print-local >> "$GITHUB_OUTPUT"[0m
+2026-09-27T12:02:49.9234511Z [36;1mecho "EOF" >> "$GITHUB_OUTPUT"[0m
+2026-09-27T12:02:49.9234767Z [36;1m[0m
+2026-09-27T12:02:49.9235006Z [36;1mscripts/release-workflow-build.sh copy[0m
+2026-09-27T12:02:49.9272195Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-27T12:02:49.9272525Z env:
+2026-09-27T12:02:49.9275187Z   GH_TOKEN: ***
+2026-09-27T12:02:49.9275534Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:49.9276075Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:49.9276584Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.9276993Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-27T12:02:49.9277400Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.9277765Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.9278159Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.9278527Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-27T12:02:49.9278884Z   RUSTUP_TOOLCHAIN: stable-x86_64-unknown-linux-gnu
+2026-09-27T12:02:49.9279166Z ##[endgroup]
+2026-09-27T12:02:49.9488924Z ##[group]Run actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+2026-09-27T12:02:49.9489321Z with:
+2026-09-27T12:02:49.9489563Z   name: artifacts-build-local-x86_64-unknown-linux-gnu
+2026-09-27T12:02:49.9490730Z   path: /home/runner/work/qzt/qzt/target/distrib/qzt-x86_64-unknown-linux-gnu.tar.xz
+/home/runner/work/qzt/qzt/target/distrib/qzt-x86_64-unknown-linux-gnu.tar.xz.sha256
+target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+
+2026-09-27T12:02:49.9492068Z   if-no-files-found: warn
+2026-09-27T12:02:49.9492299Z   compression-level: 6
+2026-09-27T12:02:49.9492517Z   overwrite: false
+2026-09-27T12:02:49.9492884Z   include-hidden-files: false
+2026-09-27T12:02:49.9493113Z env:
+2026-09-27T12:02:49.9495530Z   GH_TOKEN: ***
+2026-09-27T12:02:49.9495880Z   BUILD_MANIFEST_NAME: target/distrib/x86_64-unknown-linux-gnu-dist-manifest.json
+2026-09-27T12:02:49.9496448Z   BUILD_ENV_NAME: target/distrib/x86_64-unknown-linux-gnu-build-environment.json
+2026-09-27T12:02:49.9496897Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.9497310Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-27T12:02:49.9497733Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.9498101Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.9498473Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-27T12:02:49.9498847Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-27T12:02:49.9499207Z   RUSTUP_TOOLCHAIN: stable-x86_64-unknown-linux-gnu
+2026-09-27T12:02:49.9499492Z ##[endgroup]
+2026-09-27T12:02:50.1149450Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-09-27T12:02:50.1152367Z The least common ancestor is /home/runner/work/qzt/qzt/target/distrib. This will be the root directory of the artifact
+2026-09-27T12:02:50.1153418Z With the provided path, there will be 4 files uploaded
+2026-09-27T12:02:50.1158386Z Artifact name is valid!
+2026-09-27T12:02:50.1159211Z Root directory input is valid!
+2026-09-27T12:02:50.4625142Z Beginning upload of artifact content to blob storage
+2026-09-27T12:02:50.9849203Z Uploaded bytes 708044
+2026-09-27T12:02:51.0405252Z Finished uploading artifact content to blob storage!
+2026-09-27T12:02:51.0406135Z SHA256 digest of uploaded artifact zip is 444b2b8af5f2f97ac46691f8d4392786ada1ec16f86ff5cda7c852e46f7c83fa
+2026-09-27T12:02:51.0407809Z Finalizing artifact upload
+2026-09-27T12:02:51.3776736Z Artifact artifacts-build-local-x86_64-unknown-linux-gnu.zip successfully finalized. Artifact ID 10930879423
+2026-09-27T12:02:51.3778655Z Artifact artifacts-build-local-x86_64-unknown-linux-gnu has been successfully uploaded! Final size is 708044 bytes. Artifact ID is 10930879423
+2026-09-27T12:02:51.3781576Z Artifact download URL: https://github.com/albert-einshutoin/qzt/actions/runs/36317632199/artifacts/10930879423
+2026-09-27T12:02:51.3940339Z Post job cleanup.
+2026-09-27T12:02:51.5307574Z Post job cleanup.
+2026-09-27T12:02:51.6242395Z [command]/usr/bin/git version
+2026-09-27T12:02:51.6290220Z git version 2.55.0
+2026-09-27T12:02:51.6332707Z Copying '/home/runner/.gitconfig' to '/home/runner/work/_temp/559266c6-d5ec-4f3c-a684-dbf22742348e/.gitconfig'
+2026-09-27T12:02:51.6343200Z Temporarily overriding HOME='/home/runner/work/_temp/559266c6-d5ec-4f3c-a684-dbf22742348e' before making global git config changes
+2026-09-27T12:02:51.6344728Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-27T12:02:51.6350584Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/qzt/qzt
+2026-09-27T12:02:51.6386739Z Removing SSH command configuration
+2026-09-27T12:02:51.6395185Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-27T12:02:51.6431495Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-27T12:02:51.6653122Z Removing HTTP extra header
+2026-09-27T12:02:51.6663112Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-27T12:02:51.6692589Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-27T12:02:51.6937804Z Removing includeIf entries pointing to credentials config files
+2026-09-27T12:02:51.6939233Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-27T12:02:51.6989191Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-27T12:02:51.7470189Z Cleaning up orphan processes

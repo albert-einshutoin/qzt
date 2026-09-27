@@ -1,0 +1,219 @@
+{
+  "schema": "qzt-ci-log-handoff-source-v1",
+  "repository": "albert-einshutoin/qzt",
+  "input_order": [
+    {
+      "file": "pre4-linux.log",
+      "doc_id": "ci/pre4-linux.log",
+      "bytes": 34063,
+      "sha256": "1d42a7aae2ba967bf6a39e40dfaaedfd8262ba9e42fa7fd2b3511f0a1004523b",
+      "retrieved_at_utc": "2026-09-27T16:45:16.096194Z",
+      "retrieval_method": "gh api repos/albert-einshutoin/qzt/actions/jobs/108448130555/logs > examples/ci-log-handoff/inputs/pre4-linux.log",
+      "job_url": "https://github.com/albert-einshutoin/qzt/actions/runs/36257908117/job/108448130555",
+      "run_id": 36257908117,
+      "run_attempt": 1,
+      "job_id": 108448130555,
+      "head_sha": "4715196614c54c54b7809f99a422343ef2cf7b85",
+      "job_name": "build-local-artifacts (x86_64-unknown-linux-gnu)",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "enable windows longpaths",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Install Rust non-interactively if not already installed",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 5,
+          "name": "Install digest-pinned dist (Unix)",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Install digest-pinned dist (Windows)",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 7,
+          "name": "Fetch local artifacts",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Record the toolchain used by the local dist build",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Build artifacts",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Verify the dist build kept its selected toolchain",
+          "conclusion": "failure"
+        },
+        {
+          "number": 13,
+          "name": "Post-build",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 14,
+          "name": "Upload artifacts",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 27,
+          "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 28,
+          "name": "Post Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+          "conclusion": "success"
+        },
+        {
+          "number": 29,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "file": "pre5-linux.log",
+      "doc_id": "ci/pre5-linux.log",
+      "bytes": 38038,
+      "sha256": "70bcd3e7abdf6340ff17f9259f058a68b27bd78c2563b8e8a61475489628de42",
+      "retrieved_at_utc": "2026-09-27T16:45:17.893580Z",
+      "retrieval_method": "gh api repos/albert-einshutoin/qzt/actions/jobs/108615277305/logs > examples/ci-log-handoff/inputs/pre5-linux.log",
+      "job_url": "https://github.com/albert-einshutoin/qzt/actions/runs/36317632199/job/108615277305",
+      "run_id": 36317632199,
+      "run_attempt": 1,
+      "job_id": 108615277305,
+      "head_sha": "3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe",
+      "job_name": "build-local-artifacts (x86_64-unknown-linux-gnu)",
+      "conclusion": "success",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "enable windows longpaths",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Install Rust non-interactively if not already installed",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 5,
+          "name": "Install digest-pinned dist (Unix)",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Install digest-pinned dist (Windows)",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 7,
+          "name": "Fetch local artifacts",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Install dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Record the toolchain used by the local dist build",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Build artifacts",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Verify the dist build kept its selected toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 13,
+          "name": "Post-build",
+          "conclusion": "success"
+        },
+        {
+          "number": 14,
+          "name": "Upload artifacts",
+          "conclusion": "success"
+        },
+        {
+          "number": 27,
+          "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "conclusion": "success"
+        },
+        {
+          "number": 28,
+          "name": "Post Run actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+          "conclusion": "success"
+        },
+        {
+          "number": 29,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "published_cli": {
+    "tag": "v0.1.0-pre.5",
+    "product_source": "3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe",
+    "target": "aarch64-apple-darwin",
+    "archive": "qzt-aarch64-apple-darwin.tar.xz",
+    "archive_sha256": "3cbcab43f1c79ff11b756af292524715d1ca618c0445e4157e775876e454a9d1",
+    "sidecar_sha256": "6a934a5897a14f7009b6d33aa9f5ce1ad8734a8d3fdfa056e40e703c0712726a",
+    "binary_sha256": "989e6f21d80c5f14ee90b27aabe156760f0c6992bc6a5520aaa1400ba20b29be"
+  }
+}
