@@ -15,7 +15,7 @@
 ## Install / インストール
 
 現在公開中のCLIは
-[`v0.1.0-pre.3` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)
+[`v0.1.0-pre.5` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
 です。QZT v0.1はtechnical previewのままです。OSとarchitectureに合う
 archiveと対応する`.sha256`を取得し、checksum検証後に展開してください。
 Apple siliconの例です（Intel Macは`x86_64-apple-darwin`、Linux x64は
@@ -23,7 +23,7 @@ Apple siliconの例です（Intel Macは`x86_64-apple-darwin`、Linux x64は
 
 ```sh
 set -eu
-release=v0.1.0-pre.3
+release=v0.1.0-pre.5
 target=aarch64-apple-darwin
 archive="qzt-${target}.tar.xz"
 base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
@@ -41,7 +41,7 @@ QZT_BIN="$(pwd)/qzt-${target}/qzt"
 "$QZT_BIN" --version
 ```
 
-公開binaryは`qzt 0.1.0-pre.3`を返します。sidecarの真正性は、信頼する
+公開binaryは`qzt 0.1.0-pre.5`を返します。sidecarの真正性は、信頼する
 Releaseとrepositoryの経路で確認してください。以下のツアーでは展開binaryの
 絶対パスを`QZT_BIN`に設定します。
 
@@ -60,12 +60,15 @@ $actual = (Get-FileHash -Algorithm SHA256 $archive).Hash
 if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
 ```
 
-公開済みの[shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.3/qzt-installer.sh)と
-[PowerShell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.3/qzt-installer.ps1)も使えます。
+公開済みの[shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.sh)と
+[PowerShell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.ps1)も使えます。
+macOSで`sha256sum`がない場合、shell installer自身のSHA-256確認はskipされます。
+上のarchiveと別途取得したsidecarの手順を使うか、installer実行前に`sha256sum`を
+用意してください。
 Rust 1.87以降で**この公開版**をsource tagからbuildする場合:
 
 ```sh
-cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.3 --locked qzt
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 --locked qzt
 ```
 
 `cargo install qzt --version 0.1.0 --locked`はstable版がcrates.ioへ
@@ -75,7 +78,7 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.3 
 
 ## 60秒ツアー
 
-上で検証したpre.3 binaryを使用し、`QZT_BIN`にはその絶対パスを設定します。
+上で検証したpre.5 binaryを使用し、`QZT_BIN`にはその絶対パスを設定します。
 POSIX shell、`mktemp`、`cmp`を使い、独立した使い捨てdirectoryで実行します。
 
 ```sh
@@ -105,14 +108,14 @@ searchはbyte offset 11の`error` hitを1件返し、
 が入り、pre.2のversionなしattestationと元の署名・timestampは一組で保存します。
 `cmp`成功はexportの全byteが原文と一致したことを示します。
 絶対パスのbinaryと`jq`でJSON・決定性・byte一致を確認する
-[pre.3配布binary smoke](docs/guides/examples/smoke-pre3-release-tour.sh)、
-[4 targetの公開物検証結果](https://github.com/albert-einshutoin/qzt/issues/313)を参照してください。
+[pre.5配布binary smoke](docs/guides/examples/smoke-pre5-release-tour.sh)、
+[4 targetの公開物検証結果](https://github.com/albert-einshutoin/qzt/issues/323)を参照してください。
 [pre.2のsmokeと実測記録](docs/guides/tutorial-validation.md)は履歴として保持します。
 
 ## CLIの版と形式
 
 [CLIリファレンス](docs/CLI.ja.md)と以下の運用guideは、公開済み
-`v0.1.0-pre.3` binaryを対象とします。QZT container形式`qzt-0.1`は
+`v0.1.0-pre.5` binaryを対象とします。QZT container形式`qzt-0.1`は
 CLIの配布versionとは別です。検索hitは原文byteに照合しますが、
 sidecarのcomplete宣言は網羅性を証明しません。capによる停止は検証済み部分結果、
 hard limitはエラーです。attestationと資源制限の自動化を切り替える前に
@@ -194,7 +197,7 @@ production use の前に残っている既知の制限は以下です。
 - **開発版CLIの費用**: [2026年9月の100 MiB計測](docs/benchmarks/2026-09-cli-cost.md)では、
   CLIの新規process検索、実ファイルのQZT/QZI open、open済みAPI検索、独立processでの
   QZI構築時間とpeak RSS、並行検索、合計容量を区別しています。結果は記載された
-  開発commitと合成corpusのもので、公開済み`v0.1.0-pre.3` binaryの実測やSLAではありません。
+  開発commitと合成corpusのもので、公開済み`v0.1.0-pre.5` binaryの実測やSLAではありません。
 
 ### 性能数値の再現
 
@@ -299,9 +302,9 @@ diff input.txt restored.txt
 
 ## CLIリファレンス
 
-この早見表と[CLIリファレンス](docs/CLI.ja.md)は公開pre.3 binaryの
-自動化契約を説明します。[公開タグ固定のCLIリファレンス](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.3/docs/CLI.ja.md)は
-製品binaryのsource commitに固定されています。QZT形式`v0.1`はCLI versionではありません。
+この早見表と[CLIリファレンス](docs/CLI.ja.md)は公開pre.5 binaryの
+自動化契約を説明します。製品binaryの固定[source commit](https://github.com/albert-einshutoin/qzt/commit/3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe)より後に
+この文書を更新しています。QZT形式`v0.1`はCLI versionではありません。
 
 ```sh
 qzt pack input.txt -o output.qzt
@@ -472,8 +475,8 @@ Document Indexが不要なら`core`など別のprofileを選んでください�
 [価値ロードマップ #47](https://github.com/albert-einshutoin/qzt/issues/47)と
 子Issue #33–#46、#31のpreview hardening対象10件、[FFI監査 #307](https://github.com/albert-einshutoin/qzt/issues/307)は
 完了しています。Coreはrelease candidate、QZI検索と製品全体はtechnical previewです。
-公開済み[v0.1.0-pre.3](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)
-binaryの生成元は固定tag commit `017d4d19739800773ab6a54adf636ff5a43ec1fc`で、
+公開済み[v0.1.0-pre.5](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
+binaryの生成元は固定tag commit `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`で、
 後続の文書・検証PRはbinaryを変更しません。現在の優先度と保留判断は
 [#31](https://github.com/albert-einshutoin/qzt/issues/31)、証拠は子Issue・PRに置きます。
 英日の[status](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)と

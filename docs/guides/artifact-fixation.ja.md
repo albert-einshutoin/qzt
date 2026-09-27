@@ -1,7 +1,7 @@
 # pipeline成果物を検証可能なdocumentとして固定する
 
 **所要時間:** 15 minutes（約15分）  
-**前提:** [公開済みpre.3 CLI](../../README.ja.md)、`jq`、`sha256sum`
+**前提:** [公開済みpre.5 CLI](../../README.ja.md)、`jq`、`sha256sum`
 （macOSは`shasum -a 256`）。GitHub Actionsと`minisign`は任意です。
 以下の`qzt-attestation-v1`判定はこの公開版で利用できます。
 [CLIリファレンス](../CLI.ja.md)を参照してください。

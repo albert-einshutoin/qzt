@@ -6,21 +6,35 @@ English: [RELEASE.md](RELEASE.md)
 QZT v0.1.0 を公開するためのものです。QZT v0.1 は本番対応製品ではなく、
 technical preview として説明します。
 
+## 公開済みpre.5 GitHub prerelease（2026-09-27）
+
+現在の[`v0.1.0-pre.5` prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)は
+GitHub binary technical previewです。annotated tagの製品commit
+`3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`から通常のtag-only
+[run 36317632199 attempt 1](https://github.com/albert-einshutoin/qzt/actions/runs/36317632199)
+で公開しました。既存の保護された`release` environmentにownerが承認し、plan、
+4 native build、global、host、announceは成功しました。Releaseは非draftの
+prereleaseで公開assetは正確に14件です。crates.io公開はしていません。
+[候補#321](https://github.com/albert-einshutoin/qzt/issues/321)は別の未公開検証です。
+
+読み取り専用の[公開物verifier](../.github/workflows/verify-published-release.yml)は
+tag、version、固定製品SHA、公開run ID/attempt、検証commitを明示します。
+[run 36318204357](https://github.com/albert-einshutoin/qzt/actions/runs/36318204357)は
+実Release URLを取得し、globalのsource/asset照合とmacOS ARM/Intel、Linux x64、
+Windows x64のarchive、binary、installer、smokeを通しました。製品Git objectを
+別に取得し、source archiveの426ファイルと実行bitを照合しています。
+[Issue #323](https://github.com/albert-einshutoin/qzt/issues/323)、
+[tutorial検証記録](guides/tutorial-validation.md)、
+[保存したraw証拠](releases/v0.1.0-pre.5-publication-evidence.json)にhash、
+5 build環境、CI artifactのID/digest/期限、互換性、macOS ARM installer内の
+checksum skipを記録します。後続の文書・verifier commitは製品tagを変えません。
+候補workflowはtag不存在を要求するため公開後の検証には使いません。
+
 [pre.4候補](releases/v0.1.0-pre.4-candidate.ja.md)は#318で未公開検証に
 成功しましたが、`4715196614c54c54b7809f99a422343ef2cf7b85`のannotated tagが
 起動した[公開run](https://github.com/albert-einshutoin/qzt/actions/runs/36257908117)
-は失敗し、pre.4のReleaseは作られませんでした。tagと失敗runを履歴として保持し、
-移動・削除・無変更再実行しません。次の[pre.5候補](releases/v0.1.0-pre.5-candidate.ja.md)
-は#321で扱う**未公開**の準備です。公開Install/README導線はpre.3のまま維持し、
-pre.5の別の公開判断には#321の最終merge SHAと証拠を使います。
-
-tag-only workflowは、native/globalのraw `dist build` manifestを共有scriptから
-無視対象の`target/release-workflow/`へ書き、ビルド前後のsource clean・toolchain
-照合を維持します。read-onlyのpre.5候補workflowは同じscriptを使い、4 native
-成果物をglobalへ渡して、host直前の予定asset集合を確認します。hosting APIと
-保護された`release` environmentは実行しません。後日pre.5 tagをpushする前に、
-tag不存在と#321の候補SHA、ビルド環境、hash、source tree照合、native smoke、
-CI、artifact期限を確認します。以下の履歴上のpre.3公開コマンドは流用しません。
+は失敗し、pre.4 Releaseは作られませんでした。tagと失敗runは履歴です。
+[pre.5候補記録](releases/v0.1.0-pre.5-candidate.ja.md)も公開前の状態として保持します。
 
 ## 公開済みpre.3 GitHub prerelease（2026-09-26）
 

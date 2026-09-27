@@ -1,7 +1,7 @@
 # QZT archiveの検索を運用する
 
 **所要時間:** 15 minutes（約15分）  
-**前提:** [公開済みpre.3 CLI](../../README.ja.md)、`jq`。
+**前提:** [公開済みpre.5 CLI](../../README.ja.md)、`jq`。
 この公開版には以下の`stop_reason`、index coverage、
 `physical_decoded_chunks` fieldがあります。欠けたfieldを検証済みと
 解釈しないでください。[CLIリファレンス](../CLI.ja.md)も参照してください。

@@ -15,7 +15,7 @@
 ## Install
 
 The currently published CLI is the
-[`v0.1.0-pre.3` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3).
+[`v0.1.0-pre.5` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5).
 QZT v0.1 remains a technical preview. Download the archive and matching
 `.sha256` asset for your OS/architecture, verify the checksum, then extract.
 For Apple silicon (use `x86_64-apple-darwin` or
@@ -23,7 +23,7 @@ For Apple silicon (use `x86_64-apple-darwin` or
 
 ```sh
 set -eu
-release=v0.1.0-pre.3
+release=v0.1.0-pre.5
 target=aarch64-apple-darwin
 archive="qzt-${target}.tar.xz"
 base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
@@ -41,7 +41,7 @@ QZT_BIN="$(pwd)/qzt-${target}/qzt"
 "$QZT_BIN" --version
 ```
 
-The published CLI reports `qzt 0.1.0-pre.3`. Verify the sidecar's
+The published CLI reports `qzt 0.1.0-pre.5`. Verify the sidecar's
 authenticity through the Release and repository channel you trust. Set
 `QZT_BIN` to the extracted binary's absolute path for the tour below.
 
@@ -61,13 +61,16 @@ $actual = (Get-FileHash -Algorithm SHA256 $archive).Hash
 if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
 ```
 
-The published [shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.3/qzt-installer.sh)
-and [PowerShell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.3/qzt-installer.ps1)
-are alternatives. To build **this published version** from its source tag with
+The published [shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.sh)
+and [PowerShell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.ps1)
+are alternatives. On macOS, the shell installer skips its own SHA-256 check if
+`sha256sum` is unavailable; use the archive and separately downloaded sidecar
+steps above, or provide `sha256sum` before running the installer. To build
+**this published version** from its source tag with
 Rust 1.87+:
 
 ```sh
-cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.3 --locked qzt
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 --locked qzt
 ```
 
 `cargo install qzt --version 0.1.0 --locked` is only an option after stable
@@ -77,7 +80,7 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.3 
 
 ## 60-second Tour
 
-Use the verified pre.3 binary from above (`QZT_BIN` must be its absolute
+Use the verified pre.5 binary from above (`QZT_BIN` must be its absolute
 path). Run this in a POSIX shell with `mktemp` and `cmp`. It creates a
 disposable directory:
 
@@ -108,9 +111,9 @@ the original checksum. The deterministic attestation has
 `attestation_schema=qzt-attestation-v1`; keep any pre.2 versionless
 attestation with its original signature/timestamp. `cmp` succeeds only if
 export restored every byte. Run the
-[pre.3 release-binary smoke](docs/guides/examples/smoke-pre3-release-tour.sh)
+[pre.5 release-binary smoke](docs/guides/examples/smoke-pre5-release-tour.sh)
 with the absolute binary path for automated JSON, determinism, and byte checks
-(`jq` required). The [published-asset verification record](https://github.com/albert-einshutoin/qzt/issues/313)
+(`jq` required). The [published-asset verification record](https://github.com/albert-einshutoin/qzt/issues/323)
 records successful results for all four native targets. The
 [pre.2 smoke and measured record](docs/guides/tutorial-validation.md) remain
 historical evidence.
@@ -118,7 +121,7 @@ historical evidence.
 ## CLI version and format
 
 The [CLI reference](docs/CLI.md) and operational guides below describe the
-published `v0.1.0-pre.3` binary. The QZT container format remains `qzt-0.1`,
+published `v0.1.0-pre.5` binary. The QZT container format remains `qzt-0.1`,
 independent of the CLI distribution version. Search hits are checked against
 original bytes, but a sidecar's completeness claim does not establish exhaustive
 coverage; named caps return verified partial results and hard limits are errors.
@@ -208,7 +211,7 @@ Known limitations before production use:
   CLI search, file-backed QZT/QZI open, reused-object search, independent QZI
   build time/peak RSS, concurrency, and combined storage. Its results are for
   the cited development commit and synthetic corpus, not the published
-  `v0.1.0-pre.3` binary or a service guarantee.
+  `v0.1.0-pre.5` binary or a service guarantee.
 
 ### Reproducing the performance numbers
 
@@ -315,9 +318,9 @@ No output from `diff` means the restored bytes match the source.
 ## CLI Reference
 
 This command map and [the CLI reference](docs/CLI.md) describe the
-published pre.3 binary and its automation contract. The
-[release-tag reference](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.3/docs/CLI.md)
-is fixed to the binary source commit. QZT format `v0.1` is not a CLI version.
+published pre.5 binary and its automation contract. The binary's fixed
+[source commit](https://github.com/albert-einshutoin/qzt/commit/3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe)
+precedes this documentation update. QZT format `v0.1` is not a CLI version.
 
 ```sh
 qzt pack input.txt -o output.qzt
@@ -513,8 +516,8 @@ The [value roadmap #47](https://github.com/albert-einshutoin/qzt/issues/47),
 all its child issues #33–#46, the ten preview-hardening issues in #31, and the
 [#307 FFI audit](https://github.com/albert-einshutoin/qzt/issues/307) are
 complete. Core remains a release candidate; QZI search and the product remain
-a technical preview. The published [v0.1.0-pre.3](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)
-binary comes from the fixed tag commit `017d4d19739800773ab6a54adf636ff5a43ec1fc`;
+a technical preview. The published [v0.1.0-pre.5](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
+binary comes from the fixed tag commit `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`;
 later documentation and verification commits do not change that binary. [#31](https://github.com/albert-einshutoin/qzt/issues/31)
 owns current priorities and deferred work; child issues and PRs hold evidence.
 The English/Japanese [status](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)

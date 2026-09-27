@@ -1,7 +1,7 @@
 # Preserve and selectively disclose server logs
 
 **Time:** 15 minutes  
-**Prerequisites:** the [published pre.3 CLI](../../README.md#install);
+**Prerequisites:** the [published pre.5 CLI](../../README.md#install);
 `jq`; optional Linux/systemd and `minisign`. The
 `qzt-attestation-v1` checks below are supported by this release. See the
 [CLI reference](../CLI.md).

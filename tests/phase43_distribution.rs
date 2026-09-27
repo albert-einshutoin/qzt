@@ -8,6 +8,7 @@ const PUBLISHED_WORKFLOW: &str = include_str!("../.github/workflows/verify-publi
 const PUBLISHED_VERIFIER: &str = include_str!("../scripts/verify-published-release.py");
 const PRE2_SMOKE: &str = include_str!("../docs/guides/examples/smoke-release-tour.sh");
 const PRE3_SMOKE: &str = include_str!("../docs/guides/examples/smoke-pre3-release-tour.sh");
+const PRE5_SMOKE: &str = include_str!("../docs/guides/examples/smoke-pre5-release-tour.sh");
 const CI_WORKFLOW: &str = include_str!("../.github/workflows/ci.yml");
 const README: &str = include_str!("../README.md");
 const JAPANESE_README: &str = include_str!("../README.ja.md");
@@ -209,13 +210,13 @@ fn both_readmes_offer_installer_checksum_and_source_fallback_paths() {
             "## Install",
             "cargo install qzt --version 0.1.0 --locked",
             "qzt-installer.sh",
-            "v0.1.0-pre.3",
+            "v0.1.0-pre.5",
             ".sha256",
             "set -eu",
             "shasum -a 256",
             "Get-FileHash -Algorithm SHA256",
-            "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.3 --locked",
-            "docs/guides/examples/smoke-pre3-release-tour.sh",
+            "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 --locked",
+            "docs/guides/examples/smoke-pre5-release-tour.sh",
         ] {
             assert!(
                 readme.contains(requirement),
@@ -254,10 +255,14 @@ fn published_release_verification_keeps_product_and_verifier_separate() {
     assert!(PUBLISHED_VERIFIER.contains("candidate.checksum_matches(archive, sidecar)"));
     assert!(PUBLISHED_VERIFIER.contains("candidate.smoke(binary, smoke_work"));
     assert!(PUBLISHED_VERIFIER.contains("VERSION = \"qzt 0.1.0-pre.3\""));
+    assert!(PUBLISHED_WORKFLOW.contains("PRODUCT_SHA: 3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe"));
+    assert!(PUBLISHED_WORKFLOW.contains("RELEASE_RUN_ID: '36317632199'"));
+    assert!(PUBLISHED_VERIFIER.contains("candidate.check_source_archive_commit"));
     assert!(CI_WORKFLOW.contains("python -m unittest discover -s scripts"));
     assert!(PUBLISHED_VERIFIER.contains("QZT_INSTALL_DIR"));
     assert!(PRE2_SMOKE.contains("qzt 0.1.0-pre.2"));
     assert!(PRE2_SMOKE.contains("(has(\"attestation_schema\") | not)"));
     assert!(PRE3_SMOKE.contains("qzt 0.1.0-pre.3"));
     assert!(PRE3_SMOKE.contains("qzt-attestation-v1"));
+    assert!(PRE5_SMOKE.contains("qzt 0.1.0-pre.5"));
 }

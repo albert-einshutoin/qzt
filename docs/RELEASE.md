@@ -6,26 +6,39 @@ This runbook prepares and publishes QZT v0.1.0 without blurring the boundary
 between reversible validation and the irreversible crates.io upload. QZT v0.1
 must be described as a technical preview, not as production-ready software.
 
+## Published pre.5 GitHub prerelease (2026-09-27)
+
+The current [`v0.1.0-pre.5` prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
+is a GitHub binary technical preview, built by the ordinary tag-only
+[run 36317632199 attempt 1](https://github.com/albert-einshutoin/qzt/actions/runs/36317632199)
+from annotated tag commit `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`.
+The protected `release` environment received its normal owner approval;
+plan, four native builds, global build, host, and announce succeeded. The
+Release is a non-draft prerelease with exactly 14 public assets. No crates.io
+publication is implied. The [candidate #321](https://github.com/albert-einshutoin/qzt/issues/321)
+is a distinct unpublished rehearsal.
+
+The read-only [published verifier](../.github/workflows/verify-published-release.yml)
+pins the tag, version, fixed product SHA, release run ID/attempt, and its own
+commit. Its [run 36318204357](https://github.com/albert-einshutoin/qzt/actions/runs/36318204357)
+downloaded the actual Release URLs and passed global source/asset verification
+plus archive, binary, installer, and smoke checks on macOS ARM/Intel, Linux x64,
+and Windows x64. It fetched the product Git object separately and compared all
+426 source archive files and executable bits. [Issue #323](https://github.com/albert-einshutoin/qzt/issues/323),
+the [tutorial validation record](guides/tutorial-validation.md), and the
+[durable raw evidence](releases/v0.1.0-pre.5-publication-evidence.json) record
+hashes, five build environments, CI artifact IDs/digests/expiry, compatibility,
+and the macOS ARM installer checksum skip. A later docs/verifier commit does not
+change the tagged product. The candidate workflow requires tag absence and
+must not be used for post-publication validation.
+
 The [pre.4 candidate](releases/v0.1.0-pre.4-candidate.md) passed unpublished
 validation (#318), but its annotated tag at
 `4715196614c54c54b7809f99a422343ef2cf7b85` triggered a
 [failed release run](https://github.com/albert-einshutoin/qzt/actions/runs/36257908117).
-No pre.4 Release was created. Its tag and run remain historical; do not move,
-delete, or rerun them. The next [pre.5 candidate](releases/v0.1.0-pre.5-candidate.md)
-is an **unpublished** preparation tracked by #321. Published Install/README
-stays on pre.3. Use the exact final merge SHA and evidence recorded on #321
-for a separate pre.5 publication decision.
-
-The tag-only workflow now directs native and global raw `dist build` manifests
-to ignored `target/release-workflow/` through a shared script, while retaining
-the before/after clean source and toolchain check. The read-only pre.5
-candidate workflow uses the same script, downloads all four native outputs
-into global construction, and checks the staged pre-host asset set. It does
-not exercise hosting APIs or the protected `release` environment. Before a
-future pre.5 tag push, confirm that its tag is still absent and that #321's
-full candidate SHA, build environments, hashes, source-tree comparison,
-native smoke, CI, and artifact expiry are acceptable. Do not use the historical
-pre.3 tag command below for pre.5.
+No pre.4 Release was created. Its tag and run remain historical. The
+[pre.5 candidate notes](releases/v0.1.0-pre.5-candidate.md) preserve the state
+before this publication, including the shared manifest build/check script.
 
 ## Published pre.3 GitHub prerelease (2026-09-26)
 

@@ -1,7 +1,7 @@
 # Operate search over a QZT archive
 
 **Time:** 15 minutes  
-**Prerequisites:** the [published pre.3 CLI](../../README.md#install);
+**Prerequisites:** the [published pre.5 CLI](../../README.md#install);
 `jq`. This release includes the `stop_reason`, index coverage, and
 `physical_decoded_chunks` fields below. A missing field must not be treated
 as a verified state; see the [CLI reference](../CLI.md).
