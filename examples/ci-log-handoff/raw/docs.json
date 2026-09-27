@@ -1,0 +1,26 @@
+{
+  "documents": [
+    {
+      "doc_id": "ci/pre4-linux.log",
+      "logical_offset": 0,
+      "byte_length": 34063,
+      "first_line": 1,
+      "line_count": 389,
+      "checksum": {
+        "algorithm": "blake3",
+        "value": "709afec176e1a0ceb84b0fe7110560e7ce0482322e1ca84da46ad1a720191d0a"
+      }
+    },
+    {
+      "doc_id": "ci/pre5-linux.log",
+      "logical_offset": 34063,
+      "byte_length": 38038,
+      "first_line": 390,
+      "line_count": 438,
+      "checksum": {
+        "algorithm": "blake3",
+        "value": "98c1732586d669f5bb27893def850fb10ee84d218e50852c4a75624089fbbc48"
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "index_type": "ngram",
+  "ngram_n": 3,
+  "complete": true,
+  "high_df_per_million": 200000,
+  "source_size_bytes": 72101,
+  "index_size_bytes": 123271,
+  "granule_count": 827,
+  "term_count": 5568,
+  "postings_size_bytes": 73007
+}

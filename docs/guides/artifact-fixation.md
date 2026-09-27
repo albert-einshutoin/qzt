@@ -8,6 +8,8 @@ release. See the [CLI reference](../CLI.md).
 
 Use a Document Index when several immutable text outputs must travel together
 but still be listed and restored independently.
+For a published-CLI example with two real CI logs and a recipient replay, see
+the [CI log handoff case study](../../examples/ci-log-handoff/CASE_STUDY.md).
 
 ## 1. Create and pack three artifacts
 

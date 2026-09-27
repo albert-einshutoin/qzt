@@ -8,6 +8,8 @@
 
 再利用可能なtoken/ngram sidecarを構築し、resource capを適用し、返却hitと物理decode量を
 混同せずにcostを読みます。
+[CIログ引き渡し事例](../../examples/ci-log-handoff/CASE_STUDY.ja.md)では、
+ダウンロードしたjobログをn=3で検索し、原文byteの証拠と照合します。
 
 ## 1. textをpackし、2種類のindexを作る
 

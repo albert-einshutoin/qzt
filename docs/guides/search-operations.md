@@ -9,6 +9,8 @@ as a verified state; see the [CLI reference](../CLI.md).
 This guide builds reusable token and n-gram sidecars, applies resource caps,
 and reads search cost without confusing a returned hit with physical decode
 work.
+The [CI log handoff case study](../../examples/ci-log-handoff/CASE_STUDY.md)
+applies n=3 search to downloaded job logs and checks exact byte evidence.
 
 ## 1. Pack text and build both index kinds
 

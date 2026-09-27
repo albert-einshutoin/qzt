@@ -1,2 +1,3 @@
 tests/vectors/*.qzt.hex text eol=lf
 tests/vectors/*.tsv text eol=lf
+examples/ci-log-handoff/inputs/*.log -text whitespace=-blank-at-eol
