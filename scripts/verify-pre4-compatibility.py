@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare published pre.3 and unpublished pre.4 on the same fixed QZT/QZI inputs."""
+"""Compare published pre.3 and a selected unpublished candidate on fixed inputs."""
 
 import argparse
 import hashlib
@@ -36,11 +36,12 @@ def check_search(binary, work, container, sidecar):
                 for hit in hits), "cross-version search differs from source")
 
 
-def compare(pre3, candidate, work):
-    binaries = {"pre3": pre3, "pre4_candidate": candidate}
+def compare(pre3, candidate, work, candidate_tag="v0.1.0-pre.4"):
+    label = f"pre{candidate_tag.rsplit('.', 1)[-1]}_candidate"
+    binaries = {"pre3": pre3, label: candidate}
     require(command(pre3, work, "--version").strip() == b"qzt 0.1.0-pre.3",
             "pre.3 binary has wrong version")
-    require(command(candidate, work, "--version").strip() == b"qzt 0.1.0-pre.4",
+    require(command(candidate, work, "--version").strip() == f"qzt {candidate_tag[1:]}".encode(),
             "candidate binary has wrong version")
     (work / "input.log").write_bytes(SOURCE)
     result = {"source_sha256": sha256(work / "input.log"),
@@ -93,12 +94,12 @@ def compare(pre3, candidate, work):
 
     for kind in ("token", "ngram"):
         require(result["sidecars"][f"pre3-{kind}"]["sha256"] ==
-                result["sidecars"][f"pre4_candidate-{kind}"]["sha256"],
+                result["sidecars"][f"{label}-{kind}"]["sha256"],
                 f"same-QZT {kind} sidecar bytes changed")
-    command(candidate, work, "sidecar-rebuild", "pre4_candidate.qzt", "-o",
+    command(candidate, work, "sidecar-rebuild", f"{label}.qzt", "-o",
             "candidate-container-token.qzi", "--index", "token")
     for binary in binaries.values():
-        check_search(binary, work, "pre4_candidate.qzt", "candidate-container-token.qzi")
+        check_search(binary, work, f"{label}.qzt", "candidate-container-token.qzi")
     result["cross_version_deep_verify_export_search"] = "passed"
     result["same_qzt_token_ngram_qzi_byte_equal"] = True
     return result
@@ -108,10 +109,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pre3-bin", required=True, type=Path)
     parser.add_argument("--candidate-bin", required=True, type=Path)
+    parser.add_argument("--candidate-tag", choices=("v0.1.0-pre.4", "v0.1.0-pre.5"),
+                        default="v0.1.0-pre.4")
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
-    with tempfile.TemporaryDirectory(prefix="qzt-pre4-compat-") as directory:
-        result = compare(args.pre3_bin.resolve(), args.candidate_bin.resolve(), Path(directory))
+    with tempfile.TemporaryDirectory(prefix="qzt-preview-compat-") as directory:
+        result = compare(args.pre3_bin.resolve(), args.candidate_bin.resolve(),
+                         Path(directory), args.candidate_tag)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, sort_keys=True))

@@ -29,22 +29,22 @@ class VersionBoundaryTests(unittest.TestCase):
                             "artifacts": {"archive": {}}}), encoding="utf-8"
             )
             with self.assertRaisesRegex(RuntimeError, "wrong tag"):
-                candidate.check_manifest(manifest, ("archive",), "v0.1.0-pre.4")
+                candidate.check_manifest(manifest, ("archive",), "v0.1.0-pre.5")
 
     def test_manifest_rejects_extra_artifact_and_non_prerelease(self):
         with tempfile.TemporaryDirectory() as directory:
             manifest = Path(directory) / "manifest.json"
-            contents = {"announcement_tag": "v0.1.0-pre.4",
+            contents = {"announcement_tag": "v0.1.0-pre.5",
                         "announcement_is_prerelease": True, "dist_version": "0.31.0",
                         "artifacts": {"archive": {}, "unexpected": {}}}
             manifest.write_text(json.dumps(contents), encoding="utf-8")
             with self.assertRaisesRegex(RuntimeError, "unexpected artifacts"):
-                candidate.check_manifest(manifest, ("archive",), "v0.1.0-pre.4")
+                candidate.check_manifest(manifest, ("archive",), "v0.1.0-pre.5")
             contents["artifacts"].pop("unexpected")
             contents["announcement_is_prerelease"] = False
             manifest.write_text(json.dumps(contents), encoding="utf-8")
             with self.assertRaisesRegex(RuntimeError, "not a prerelease"):
-                candidate.check_manifest(manifest, ("archive",), "v0.1.0-pre.4")
+                candidate.check_manifest(manifest, ("archive",), "v0.1.0-pre.5")
 
     def test_smoke_rejects_binary_from_another_version(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -55,7 +55,7 @@ class VersionBoundaryTests(unittest.TestCase):
             work = root / "work"
             work.mkdir()
             with self.assertRaisesRegex(RuntimeError, "wrong binary version"):
-                candidate.smoke(binary, work, root, "aarch64-apple-darwin", "v0.1.0-pre.4")
+                candidate.smoke(binary, work, root, "aarch64-apple-darwin", "v0.1.0-pre.5")
             self.assertEqual(os.listdir(work), [])
 
     def test_source_archive_rejects_another_package_version(self):
@@ -63,38 +63,38 @@ class VersionBoundaryTests(unittest.TestCase):
             archive = Path(directory) / "source.tar.gz"
             content = b'[package]\nname = "qzt"\nversion = "0.1.0-pre.3"\n'
             with tarfile.open(archive, "w:gz") as source:
-                member = tarfile.TarInfo("qzt-0.1.0-pre.4/Cargo.toml")
+                member = tarfile.TarInfo("qzt-0.1.0-pre.5/Cargo.toml")
                 member.size = len(content)
                 source.addfile(member, io.BytesIO(content))
             with self.assertRaisesRegex(RuntimeError, "wrong package version"):
-                candidate.check_source_archive_version(archive, "v0.1.0-pre.4")
+                candidate.check_source_archive_version(archive, "v0.1.0-pre.5")
 
     def test_source_archive_rejects_another_commit_with_same_version(self):
         with tempfile.TemporaryDirectory() as directory:
             archive = Path(directory) / "source.tar.gz"
-            expected = b'[package]\nname = "qzt"\nversion = "0.1.0-pre.4"\n'
+            expected = b'[package]\nname = "qzt"\nversion = "0.1.0-pre.5"\n'
             changed = expected + b"# another commit\n"
             object_id = hashlib.sha1(b"blob " + str(len(expected)).encode() + b"\0" + expected).hexdigest()
             tree = f"100644 blob {object_id}\tCargo.toml\0".encode()
             with tarfile.open(archive, "w:gz") as source:
-                member = tarfile.TarInfo("qzt-0.1.0-pre.4/Cargo.toml")
+                member = tarfile.TarInfo("qzt-0.1.0-pre.5/Cargo.toml")
                 member.size = len(changed)
                 source.addfile(member, io.BytesIO(changed))
             with patch.object(candidate.subprocess, "check_output", side_effect=["sha1", tree]):
                 with self.assertRaisesRegex(RuntimeError, "differs from source commit"):
-                    candidate.check_source_archive_commit(archive, "v0.1.0-pre.4", "a" * 40)
+                    candidate.check_source_archive_commit(archive, "v0.1.0-pre.5", "a" * 40)
 
     def test_installer_rejects_mixed_release_urls(self):
-        content = ("/releases/download/v0.1.0-pre.4/qzt.tar.xz\n"
+        content = ("/releases/download/v0.1.0-pre.5/qzt.tar.xz\n"
                    "/releases/download/v0.1.0-pre.3/qzt.tar.xz\n")
         with self.assertRaisesRegex(RuntimeError, "wrong version"):
-            candidate.check_installer_tag(content, "v0.1.0-pre.4")
+            candidate.check_installer_tag(content, "v0.1.0-pre.5")
 
     def test_installer_rejects_mixed_stable_release_url(self):
-        content = ("/releases/download/v0.1.0-pre.4/qzt.tar.xz\n"
+        content = ("/releases/download/v0.1.0-pre.5/qzt.tar.xz\n"
                    "/releases/download/v0.1.0/qzt.tar.xz\n")
         with self.assertRaisesRegex(RuntimeError, "wrong version"):
-            candidate.check_installer_tag(content, "v0.1.0-pre.4")
+            candidate.check_installer_tag(content, "v0.1.0-pre.5")
 
 
 if __name__ == "__main__":

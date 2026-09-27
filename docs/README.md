@@ -23,6 +23,8 @@ translations where available.
 - Published [v0.1.0-pre.3 GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3) and [published-asset verification](https://github.com/albert-einshutoin/qzt/issues/313)
 - Pre.2 to pre.3 migration: [English](releases/v0.1.0-pre.3-migration.md) / [日本語](releases/v0.1.0-pre.3-migration.ja.md)
 - Preserved unpublished pre.3 candidate evidence: [notes](releases/v0.1.0-pre.3-candidate.md) / [日本語](releases/v0.1.0-pre.3-candidate.ja.md)
+- Pre.4 validated candidate and failed publication: [notes](releases/v0.1.0-pre.4-candidate.md) / [日本語](releases/v0.1.0-pre.4-candidate.ja.md) / [failed run](https://github.com/albert-einshutoin/qzt/actions/runs/36257908117)
+- Unpublished pre.5 candidate and release-path repair: [notes](releases/v0.1.0-pre.5-candidate.md) / [日本語](releases/v0.1.0-pre.5-candidate.ja.md) / [Issue #321](https://github.com/albert-einshutoin/qzt/issues/321)
 - Release process: [English](RELEASE.md) / [日本語](RELEASE.ja.md)
 - Release hardening: [English](QZT_v0.1_Release_Hardening.md) / [日本語](QZT_v0.1_Release_Hardening.ja.md)
 - Validation corpus: [English](QZT_v0.1_Validation_Corpus.md) / [日本語](QZT_v0.1_Validation_Corpus.ja.md)

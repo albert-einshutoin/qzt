@@ -6,11 +6,26 @@ This runbook prepares and publishes QZT v0.1.0 without blurring the boundary
 between reversible validation and the irreversible crates.io upload. QZT v0.1
 must be described as a technical preview, not as production-ready software.
 
-The next [pre.4 candidate](releases/v0.1.0-pre.4-candidate.md) is an
-**unpublished** preparation tracked by #318. The published Install/README
-path stays on pre.3. Use the exact merged source SHA and candidate evidence
-recorded on #318 for a later publication decision; do not reuse the historical
-pre.3 release command below for pre.4.
+The [pre.4 candidate](releases/v0.1.0-pre.4-candidate.md) passed unpublished
+validation (#318), but its annotated tag at
+`4715196614c54c54b7809f99a422343ef2cf7b85` triggered a
+[failed release run](https://github.com/albert-einshutoin/qzt/actions/runs/36257908117).
+No pre.4 Release was created. Its tag and run remain historical; do not move,
+delete, or rerun them. The next [pre.5 candidate](releases/v0.1.0-pre.5-candidate.md)
+is an **unpublished** preparation tracked by #321. Published Install/README
+stays on pre.3. Use the exact final merge SHA and evidence recorded on #321
+for a separate pre.5 publication decision.
+
+The tag-only workflow now directs native and global raw `dist build` manifests
+to ignored `target/release-workflow/` through a shared script, while retaining
+the before/after clean source and toolchain check. The read-only pre.5
+candidate workflow uses the same script, downloads all four native outputs
+into global construction, and checks the staged pre-host asset set. It does
+not exercise hosting APIs or the protected `release` environment. Before a
+future pre.5 tag push, confirm that its tag is still absent and that #321's
+full candidate SHA, build environments, hashes, source-tree comparison,
+native smoke, CI, and artifact expiry are acceptable. Do not use the historical
+pre.3 tag command below for pre.5.
 
 ## Published pre.3 GitHub prerelease (2026-09-26)
 

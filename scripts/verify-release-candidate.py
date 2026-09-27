@@ -331,9 +331,20 @@ def global_artifacts(args):
              "source.tar.gz.sha256", "sha256.sum")
     check_manifest(args.manifest, names, args.expected_tag)
     digest = checksum_matches(root / "source.tar.gz", root / "source.tar.gz.sha256")
-    require((root / "sha256.sum").read_text(encoding="ascii") ==
-            (root / "source.tar.gz.sha256").read_text(encoding="ascii"),
-            "unified checksum does not cover the generated source archive")
+    archives = {"source.tar.gz"}
+    for target in TARGETS:
+        archives.add(f"qzt-{target}" + (".zip" if "windows" in target else ".tar.xz"))
+    expected_hashes = {name: checksum_matches(root / name, root / f"{name}.sha256")
+                       for name in archives}
+    listed = {}
+    for line in (root / "sha256.sum").read_text(encoding="ascii").splitlines():
+        match = re.fullmatch(r"([0-9a-f]{64})\s+\*?([A-Za-z0-9_.-]+)", line)
+        require(match is not None, f"invalid aggregate checksum line: {line!r}")
+        value, name = match.groups()
+        require(name not in listed and name in expected_hashes and
+                value == expected_hashes[name], f"aggregate checksum differs: {name}")
+        listed[name] = value
+    require(set(listed) == archives, "aggregate checksum omits an archive")
     for installer in names[:2]:
         content = (root / installer).read_text(encoding="utf-8")
         check_installer_tag(content, args.expected_tag)
@@ -347,6 +358,7 @@ def global_artifacts(args):
     check_source_archive_version(root / "source.tar.gz", args.expected_tag)
     check_source_archive_commit(root / "source.tar.gz", args.expected_tag, args.source_sha)
     return {"kind": "global", "source_sha256": digest,
+            "aggregate_checksum_entries": sorted(listed),
             "artifacts": {name: {"size": (root / name).stat().st_size,
                                   "sha256": sha256(root / name)} for name in names},
             "installer_download": "not run before publication"}

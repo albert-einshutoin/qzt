@@ -3,6 +3,7 @@ const FUZZ_MANIFEST: &str = include_str!("../fuzz/Cargo.toml");
 const DIST_CONFIG: &str = include_str!("../dist-workspace.toml");
 const RELEASE_WORKFLOW: &str = include_str!("../.github/workflows/release.yml");
 const CANDIDATE_WORKFLOW: &str = include_str!("../.github/workflows/release-candidate.yml");
+const RELEASE_BUILD_SCRIPT: &str = include_str!("../scripts/release-workflow-build.sh");
 const PUBLISHED_WORKFLOW: &str = include_str!("../.github/workflows/verify-published-release.yml");
 const PUBLISHED_VERIFIER: &str = include_str!("../scripts/verify-published-release.py");
 const PRE2_SMOKE: &str = include_str!("../docs/guides/examples/smoke-release-tour.sh");
@@ -22,13 +23,13 @@ const RELEASE_TARGETS: [&str; 4] = [
 fn distribution_is_reproducibly_pinned_for_the_preview_candidate() {
     // Distribution remains explicitly configured instead of inferring release
     // intent from crates.io publication eligibility.
-    for requirement in ["version = \"0.1.0-pre.4\"", "dist = true"] {
+    for requirement in ["version = \"0.1.0-pre.5\"", "dist = true"] {
         assert!(
             MANIFEST.contains(requirement),
             "missing package distribution contract: {requirement}"
         );
     }
-    assert!(FUZZ_MANIFEST.contains("qzt = { path = \"..\", version = \"=0.1.0-pre.4\""));
+    assert!(FUZZ_MANIFEST.contains("qzt = { path = \"..\", version = \"=0.1.0-pre.5\""));
 
     for requirement in [
         "cargo-dist-version = \"0.31.0\"",
@@ -94,9 +95,29 @@ fn generated_release_workflow_has_no_branch_or_pull_request_trigger() {
                     && line.contains("--allow-dirty --output-format=json")
             })
             .count(),
-        4,
-        "every cargo-dist CI command must acknowledge the reviewed hardening delta"
+        2,
+        "plan and host must acknowledge the reviewed hardening delta"
     );
+    assert_eq!(
+        RELEASE_WORKFLOW
+            .matches("scripts/release-workflow-build.sh build ")
+            .count(),
+        2
+    );
+    assert_eq!(
+        RELEASE_WORKFLOW
+            .matches("scripts/release-workflow-build.sh print-")
+            .count(),
+        2
+    );
+    assert_eq!(
+        RELEASE_WORKFLOW
+            .matches("scripts/release-workflow-build.sh copy")
+            .count(),
+        2
+    );
+    assert!(RELEASE_BUILD_SCRIPT.contains("target/release-workflow/dist-manifest.json"));
+    assert!(RELEASE_BUILD_SCRIPT.contains("dist build \"$@\" > \"$manifest\""));
     assert!(CI_WORKFLOW.contains("name: dist workflow"));
     assert!(CI_WORKFLOW.contains("run: make dist-check"));
     assert!(CI_WORKFLOW.contains("name: windows release build"));
@@ -139,15 +160,23 @@ fn candidate_workflow_builds_exact_unpublished_source_on_native_runners() {
     assert!(CANDIDATE_WORKFLOW.contains("candidate_sha:"));
     assert!(CANDIDATE_WORKFLOW.contains("test -z \"$(git status --porcelain)\""));
     assert!(CANDIDATE_WORKFLOW.contains("git merge-base --is-ancestor"));
-    assert!(CANDIDATE_WORKFLOW.contains("dist plan --tag=v0.1.0-pre.4"));
-    assert!(CANDIDATE_WORKFLOW.contains("--expected-tag v0.1.0-pre.4"));
-    assert!(CANDIDATE_WORKFLOW.contains("dist build --artifacts=local"));
-    assert!(CANDIDATE_WORKFLOW.contains("dist build --artifacts=global"));
+    assert!(CANDIDATE_WORKFLOW.contains("dist plan --tag=v0.1.0-pre.5"));
+    assert!(CANDIDATE_WORKFLOW.contains("--expected-tag v0.1.0-pre.5"));
+    assert!(CANDIDATE_WORKFLOW.contains("scripts/release-workflow-build.sh build --tag=v0.1.0-pre.5 --print=linkage --allow-dirty --output-format=json --artifacts=local"));
+    assert!(CANDIDATE_WORKFLOW.contains("scripts/release-workflow-build.sh build --tag=v0.1.0-pre.5 --allow-dirty --output-format=json --artifacts=global"));
+    assert_eq!(
+        CANDIDATE_WORKFLOW
+            .matches("scripts/release-workflow-build.sh copy")
+            .count(),
+        2
+    );
+    assert!(CANDIDATE_WORKFLOW.contains("verify-release-rehearsal.py"));
+    assert!(CANDIDATE_WORKFLOW.contains("pattern: artifacts-build-local-*"));
     assert!(CANDIDATE_WORKFLOW.contains("verify-release-candidate.py local"));
     assert!(CANDIDATE_WORKFLOW.contains("verify-release-candidate.py global"));
     assert!(CANDIDATE_WORKFLOW.contains("record-build-environment.py record"));
     assert!(CANDIDATE_WORKFLOW.contains("record-build-environment.py verify"));
-    assert!(CANDIDATE_WORKFLOW.contains("--build-env target/candidate/build-environment.json"));
+    assert!(CANDIDATE_WORKFLOW.contains("--build-env \"$BUILD_ENV_NAME\""));
     assert!(CANDIDATE_WORKFLOW.contains("retention-days: 14"));
     for (target, runner) in [
         ("aarch64-apple-darwin", "macos-14"),
