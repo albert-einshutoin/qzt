@@ -1,4 +1,4 @@
-name: Verify published v0.1.0-pre.3
+name: Verify published v0.1.0-pre.5
 
 # Read-only verification of actual GitHub Release URLs. This workflow never builds
 # products, creates tags, or hosts assets.
@@ -9,6 +9,7 @@ on:
       - .github/workflows/verify-published-release.yml
       - scripts/verify-published-release.py
       - scripts/verify-release-candidate.py
+      - scripts/test_published_release_verifier.py
       - tests/vectors/**
   workflow_dispatch:
 
@@ -16,8 +17,15 @@ permissions:
   contents: read
   actions: read
 
+env:
+  TAG: v0.1.0-pre.5
+  VERSION: qzt 0.1.0-pre.5
+  PRODUCT_SHA: 3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe
+  RELEASE_RUN_ID: '36317632199'
+  RELEASE_RUN_ATTEMPT: '1'
+
 concurrency:
-  group: published-pre3-${{ github.event.pull_request.number || github.ref }}
+  group: published-pre5-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -29,6 +37,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: Fetch fixed product Git object
+        run: git fetch --no-tags --depth=1 origin "$PRODUCT_SHA"
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: '3.12'
@@ -38,11 +48,15 @@ jobs:
           VERIFIER_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           python scripts/verify-published-release.py global \
+            --tag "$TAG" --version "$VERSION" \
+            --product-sha "$PRODUCT_SHA" \
+            --release-run-id "$RELEASE_RUN_ID" \
+            --release-run-attempt "$RELEASE_RUN_ATTEMPT" \
             --verifier-sha "$VERIFIER_SHA" \
             --output target/published/evidence.json
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: published-pre3-global
+          name: published-pre5-global
           path: target/published/evidence.json
           if-no-files-found: error
           retention-days: 14
@@ -77,13 +91,17 @@ jobs:
           VERIFIER_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           python scripts/verify-published-release.py local \
+            --tag "$TAG" --version "$VERSION" \
+            --product-sha "$PRODUCT_SHA" \
+            --release-run-id "$RELEASE_RUN_ID" \
+            --release-run-attempt "$RELEASE_RUN_ATTEMPT" \
             --target '${{ matrix.target }}' \
             --vectors-dir tests/vectors \
             --verifier-sha "$VERIFIER_SHA" \
             --output target/published/evidence.json
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: published-pre3-${{ matrix.target }}
+          name: published-pre5-${{ matrix.target }}
           path: target/published/evidence.json
           if-no-files-found: error
           retention-days: 14
