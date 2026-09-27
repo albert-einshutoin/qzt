@@ -212,9 +212,10 @@ jobs:
             --build-command 'dist build ${{ needs.plan.outputs.tag-flag }} --print=linkage --allow-dirty --output-format=json ${{ matrix.dist_args }}' \
             --output "$BUILD_ENV_NAME"
       - name: Build artifacts
+        shell: bash
         run: |
           # Actually do builds and make zips and whatnot
-          dist build ${{ needs.plan.outputs.tag-flag }} --print=linkage --allow-dirty --output-format=json ${{ matrix.dist_args }} > dist-manifest.json
+          scripts/release-workflow-build.sh build ${{ needs.plan.outputs.tag-flag }} --print=linkage --allow-dirty --output-format=json ${{ matrix.dist_args }}
           echo "dist ran successfully"
       - name: Verify the dist build kept its selected toolchain
         shell: bash
@@ -228,10 +229,10 @@ jobs:
         run: |
           # Parse out what we just built and upload it to scratch storage
           echo "paths<<EOF" >> "$GITHUB_OUTPUT"
-          dist print-upload-files-from-manifest --manifest dist-manifest.json >> "$GITHUB_OUTPUT"
+          scripts/release-workflow-build.sh print-local >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-          cp dist-manifest.json "$BUILD_MANIFEST_NAME"
+          scripts/release-workflow-build.sh copy
       - name: "Upload artifacts"
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
@@ -288,15 +289,15 @@ jobs:
       - id: cargo-dist
         shell: bash
         run: |
-          dist build ${{ needs.plan.outputs.tag-flag }} --allow-dirty --output-format=json "--artifacts=global" > dist-manifest.json
+          scripts/release-workflow-build.sh build ${{ needs.plan.outputs.tag-flag }} --allow-dirty --output-format=json "--artifacts=global"
           echo "dist ran successfully"
 
           # Parse out what we just built and upload it to scratch storage
           echo "paths<<EOF" >> "$GITHUB_OUTPUT"
-          jq --raw-output ".upload_files[]" dist-manifest.json >> "$GITHUB_OUTPUT"
+          scripts/release-workflow-build.sh print-global >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-          cp dist-manifest.json "$BUILD_MANIFEST_NAME"
+          scripts/release-workflow-build.sh copy
       - name: Verify the dist build kept its selected toolchain
         shell: bash
         run: python scripts/record-build-environment.py verify --input "$BUILD_ENV_NAME"

@@ -6,10 +6,21 @@ English: [RELEASE.md](RELEASE.md)
 QZT v0.1.0 を公開するためのものです。QZT v0.1 は本番対応製品ではなく、
 technical preview として説明します。
 
-次の[pre.4候補](releases/v0.1.0-pre.4-candidate.ja.md)は#318で扱う
-**未公開**の準備です。公開Install/README導線はpre.3のまま維持します。
-後日の公開判断には#318に記録するmerge済みsource SHAと候補証拠を使い、
-以下の履歴上のpre.3公開コマンドをpre.4に流用しません。
+[pre.4候補](releases/v0.1.0-pre.4-candidate.ja.md)は#318で未公開検証に
+成功しましたが、`4715196614c54c54b7809f99a422343ef2cf7b85`のannotated tagが
+起動した[公開run](https://github.com/albert-einshutoin/qzt/actions/runs/36257908117)
+は失敗し、pre.4のReleaseは作られませんでした。tagと失敗runを履歴として保持し、
+移動・削除・無変更再実行しません。次の[pre.5候補](releases/v0.1.0-pre.5-candidate.ja.md)
+は#321で扱う**未公開**の準備です。公開Install/README導線はpre.3のまま維持し、
+pre.5の別の公開判断には#321の最終merge SHAと証拠を使います。
+
+tag-only workflowは、native/globalのraw `dist build` manifestを共有scriptから
+無視対象の`target/release-workflow/`へ書き、ビルド前後のsource clean・toolchain
+照合を維持します。read-onlyのpre.5候補workflowは同じscriptを使い、4 native
+成果物をglobalへ渡して、host直前の予定asset集合を確認します。hosting APIと
+保護された`release` environmentは実行しません。後日pre.5 tagをpushする前に、
+tag不存在と#321の候補SHA、ビルド環境、hash、source tree照合、native smoke、
+CI、artifact期限を確認します。以下の履歴上のpre.3公開コマンドは流用しません。
 
 ## 公開済みpre.3 GitHub prerelease（2026-09-26）
 

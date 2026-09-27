@@ -18,6 +18,9 @@ BEGIN {
     build_env_count = 0
     build_upload_count = 0
     release_cleanup_count = 0
+    build_manifest_count = 0
+    read_manifest_count = 0
+    copy_manifest_count = 0
 }
 
 skip_install {
@@ -85,6 +88,33 @@ $0 ~ /^      BUILD_MANIFEST_NAME: / {
 $0 == "      - name: Build artifacts" {
     emit(local_record_fragment)
     local_record_count++
+    print
+    print "        shell: bash"
+    next
+}
+
+$0 ~ /^          dist build .* > dist-manifest.json$/ {
+    sub(/dist build /, "scripts/release-workflow-build.sh build ")
+    sub(/ > dist-manifest.json$/, "")
+    build_manifest_count++
+}
+
+$0 == "          dist print-upload-files-from-manifest --manifest dist-manifest.json >> \"$GITHUB_OUTPUT\"" {
+    sub(/dist print-upload-files-from-manifest --manifest dist-manifest.json/,
+        "scripts/release-workflow-build.sh print-local")
+    read_manifest_count++
+}
+
+$0 == "          jq --raw-output \".upload_files[]\" dist-manifest.json >> \"$GITHUB_OUTPUT\"" {
+    sub(/jq --raw-output \".upload_files\[\]\" dist-manifest.json/,
+        "scripts/release-workflow-build.sh print-global")
+    read_manifest_count++
+}
+
+$0 == "          cp dist-manifest.json \"$BUILD_MANIFEST_NAME\"" {
+    sub(/cp dist-manifest.json \"\$BUILD_MANIFEST_NAME\"/,
+        "scripts/release-workflow-build.sh copy")
+    copy_manifest_count++
 }
 
 $0 == "      - id: cargo-dist" && !in_global_build && local_record_count == 1 && build_verify_count == 0 {
@@ -135,7 +165,8 @@ in_host && $0 == "    runs-on: \"ubuntu-22.04\"" && previous == "      GH_TOKEN:
 END {
     if (install_count != 2 || !root_permission_hardened || dist_command_count != 4 ||
         local_record_count != 1 || global_record_count != 1 || build_verify_count != 2 ||
-        build_env_count != 2 || build_upload_count != 2 || release_cleanup_count != 1) {
+        build_env_count != 2 || build_upload_count != 2 || release_cleanup_count != 1 ||
+        build_manifest_count != 2 || read_manifest_count != 2 || copy_manifest_count != 2) {
         print "cargo-dist workflow structure was not fully recognized" > "/dev/stderr"
         exit 2
     }

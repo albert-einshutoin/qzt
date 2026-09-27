@@ -2,13 +2,36 @@
 
 ## Unreleased
 
-Future work after the unpublished pre.4 candidate belongs here.
+Future work after the unpublished pre.5 candidate belongs here.
+
+## 0.1.0-pre.5 candidate (unpublished) - 2026-09-27
+
+The published install path remains `v0.1.0-pre.3`. This candidate carries the
+#27 posting-construction and #316 CompactV2-open changes prepared in pre.4,
+plus the tag-only release workflow's native/global manifest-placement repair
+and version/documentation alignment. See the [English](docs/releases/v0.1.0-pre.5-candidate.md)
+and [Japanese](docs/releases/v0.1.0-pre.5-candidate.ja.md) notes. No pre.5 tag,
+Release, crates.io upload, or README install switch is part of this preparation.
+
+The pre.4 candidate passed its unpublished checks, but its tag-only
+[release run](https://github.com/albert-einshutoin/qzt/actions/runs/36257908117)
+failed the build checkout cleanliness check after writing `dist-manifest.json`
+at the repository root. Its annotated tag remains at
+`4715196614c54c54b7809f99a422343ef2cf7b85`; no pre.4 Release was
+published. The tag and failed run remain historical evidence.
+
+The #27/#316 performance measurements used development binaries, fixed
+synthetic inputs, an Apple M4/macOS host, and uncontrolled OS cache. They are
+not pre.5 candidate or published-binary performance values, a fixed RSS
+ceiling, or a production SLA.
 
 ## 0.1.0-pre.4 candidate (unpublished) - 2026-09-27
 
 This candidate includes changes since the published `v0.1.0-pre.3` product
-commit `017d4d19739800773ab6a54adf636ff5a43ec1fc`. The tag, GitHub Release,
-crates.io publication, and public README install switch have not happened.
+commit `017d4d19739800773ab6a54adf636ff5a43ec1fc`. Its annotated tag was
+later pushed at `4715196614c54c54b7809f99a422343ef2cf7b85`, but the
+release workflow failed; the GitHub Release, crates.io publication, and public
+README install switch did not happen.
 See the [English](docs/releases/v0.1.0-pre.4-candidate.md) and
 [Japanese](docs/releases/v0.1.0-pre.4-candidate.ja.md) candidate notes.
 

@@ -26,7 +26,8 @@ harden_workflow() {
     test "$(grep -Fc 'Verify the dist build kept its selected toolchain' "$workflow")" -eq 2
     test "$(grep -Fc 'env.BUILD_ENV_NAME' "$workflow")" -eq 2
     grep -Fq 'rm -f artifacts/*-build-environment.json' "$workflow"
-    test "$(grep -Ec '^[[:space:]]+dist .*--allow-dirty --output-format=json' "$workflow")" -eq 4
+    test "$(grep -Ec '^[[:space:]]+dist .*--allow-dirty --output-format=json' "$workflow")" -eq 2
+    test "$(grep -Ec '^[[:space:]]+scripts/release-workflow-build.sh build .*--allow-dirty --output-format=json' "$workflow")" -eq 2
     if grep -Fq 'cargo-dist-installer.sh | sh' "$workflow" || \
         grep -Fq 'matrix.install_dist.run' "$workflow"; then
         echo "unsafe cargo-dist installer survived workflow hardening" >&2
