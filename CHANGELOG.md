@@ -2,11 +2,36 @@
 
 ## Unreleased
 
-Future work after the unpublished pre.5 candidate belongs here.
+Future work after the published pre.5 technical preview belongs here.
+
+## 0.1.0-pre.5 - 2026-09-27
+
+The [GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
+is a binary technical preview from fixed product commit
+`3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`; it is not a crates.io
+publication. The ordinary tag-only [release run](https://github.com/albert-einshutoin/qzt/actions/runs/36317632199)
+passed four native builds, global build, protected hosting, and announce.
+The [published verification](https://github.com/albert-einshutoin/qzt/issues/323)
+checks 14 real Release assets, all four native archives/installers, the fixed
+source Git tree, and pre.3/pre.5 compatibility.
+
+Since published pre.3, this release includes #27's n-gram posting-construction
+improvement and #316's CompactV2 token QZI file-backed open improvement.
+QZT stays `qzt-0.1`; QZI v1/v2, public API, search contract, and canonical
+`qzt-attestation-v1` remain unchanged. For the same QZT and verification
+conditions, pre.3 and pre.5 produce identical canonical attestation bytes.
+The [#27](docs/benchmarks/2026-09-issue27-ngram-build.md) and
+[#316](docs/benchmarks/2026-09-issue316-token-open.md) measurements used
+development binaries, not this published binary.
+
+Pre.4 had an annotated tag but no Release because its tag-only workflow
+failed. Pre.5 repaired that workflow's native/global manifest placement and
+post-build checks.
 
 ## 0.1.0-pre.5 candidate (unpublished) - 2026-09-27
 
-The published install path remains `v0.1.0-pre.3`. This candidate carries the
+At candidate preparation time, the published install path was
+`v0.1.0-pre.3`. This candidate carries the
 #27 posting-construction and #316 CompactV2-open changes prepared in pre.4,
 plus the tag-only release workflow's native/global manifest-placement repair
 and version/documentation alignment. See the [English](docs/releases/v0.1.0-pre.5-candidate.md)

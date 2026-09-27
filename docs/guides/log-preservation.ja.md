@@ -1,7 +1,7 @@
 # サーバーログを保全し、必要範囲だけ提示する
 
 **所要時間:** 15 minutes（約15分）  
-**前提:** [公開済みpre.3 CLI](../../README.ja.md)、`jq`。
+**前提:** [公開済みpre.5 CLI](../../README.ja.md)、`jq`。
 Linux/systemdと`minisign`は任意です。以下の`qzt-attestation-v1`判定は
 この公開版で利用できます。[CLIリファレンス](../CLI.ja.md)を参照してください。
 

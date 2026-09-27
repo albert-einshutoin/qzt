@@ -103,7 +103,7 @@ const GUIDES: [(&str, &str); 6] = [
 fn every_tutorial_declares_prerequisites_validation_and_limitations() {
     for (name, guide) in GUIDES {
         for required in [
-            "pre.3 CLI",
+            "pre.5 CLI",
             "15 minutes",
             "Limitations",
             "tutorial-validation.md",

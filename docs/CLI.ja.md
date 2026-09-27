@@ -1,11 +1,11 @@
-# qzt CLI リファレンス (公開pre.3・QZT形式v0.1)
+# qzt CLI リファレンス (公開pre.5・QZT形式v0.1)
 
-このページは[公開済み`v0.1.0-pre.3` CLI](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)と
+このページは[公開済み`v0.1.0-pre.5` CLI](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)と
 自動化向け契約を説明します。binaryのsourceはtag commit
-`017d4d19739800773ab6a54adf636ff5a43ec1fc`です。
+`3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`です。
 導入方法は[README](../README.ja.md)を参照してください。
-[公開タグ固定のCLIリファレンス](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.3/docs/CLI.ja.md)
-も参照できます。`v0.1`はCLI配布versionではなくcontainer形式です。
+このリファレンスは公開後に更新され、製品sourceのtagより新しい文書です。
+`v0.1`はCLI配布versionではなくcontainer形式です。
 掲載例は[例の再現方法](#例の再現方法)のfixtureを使います。
 
 English: [CLI.md](CLI.md)

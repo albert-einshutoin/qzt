@@ -1,7 +1,7 @@
 # Fix pipeline artifacts as verified documents
 
 **Time:** 15 minutes  
-**Prerequisites:** the [published pre.3 CLI](../../README.md#install);
+**Prerequisites:** the [published pre.5 CLI](../../README.md#install);
 `jq`; `sha256sum` (or macOS `shasum -a 256`); optional GitHub Actions and
 `minisign`. The `qzt-attestation-v1` policy below is supported by this
 release. See the [CLI reference](../CLI.md).

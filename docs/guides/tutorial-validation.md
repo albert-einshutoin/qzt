@@ -1,5 +1,61 @@
 # Tutorial validation records
 
+## Published pre.5 Release asset: measured 2026-09-27
+
+The [published prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
+was built from `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe` by the ordinary
+[tag-only run 36317632199 attempt 1](https://github.com/albert-einshutoin/qzt/actions/runs/36317632199).
+Plan, four native builds, global, host, and announce succeeded. The separate
+[public verifier run 36318204357](https://github.com/albert-einshutoin/qzt/actions/runs/36318204357)
+used verifier commit `e1d6e01839a8b04800e2d03ea9fb5cc3fa0bbf8f` and succeeded
+on global plus four native runners. It downloaded the actual public URLs,
+checked all 14 GitHub size/SHA-256 metadata values, four archive sidecars,
+the source sidecar, the five exact `sha256.sum` entries, and the host final
+manifest. It matched all 426 files and executable bits in `source.tar.gz` to
+the fixed product Git tree, fetched separately from the verifier checkout.
+Internal build-environment and individual manifest JSON were absent from the
+public 14 asset names.
+
+| Native target | Public archive SHA-256 | Extracted and installed binary SHA-256 | Candidate comparison |
+| --- | --- | --- | --- |
+| macOS ARM64 | `3cbcab43f1c79ff11b756af292524715d1ca618c0445e4157e775876e454a9d1` | `989e6f21d80c5f14ee90b27aabe156760f0c6992bc6a5520aaa1400ba20b29be` | archive differs; binary matches |
+| macOS Intel | `8834e648dae90f63a18b220c336dd25b9cdd0e068112d47149880d8890d86aba` | `d662e7c0f2210b75a3d51ad69414d98caa4a63d38c5b044dc2ecba4f12fa7ea9` | archive differs; binary matches |
+| Linux x64 | `3f5c3d723e2e70480896b9a180980b694f7db4b22b397549b0c90df6cba96c70` | `726b382c24d9947b57106a432d6acbf74b8997bcba6d3212d9a08d5ac172e524` | archive differs; binary matches |
+| Windows x64 | `3b642ca8a435f8a0a2b150f8878ad5aa76c81ac5c6c51c1d0f281d5e43bd82be` | `9dabdfbbdd82ea989158b8b90c9be2aab6895e1f058357b0968cfdb99c4a6b0f` | archive and binary differ; `.text` matches |
+
+Each native job independently checked its archive sidecar before extraction,
+reported `qzt 0.1.0-pre.5`, passed the fixed CLI smoke, and installed from a
+digest-checked public installer into an isolated temporary directory without
+PATH modification. The installed binary hash matched the independently
+verified archive binary. Linux needed only `libc.so.6` and `libgcc_s.so.1`;
+Windows readonly output rejection passed. The macOS ARM GitHub runner lacked
+`sha256sum`, so its shell installer reported that its **own** SHA-256 check
+was skipped. Release metadata digest, separately downloaded sidecar, and
+installed binary hash checks still passed. They use the same GitHub Release
+channel and are not independent signing. The skip is recorded separately.
+
+All four archive hashes differ from [candidate #321](https://github.com/albert-einshutoin/qzt/issues/321)
+because archive entry timestamps changed across builds. macOS and Linux
+archive member contents, including binaries, matched. The Windows executable
+had the same size and `.text` hash; 28 bytes differed only in four PE/CodeView
+timestamps and the 16-byte RSDS PDB GUID. The five published build-environment
+records match candidate Rust/Cargo/cargo-dist versions, selected toolchains,
+profiles, features, flags, OS/architecture/platform, and build commands;
+runner instance names and run timestamps differ. The actual release builds
+used rustc/Cargo 1.98.0 on both macOS targets and 1.98.1 on Linux, Windows,
+and global; cargo-dist was 0.31.0. The verifier runner's Rust version is a
+separate fact, not a build toolchain claim.
+
+The bounded fixture used **published pre.3 and pre.5 macOS ARM binaries** after
+separate public archive checks. Both read/search each other's QZT and token/
+n-gram QZI, passed Deep verify and exact export, preserved hard-error and cap
+semantics, and emitted identical canonical `qzt-attestation-v1` bytes for the
+same QZT and verification conditions. The [raw durable evidence](../releases/v0.1.0-pre.5-publication-evidence.json)
+keeps asset hashes, five build environments, candidate comparisons, artifact
+IDs/digests/expiry, and native result JSON after CI artifacts expire. This is
+a bounded smoke and fixture, not a performance measurement, independent
+signature, or universal compatibility proof.
+
 ## Published pre.3 Release asset: measured 2026-09-26
 
 The [published prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)

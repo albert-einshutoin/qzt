@@ -1,10 +1,10 @@
-# qzt CLI Reference (published pre.3; QZT format v0.1)
+# qzt CLI Reference (published pre.5; QZT format v0.1)
 
-This page describes the [published `v0.1.0-pre.3` CLI](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.3)
+This page describes the [published `v0.1.0-pre.5` CLI](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
 and its automation contract. The binary comes from tag commit
-`017d4d19739800773ab6a54adf636ff5a43ec1fc`; use the
-[README installation steps](../README.md#install) or the
-[tag-fixed reference](https://github.com/albert-einshutoin/qzt/blob/v0.1.0-pre.3/docs/CLI.md).
+`3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`; use the
+[README installation steps](../README.md#install). This reference was updated
+after publication; the tagged product source predates it.
 `v0.1` identifies the container format, not the CLI distribution. Examples
 here use the fixture in [Reproducing the examples](#reproducing-the-examples).
 
