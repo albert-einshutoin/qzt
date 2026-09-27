@@ -84,6 +84,8 @@ def inspect(artifacts, staged, plan, source_sha):
                 words[1].lstrip("*") == name, f"wrong checksum sidecar for {name}")
     aggregate = {}
     for line in (staged / "sha256.sum").read_text(encoding="ascii").splitlines():
+        if not line.strip():
+            continue
         match = re.fullmatch(r"([0-9a-f]{64})\s+\*?([A-Za-z0-9_.-]+)", line)
         require(match is not None, "invalid aggregate checksum line")
         value, name = match.groups()

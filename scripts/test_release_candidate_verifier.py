@@ -10,6 +10,7 @@ import tempfile
 import tarfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 
@@ -21,6 +22,39 @@ spec.loader.exec_module(candidate)
 
 
 class VersionBoundaryTests(unittest.TestCase):
+    def test_global_accepts_cargo_dist_checksum_with_trailing_blank_line(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            archives = {"source.tar.gz"} | {
+                f"qzt-{target}" + (".zip" if "windows" in target else ".tar.xz")
+                for target in candidate.TARGETS}
+            for name in archives:
+                (root / name).write_bytes(name.encode())
+                digest = hashlib.sha256(name.encode()).hexdigest()
+                (root / f"{name}.sha256").write_text(f"{digest} *{name}\n")
+            checksums = [f"{hashlib.sha256(name.encode()).hexdigest()} *{name}"
+                         for name in sorted(archives)]
+            (root / "sha256.sum").write_text("\n".join(checksums) + "\n\n")
+            native = [name for name in sorted(archives) if name != "source.tar.gz"]
+            (root / "qzt-installer.sh").write_text(
+                "/releases/download/v0.1.0-pre.5/\n" + "\n".join(native))
+            (root / "qzt-installer.ps1").write_text(
+                "/releases/download/v0.1.0-pre.5/\n" +
+                next(name for name in native if name.endswith(".zip")))
+            names = archives | {f"{name}.sha256" for name in archives} | {
+                "qzt-installer.sh", "qzt-installer.ps1", "sha256.sum"}
+            manifest = root / "manifest.json"
+            manifest.write_text(json.dumps({"announcement_tag": "v0.1.0-pre.5",
+                                            "announcement_is_prerelease": True,
+                                            "dist_version": "0.31.0",
+                                            "artifacts": {name: {} for name in names}}))
+            args = SimpleNamespace(distrib=root, manifest=manifest,
+                                   expected_tag="v0.1.0-pre.5", source_sha="a" * 40)
+            with patch.object(candidate, "check_source_archive_version"), \
+                 patch.object(candidate, "check_source_archive_commit"):
+                result = candidate.global_artifacts(args)
+            self.assertEqual(result["aggregate_checksum_entries"], sorted(archives))
+
     def test_global_manifest_describes_native_and_global_artifacts(self):
         with tempfile.TemporaryDirectory() as directory:
             manifest = Path(directory) / "manifest.json"

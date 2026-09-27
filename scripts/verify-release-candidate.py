@@ -37,7 +37,8 @@ def expected_version(tag):
 
 
 def sha256(path):
-    return hashlib.file_digest(path.open("rb"), "sha256").hexdigest()
+    with path.open("rb") as source:
+        return hashlib.file_digest(source, "sha256").hexdigest()
 
 
 def command(binary, cwd, *args, exit_code=0):
@@ -342,6 +343,8 @@ def global_artifacts(args):
                        for name in archives}
     listed = {}
     for line in (root / "sha256.sum").read_text(encoding="ascii").splitlines():
+        if not line.strip():
+            continue
         match = re.fullmatch(r"([0-9a-f]{64})\s+\*?([A-Za-z0-9_.-]+)", line)
         require(match is not None, f"invalid aggregate checksum line: {line!r}")
         value, name = match.groups()
