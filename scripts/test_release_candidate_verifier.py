@@ -21,6 +21,24 @@ spec.loader.exec_module(candidate)
 
 
 class VersionBoundaryTests(unittest.TestCase):
+    def test_global_manifest_describes_native_and_global_artifacts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            manifest = Path(directory) / "manifest.json"
+            archives = {f"qzt-{target}" + (".zip" if "windows" in target else ".tar.xz")
+                        for target in candidate.TARGETS}
+            names = archives | {f"{name}.sha256" for name in archives} | {
+                "qzt-installer.sh", "qzt-installer.ps1", "source.tar.gz",
+                "source.tar.gz.sha256", "sha256.sum"}
+            manifest.write_text(json.dumps({"announcement_tag": "v0.1.0-pre.5",
+                                            "announcement_is_prerelease": True,
+                                            "dist_version": "0.31.0",
+                                            "artifacts": {name: {} for name in names}}),
+                                encoding="utf-8")
+            candidate.check_manifest(manifest, names, "v0.1.0-pre.5")
+            with self.assertRaisesRegex(RuntimeError, "unexpected artifacts"):
+                candidate.check_manifest(manifest, names - {"sha256.sum"},
+                                         "v0.1.0-pre.5")
+
     def test_manifest_rejects_another_candidate_tag(self):
         with tempfile.TemporaryDirectory() as directory:
             manifest = Path(directory) / "manifest.json"

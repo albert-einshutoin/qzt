@@ -68,7 +68,7 @@ def inspect(artifacts, staged, plan, source_sha):
                                 "record": environment}
         manifest_path = artifacts / f"{target}-dist-manifest.json"
         manifest = json.loads(manifest_path.read_text())
-        expected = GLOBAL if target == "global" else {
+        expected = ASSETS if target == "global" else {
             name for name in ASSETS if name.startswith(f"qzt-{target}.")}
         require(manifest["announcement_tag"] == TAG and
                 manifest["announcement_is_prerelease"] is True and

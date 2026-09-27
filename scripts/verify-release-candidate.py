@@ -329,11 +329,15 @@ def global_artifacts(args):
     root = args.distrib.resolve()
     names = ("qzt-installer.sh", "qzt-installer.ps1", "source.tar.gz",
              "source.tar.gz.sha256", "sha256.sum")
-    check_manifest(args.manifest, names, args.expected_tag)
     digest = checksum_matches(root / "source.tar.gz", root / "source.tar.gz.sha256")
     archives = {"source.tar.gz"}
     for target in TARGETS:
         archives.add(f"qzt-{target}" + (".zip" if "windows" in target else ".tar.xz"))
+    # cargo-dist's global manifest describes the complete release plan, while
+    # upload_files contains only the files built by the global job.
+    check_manifest(args.manifest, set(names) | archives |
+                   {f"{name}.sha256" for name in archives},
+                   args.expected_tag)
     expected_hashes = {name: checksum_matches(root / name, root / f"{name}.sha256")
                        for name in archives}
     listed = {}
