@@ -309,10 +309,13 @@ the cut. `before`/`after` give requested and visible line counts and stop as
 a budget sets `leading_fragment`/`trailing_fragment`; these flags describe
 the selected scope, not unread bytes outside a document. Document Index line
 metadata is never used for source line coordinates.
+If the scan-start predecessor cannot fit the budget, that boundary remains
+unknown and is conservatively reported as a `budget` fragment.
 
 JSON `excerpt` includes its global `logical_offset`, `byte_length`, exact
 reversible `bytes_hex`, and separate display-only `text_escaped`. Hex also
-recovers UTF-8 or CRLF cuts. Text escapes ANSI, controls, backslashes and
+recovers UTF-8 or CRLF cuts. Text escapes ANSI, controls, bidi/invisible
+format characters, backslashes and
 invalid UTF-8; it cannot replace the original bytes. Text mode gives the same
 coordinates, mapping state and stop reasons.
 

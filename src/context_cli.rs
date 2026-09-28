@@ -217,8 +217,18 @@ fn build(path: &str, options: &Options) -> qzt::Result<String> {
     if !fits(&reader, hit_start, hit_end, options)? {
         return Err(QztError::ResourceLimitExceeded);
     }
-    let scan_start = fit_left(&reader, left_target, hit_start, hit_end, options)?;
+    let mut scan_start = fit_left(&reader, left_target, hit_start, hit_end, options)?;
     let scan_end = fit_right(&reader, scan_start, hit_end, right_target, options)?;
+    // A scan beginning immediately after LF is a complete line boundary.
+    // Include the preceding byte in the same preflighted read when it fits;
+    // otherwise the unknown leading edge remains a conservative budget stop.
+    if scan_start > scope_start {
+        let guard_start = scan_start - 1;
+        if scan_end - guard_start <= options.scan && fits(&reader, guard_start, scan_end, options)?
+        {
+            scan_start = guard_start;
+        }
+    }
     let scanned = reader.read_range(scan_start, scan_end - scan_start)?;
     let scan_len = u64::try_from(scanned.len()).map_err(|_| QztError::ResourceLimitExceeded)?;
     if scan_len != scan_end - scan_start {
@@ -572,7 +582,7 @@ fn push_display_char(out: &mut String, c: char) {
         '\n' => out.push_str("\\n"),
         '\r' => out.push_str("\\r"),
         '\t' => out.push_str("\\t"),
-        c if c.is_control() => {
+        c if c.is_control() || is_invisible_format(c) => {
             if (c as u32) <= 0xff {
                 let _ = write!(out, "\\x{:02x}", c as u32);
             } else {
@@ -581,4 +591,24 @@ fn push_display_char(out: &mut String, c: char) {
         }
         c => out.push(c),
     }
+}
+
+fn is_invisible_format(c: char) -> bool {
+    // These characters can reorder or hide adjacent log text and document IDs.
+    // Escaping them leaves the separate bytes_hex recovery channel untouched.
+    matches!(
+        c as u32,
+        0x00ad
+            | 0x034f
+            | 0x061c
+            | 0x180e
+            | 0x200b..=0x200f
+            | 0x2028..=0x202e
+            | 0x2060..=0x206f
+            | 0xfeff
+            | 0xfff9..=0xfffb
+            | 0x1d173..=0x1d17a
+            | 0xe0001
+            | 0xe0020..=0xe007f
+    )
 }

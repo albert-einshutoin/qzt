@@ -268,10 +268,13 @@ hitの最初・最後のbyteが属するLF区切り行をすべて含め、前�
 `leading_fragment`/`trailing_fragment`を示します。fragmentは選択scope内の
 表示状態で、文書外の未読byteは判定しません。Document Indexの行metadataは
 原文行座標の計算に使いません。
+探索開始位置の直前byteが予算内で読めない場合は、境界が不明なため
+`budget`のfragmentとして保守的に表示します。
 
 JSONの`excerpt`には全体`logical_offset`、`byte_length`、復元可能な
 `bytes_hex`、表示専用の`text_escaped`があります。UTF-8やCRLFの途中でも
-hexから原文byteを復元できます。textはANSI・制御文字・backslash・不正UTF-8を
+hexから原文byteを復元できます。textはANSI・制御文字・双方向/不可視format文字・
+backslash・不正UTF-8を
 escapeし、原文の代わりにはなりません。text modeも同じ座標・状態・停止理由を
 出します。
 

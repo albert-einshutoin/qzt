@@ -430,6 +430,54 @@ fn scan_ending_just_after_lf_keeps_the_complete_hit_line() {
 }
 
 #[test]
+fn scan_starting_just_after_lf_keeps_the_complete_preceding_line() {
+    let original = b"aa\nbb\ncc";
+    let (_dir, path) = fixture(original, &[("log", 0, original.len() as u64)]);
+    let value = json(
+        &path,
+        &[
+            "--offset",
+            "6",
+            "--length",
+            "2",
+            "--before",
+            "1",
+            "--after",
+            "0",
+            "--max-scan-bytes",
+            "8",
+            "--format",
+            "json",
+        ],
+    );
+    assert_eq!(value["excerpt"]["bytes_hex"], "62620a6363");
+    assert_eq!(value["excerpt"]["leading_fragment"], false);
+    assert_eq!(value["before"]["stop"], "complete");
+}
+
+#[test]
+fn bidi_and_invisible_format_controls_are_escaped_in_display_only() {
+    let original = "x\u{2066}y\n".as_bytes();
+    let (_dir, path) = fixture(original, &[("lo\u{202e}g", 0, original.len() as u64)]);
+    let value = json(
+        &path,
+        &["--offset", "1", "--length", "3", "--format", "json"],
+    );
+    assert_eq!(value["excerpt"]["bytes_hex"], "78e281a6790a");
+    assert!(
+        value["excerpt"]["text_escaped"]
+            .as_str()
+            .unwrap()
+            .contains("\\u{2066}")
+    );
+    let text = String::from_utf8(run(&path, &["--offset", "1", "--length", "3"]).stdout).unwrap();
+    assert!(text.contains("\\u{202e}"));
+    assert!(text.contains("\\u{2066}"));
+    assert!(!text.contains('\u{202e}'));
+    assert!(!text.contains('\u{2066}'));
+}
+
+#[test]
 fn hit_at_document_edges_does_not_escape_its_scope() {
     let original = b"head\ntail";
     let (_dir, path) = fixture(original, &[("head", 0, 5), ("tail", 5, 4)]);
