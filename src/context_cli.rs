@@ -172,7 +172,7 @@ fn build(path: &str, options: &Options) -> qzt::Result<String> {
             if end > original_size {
                 return Err(QztError::ContainerCorrupt);
             }
-            if document.logical_offset < hit_end && hit_start < end {
+            if document.byte_length > 0 && document.logical_offset < hit_end && hit_start < end {
                 if intersecting.len() == MAX_CANDIDATES {
                     return Err(QztError::ResourceLimitExceeded);
                 }
