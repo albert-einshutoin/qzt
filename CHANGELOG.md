@@ -4,6 +4,11 @@
 
 Future work after the published pre.5 technical preview belongs here.
 
+- Added the unreleased `qzt context` command to map one global search hit to
+  a document and bounded original-byte lines, with preflight decode budgets
+  and explicit ambiguous/missing mapping and context stop states. Published
+  `v0.1.0-pre.5` does not contain this command.
+
 ## 0.1.0-pre.5 - 2026-09-27
 
 The [GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)

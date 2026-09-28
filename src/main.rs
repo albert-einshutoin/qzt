@@ -1,6 +1,7 @@
 mod cli_attest;
 mod cli_json;
 mod cli_output_security;
+mod context_cli;
 
 use std::collections::HashSet;
 use std::fmt;
@@ -83,6 +84,7 @@ fn main() -> ExitCode {
         Some("docs") => run_docs(remaining.into_iter()),
         Some("doc") => run_doc(remaining.into_iter()),
         Some("search") => run_search(remaining.into_iter()),
+        Some("context") => context_cli::run(remaining.into_iter()),
         Some("inspect-sidecar") => run_inspect_sidecar(remaining.into_iter()),
         Some("sidecar-rebuild") => run_sidecar_rebuild(remaining.into_iter()),
         Some("verify") => run_verify(remaining.into_iter()),
@@ -156,6 +158,23 @@ fn print_command_help(command: &str) -> ExitCode {
                 "  --format text|json        Output format (default: text)"
             ),
         ),
+        "context" => print_simple_command_help(
+            "Restore bounded original-byte context for one global search hit.",
+            "qzt context <FILE> --offset <N> --length <N> [OPTIONS]",
+            concat!(
+                "  --offset <N>                  Global zero-based hit byte offset\n",
+                "  --length <N>                  Positive hit byte length\n",
+                "  --before <N>                  Preceding lines (default: 2)\n",
+                "  --after <N>                   Following lines (default: 2)\n",
+                "  --max-scan-bytes <N>          Logical scan cap (default: 256KiB)\n",
+                "  --max-physical-decoded-bytes <N>  Chunk decode byte cap (default: 16MiB)\n",
+                "  --max-physical-decoded-chunks <N> Chunk decode count cap (default: 64)\n",
+                "  --max-documents <N>           Document Index entry cap (default: 100000)\n",
+                "  --max-excerpt-bytes <N>       Original-byte excerpt cap (default: 64KiB)\n",
+                "  --max-output-bytes <N>        Rendered output cap (default: 1MiB)\n",
+                "  --format text|json           Output format (default: text)"
+            ),
+        ),
         "inspect-sidecar" => print_simple_command_help(
             "Inspect metadata from a validated, source-bound QZI sidecar.",
             "qzt inspect-sidecar <FILE.qzt> --sidecar <FILE.qzi> [--format text|json]",
@@ -221,6 +240,7 @@ fn print_help() -> ExitCode {
             "  docs       List documents in a Document Index (--format json for machine-readable)\n",
             "  doc        Extract one document (verified by default; --no-verify to skip)\n",
             "  search     Search raw UTF-8 tokens with verified original-byte hits (--format json)\n",
+            "  context    Map one global hit to a document and bounded original-byte lines\n",
             "  inspect-sidecar  Inspect a validated QZI sidecar (--format json available)\n",
             "  sidecar-rebuild  Rebuild a QZI search sidecar (requires -o output.qzi)\n",
             "  verify     Verify container integrity (--format json for machine-readable output)\n\n",
