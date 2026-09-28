@@ -53,3 +53,7 @@ The recipient verifies and restores both documents before rebuilding QZI. Its
 query checks use the manifest's expected byte ranges and context bytes. The
 manifest and attestation are unsigned: they show local consistency against
 the saved baseline, not who created the logs or when.
+
+The unreleased development `qzt context` command has a separate
+[context replay](CONTEXT_DEV.md) ([日本語](CONTEXT_DEV.ja.md)). Its commit and
+checks are distinct from the published pre.5 run and raw measurements above.

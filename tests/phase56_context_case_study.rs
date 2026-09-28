@@ -3,6 +3,7 @@
 
 use std::fmt::Write as _;
 use std::fs;
+use std::path::Path;
 use std::process::Command;
 
 use serde_json::Value;
@@ -13,6 +14,7 @@ const QZT: &[u8] = include_bytes!("../examples/ci-log-handoff/evidence.qzt");
 
 fn search(path: &str, query: &str) -> Vec<(usize, usize)> {
     let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+        .current_dir(Path::new(path).parent().unwrap())
         .args([
             "search", path, query, "--index", "ngram", "--ngram", "3", "--format", "json",
         ])
@@ -78,6 +80,7 @@ fn qzt_only_recipient_can_follow_search_hits_to_document_and_original_lines() {
                 "2"
             };
             let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+                .current_dir(Path::new(path).parent().unwrap())
                 .args([
                     "context",
                     path,

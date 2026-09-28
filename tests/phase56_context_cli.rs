@@ -454,6 +454,35 @@ fn hit_at_document_edges_does_not_escape_its_scope() {
 }
 
 #[test]
+fn text_and_json_agree_on_coordinates_status_stops_and_display() {
+    let original = b"one\n\x1b[31mtwo\nthree";
+    let (_dir, path) = fixture(original, &[("log", 0, original.len() as u64)]);
+    let args = [
+        "--offset", "9", "--length", "3", "--before", "1", "--after", "1",
+    ];
+    let value = json(&path, &[&args[..], &["--format", "json"]].concat());
+    let text = String::from_utf8(run(&path, &args).stdout).unwrap();
+    let hit_start = value["hit"]["logical_offset"].as_u64().unwrap();
+    let hit_end = value["hit"]["end"].as_u64().unwrap();
+    let excerpt_start = value["excerpt"]["logical_offset"].as_u64().unwrap();
+    let excerpt_end = excerpt_start + value["excerpt"]["byte_length"].as_u64().unwrap();
+    assert!(text.contains(&format!("hit {hit_start}:{hit_end}")));
+    assert!(text.contains("mapping: unique"));
+    assert!(text.contains(&format!("excerpt {excerpt_start}:{excerpt_end}")));
+    for direction in ["before", "after"] {
+        let detail = &value[direction];
+        assert!(text.contains(&format!(
+            "{direction}: {}/{} stop={}",
+            detail["returned"].as_u64().unwrap(),
+            detail["requested"].as_u64().unwrap(),
+            detail["stop"].as_str().unwrap(),
+        )));
+    }
+    assert!(text.contains(value["excerpt"]["text_escaped"].as_str().unwrap()));
+    assert!(!text.contains('\x1b'));
+}
+
+#[test]
 fn a_partially_overlapping_second_document_makes_mapping_ambiguous() {
     let original = b"abcdefgh\n";
     let (_dir, path) = fixture(original, &[("full", 0, 8), ("partial", 4, 4)]);
