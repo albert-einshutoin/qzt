@@ -5,6 +5,8 @@
 `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`です。
 導入方法は[README](../README.ja.md)を参照してください。
 このリファレンスは公開後に更新され、製品sourceのtagより新しい文書です。
+`context`節は未公開の開発版コマンドです。公開pre.5には含まれず、
+現在のsourceをbuildして使用します。
 `v0.1`はCLI配布versionではなくcontainer形式です。
 掲載例は[例の再現方法](#例の再現方法)のfixtureを使います。
 
@@ -238,6 +240,60 @@ decode予算に計上します。
 null以外なら、空/部分結果を完全な否定結果として解釈してはいけません。
 理由がnullでcapがなくても、未検証のindexから不存在は証明できません。
 結果上限は到達時に停止し、その先にhitがあるかは分かりません。
+
+### `qzt context <FILE> --offset <N> --length <N> [OPTIONS]`
+
+開発版source専用です。`search --format json`の1 hitの`logical_offset`と
+`byte_length`をそのまま`--offset`と`--length`へ渡します。このread-only操作には
+QZTと指定座標・設定だけが必要です。
+
+```sh
+qzt context evidence.qzt --offset 65344 --length 28 --before 2 --after 2 --format json
+```
+
+座標は0始まりbyte、範囲は半開区間です。長さは正数。引数不正・加算overflowは
+exit `2`、QZT範囲外・破損・資源不足はexit `1`。成功結果にはhitの全byteを含めます。
+`unique`はhit全体を含む交差文書が一つだけの状態で、文書ID・文書内hit範囲を返し、
+contextを文書内に限定します。`ambiguous`は完全包含文書と別の交差文書がある状態、
+`cross_document`は交差文書はあるが完全包含なし、`unmapped`は交差なし、
+`no_document_index`はIndexなしです。これらは全体hit座標を保持し、
+`document=null`、scopeを`container`と明記し、該当する交差候補を列挙します。
+空文書に正の長さのhitは帰属させず、Index記録範囲は原文全体長に照合します。
+
+hitの最初・最後のbyteが属するLF区切り行をすべて含め、前後をscope内で最大N行
+返します（`--before`/`--after`、既定各2・最大各1000）。複数行hit・CRLF・
+末尾改行なしでもbyteを変えません。文書境界が全体の物理行を切る場合はscopeと
+返却byte範囲で分かります。`before`/`after`は要求・表示行数と
+`complete`/`scope_boundary`/`budget`を返します。予算で端の行が切れたら
+`leading_fragment`/`trailing_fragment`を示します。fragmentは選択scope内の
+表示状態で、文書外の未読byteは判定しません。Document Indexの行metadataは
+原文行座標の計算に使いません。
+
+JSONの`excerpt`には全体`logical_offset`、`byte_length`、復元可能な
+`bytes_hex`、表示専用の`text_escaped`があります。UTF-8やCRLFの途中でも
+hexから原文byteを復元できます。textはANSI・制御文字・backslash・不正UTF-8を
+escapeし、原文の代わりにはなりません。text modeも同じ座標・状態・停止理由を
+出します。
+
+| option | 既定値 | コマンド全体の課金対象 |
+|---|---:|---|
+| `--max-scan-bytes <N>` | 256 KiB | hit周辺の1回のlogical range読取量。 |
+| `--max-physical-decoded-bytes <N>` | 16 MiB | 交差する全chunkの展開後size。展開前に判定。 |
+| `--max-physical-decoded-chunks <N>` | 64 | 交差chunk数。各chunkを1回だけ展開。 |
+| `--max-documents <N>` | 100,000 | Document Index全entry数。交差候補は最大256件。 |
+| `--max-excerpt-bytes <N>` | 64 KiB | 返す原文byte数。hit全体が収まる必要あり。 |
+| `--max-output-bytes <N>` | 1 MiB | hex・IDを含むstdout全byte数。 |
+| `--format text\|json` | text | 出力形式。 |
+
+byte上限はbyte数または`KiB`/`MiB`/`GiB`を指定できます。1つの連続範囲を
+読む前に、交差chunkの総展開作業を検査するため、再読による予算回避はありません。
+探索枠を初めに前後へ分配するので、片側に余裕があっても他方が短縮され得ます。
+hit自体が上限に収まらなければ部分的な成功結果を返しません。
+
+`verification.decoded_chunks_verified=true`は実際に読んだchunkだけのReader検証です。
+存在するDocument Index blockはopen時に検証し、記録範囲を文書対応に使います。
+文書全体checksum、検索queryやIndex網羅性、外部出典の真正性は検証しません。
+token hitの所属文書はquery全体が文書内で成立した証明ではありません。
 
 ### `qzt inspect-sidecar <FILE.qzt> --sidecar <FILE.qzi> [--format text|json]`
 

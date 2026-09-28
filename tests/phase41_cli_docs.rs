@@ -29,6 +29,7 @@ fn english_and_japanese_references_cover_every_command_and_option() {
             "qzt docs <FILE>",
             "qzt doc <FILE>",
             "qzt search <FILE>",
+            "qzt context <FILE>",
             "qzt sidecar-rebuild <FILE>",
             "qzt verify <FILE>",
             "qzt attest",
@@ -112,10 +113,11 @@ fn documented_command_set_matches_the_cli_dispatch_and_outlines_match() {
             let line = line.trim();
             let rest = line.strip_prefix("Some(\"")?;
             let (command, suffix) = rest.split_once('"')?;
-            suffix.contains("=> run_").then_some(command)
+            (suffix.contains("=> run_") || suffix.contains("=> context_cli::run"))
+                .then_some(command)
         })
         .collect::<Vec<_>>();
-    assert_eq!(dispatched.len(), 13, "new dispatch arms require CLI docs");
+    assert_eq!(dispatched.len(), 14, "new dispatch arms require CLI docs");
     for command in dispatched {
         let signature = format!("`qzt {command}");
         assert!(ENGLISH.contains(&signature), "English docs miss {command}");

@@ -5,6 +5,8 @@ and its automation contract. The binary comes from tag commit
 `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`; use the
 [README installation steps](../README.md#install). This reference was updated
 after publication; the tagged product source predates it.
+The `context` section below describes an unreleased development command;
+published pre.5 does not contain it. Build current source to use it.
 `v0.1` identifies the container format, not the CLI distribution. Examples
 here use the fixture in [Reproducing the examples](#reproducing-the-examples).
 
@@ -275,6 +277,66 @@ estimate for transient n-gram search, not the actual posting-byte budget meter.
 empty/partial result must not be interpreted as a complete negative finding.
 Even with a null reason and no cap, an unverified index cannot establish
 absence. A result cap may stop at the limit without proving more hits exist.
+
+### `qzt context <FILE> --offset <N> --length <N> [OPTIONS]`
+
+Development source only. Feed one `search --format json` hit's
+`logical_offset` and `byte_length` directly to `--offset` and `--length`.
+This read-only step needs only the QZT and requested coordinates/settings:
+
+```sh
+qzt context evidence.qzt --offset 65344 --length 28 --before 2 --after 2 --format json
+```
+
+Coordinates are zero-based bytes and spans are half-open. Length must be
+positive. Bad arguments and arithmetic overflow exit `2`; an out-of-container
+hit, corruption or resource exhaustion exits `1`. Success includes the
+complete hit bytes. `unique` requires exactly one intersecting document fully
+containing the hit: it returns the ID and document-local hit span and bounds
+context to that document. `ambiguous` means a full containing document plus
+another intersection; `cross_document` intersects indexed documents but fits
+none; `unmapped` intersects none; `no_document_index` has no Index. These
+states keep the global hit, set `document=null`, label scope `container`,
+and list bounded intersecting candidates where applicable. Empty documents
+never own a positive hit. Indexed ranges are checked against original size.
+
+The first and last hit bytes identify all included LF-delimited lines. Up to
+`--before` and `--after` extra lines are returned within scope (default 2,
+maximum 1000 each). Multi-line hits, CRLF and no final LF retain exact bytes.
+A document boundary can cut a physical line: scope and returned byte span show
+the cut. `before`/`after` give requested and visible line counts and stop as
+`complete`, `scope_boundary` or `budget`. A scanned/returned edge line cut by
+a budget sets `leading_fragment`/`trailing_fragment`; these flags describe
+the selected scope, not unread bytes outside a document. Document Index line
+metadata is never used for source line coordinates.
+
+JSON `excerpt` includes its global `logical_offset`, `byte_length`, exact
+reversible `bytes_hex`, and separate display-only `text_escaped`. Hex also
+recovers UTF-8 or CRLF cuts. Text escapes ANSI, controls, backslashes and
+invalid UTF-8; it cannot replace the original bytes. Text mode gives the same
+coordinates, mapping state and stop reasons.
+
+| Option | Default | Per-command charge |
+|---|---:|---|
+| `--max-scan-bytes <N>` | 256 KiB | One logical range read around the hit. |
+| `--max-physical-decoded-bytes <N>` | 16 MiB | Full uncompressed sizes of intersecting chunks, before decode. |
+| `--max-physical-decoded-chunks <N>` | 64 | Distinct intersecting chunks; each decoded once. |
+| `--max-documents <N>` | 100,000 | Entire Document Index entry count; at most 256 intersecting candidates. |
+| `--max-excerpt-bytes <N>` | 64 KiB | Original bytes returned; full hit must fit. |
+| `--max-output-bytes <N>` | 1 MiB | Rendered stdout bytes, including hex and IDs. |
+| `--format text\|json` | text | Output encoding. |
+
+Byte caps accept bytes or `KiB`/`MiB`/`GiB` suffixes. One contiguous read is
+preflighted against total intersecting chunk work before the first decode, so
+repeat reads cannot evade the cap. Initial scan room is split between sides;
+one side may shorten even when the other has spare room. If the hit itself
+does not fit, the command fails instead of returning partial success.
+
+`verification.decoded_chunks_verified=true` covers only chunks actually
+read. A present Document Index block was validated at open, and its recorded
+ranges were used for mapping. The operation does not check the full document
+checksum, search query or Index coverage, or external provenance. A mapped
+token hit does not establish that its full query stayed in that document.
 
 ### `qzt inspect-sidecar <FILE.qzt> --sidecar <FILE.qzi> [--format text|json]`
 
