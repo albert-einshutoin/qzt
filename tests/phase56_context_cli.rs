@@ -64,6 +64,101 @@ fn unique_document_maps_hit_and_restores_exact_lines() {
 }
 
 #[test]
+fn empty_document_inside_hit_does_not_change_unique_mapping_or_scope() {
+    let original = b"prefix\nabcdef\nsuffix\n";
+    let (_dir, path) = fixture(original, &[("body", 7, 7), ("empty", 10, 0)]);
+    let args = [
+        "--offset", "9", "--length", "2", "--before", "2", "--after", "2",
+    ];
+    let value = json(&path, &[&args[..], &["--format", "json"]].concat());
+    assert_eq!(value["mapping_status"], "unique");
+    assert_eq!(value["document"]["id"], "body");
+    assert_eq!(value["document"]["local_offset"], 2);
+    assert_eq!(value["document"]["local_end"], 4);
+    assert_eq!(value["scope"]["kind"], "document");
+    assert_eq!(value["scope"]["logical_offset"], 7);
+    assert_eq!(value["scope"]["end"], 14);
+    assert_eq!(value["candidates"].as_array().unwrap().len(), 1);
+    assert_eq!(value["candidates"][0]["id"], "body");
+    let start = usize::try_from(value["excerpt"]["logical_offset"].as_u64().unwrap()).unwrap();
+    let length = usize::try_from(value["excerpt"]["byte_length"].as_u64().unwrap()).unwrap();
+    assert_eq!((start, start + length), (7, 14));
+    let restored: Vec<u8> = value["excerpt"]["bytes_hex"]
+        .as_str()
+        .unwrap()
+        .as_bytes()
+        .chunks_exact(2)
+        .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
+        .collect();
+    assert_eq!(restored, original[start..start + length]);
+    assert_eq!(&restored[9 - start..11 - start], b"cd");
+    let text = String::from_utf8(run(&path, &args).stdout).unwrap();
+    assert!(text.contains("mapping: unique"));
+    assert!(text.contains("scope: document 7:14"));
+    assert!(text.contains("document: body local 2:4"));
+    assert!(text.contains("candidate: body 7:14"));
+    assert!(!text.contains("candidate: empty"));
+    assert!(text.contains("excerpt 7:14"));
+    for direction in ["before", "after"] {
+        let detail = &value[direction];
+        assert_eq!(detail["stop"], "scope_boundary");
+        assert!(text.contains(&format!(
+            "{direction}: {}/{} stop={}",
+            detail["returned"].as_u64().unwrap(),
+            detail["requested"].as_u64().unwrap(),
+            detail["stop"].as_str().unwrap(),
+        )));
+    }
+}
+
+#[test]
+fn empty_documents_at_hit_edges_and_outside_are_not_candidates() {
+    for empty_offset in [9, 10, 11, 20] {
+        let original = b"prefix\nabcdef\nsuffix\n";
+        let (_dir, path) = fixture(original, &[("body", 7, 7), ("empty", empty_offset, 0)]);
+        let value = json(
+            &path,
+            &["--offset", "9", "--length", "2", "--format", "json"],
+        );
+        assert_eq!(value["mapping_status"], "unique", "empty at {empty_offset}");
+        assert_eq!(value["candidates"].as_array().unwrap().len(), 1);
+        assert_eq!(value["candidates"][0]["id"], "body");
+    }
+}
+
+#[test]
+fn empty_only_document_index_leaves_positive_hit_unmapped() {
+    let (_dir, path) = fixture(b"abc\n", &[("empty", 1, 0)]);
+    let value = json(
+        &path,
+        &["--offset", "0", "--length", "3", "--format", "json"],
+    );
+    assert_eq!(value["mapping_status"], "unmapped");
+    assert!(value["document"].is_null());
+    assert_eq!(value["scope"]["kind"], "container");
+    assert!(value["candidates"].as_array().unwrap().is_empty());
+}
+
+#[test]
+fn empty_entries_count_for_document_budget_but_not_candidate_budget() {
+    let original = b"prefix\nabcdef\nsuffix\n";
+    let names: Vec<_> = (0..256).map(|i| format!("empty-{i}")).collect();
+    let mut spans = vec![("body", 7, 7)];
+    spans.extend(names.iter().map(|name| (name.as_str(), 10, 0)));
+    let (_dir, path) = fixture(original, &spans);
+    let args = ["--offset", "9", "--length", "2", "--format", "json"];
+    let value = json(&path, &[&args[..], &["--max-documents", "257"]].concat());
+    assert_eq!(value["mapping_status"], "unique");
+    assert_eq!(value["candidates"].as_array().unwrap().len(), 1);
+    assert_eq!(
+        run(&path, &[&args[..], &["--max-documents", "256"]].concat())
+            .status
+            .code(),
+        Some(1)
+    );
+}
+
+#[test]
 fn overlap_gap_crossing_and_empty_documents_never_invent_local_positions() {
     let original = b"alpha beta\n";
     let (_dir, path) = fixture(
@@ -77,12 +172,33 @@ fn overlap_gap_crossing_and_empty_documents_never_invent_local_positions() {
     assert_eq!(ambiguous["mapping_status"], "ambiguous");
     assert!(ambiguous["document"].is_null());
     assert_eq!(ambiguous["candidates"].as_array().unwrap().len(), 2);
+    assert_eq!(ambiguous["candidates"][0]["id"], "a");
+    assert_eq!(ambiguous["candidates"][1]["id"], "b");
     let crossing = json(
         &path,
         &["--offset", "5", "--length", "2", "--format", "json"],
     );
     assert_eq!(crossing["mapping_status"], "cross_document");
     assert!(crossing["document"].is_null());
+    assert_eq!(crossing["candidates"].as_array().unwrap().len(), 3);
+    assert_eq!(crossing["candidates"][2]["id"], "c");
+    let (_baseline_dir, baseline_path) =
+        fixture(original, &[("a", 0, 6), ("b", 0, 6), ("c", 6, 4)]);
+    for (offset, length, with_empty) in [(1, 2, &ambiguous), (5, 2, &crossing)] {
+        let baseline = json(
+            &baseline_path,
+            &[
+                "--offset",
+                &offset.to_string(),
+                "--length",
+                &length.to_string(),
+                "--format",
+                "json",
+            ],
+        );
+        assert_eq!(with_empty["mapping_status"], baseline["mapping_status"]);
+        assert_eq!(with_empty["candidates"], baseline["candidates"]);
+    }
     let gap = json(
         &path,
         &["--offset", "10", "--length", "1", "--format", "json"],
@@ -533,13 +649,17 @@ fn text_and_json_agree_on_coordinates_status_stops_and_display() {
 #[test]
 fn a_partially_overlapping_second_document_makes_mapping_ambiguous() {
     let original = b"abcdefgh\n";
-    let (_dir, path) = fixture(original, &[("full", 0, 8), ("partial", 4, 4)]);
+    let (_dir, path) = fixture(
+        original,
+        &[("full", 0, 8), ("partial", 4, 4), ("empty", 3, 0)],
+    );
     let value = json(
         &path,
         &["--offset", "2", "--length", "4", "--format", "json"],
     );
     assert_eq!(value["mapping_status"], "ambiguous");
     assert!(value["document"].is_null());
+    assert_eq!(value["candidates"].as_array().unwrap().len(), 2);
 }
 
 #[cfg(feature = "internal-testing")]
@@ -560,6 +680,11 @@ fn malformed_document_range_is_error_but_stale_document_checksum_is_not_claimed(
             "stale-checksum",
             DocumentEntry::new("stale", 0, 6, 0, 1, 0, 1, Checksum::blake3(b"other")),
             0,
+        ),
+        (
+            "bad-empty-range",
+            DocumentEntry::new("bad-empty", 7, 0, 0, 1, 0, 1, Checksum::blake3(b"")),
+            1,
         ),
     ] {
         let packed = qzt::writer::pack_bytes_with_document_index_override(

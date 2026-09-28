@@ -8,6 +8,10 @@ Future work after the published pre.5 technical preview belongs here.
   a document and bounded original-byte lines, with preflight decode budgets
   and explicit ambiguous/missing mapping and context stop states. Published
   `v0.1.0-pre.5` does not contain this command.
+- Fixed unreleased `qzt context` treating a zero-length document inside a hit
+  as an intersecting candidate, which could change a unique document scope to
+  container scope. Empty entries still count toward Index validation and the
+  inspected-document budget.
 
 ## 0.1.0-pre.5 - 2026-09-27
 
