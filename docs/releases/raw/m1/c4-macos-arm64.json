@@ -1,0 +1,91 @@
+{
+  "compatibility": {
+    "candidate_binary_sha256": "68f46f9fb93d67e66f277547fda6847985b17e2292eef9a19a3e432dae222aca",
+    "containers": {
+      "pre3": {
+        "bytes": 1864,
+        "deep_attestation_byte_equal": true,
+        "deep_attestation_sha256": "aadfd74b2052c257e6aca0a7a95654f95a010e40ede760f1bb1c650405a883c3",
+        "sha256": "7162a16240aa2ac501f1461f7e1c2d221050d1afade1941d8657ff6784eecc54"
+      },
+      "pre5_candidate": {
+        "bytes": 1864,
+        "deep_attestation_byte_equal": true,
+        "deep_attestation_sha256": "aadfd74b2052c257e6aca0a7a95654f95a010e40ede760f1bb1c650405a883c3",
+        "sha256": "7162a16240aa2ac501f1461f7e1c2d221050d1afade1941d8657ff6784eecc54"
+      }
+    },
+    "cross_version_deep_verify_export_search": "passed",
+    "pre3_binary_sha256": "2e77275b033d498fdd61e97352fdfb06ac80aa95f3ea790f2b5727aa3512872b",
+    "same_qzt_token_ngram_qzi_byte_equal": true,
+    "sidecars": {
+      "pre3-ngram": {
+        "bytes": 920,
+        "sha256": "4e297ba1c75208b218e0abaed2d06382026cfa7e38ea9fced80bfd453037c2dc"
+      },
+      "pre3-token": {
+        "bytes": 867,
+        "sha256": "771300991448262181938739395e262fdaced92672531be2938e6cc2e982a428"
+      },
+      "pre5_candidate-ngram": {
+        "bytes": 920,
+        "sha256": "4e297ba1c75208b218e0abaed2d06382026cfa7e38ea9fced80bfd453037c2dc"
+      },
+      "pre5_candidate-token": {
+        "bytes": 867,
+        "sha256": "771300991448262181938739395e262fdaced92672531be2938e6cc2e982a428"
+      }
+    },
+    "source_sha256": "925eb99a334b23b9de76084cdb6ef9b252e644668a7f49a4a05178986c49f35f"
+  },
+  "limitations": [
+    "native macOS ARM64 only for public-workflow-v1 runtime",
+    "not next-release archive or installer evidence",
+    "not external-user validation"
+  ],
+  "producer": {
+    "archive_sha256": "4180a025b825414c080678acf0055c6622a9804eca94937206515d92324de452",
+    "command": "cargo +1.99.0 build --release --locked",
+    "kind": "locally archived release build; not a published artifact",
+    "product_source_sha": "81e3013832a7aaa9ee0feed1d20e83fd06f5779c"
+  },
+  "published_pre5_new_profile": {
+    "archive_sha256": "3cbcab43f1c79ff11b756af292524715d1ca618c0445e4157e775876e454a9d1",
+    "binary_sha256": "989e6f21d80c5f14ee90b27aabe156760f0c6992bc6a5520aaa1400ba20b29be",
+    "result": "rejected: context exits 2; old profile passed before context check"
+  },
+  "smoke": {
+    "binary_sha256": "68f46f9fb93d67e66f277547fda6847985b17e2292eef9a19a3e432dae222aca",
+    "binary_version": "qzt 0.1.0-pre.5",
+    "context": {
+      "budget_fragment": "passed",
+      "corrupt_qzi": "passed",
+      "document_scope": "passed",
+      "search_to_context": "passed",
+      "zero_and_capped_zero": "passed"
+    },
+    "isolation_verifier_sha256": "16e30742a6436308dee6277674adc8641c5bae0e10ac0ce2b6fc555def2461c4",
+    "ok": true,
+    "profile": "public-workflow-v1",
+    "shared_smoke_sha256": "3dc4118ad3141d3d8419946537b1ee0cfaa2b2e1bb0c674c76d6f5413acdceec",
+    "target": "aarch64-apple-darwin",
+    "vector_sha256": {
+      "valid_c1": "82d191b3bca4de6729b5dedbd5e8512ac8f395f3a8c5f095b33ce410c97686c8",
+      "valid_crlf": "609001b31c9d3647b215da5b1e8e0d9040929d873aa8fa60ded1ad03664830e2"
+    },
+    "verifier_sha256": "62a6b8ff32a0ebbdb2fc5701eafa381be3aa36355db5461108d8c351b051d288",
+    "workflow": {
+      "failed_export_preservation": "passed",
+      "hard_error": "passed",
+      "normal_tour": "passed",
+      "readonly": "not applicable outside Windows",
+      "repeated_token_ngram": "passed",
+      "result_cap": "passed",
+      "self_overwrite": "passed",
+      "v0_1_vectors": [
+        "valid_c1",
+        "valid_crlf"
+      ]
+    }
+  }
+}
