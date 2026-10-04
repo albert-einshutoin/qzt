@@ -38,7 +38,7 @@ fi
 test "${expected}" = "${actual}"
 tar -xJf "${archive}"
 QZT_BIN="$(pwd)/qzt-${target}/qzt"
-"$QZT_BIN" --version
+test "$("$QZT_BIN" --version)" = 'qzt 0.1.0-pre.5'
 ```
 
 公開binaryは`qzt 0.1.0-pre.5`を返します。sidecarの真正性は、信頼する
@@ -54,10 +54,25 @@ Windowsでは同じReleaseの`qzt-x86_64-pc-windows-msvc.zip`と対応する
 `.zip.sha256`を取得し、展開前に照合して`qzt.exe`を実行します。
 
 ```powershell
+$ErrorActionPreference = "Stop"
+$release = "v0.1.0-pre.5"
+$installDir = Join-Path ([IO.Path]::GetTempPath()) ("qzt-install-" + [Guid]::NewGuid())
+New-Item -ItemType Directory $installDir | Out-Null
+Set-Location $installDir
 $archive = "qzt-x86_64-pc-windows-msvc.zip"
-$expected = (Get-Content "$archive.sha256" | Select-String -Pattern '\S').Line.Split()[0]
+$base = "https://github.com/albert-einshutoin/qzt/releases/download/$release"
+Invoke-WebRequest "$base/$archive" -OutFile $archive
+Invoke-WebRequest "$base/$archive.sha256" -OutFile "$archive.sha256"
+$fields = (Get-Content "$archive.sha256" -Raw).Trim() -split '\s+'
+if ($fields.Count -ne 2 -or $fields[0] -notmatch '^[0-9a-fA-F]{64}$' -or
+    $fields[1].TrimStart('*') -ne $archive) { throw "Invalid checksum sidecar" }
+$expected = $fields[0]
 $actual = (Get-FileHash -Algorithm SHA256 $archive).Hash
 if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
+Expand-Archive $archive -DestinationPath extracted
+$QztBin = (Resolve-Path "extracted/qzt.exe").Path
+$version = & $QztBin --version
+if ($LASTEXITCODE -ne 0 -or $version -ne 'qzt 0.1.0-pre.5') { throw "Wrong binary version" }
 ```
 
 公開済みの[shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.sh)と
@@ -77,6 +92,12 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 
 </details>
 
 ## 60秒ツアー
+
+platformごとの前提条件とPowerShellのツアーは
+[公開workflow導入guide](docs/guides/public-workflow.ja.md)を参照してください。
+公開pre.5では以下のツアーを実行できます。contextを含む全workflowは、将来の
+context対応release向けの準備済み手順としてguideに分けています。対応releaseは
+現在まだ公開されていません。
 
 上で検証したpre.5 binaryを使用し、`QZT_BIN`にはその絶対パスを設定します。
 POSIX shell、`mktemp`、`cmp`を使い、独立した使い捨てdirectoryで実行します。

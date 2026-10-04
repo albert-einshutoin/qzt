@@ -16,6 +16,8 @@ translations where available.
 ## CLI and public API
 
 - CLI reference: [English](CLI.md) / [日本語](CLI.ja.md)
+- Public artifact workflow and context-release boundary: [English](guides/public-workflow.md) / [日本語](guides/public-workflow.ja.md)
+- Explicit extracted-binary smoke: [guide](guides/public-workflow-smoke.md) / [macOS ARM64 development evidence](releases/raw/m1/c4-macos-arm64.json)
 - Public API stability: [English](API_STABILITY.md)
 
 ## Release and validation evidence
