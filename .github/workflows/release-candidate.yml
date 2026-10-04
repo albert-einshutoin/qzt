@@ -1,7 +1,7 @@
 name: Verify v0.1.0-pre.5 candidate and release build path
 
 # The release workflow remains tag-only. This job builds unpublished artifacts
-# only for this workflow's review and for an explicitly selected main SHA.
+# only before publication, for PR review or an explicitly selected main SHA.
 on:
   pull_request:
     branches: [main]
@@ -44,6 +44,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       source_sha: ${{ steps.source.outputs.sha }}
+      build_candidate: ${{ steps.boundary.outputs.build_candidate }}
     steps:
       - name: Select the exact candidate source
         id: source
@@ -66,13 +67,23 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Verify source, version, and publication boundary
+        id: boundary
         shell: bash
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = '${{ steps.source.outputs.sha }}'
           test -z "$(git status --porcelain)"
           test "$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)" = '0.1.0-pre.5'
-          test -z "$(git ls-remote --tags origin refs/tags/v0.1.0-pre.5)"
+          tag_refs="$(git ls-remote --tags origin refs/tags/v0.1.0-pre.5)"
+          if [ -n "$tag_refs" ]; then
+            if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+              echo 'build_candidate=false' >> "$GITHUB_OUTPUT"
+              echo 'v0.1.0-pre.5 is already published; skipping the pre-publication candidate build. Use verify-published-release.yml for published assets.' >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo 'v0.1.0-pre.5 is already published; a new pre-publication candidate cannot be built.' >&2
+            exit 1
+          fi
           if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
             git fetch --no-tags origin main:refs/remotes/origin/main
             if ! git merge-base --is-ancestor '${{ steps.source.outputs.sha }}' refs/remotes/origin/main; then
@@ -81,10 +92,13 @@ jobs:
             fi
           fi
           echo "candidate source SHA: $(git rev-parse HEAD)"
+          echo 'build_candidate=true' >> "$GITHUB_OUTPUT"
       - name: Install digest-pinned cargo-dist
+        if: steps.boundary.outputs.build_candidate == 'true'
         shell: bash
         run: scripts/install-cargo-dist-linux.sh
       - name: Plan unpublished artifacts
+        if: steps.boundary.outputs.build_candidate == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -99,6 +113,7 @@ jobs:
           done
           test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        if: steps.boundary.outputs.build_candidate == 'true'
         with:
           name: artifacts-plan-dist-manifest
           path: target/candidate/plan-dist-manifest.json
@@ -107,6 +122,7 @@ jobs:
 
   build-local:
     needs: plan
+    if: needs.plan.outputs.build_candidate == 'true'
     strategy:
       fail-fast: false
       matrix:
