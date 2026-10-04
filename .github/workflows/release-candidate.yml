@@ -361,6 +361,7 @@ jobs:
             --artifacts artifacts --staged target/candidate/staged \
             --plan target/candidate/plan-dist-manifest.json \
             --source-sha '${{ needs.plan.outputs.source_sha }}' \
+            --expected-tag v0.1.0-pre.6 \
             --output target/candidate/assembly-evidence.json
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
