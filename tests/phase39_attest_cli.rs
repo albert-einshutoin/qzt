@@ -54,7 +54,7 @@ fn attest_output_is_deterministic_and_canonical() {
         String::from_utf8_lossy(&first.stderr)
     );
     assert_eq!(first.stdout, second.stdout);
-    assert!(first.stderr.is_empty());
+    assert_eq!(first.stderr, [] as [u8; 0]);
 
     let reader = QztFileReader::open_path(&path).expect("fixture should open");
     let info = reader.info();
@@ -244,7 +244,7 @@ fn attest_rejects_invalid_level_as_usage_error() {
     let output = run_attest(&path, &["--level", "shallow"]);
 
     assert_eq!(output.status.code(), Some(2));
-    assert!(output.stdout.is_empty());
+    assert_eq!(output.stdout, [] as [u8; 0]);
     assert!(String::from_utf8_lossy(&output.stderr).contains("invalid --level value"));
 }
 

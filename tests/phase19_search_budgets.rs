@@ -303,7 +303,7 @@ fn cli_rejects_oversized_query_before_open_or_index_build_and_reports_cap_reason
         .output()
         .expect("run");
     assert_eq!(oversized.status.code(), Some(1));
-    assert!(oversized.stdout.is_empty());
+    assert_eq!(oversized.stdout, [] as [u8; 0]);
     assert!(String::from_utf8_lossy(&oversized.stderr).contains("resource limit"));
 
     let container = fixture(b"needle\n", 64);
@@ -373,6 +373,6 @@ fn cli_rejects_oversized_query_before_open_or_index_build_and_reports_cap_reason
         .output()
         .expect("run");
     assert_eq!(line_error.status.code(), Some(1));
-    assert!(line_error.stdout.is_empty());
+    assert_eq!(line_error.stdout, [] as [u8; 0]);
     assert!(!sidecar_path.exists());
 }

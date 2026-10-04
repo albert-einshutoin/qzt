@@ -123,9 +123,9 @@ fn missing_key_in_complete_index_returns_no_match_without_decode() {
         .search(&reader, "zzz", SearchOptions::default())
         .expect("search should run");
 
-    assert!(report.hits.is_empty());
+    assert_eq!(report.hits, [] as [qzt::SearchHit; 0]);
     assert_eq!(report.metrics.decoded_bytes, 0);
-    assert!(!report.planner.missing_keys.is_empty());
+    assert_ne!(report.planner.missing_keys, [] as [std::vec::Vec<u8>; 0]);
     assert_eq!(report.incomplete_reason, None);
 }
 
@@ -149,7 +149,7 @@ fn missing_key_in_incomplete_index_reports_incomplete_without_fallback_decode() 
         .search(&reader, "zzz", SearchOptions::default())
         .expect("search should run");
 
-    assert!(report.hits.is_empty());
+    assert_eq!(report.hits, [] as [qzt::SearchHit; 0]);
     assert_eq!(report.metrics.decoded_bytes, 0);
     assert_eq!(
         report.incomplete_reason,
@@ -276,7 +276,7 @@ fn query_shorter_than_n_reports_incomplete_reason() {
         .search(&reader, "中文", SearchOptions::default())
         .expect("search should run");
 
-    assert!(report.hits.is_empty());
+    assert_eq!(report.hits, [] as [qzt::SearchHit; 0]);
     assert_eq!(report.metrics.term_lookups, 0);
     assert_eq!(report.incomplete_reason, Some("query_shorter_than_ngram_n"));
 }

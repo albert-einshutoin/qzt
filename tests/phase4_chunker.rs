@@ -15,7 +15,7 @@ fn invalid_utf8_is_rejected_before_chunk_planning() {
 fn empty_input_produces_no_chunks_and_zero_lines() {
     let plan = plan_chunks(b"", support::chunker_options(4, 8)).expect("empty input should plan");
 
-    assert!(plan.chunks.is_empty());
+    assert_eq!(plan.chunks, [] as [qzt::chunker::PlannedChunk; 0]);
     assert_eq!(plan.line_count, 0);
     assert_eq!(plan.newline_mode, NewlineMode::None);
 }

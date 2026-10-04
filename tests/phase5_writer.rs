@@ -126,7 +126,7 @@ fn pack_smoke_benchmark_records_nonzero_throughput() {
             .expect("pack should work");
     let elapsed = started.elapsed();
 
-    assert!(!container.is_empty());
+    assert_ne!(container, [] as [u8; 0]);
     assert!(elapsed.as_nanos() > 0);
 
     let bytes_per_second = input.len() as f64 / elapsed.as_secs_f64();

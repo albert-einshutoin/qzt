@@ -1067,7 +1067,7 @@ mod atomic_output_tests {
         assert!(error.to_string().contains("output replaced"));
         assert_eq!(input, b"input original");
         assert_eq!(output, b"new output");
-        assert!(leftovers.is_empty());
+        assert_eq!(leftovers, [] as [std::path::PathBuf; 0]);
     }
 
     #[test]

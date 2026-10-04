@@ -400,7 +400,7 @@ fn core_conformance_map_covers_all_items() {
     assert_eq!(CORE_CONFORMANCE_MAP.len(), 77);
     for (expected, (actual, _, evidence)) in (1_u8..=77).zip(CORE_CONFORMANCE_MAP.iter()) {
         assert_eq!(expected, *actual);
-        assert!(!evidence.is_empty());
+        assert_ne!(*evidence, "");
     }
 }
 
