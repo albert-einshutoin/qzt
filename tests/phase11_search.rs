@@ -269,7 +269,7 @@ fn unindexable_query_reports_incomplete_reason() {
         .search(&reader, "証拠", SearchOptions::default())
         .expect("search should run");
 
-    assert!(report.hits.is_empty());
+    assert_eq!(report.hits, [] as [qzt::SearchHit; 0]);
     assert_eq!(
         report.incomplete_reason,
         Some("query_has_no_indexable_tokens")

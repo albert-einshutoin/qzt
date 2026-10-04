@@ -313,7 +313,7 @@ fn cli_inspect_sidecar_rejects_corruption_without_affecting_core_verify() {
         .output()
         .expect("mismatched inspect command should run");
     assert_eq!(mismatch.status.code(), Some(1));
-    assert!(mismatch.stdout.is_empty());
+    assert_eq!(mismatch.stdout, [] as [u8; 0]);
 
     let mut bytes = fs::read(&sidecar).expect("sidecar should be readable");
     flip_first_sidecar_payload_byte(&mut bytes);

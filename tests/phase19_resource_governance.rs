@@ -155,7 +155,7 @@ fn physical_decode_budget_stops_before_a_large_chunk_is_read() {
 
     assert_eq!(report.stop_reason, Some("max_physical_decoded_bytes"));
     assert!(report.capped);
-    assert!(report.hits.is_empty());
+    assert_eq!(report.hits, [] as [qzt::SearchHit; 0]);
     assert_eq!(
         source.reads.lock().expect("reads lock").len(),
         reads_before,

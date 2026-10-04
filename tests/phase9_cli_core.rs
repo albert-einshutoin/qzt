@@ -222,7 +222,7 @@ fn range_and_line_reject_unknown_trailing_options_as_usage_errors() {
             .output()
             .expect("qzt command should run");
         assert_eq!(output.status.code(), Some(2));
-        assert!(output.stdout.is_empty());
+        assert_eq!(output.stdout, [] as [u8; 0]);
         assert!(String::from_utf8_lossy(&output.stderr).contains("unknown option '--bogus'"));
     }
 

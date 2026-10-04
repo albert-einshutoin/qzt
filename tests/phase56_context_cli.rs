@@ -136,7 +136,10 @@ fn empty_only_document_index_leaves_positive_hit_unmapped() {
     assert_eq!(value["mapping_status"], "unmapped");
     assert!(value["document"].is_null());
     assert_eq!(value["scope"]["kind"], "container");
-    assert!(value["candidates"].as_array().unwrap().is_empty());
+    assert_eq!(
+        value["candidates"].as_array().unwrap().as_slice(),
+        [] as [serde_json::Value; 0]
+    );
 }
 
 #[test]

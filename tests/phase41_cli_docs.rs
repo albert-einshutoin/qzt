@@ -557,7 +557,7 @@ fn version_stdout_matches_the_documented_stable_form() {
             output.stdout,
             format!("qzt {}\n", env!("CARGO_PKG_VERSION")).as_bytes()
         );
-        assert!(output.stderr.is_empty());
+        assert_eq!(output.stderr, [] as [u8; 0]);
     }
 }
 
@@ -610,7 +610,7 @@ fn run_json(arguments: &[&str]) -> serde_json::Value {
         "stderr: {}",
         String::from_utf8_lossy(&stderr)
     );
-    assert!(stderr.is_empty());
+    assert_eq!(stderr, [] as [u8; 0]);
     serde_json::from_slice(&stdout).expect("stdout should be valid JSON")
 }
 

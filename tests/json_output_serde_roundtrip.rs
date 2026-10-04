@@ -198,7 +198,7 @@ fn docs_json_serde_roundtrip_has_required_fields() {
         .get("documents")
         .and_then(serde_json::Value::as_array)
         .expect("documents must be an array");
-    assert!(!documents.is_empty());
+    assert_ne!(documents.as_slice(), [] as [serde_json::Value; 0]);
     let first = documents
         .first()
         .and_then(serde_json::Value::as_object)

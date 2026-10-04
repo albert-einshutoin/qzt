@@ -38,9 +38,13 @@ fn dictionary_compressed_fixture_exports_exactly() {
         &[],
     );
 
-    let reader = QztReader::open(container).expect("dictionary container should open");
+    let reader = QztReader::open(&container).expect("dictionary container should open");
 
     assert_eq!(reader.export_all(), Ok(input.to_vec()));
+    let file_reader = QztFileReader::open_read_at(&container[..], container.len() as u64)
+        .expect("file-backed dictionary container should open");
+    assert_eq!(file_reader.export_all(), Ok(input.to_vec()));
+    assert_eq!(file_reader.read_range(0, 5), Ok(b"alpha".to_vec()));
 }
 
 #[test]

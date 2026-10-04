@@ -84,7 +84,7 @@ fn empty_range_reports_zero_work() {
         .read_range_with_metrics(5, 0)
         .expect("empty range should read");
 
-    assert!(report.bytes.is_empty());
+    assert_eq!(report.bytes, [] as [u8; 0]);
     assert_eq!(report.metrics.decoded_chunks, 0);
     assert_eq!(report.metrics.decoded_bytes, 0);
     assert_eq!(report.metrics.compressed_bytes, 0);

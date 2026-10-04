@@ -24,6 +24,7 @@ internal_module!(benchmark);
 internal_module!(cbor);
 internal_module!(chunk_table);
 internal_module!(chunker);
+mod codec;
 internal_module!(corpus);
 internal_module!(dense_line_index);
 internal_module!(error);

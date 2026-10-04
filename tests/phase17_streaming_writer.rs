@@ -376,7 +376,7 @@ fn buffered_sink_is_flushed_before_prefix_read_and_success() {
     writer.push(b"buffered\n").expect("push");
     writer.finish().expect("finish");
     let sink = writer.into_inner();
-    assert!(sink.pending.is_empty());
+    assert_eq!(sink.pending, [] as [(u64, std::vec::Vec<u8>); 0]);
     assert!(sink.flushes >= 2);
     assert_eq!(sink.position, sink.committed.len() as u64);
     assert_default_readers(&sink.committed, b"buffered\n");

@@ -2009,7 +2009,7 @@ mod serialized_metrics_tests {
             true,
         );
 
-        assert!(report.hits.is_empty());
+        assert_eq!(report.hits, [] as [SearchHit; 0]);
         assert!(report.capped);
         assert_eq!(report.planner, planner);
         assert_eq!(report.incomplete_reason, Some("test_reason"));
@@ -2020,12 +2020,12 @@ mod serialized_metrics_tests {
     #[test]
     fn bounded_span_generation_preserves_token_and_and_ngram_overlap_order() {
         let keys = vec![b"alpha".to_vec(), b"beta".to_vec()];
-        assert!(verified_spans(b"alpha alpha", &keys, 1, false, false).is_empty());
+        assert_eq!(verified_spans(b"alpha alpha", &keys, 1, false, false), [] as [TokenSpan; 0]);
         let spans = verified_spans(b"alpha alpha beta alpha", &keys, 1, false, false);
         assert_eq!(spans.iter().map(|span| span.start).collect::<Vec<_>>(), vec![0]);
-        assert!(verified_spans(b"alpha beta", &keys, 0, false, false).is_empty());
+        assert_eq!(verified_spans(b"alpha beta", &keys, 0, false, false), [] as [TokenSpan; 0]);
 
-        assert!(substring_spans(b"aaaa", b"aa", 0).is_empty());
+        assert_eq!(substring_spans(b"aaaa", b"aa", 0), [] as [TokenSpan; 0]);
         assert_eq!(substring_spans(b"aaaa", b"aa", 1).iter().map(|span| span.start).collect::<Vec<_>>(), vec![0]);
         assert_eq!(substring_spans(b"aaaa", b"aa", 2).iter().map(|span| span.start).collect::<Vec<_>>(), vec![0, 1]);
     }

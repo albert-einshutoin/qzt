@@ -9,6 +9,7 @@
 | Package gate | `cargo package --allow-dirty` | local and CI Linux |
 | Preview distribution contract | `cargo test --locked --test phase42_release_readiness --test phase43_distribution` | local and CI Linux |
 | Candidate/published verifier and release manifest clean-check regressions | `python3 -m unittest discover -s scripts -p 'test_*.py'` | local and CI Linux (Python 3.12+) |
+| Candidate publication boundary regressions | `python3 -m unittest discover -s scripts -p 'test_release_workflow.py'` | local and CI Linux; temporary local Git remotes only |
 | Candidate/release workflow syntax | `actionlint -shellcheck= .github/workflows/release-candidate.yml .github/workflows/release.yml .github/workflows/verify-published-release.yml .github/workflows/ci.yml` | local before candidate PR; generated release shell blocks retain pre-existing ShellCheck warnings |
 | Pre.5 candidate and release build rehearsal | `.github/workflows/release-candidate.yml` PR run, then manual dispatch with the exact main merge SHA; it uses `scripts/release-workflow-build.sh` from the tag-only release workflow for native/global manifest generation, reading, and copying, then checks the assembled pre-host files; `scripts/record-build-environment.py` checks the selected build toolchain before and after `dist build` | native macOS ARM/Intel, Linux x64, Windows x64 and global/assembly Linux runners; read-only, 14-day CI artifacts; hosting and `release` environment not exercised |
 | Published pre.5 assets and installers | `.github/workflows/verify-published-release.yml` on its PR; `scripts/verify-published-release.py` requires explicit tag, version, product SHA, release run ID/attempt, and verifier SHA while downloading actual Release URLs | native macOS ARM/Intel, Linux x64, Windows x64 runners; read-only; 14-day verification artifacts |
@@ -33,5 +34,7 @@ build/read/copy script as the release workflow without hosting or publishing,
 and smokes the binary extracted from each target archive on its native runner.
 Run it again for the exact merge SHA; PR artifacts are not final-candidate
 evidence. Its artifacts expire after 14 days.
-After publication, use the separate read-only published verifier. The candidate
-workflow checks tag absence and cannot serve as post-publication evidence.
+After publication, PR runs report a skip and do not build candidate artifacts.
+Manual candidate dispatch still rejects an existing tag, and a failed tag lookup
+fails the plan. Use the separate read-only published verifier for published assets;
+the candidate workflow cannot serve as post-publication evidence.

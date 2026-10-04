@@ -1952,8 +1952,8 @@ mod manifest_tests {
             });
             let memory = QziSidecar::open(&target, &sidecar).unwrap();
             let file = QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &file_reader).unwrap();
-            assert!(memory.search(&memory_reader, "alpha", SearchOptions::default()).unwrap().hits.is_empty());
-            assert!(file.search(&file_reader, "alpha", SearchOptions::default()).unwrap().hits.is_empty());
+            assert_eq!(memory.search(&memory_reader, "alpha", SearchOptions::default()).unwrap().hits, [] as [crate::search::SearchHit; 0]);
+            assert_eq!(file.search(&file_reader, "alpha", SearchOptions::default()).unwrap().hits, [] as [crate::search::SearchHit; 0]);
         }
     }
 
@@ -1969,8 +1969,8 @@ mod manifest_tests {
             retarget_fixture(&mut sidecar, &target);
             let memory = QziSidecar::open(&target, &sidecar).unwrap();
             let file = QziFileSidecar::open_read_at(sidecar.as_slice(), sidecar.len() as u64, &file_reader).unwrap();
-            assert!(memory.search(&memory_reader, "alpha beta", SearchOptions::default()).unwrap().hits.is_empty());
-            assert!(file.search(&file_reader, "alpha beta", SearchOptions::default()).unwrap().hits.is_empty());
+            assert_eq!(memory.search(&memory_reader, "alpha beta", SearchOptions::default()).unwrap().hits, [] as [crate::search::SearchHit; 0]);
+            assert_eq!(file.search(&file_reader, "alpha beta", SearchOptions::default()).unwrap().hits, [] as [crate::search::SearchHit; 0]);
         }
     }
 
@@ -2039,7 +2039,7 @@ mod manifest_tests {
             let report = file.search(&file_reader, "alpha", options).unwrap();
             assert_eq!(report.stop_reason, Some(reason));
             assert!(report.capped);
-            assert!(report.hits.is_empty());
+            assert_eq!(report.hits, [] as [crate::search::SearchHit; 0]);
             assert_eq!(report.metrics.physical_decoded_chunks, 1);
         }
     }
@@ -2071,7 +2071,7 @@ mod manifest_tests {
                     assert!(!report.capped);
                     assert!(!report.index_complete_declared);
                     assert!(!report.index_coverage_verified);
-                    assert!(report.hits.is_empty());
+                    assert_eq!(report.hits, [] as [crate::search::SearchHit; 0]);
                 }
 
                 for (options, reason) in [
@@ -2090,7 +2090,7 @@ mod manifest_tests {
                         assert_eq!(report.incomplete_reason, None);
                         assert!(!report.index_complete_declared);
                         assert!(!report.index_coverage_verified);
-                        assert!(report.hits.is_empty());
+                        assert_eq!(report.hits, [] as [crate::search::SearchHit; 0]);
                     }
                 }
             }
@@ -2575,8 +2575,8 @@ mod manifest_tests {
                 let file_report = file.search(&file_reader, query, no_chunks).unwrap();
                 assert_eq!(memory_report.stop_reason, Some("max_physical_decoded_chunks"));
                 assert_eq!(file_report.stop_reason, memory_report.stop_reason);
-                assert!(memory_report.hits.is_empty());
-                assert!(file_report.hits.is_empty());
+                assert_eq!(memory_report.hits, [] as [crate::search::SearchHit; 0]);
+                assert_eq!(file_report.hits, [] as [crate::search::SearchHit; 0]);
                 let expected = memory.search(&memory_reader, query, SearchOptions::default()).unwrap();
                 let actual = file.search(&file_reader, query, SearchOptions::default()).unwrap();
                 assert_eq!(actual.hits, expected.hits);
