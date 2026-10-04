@@ -1,31 +1,32 @@
-name: Verify published v0.1.0-pre.5
+name: Verify published v0.1.0-pre.6
 
 # Read-only verification of actual GitHub Release URLs. This workflow never builds
 # products, creates tags, or hosts assets.
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - .github/workflows/verify-published-release.yml
-      - scripts/verify-published-release.py
-      - scripts/verify-release-candidate.py
-      - scripts/test_published_release_verifier.py
-      - tests/vectors/**
   workflow_dispatch:
+    inputs:
+      release_run_id:
+        description: Exact successful tag-only release run ID for the fixed pre.6 source
+        type: string
+        required: true
+      release_run_attempt:
+        description: Exact successful release run attempt
+        type: string
+        required: true
 
 permissions:
   contents: read
   actions: read
 
 env:
-  TAG: v0.1.0-pre.5
-  VERSION: qzt 0.1.0-pre.5
-  PRODUCT_SHA: 3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe
-  RELEASE_RUN_ID: '36317632199'
-  RELEASE_RUN_ATTEMPT: '1'
+  TAG: v0.1.0-pre.6
+  VERSION: qzt 0.1.0-pre.6
+  PRODUCT_SHA: 0c8110e6b6e08513b4def3f636b5b79d068e275f
+  RELEASE_RUN_ID: ${{ inputs.release_run_id }}
+  RELEASE_RUN_ATTEMPT: ${{ inputs.release_run_attempt }}
 
 concurrency:
-  group: published-pre5-${{ github.event.pull_request.number || github.ref }}
+  group: published-pre6-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -35,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
       - name: Fetch fixed product Git object
         run: git fetch --no-tags --depth=1 origin "$PRODUCT_SHA"
@@ -45,10 +46,10 @@ jobs:
       - name: Download and verify published manifest, sidecars, and global assets
         env:
           GH_TOKEN: ${{ github.token }}
-          VERIFIER_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VERIFIER_SHA: ${{ github.sha }}
         run: |
           python scripts/verify-published-release.py global \
-            --tag "$TAG" --version "$VERSION" \
+            --tag "$TAG" --version "$VERSION" --smoke-profile public-workflow-v1 \
             --product-sha "$PRODUCT_SHA" \
             --release-run-id "$RELEASE_RUN_ID" \
             --release-run-attempt "$RELEASE_RUN_ATTEMPT" \
@@ -56,7 +57,7 @@ jobs:
             --output target/published/evidence.json
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: published-pre5-global
+          name: published-pre6-global
           path: target/published/evidence.json
           if-no-files-found: error
           retention-days: 14
@@ -79,7 +80,7 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -88,10 +89,10 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          VERIFIER_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VERIFIER_SHA: ${{ github.sha }}
         run: |
           python scripts/verify-published-release.py local \
-            --tag "$TAG" --version "$VERSION" \
+            --tag "$TAG" --version "$VERSION" --smoke-profile public-workflow-v1 \
             --product-sha "$PRODUCT_SHA" \
             --release-run-id "$RELEASE_RUN_ID" \
             --release-run-attempt "$RELEASE_RUN_ATTEMPT" \
@@ -101,7 +102,7 @@ jobs:
             --output target/published/evidence.json
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: published-pre5-${{ matrix.target }}
+          name: published-pre6-${{ matrix.target }}
           path: target/published/evidence.json
           if-no-files-found: error
           retention-days: 14

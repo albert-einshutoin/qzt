@@ -225,7 +225,8 @@ def run_installer(installer, work, target, archive_binary_hash, vectors_dir,
     }
 
 
-def verify_local(assets, target, vectors_dir, directory, tag_name, version, base):
+def verify_local(assets, target, vectors_dir, directory, tag_name, version, base,
+                 smoke_profile="preview-legacy"):
     expected = TARGETS[target]
     actual = (platform.system(), platform.machine())
     require(actual == expected, f"target {target} does not match native runner {actual}")
@@ -246,10 +247,10 @@ def verify_local(assets, target, vectors_dir, directory, tag_name, version, base
         smoke_work = work / "archive-smoke"
         smoke_work.mkdir()
         with isolated_binary_env(work):
-            smoke = candidate.smoke(binary, smoke_work, vectors_dir, target, tag_name)
+            smoke = candidate.run_smoke(binary, smoke_work, vectors_dir, target, tag_name, smoke_profile)
         binary_hash = candidate.sha256(binary)
         install = install_and_smoke(assets, directory, work, target, binary_hash, vectors_dir,
-                                    tag_name, version, base)
+                                    tag_name, version, base, smoke_profile)
     return {
         "target": target, "archive_url": f"{base}/{archive_name}",
         "sidecar_url": f"{base}/{archive_name}.sha256",
@@ -265,6 +266,8 @@ def main():
     parser.add_argument("--target", choices=TARGETS)
     parser.add_argument("--vectors-dir", type=Path)
     parser.add_argument("--tag", required=True)
+    parser.add_argument("--smoke-profile", choices=("preview-legacy", "public-workflow-v1"),
+                        default="preview-legacy")
     parser.add_argument("--version", required=True)
     parser.add_argument("--product-sha", required=True)
     parser.add_argument("--release-run-id", required=True, type=int)
@@ -296,9 +299,10 @@ def main():
             require(args.target is not None and args.vectors_dir is not None,
                     "local verification needs target and vectors")
             outcome = verify_local(assets, args.target, args.vectors_dir.resolve(), directory,
-                                   args.tag, args.version, base)
+                                   args.tag, args.version, base, args.smoke_profile)
     evidence = {
         "kind": args.kind, "tag": args.tag, "version": args.version,
+        "smoke_profile": args.smoke_profile,
         "product_source_sha": args.product_sha,
         "release_run_id": args.release_run_id, "release_run_attempt": args.release_run_attempt,
         "release_id": release["id"],
