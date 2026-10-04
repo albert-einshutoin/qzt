@@ -38,7 +38,7 @@ fi
 test "${expected}" = "${actual}"
 tar -xJf "${archive}"
 QZT_BIN="$(pwd)/qzt-${target}/qzt"
-"$QZT_BIN" --version
+test "$("$QZT_BIN" --version)" = 'qzt 0.1.0-pre.5'
 ```
 
 The published CLI reports `qzt 0.1.0-pre.5`. Verify the sidecar's
@@ -55,10 +55,25 @@ Windows users can download `qzt-x86_64-pc-windows-msvc.zip` and its
 the extracted `qzt.exe`:
 
 ```powershell
+$ErrorActionPreference = "Stop"
+$release = "v0.1.0-pre.5"
+$installDir = Join-Path ([IO.Path]::GetTempPath()) ("qzt-install-" + [Guid]::NewGuid())
+New-Item -ItemType Directory $installDir | Out-Null
+Set-Location $installDir
 $archive = "qzt-x86_64-pc-windows-msvc.zip"
-$expected = (Get-Content "$archive.sha256" | Select-String -Pattern '\S').Line.Split()[0]
+$base = "https://github.com/albert-einshutoin/qzt/releases/download/$release"
+Invoke-WebRequest "$base/$archive" -OutFile $archive
+Invoke-WebRequest "$base/$archive.sha256" -OutFile "$archive.sha256"
+$fields = (Get-Content "$archive.sha256" -Raw).Trim() -split '\s+'
+if ($fields.Count -ne 2 -or $fields[0] -notmatch '^[0-9a-fA-F]{64}$' -or
+    $fields[1].TrimStart('*') -ne $archive) { throw "Invalid checksum sidecar" }
+$expected = $fields[0]
 $actual = (Get-FileHash -Algorithm SHA256 $archive).Hash
 if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
+Expand-Archive $archive -DestinationPath extracted
+$QztBin = (Resolve-Path "extracted/qzt.exe").Path
+$version = & $QztBin --version
+if ($LASTEXITCODE -ne 0 -or $version -ne 'qzt 0.1.0-pre.5') { throw "Wrong binary version" }
 ```
 
 The published [shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.sh)
@@ -79,6 +94,12 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 
 </details>
 
 ## 60-second Tour
+
+For platform prerequisites and the PowerShell tour, see the
+[public workflow guide](docs/guides/public-workflow.md). Published pre.5
+supports the tour below; the guide labels the full context workflow as
+prepared for a future context-enabled release. No such release is currently
+published.
 
 Use the verified pre.5 binary from above (`QZT_BIN` must be its absolute
 path). Run this in a POSIX shell with `mktemp` and `cmp`. It creates a
