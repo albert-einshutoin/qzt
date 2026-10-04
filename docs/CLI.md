@@ -52,6 +52,44 @@ These meanings are frozen for v0.1:
 - No command writes progress output today. Progress output may be added only to
   stderr.
 
+### Interpreting search, context and verify results
+
+Read command status first, then the report's scope. Exit `0` means the requested
+operation succeeded; it does not mean exhaustive search, complete context or
+deep verification. These are independent properties:
+
+| Observation | What is established | What is not established |
+|---|---|---|
+| Search hit with `source=verified_original_bytes` | That returned hit satisfies the query's token/ngram semantics in original bytes. | That every match was returned, or that the full query belongs to one document. |
+| `capped=true`, named `stop_reason` | Search stopped at a configured cap, including when `hits=[]`. | Absence of further matches; reaching a result cap does not prove another match exists. |
+| `incomplete_reason` is non-null | The query/index cannot supply a complete answer; inspect the reason. | A negative finding, even with zero hits and no cap. |
+| `capped=false`, null reason, `hits=[]` | This index/query operation returned no verified hits. | Absence in the original: `index_coverage_verified=false` means coverage unknown. |
+| `index_complete_declared=true` | The index declares completeness. | Verified coverage; checksums/source binding do not prove posting completeness. |
+| Context `before.stop` or `after.stop` is `budget`; excerpt fragment flag is true | Bounded bytes were returned; the indicated edge may cut a line. | All requested context lines, or bytes outside the excerpt. Check both stop reasons and both fragment flags independently. |
+| Context stop is `scope_boundary` | Retrieval reached the selected document/container scope boundary. | Context beyond that scope; a document boundary can split a physical line. |
+| Context mapping is `ambiguous`, `cross_document`, `unmapped` or `no_document_index` | The hit cannot be assigned uniquely; context uses container scope. | Unique document ownership. `unique` also does not verify the document checksum or the search query. |
+| Verify `ok=true` | Only the requested `level` and reported counters/statuses passed. | Deep verification after quick/normal, QZI validation, search coverage or external provenance. |
+| Exit `1`: corrupt QZT or rejected QZI | The requested operation failed; no successful search/context report is produced. | A zero-hit finding. Core `verify` does not read the QZI and may still pass if only the sidecar is damaged. |
+
+Automation must check the exit code before accepting output, require the
+documented keys and JSON types, and reject missing fields or unknown status
+values for the property it needs. Ignore unknown *keys* for compatibility;
+do not interpret an unknown state as successful verification. A missing
+coverage field is not evidence of coverage. Do not rely on the presence or
+absence of a stderr warning: capped results and unknown coverage can exit `0`
+without a warning.
+
+For search, retain verified hits independently of completeness, then read
+`capped`/`stop_reason`, `incomplete_reason` and `index_coverage_verified`.
+There is currently no CLI report that proves an exhaustive negative result.
+For context, check mapping/scope, both side stops and both fragment flags;
+recover exact bytes from `excerpt.bytes_hex`, not the display text. Even two
+`complete` stops cover only requested context in the selected scope, and the
+`verification` fields cover only their stated work. For verify, require
+`ok=true` at the requested level and inspect the counters/statuses; an absent
+optional checksum/index is not a verified one. Failure JSON (`ok:false`) on
+stdout is the deliberate `verify --format json` exception described above.
+
 ### File output safety
 
 `pack`, `pack-docs`, `export`, `doc`, and `sidecar-rebuild` reject an output that

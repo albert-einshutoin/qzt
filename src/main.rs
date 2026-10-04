@@ -138,7 +138,7 @@ fn print_command_help(command: &str) -> ExitCode {
             ),
         ),
         "search" => print_simple_command_help(
-            "Search original UTF-8 bytes and verify every reported hit.",
+            "Search original UTF-8 bytes and verify every reported hit.\nExit 0 does not prove coverage: inspect capped, stop_reason, incomplete_reason\nand index_coverage_verified (currently false), even for zero hits.",
             "qzt search <FILE> <QUERY> [OPTIONS]",
             concat!(
                 "  --index token|ngram       In-memory index kind (default: token)\n",
@@ -159,7 +159,7 @@ fn print_command_help(command: &str) -> ExitCode {
             ),
         ),
         "context" => print_simple_command_help(
-            "Restore bounded original-byte context for one global search hit.",
+            "Restore bounded original-byte context for one global search hit.\nInspect mapping_status, before/after stop and excerpt fragment flags.\nOnly read chunks are verified; the search query and full document are not.",
             "qzt context <FILE> --offset <N> --length <N> [OPTIONS]",
             concat!(
                 "  --offset <N>                  Global zero-based hit byte offset\n",
@@ -194,7 +194,7 @@ fn print_command_help(command: &str) -> ExitCode {
             ),
         ),
         "verify" => print_simple_command_help(
-            "Verify container integrity.",
+            "Verify container integrity at the requested level.\nQuick checks structure; normal also checks compressed checksums; deep decodes\nand checks original bytes. Success does not verify QZI or search coverage.",
             "qzt verify <FILE> [--quick|--normal|--deep] [--format text|json]",
             concat!(
                 "  --quick|--normal|--deep  Verification level (default: normal)\n",
