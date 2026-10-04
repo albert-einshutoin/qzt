@@ -24,13 +24,13 @@ const RELEASE_TARGETS: [&str; 4] = [
 fn distribution_is_reproducibly_pinned_for_the_preview_candidate() {
     // Distribution remains explicitly configured instead of inferring release
     // intent from crates.io publication eligibility.
-    for requirement in ["version = \"0.1.0-pre.5\"", "dist = true"] {
+    for requirement in ["version = \"0.1.0-pre.6\"", "dist = true"] {
         assert!(
             MANIFEST.contains(requirement),
             "missing package distribution contract: {requirement}"
         );
     }
-    assert!(FUZZ_MANIFEST.contains("qzt = { path = \"..\", version = \"=0.1.0-pre.5\""));
+    assert!(FUZZ_MANIFEST.contains("qzt = { path = \"..\", version = \"=0.1.0-pre.6\""));
 
     for requirement in [
         "cargo-dist-version = \"0.31.0\"",
@@ -161,10 +161,10 @@ fn candidate_workflow_builds_exact_unpublished_source_on_native_runners() {
     assert!(CANDIDATE_WORKFLOW.contains("candidate_sha:"));
     assert!(CANDIDATE_WORKFLOW.contains("test -z \"$(git status --porcelain)\""));
     assert!(CANDIDATE_WORKFLOW.contains("git merge-base --is-ancestor"));
-    assert!(CANDIDATE_WORKFLOW.contains("dist plan --tag=v0.1.0-pre.5"));
-    assert!(CANDIDATE_WORKFLOW.contains("--expected-tag v0.1.0-pre.5"));
-    assert!(CANDIDATE_WORKFLOW.contains("scripts/release-workflow-build.sh build --tag=v0.1.0-pre.5 --print=linkage --allow-dirty --output-format=json --artifacts=local"));
-    assert!(CANDIDATE_WORKFLOW.contains("scripts/release-workflow-build.sh build --tag=v0.1.0-pre.5 --allow-dirty --output-format=json --artifacts=global"));
+    assert!(CANDIDATE_WORKFLOW.contains("dist plan --tag=v0.1.0-pre.6"));
+    assert!(CANDIDATE_WORKFLOW.contains("--expected-tag v0.1.0-pre.6"));
+    assert!(CANDIDATE_WORKFLOW.contains("scripts/release-workflow-build.sh build --tag=v0.1.0-pre.6 --print=linkage --allow-dirty --output-format=json --artifacts=local"));
+    assert!(CANDIDATE_WORKFLOW.contains("scripts/release-workflow-build.sh build --tag=v0.1.0-pre.6 --allow-dirty --output-format=json --artifacts=global"));
     assert_eq!(
         CANDIDATE_WORKFLOW
             .matches("scripts/release-workflow-build.sh copy")
@@ -210,12 +210,12 @@ fn both_readmes_offer_installer_checksum_and_source_fallback_paths() {
             "## Install",
             "cargo install qzt --version 0.1.0 --locked",
             "qzt-installer.sh",
-            "v0.1.0-pre.5",
+            "v0.1.0-pre.6",
             ".sha256",
             "set -eu",
             "shasum -a 256",
             "Get-FileHash -Algorithm SHA256",
-            "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 --locked",
+            "cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.6 --locked",
             "docs/guides/examples/smoke-pre5-release-tour.sh",
         ] {
             assert!(

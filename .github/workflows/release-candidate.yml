@@ -1,4 +1,4 @@
-name: Verify v0.1.0-pre.5 candidate and release build path
+name: Verify v0.1.0-pre.6 candidate and release build path
 
 # The release workflow remains tag-only. This job builds unpublished artifacts
 # only before publication, for PR review or an explicitly selected main SHA.
@@ -24,6 +24,10 @@ on:
       - scripts/test_release_workflow.py
       - scripts/verify-pre4-compatibility.py
       - scripts/verify-release-candidate.py
+      - scripts/verify-public-workflow.py
+      - scripts/test_public_workflow.py
+      - scripts/verify-candidate-installer.py
+      - scripts/verify-published-release.py
       - scripts/verify-release-rehearsal.py
   workflow_dispatch:
     inputs:
@@ -36,7 +40,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pre5-candidate-${{ github.event.pull_request.number || inputs.candidate_sha }}
+  group: pre6-candidate-${{ github.event.pull_request.number || inputs.candidate_sha }}
   cancel-in-progress: true
 
 jobs:
@@ -73,15 +77,15 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = '${{ steps.source.outputs.sha }}'
           test -z "$(git status --porcelain)"
-          test "$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)" = '0.1.0-pre.5'
-          tag_refs="$(git ls-remote --tags origin refs/tags/v0.1.0-pre.5)"
+          test "$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n 1)" = '0.1.0-pre.6'
+          tag_refs="$(git ls-remote --tags origin refs/tags/v0.1.0-pre.6)"
           if [ -n "$tag_refs" ]; then
             if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
               echo 'build_candidate=false' >> "$GITHUB_OUTPUT"
-              echo 'v0.1.0-pre.5 is already published; skipping the pre-publication candidate build. Use verify-published-release.yml for published assets.' >> "$GITHUB_STEP_SUMMARY"
+              echo 'v0.1.0-pre.6 is already published; skipping the pre-publication candidate build. Use verify-published-release.yml for published assets.' >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
-            echo 'v0.1.0-pre.5 is already published; a new pre-publication candidate cannot be built.' >&2
+            echo 'v0.1.0-pre.6 is already published; a new pre-publication candidate cannot be built.' >&2
             exit 1
           fi
           if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
@@ -93,6 +97,11 @@ jobs:
           fi
           echo "candidate source SHA: $(git rev-parse HEAD)"
           echo 'build_candidate=true' >> "$GITHUB_OUTPUT"
+      - name: F1 fixed-format and supported QZI compatibility gate
+        if: steps.boundary.outputs.build_candidate == 'true'
+        run: |
+          cargo test --locked --features internal-testing --test phase2_fixed --test phase8_reader_core --test phase13_sidecar --test phase22_vectors
+          cargo test --locked --features internal-testing --lib sidecar::manifest_tests
       - name: Install digest-pinned cargo-dist
         if: steps.boundary.outputs.build_candidate == 'true'
         shell: bash
@@ -104,8 +113,8 @@ jobs:
           set -euo pipefail
           test "$(dist --version)" = 'cargo-dist 0.31.0'
           mkdir -p target/candidate
-          dist plan --tag=v0.1.0-pre.5 --allow-dirty --output-format=json > target/candidate/plan-dist-manifest.json
-          test "$(jq -r .announcement_tag target/candidate/plan-dist-manifest.json)" = 'v0.1.0-pre.5'
+          dist plan --tag=v0.1.0-pre.6 --allow-dirty --output-format=json > target/candidate/plan-dist-manifest.json
+          test "$(jq -r .announcement_tag target/candidate/plan-dist-manifest.json)" = 'v0.1.0-pre.6'
           for target in aarch64-apple-darwin x86_64-apple-darwin x86_64-unknown-linux-gnu x86_64-pc-windows-msvc; do
             if [ "$target" = x86_64-pc-windows-msvc ]; then extension=zip; else extension=tar.xz; fi
             jq -e --arg name "qzt-${target}.${extension}" '.artifacts[$name].kind == "executable-zip"' target/candidate/plan-dist-manifest.json >/dev/null
@@ -204,21 +213,21 @@ jobs:
           python scripts/record-build-environment.py record \
             --source-sha '${{ needs.plan.outputs.source_sha }}' --target '${{ matrix.target }}' \
             --profile 'dist (release with thin LTO)' --features 'default; no feature override' \
-            --build-command 'dist build --tag=v0.1.0-pre.5 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=${{ matrix.target }}' \
+            --build-command 'dist build --tag=v0.1.0-pre.6 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=${{ matrix.target }}' \
             --output "$BUILD_ENV_NAME"
-          scripts/release-workflow-build.sh build --tag=v0.1.0-pre.5 --print=linkage --allow-dirty --output-format=json --artifacts=local --target='${{ matrix.target }}'
+          scripts/release-workflow-build.sh build --tag=v0.1.0-pre.6 --print=linkage --allow-dirty --output-format=json --artifacts=local --target='${{ matrix.target }}'
           python scripts/record-build-environment.py verify --input "$BUILD_ENV_NAME"
           echo "paths<<EOF" >> "$GITHUB_OUTPUT"
           scripts/release-workflow-build.sh print-local >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           scripts/release-workflow-build.sh copy
           python scripts/verify-release-candidate.py local \
-            --manifest "$BUILD_MANIFEST_NAME" --source-sha '${{ needs.plan.outputs.source_sha }}' --expected-tag v0.1.0-pre.5 \
+            --manifest "$BUILD_MANIFEST_NAME" --source-sha '${{ needs.plan.outputs.source_sha }}' --expected-tag v0.1.0-pre.6 \
             --build-env "$BUILD_ENV_NAME" \
             --target '${{ matrix.target }}' \
             --archive 'target/distrib/${{ matrix.archive }}' \
             --checksum 'target/distrib/${{ matrix.archive }}.sha256' \
-            --vectors-dir tests/vectors --output 'target/candidate/${{ matrix.target }}-evidence.json'
+            --smoke-profile public-workflow-v1 --vectors-dir tests/vectors --output 'target/candidate/${{ matrix.target }}-evidence.json'
           test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
@@ -231,7 +240,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: pre5-evidence-${{ matrix.target }}-${{ needs.plan.outputs.source_sha }}
+          name: pre6-evidence-${{ matrix.target }}-${{ needs.plan.outputs.source_sha }}
           path: target/candidate/${{ matrix.target }}-evidence.json
           if-no-files-found: error
           retention-days: 14
@@ -283,16 +292,16 @@ jobs:
           python scripts/record-build-environment.py record \
             --source-sha '${{ needs.plan.outputs.source_sha }}' --target global \
             --profile 'global artifacts; no Rust compile' --features 'not applicable' \
-            --build-command 'dist build --tag=v0.1.0-pre.5 --allow-dirty --output-format=json --artifacts=global' \
+            --build-command 'dist build --tag=v0.1.0-pre.6 --allow-dirty --output-format=json --artifacts=global' \
             --output "$BUILD_ENV_NAME"
-          scripts/release-workflow-build.sh build --tag=v0.1.0-pre.5 --allow-dirty --output-format=json --artifacts=global
+          scripts/release-workflow-build.sh build --tag=v0.1.0-pre.6 --allow-dirty --output-format=json --artifacts=global
           echo "paths<<EOF" >> "$GITHUB_OUTPUT"
           scripts/release-workflow-build.sh print-global >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           scripts/release-workflow-build.sh copy
           python scripts/record-build-environment.py verify --input "$BUILD_ENV_NAME"
           python scripts/verify-release-candidate.py global \
-            --manifest "$BUILD_MANIFEST_NAME" --source-sha '${{ needs.plan.outputs.source_sha }}' --expected-tag v0.1.0-pre.5 \
+            --manifest "$BUILD_MANIFEST_NAME" --source-sha '${{ needs.plan.outputs.source_sha }}' --expected-tag v0.1.0-pre.6 \
             --build-env "$BUILD_ENV_NAME" \
             --distrib target/distrib --output target/candidate/global-evidence.json
           test -z "$(git status --porcelain)"
@@ -307,7 +316,7 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: pre5-evidence-global-${{ needs.plan.outputs.source_sha }}
+          name: pre6-evidence-global-${{ needs.plan.outputs.source_sha }}
           path: target/candidate/global-evidence.json
           if-no-files-found: error
           retention-days: 14
@@ -352,10 +361,11 @@ jobs:
             --artifacts artifacts --staged target/candidate/staged \
             --plan target/candidate/plan-dist-manifest.json \
             --source-sha '${{ needs.plan.outputs.source_sha }}' \
+            --expected-tag v0.1.0-pre.6 \
             --output target/candidate/assembly-evidence.json
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: pre5-assembly-evidence-${{ needs.plan.outputs.source_sha }}
+          name: pre6-assembly-evidence-${{ needs.plan.outputs.source_sha }}
           path: target/candidate/assembly-evidence.json
           if-no-files-found: error
           retention-days: 14
@@ -375,32 +385,67 @@ jobs:
         with:
           name: artifacts-build-local-aarch64-apple-darwin
           path: target/distrib
-      - name: Compare published pre.3 and candidate pre.5 on the fixed fixture
+      - name: Compare published pre.3 and candidate pre.6 on the fixed fixture
         shell: bash
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = '${{ needs.plan.outputs.source_sha }}'
-          mkdir -p target/candidate/pre3 target/candidate/pre5
+          mkdir -p target/candidate/pre3 target/candidate/pre6
           pre3_archive=target/candidate/qzt-pre3-aarch64-apple-darwin.tar.xz
           curl --proto '=https' --tlsv1.2 -fsSL \
             https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.3/qzt-aarch64-apple-darwin.tar.xz \
             -o "$pre3_archive"
           test "$(shasum -a 256 "$pre3_archive" | awk '{ print $1 }')" = \
             '0e51e0a1945b984500ae27a21e56930ba4b06a744a639feffa696307b1255b20'
-          pre5_archive=target/distrib/qzt-aarch64-apple-darwin.tar.xz
-          test "$(shasum -a 256 "$pre5_archive" | awk '{ print $1 }')" = \
-            "$(awk '{ print $1 }' "${pre5_archive}.sha256")"
+          pre6_archive=target/distrib/qzt-aarch64-apple-darwin.tar.xz
+          test "$(shasum -a 256 "$pre6_archive" | awk '{ print $1 }')" = \
+            "$(awk '{ print $1 }' "${pre6_archive}.sha256")"
           tar -xJf "$pre3_archive" -C target/candidate/pre3
-          tar -xJf "$pre5_archive" -C target/candidate/pre5
+          tar -xJf "$pre6_archive" -C target/candidate/pre6
           python scripts/verify-pre4-compatibility.py \
-            --candidate-tag v0.1.0-pre.5 \
+            --candidate-tag v0.1.0-pre.6 \
             --pre3-bin target/candidate/pre3/qzt-aarch64-apple-darwin/qzt \
-            --candidate-bin target/candidate/pre5/qzt-aarch64-apple-darwin/qzt \
+            --candidate-bin target/candidate/pre6/qzt-aarch64-apple-darwin/qzt \
             --output target/candidate/compatibility.json
           test -z "$(git status --porcelain)"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: pre5-compatibility-${{ needs.plan.outputs.source_sha }}
+          name: pre6-compatibility-${{ needs.plan.outputs.source_sha }}
           path: target/candidate/compatibility.json
+          if-no-files-found: error
+          retention-days: 14
+
+  native-windows-installer:
+    needs: [plan, build-local, build-global]
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ needs.plan.outputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: artifacts-build-local-x86_64-pc-windows-msvc
+          path: target/distrib
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: artifacts-build-global
+          path: target/distrib
+      - name: Native PowerShell install from explicit candidate staging and C4 workflow
+        shell: bash
+        run: |
+          python scripts/verify-candidate-installer.py \
+            --distrib target/distrib --target x86_64-pc-windows-msvc \
+            --vectors-dir tests/vectors --expected-tag v0.1.0-pre.6 \
+            --source-sha '${{ needs.plan.outputs.source_sha }}' \
+            --output target/candidate/windows-installer.json
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: pre6-windows-installer-${{ needs.plan.outputs.source_sha }}
+          path: target/candidate/windows-installer.json
           if-no-files-found: error
           retention-days: 14

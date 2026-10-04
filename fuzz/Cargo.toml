@@ -10,7 +10,7 @@ cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = "0.4"
-qzt = { path = "..", version = "=0.1.0-pre.5", features = ["internal-testing"] }
+qzt = { path = "..", version = "=0.1.0-pre.6", features = ["internal-testing"] }
 
 [lib]
 path = "src/lib.rs"

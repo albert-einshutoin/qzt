@@ -2,12 +2,11 @@
 
 [English](public-workflow.md)
 
-現在公開中のreleaseは **v0.1.0-pre.5**、product commitは
-`3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`です。pack、inspect、search、
-deep verify、exportを利用できます。**contextコマンドはありません。** 下の全workflowは
-将来のrelease向けの準備済み手順で、context対応releaseは現在未公開です。
-同じversionを表示するmain buildも公開artifactとは別です。公開workflowにRust buildや
-source checkoutは必要ありません。
+context対応previewの選択versionは **v0.1.0-pre.6**、現在は**未公開candidate**です。
+以下はこのversionのartifactだけを使う手順です。公開後に実行してください。
+W2 candidateの証拠と、W3の実Release URLの証拠は別です。
+[release gate](../releases/v0.1.0-pre.6-candidate.md)を参照してください。
+公開workflowにsource checkoutやRust buildは不要です。
 
 ## artifactを選んで導入する
 
@@ -27,7 +26,7 @@ binaryの絶対パスと期待versionを確認します。`latest`やPATH上の�
 archive checksum、binary versionを記録してください。checksumの信頼はreleaseの
 取得経路に依存し、一致だけでpublisherの真正性は証明しません。
 
-## 現在の公開workflowを実行する
+## 基本workflowを実行する
 
 POSIXでは導入時の`QZT_BIN`で[READMEツアー](../../README.ja.md#60秒ツアー)を
 実行します。`mktemp`と`cmp`を使い、使い捨ての23-byte入力を作ります。
@@ -66,13 +65,10 @@ length 5の`error`を返し、`source=verified_original_bytes`です。
 Deep verifyは`ok=true`、`original_checksum_verified=true`を返し、exportは原文の
 全byteと一致します。上のbase64比較はこの小さなfixture用で、大容量入力には推奨しません。
 
-## context対応artifact公開後の全workflow
+## contextを含む全workflow
 
-**準備済み手順です。現在の公開releaseでは実行できません。** 明示的にcontext対応と
-されたreleaseを選び、そのtagと期待versionで導入をやり直します。pre.5の値を
-使わず、そこで検証した展開binaryを使い続けます。公開後のpre.5 candidate workflowは
-新しいartifactをbuildしません。main CI成功もdownload可能なreleaseではありません。
-contextをskipしたりsource buildへfallbackして、公開全workflow完了と扱わないでください。
+上で導入した正確なpre.6 binaryを使います。公開前は準備済み手順であり、
+W3で実Release artifactを確認する必要があります。contextは必須です。
 
 POSIXでは上記の道具に加えて`jq`とPython 3を使います。検証済みのcontext対応
 `QZT_BIN`から開始します。
@@ -149,5 +145,5 @@ QZTを保持してdeep verifyし、`sidecar-rebuild`で別のQZIを明示的に�
 
 Engineering向けの[C4展開済みbinary smoke](public-workflow-smoke.md)は期待hash/version、
 golden vector、新しいJSON証拠fileを要求します。macOS ARM64のmain build証拠は
-公開release証拠とは別です。このguideのPowerShell手順は、今回native Windowsで
-実行していません。次期release検証では、実際に公開するWindows artifactで実行してください。
+公開release証拠とは別です。このguideのcandidateは4 native targetとWindows PowerShell installerで確認し、
+W3で実Release URLから同じprofileを再実行します。candidate結果は公開到達性の証拠ではありません。

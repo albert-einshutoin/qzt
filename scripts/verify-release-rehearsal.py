@@ -20,7 +20,6 @@ ARCHIVES = {f"qzt-{target}" + (".zip" if "windows" in target else ".tar.xz")
 GLOBAL = {"qzt-installer.sh", "qzt-installer.ps1", "source.tar.gz",
           "source.tar.gz.sha256", "sha256.sum"}
 ASSETS = ARCHIVES | {f"{name}.sha256" for name in ARCHIVES} | GLOBAL
-TAG = "v0.1.0-pre.5"
 
 
 def require(condition, message):
@@ -33,12 +32,14 @@ def digest(path):
         return hashlib.file_digest(source, "sha256").hexdigest()
 
 
-def inspect(artifacts, staged, plan, source_sha):
+def inspect(artifacts, staged, plan, source_sha, expected_tag):
+    require(re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+-pre\.[0-9]+", expected_tag),
+            "expected tag must be an explicit preview version")
     require(re.fullmatch(r"[0-9a-f]{40}", source_sha), "source SHA must be full")
     require(subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip() == source_sha,
             "assembly checkout differs from selected source")
     planned = json.loads(plan.read_text(encoding="utf-8"))
-    require(planned["announcement_tag"] == TAG and
+    require(planned["announcement_tag"] == expected_tag and
             planned["announcement_is_prerelease"] is True and
             planned["dist_version"] == "0.31.0" and
             set(planned["artifacts"]) == ASSETS, "release plan differs from the expected 13 build assets")
@@ -70,7 +71,7 @@ def inspect(artifacts, staged, plan, source_sha):
         manifest = json.loads(manifest_path.read_text())
         expected = ASSETS if target == "global" else {
             name for name in ASSETS if name.startswith(f"qzt-{target}.")}
-        require(manifest["announcement_tag"] == TAG and
+        require(manifest["announcement_tag"] == expected_tag and
                 manifest["announcement_is_prerelease"] is True and
                 set(manifest["artifacts"]) == expected,
                 f"wrong build manifest for {target}")
@@ -94,7 +95,7 @@ def inspect(artifacts, staged, plan, source_sha):
         aggregate[name] = value
     require(set(aggregate) == ARCHIVES | {"source.tar.gz"},
             "aggregate checksum does not cover every archive")
-    return {"source_sha": source_sha, "tag": TAG, "build_environments": environments,
+    return {"source_sha": source_sha, "tag": expected_tag, "build_environments": environments,
             "build_manifests": manifests, "staged_assets": assets,
             "aggregate_checksum_entries": sorted(aggregate),
             "planned_public_asset_names": sorted(ASSETS | {"dist-manifest.json"}),
@@ -107,9 +108,10 @@ def main():
     parser.add_argument("--staged", type=Path, required=True)
     parser.add_argument("--plan", type=Path, required=True)
     parser.add_argument("--source-sha", required=True)
+    parser.add_argument("--expected-tag", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    result = inspect(args.artifacts, args.staged, args.plan, args.source_sha)
+    result = inspect(args.artifacts, args.staged, args.plan, args.source_sha, args.expected_tag)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n",
                            encoding="utf-8")

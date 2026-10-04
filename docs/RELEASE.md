@@ -1,5 +1,15 @@
 # QZT Release Checklist
 
+## Selected next preview: pre.6
+
+`v0.1.0-pre.6` is an unpublished candidate. The [W2/W3 gate](releases/v0.1.0-pre.6-candidate.md)
+requires exact-main candidate verification on all four native targets, the C4
+context workflow, F1 compatibility and native Windows PowerShell installation
+before the protected tag-only release. W3 then downloads the real Release URLs;
+only its successful evidence can establish public workflow completion.
+The published pre.5 records below remain historical and cannot satisfy pre.6 gates.
+
+
 日本語版: [RELEASE.ja.md](RELEASE.ja.md)
 
 This runbook prepares and publishes QZT v0.1.0 without blurring the boundary

@@ -1,12 +1,9 @@
-# qzt CLI Reference (published pre.5; QZT format v0.1)
+# qzt CLI Reference (pre.6 candidate; QZT format v0.1)
 
-This page describes the [published `v0.1.0-pre.5` CLI](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
-and its automation contract. The binary comes from tag commit
-`3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`; use the
-[README installation steps](../README.md#install). This reference was updated
-after publication; the tagged product source predates it.
-The `context` section below describes an unreleased development command;
-published pre.5 does not contain it. Build current source to use it.
+This page describes the selected `v0.1.0-pre.6` CLI, including context,
+and its automation contract. It is an unpublished candidate until the
+[W2/W3 release gates](releases/v0.1.0-pre.6-candidate.md) pass.
+Use the [fixed-version installation steps](../README.md#install) after publication.
 `v0.1` identifies the container format, not the CLI distribution. Examples
 here use the fixture in [Reproducing the examples](#reproducing-the-examples).
 

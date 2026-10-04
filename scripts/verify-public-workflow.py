@@ -2,6 +2,7 @@
 """Run public-workflow-v1 on an explicitly selected, extracted native binary."""
 
 import argparse
+import csv
 import importlib.util
 import json
 import platform
@@ -81,11 +82,60 @@ def context_smoke(binary, work):
             "budget_fragment": "passed", "zero_and_capped_zero": "passed", "corrupt_qzi": "passed"}
 
 
+def golden_smoke(binary, work, vectors_dir):
+    diagnostics = {
+        "invalid_magic": b"invalid magic",
+        "invalid_footer_trailer": b"fixed footer trailer is malformed",
+        "footer_checksum_mismatch": b"footer payload checksum mismatch",
+        "non_canonical_cbor": b"CBOR is not in the deterministic canonical form",
+        "compressed_chunk_checksum_mismatch": b"compressed chunk checksum mismatch",
+    }
+    names = []
+    with (vectors_dir / "manifest.tsv").open(encoding="utf-8", newline="") as manifest:
+        for row in csv.DictReader(manifest, delimiter="\t"):
+            name = row["name"]
+            container = work / f"{name}.qzt"
+            container.write_bytes(bytes.fromhex((vectors_dir / f"{name}.qzt.hex").read_text()))
+            out, err = candidate.command(binary, work, "info", str(container), "--format", "json",
+                                         exit_code=0 if row["expect_open"] == "ok" else 1)
+            if row["expect_open"] == "err":
+                require(not out and diagnostics[row["expect_error"]] in err,
+                        f"wrong golden open failure: {name}")
+            else:
+                out, err = candidate.command(binary, work, "verify", str(container), "--deep",
+                                             "--format", "json",
+                                             exit_code=0 if row["expect_deep_verify"] == "ok" else 1)
+                if row["expect_deep_verify"] == "err":
+                    failure = json.loads(out)
+                    require(failure["ok"] is False and
+                            diagnostics[row["expect_error"]].decode() in failure["error"],
+                            f"wrong golden deep failure: {name}")
+                else:
+                    require(json.loads(out)["ok"] is True and
+                            json.loads(out)["original_checksum_verified"] is True,
+                            f"golden Deep verify failed: {name}")
+                    # The committed kit's escape grammar is the JSON string subset.
+                    expected = json.loads('"' + row["expect_export_text"].replace('"', '\\"') + '"').encode()
+                    restored = work / f"{name}.txt"
+                    candidate.command(binary, work, "export", str(container), "-o", str(restored))
+                    require(restored.read_bytes() == expected, f"golden export changed bytes: {name}")
+            names.append(name)
+    unsupported = bytearray((work / "valid_c1.qzt").read_bytes())
+    unsupported[10:12] = (2).to_bytes(2, "little")
+    (work / "unsupported.qzt").write_bytes(unsupported)
+    out, err = candidate.command(binary, work, "verify", "unsupported.qzt", "--deep",
+                                 "--format", "json", exit_code=1)
+    failure = json.loads(out)
+    require(failure["ok"] is False and "unsupported QZT format version" in failure["error"],
+            "unsupported format version became success")
+    return {"core_vectors": names, "unsupported_version": "rejected"}
+
+
 def verify(binary, expected_sha256, expected_tag, target, vectors_dir):
     require((platform.system(), platform.machine()) == candidate.TARGETS[target], "wrong native target")
     require(candidate.sha256(binary) == expected_sha256, "wrong binary SHA-256")
-    vectors = {name: candidate.sha256(vectors_dir / f"{name}.qzt.hex")
-               for name in ("valid_c1", "valid_crlf")}
+    vectors = {path.name: candidate.sha256(path) for path in
+               [vectors_dir / "manifest.tsv", *sorted(vectors_dir.glob("*.qzt.hex"))]}
     with tempfile.TemporaryDirectory(prefix="qzt-public-workflow-") as directory:
         root = Path(directory)
         work = root / "work"
@@ -93,15 +143,16 @@ def verify(binary, expected_sha256, expected_tag, target, vectors_dir):
         with published.isolated_binary_env(root):
             legacy = candidate.smoke(binary, work, vectors_dir, target, expected_tag)
             context = context_smoke(binary, work)
+            goldens = golden_smoke(binary, work, vectors_dir)
     require(candidate.sha256(binary) == expected_sha256, "binary changed during smoke")
-    require(vectors == {name: candidate.sha256(vectors_dir / f"{name}.qzt.hex") for name in vectors},
+    require(vectors == {name: candidate.sha256(vectors_dir / name) for name in vectors},
             "vectors changed during smoke")
     return {"ok": True, "profile": "public-workflow-v1", "binary_sha256": expected_sha256,
             "binary_version": candidate.expected_version(expected_tag), "target": target,
             "verifier_sha256": candidate.sha256(Path(__file__)),
             "shared_smoke_sha256": candidate.sha256(Path(candidate.__file__)),
             "isolation_verifier_sha256": candidate.sha256(Path(published.__file__)),
-            "vector_sha256": vectors, "workflow": legacy, "context": context}
+            "vector_sha256": vectors, "workflow": legacy, "context": context, "compatibility": goldens}
 
 
 def main():

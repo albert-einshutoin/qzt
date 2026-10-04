@@ -14,16 +14,17 @@
 
 ## Install / インストール
 
-現在公開中のCLIは
-[`v0.1.0-pre.5` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
-です。QZT v0.1はtechnical previewのままです。OSとarchitectureに合う
+次previewの選択versionは **v0.1.0-pre.6（未公開candidate）** です。
+下の導入commandはこのversionに固定されており、GitHub Release公開とW3検証の後に利用できます。
+現在の公開版は引き続き[pre.5](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)です。
+QZT v0.1はtechnical previewのままです。OSとarchitectureに合う
 archiveと対応する`.sha256`を取得し、checksum検証後に展開してください。
 Apple siliconの例です（Intel Macは`x86_64-apple-darwin`、Linux x64は
 `x86_64-unknown-linux-gnu`を指定）。
 
 ```sh
 set -eu
-release=v0.1.0-pre.5
+release=v0.1.0-pre.6
 target=aarch64-apple-darwin
 archive="qzt-${target}.tar.xz"
 base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
@@ -38,10 +39,10 @@ fi
 test "${expected}" = "${actual}"
 tar -xJf "${archive}"
 QZT_BIN="$(pwd)/qzt-${target}/qzt"
-test "$("$QZT_BIN" --version)" = 'qzt 0.1.0-pre.5'
+test "$("$QZT_BIN" --version)" = 'qzt 0.1.0-pre.6'
 ```
 
-公開binaryは`qzt 0.1.0-pre.5`を返します。sidecarの真正性は、信頼する
+選択binaryは`qzt 0.1.0-pre.6`を返します。sidecarの真正性は、信頼する
 Releaseとrepositoryの経路で確認してください。以下のツアーでは展開binaryの
 絶対パスを`QZT_BIN`に設定します。
 
@@ -55,7 +56,7 @@ Windowsでは同じReleaseの`qzt-x86_64-pc-windows-msvc.zip`と対応する
 
 ```powershell
 $ErrorActionPreference = "Stop"
-$release = "v0.1.0-pre.5"
+$release = "v0.1.0-pre.6"
 $installDir = Join-Path ([IO.Path]::GetTempPath()) ("qzt-install-" + [Guid]::NewGuid())
 New-Item -ItemType Directory $installDir | Out-Null
 Set-Location $installDir
@@ -72,18 +73,18 @@ if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
 Expand-Archive $archive -DestinationPath extracted
 $QztBin = (Resolve-Path "extracted/qzt.exe").Path
 $version = & $QztBin --version
-if ($LASTEXITCODE -ne 0 -or $version -ne 'qzt 0.1.0-pre.5') { throw "Wrong binary version" }
+if ($LASTEXITCODE -ne 0 -or $version -ne 'qzt 0.1.0-pre.6') { throw "Wrong binary version" }
 ```
 
-公開済みの[shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.sh)と
-[PowerShell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.ps1)も使えます。
+選択versionの[shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-installer.sh)と
+[PowerShell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-installer.ps1)も使えます。
 macOSで`sha256sum`がない場合、shell installer自身のSHA-256確認はskipされます。
 上のarchiveと別途取得したsidecarの手順を使うか、installer実行前に`sha256sum`を
 用意してください。
-Rust 1.87以降で**この公開版**をsource tagからbuildする場合:
+Rust 1.87以降で**この選択版**をsource tagからbuildする場合:
 
 ```sh
-cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 --locked qzt
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.6 --locked qzt
 ```
 
 `cargo install qzt --version 0.1.0 --locked`はstable版がcrates.ioへ
@@ -95,11 +96,9 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 
 
 platformごとの前提条件とPowerShellのツアーは
 [公開workflow導入guide](docs/guides/public-workflow.ja.md)を参照してください。
-公開pre.5では以下のツアーを実行できます。contextを含む全workflowは、将来の
-context対応release向けの準備済み手順としてguideに分けています。対応releaseは
-現在まだ公開されていません。
+pre.6 candidateはcontextを含みます。公開全workflowの完了にはW3の実公開物検証が必要です。
 
-上で検証したpre.5 binaryを使用し、`QZT_BIN`にはその絶対パスを設定します。
+上で検証したpre.6 binaryを使用し、`QZT_BIN`にはその絶対パスを設定します。
 POSIX shell、`mktemp`、`cmp`を使い、独立した使い捨てdirectoryで実行します。
 
 ```sh
@@ -128,15 +127,16 @@ searchはbyte offset 11の`error` hitを1件返し、
 再計算します。決定的attestationには`attestation_schema=qzt-attestation-v1`
 が入り、pre.2のversionなしattestationと元の署名・timestampは一組で保存します。
 `cmp`成功はexportの全byteが原文と一致したことを示します。
-絶対パスのbinaryと`jq`でJSON・決定性・byte一致を確認する
-[pre.5配布binary smoke](docs/guides/examples/smoke-pre5-release-tour.sh)、
-[4 targetの公開物検証結果](https://github.com/albert-einshutoin/qzt/issues/323)を参照してください。
-[pre.2のsmokeと実測記録](docs/guides/tutorial-validation.md)は履歴として保持します。
+POSIX／native PowerShellの[全context workflow](docs/guides/public-workflow.ja.md)と、
+選択binaryのhash・context byte・golden vector・結果契約を確認する
+[C4 smoke profile](docs/guides/public-workflow-smoke.md)を参照してください。
+[pre.5 smoke](docs/guides/examples/smoke-pre5-release-tour.sh)と
+[pre.5公開物検証](https://github.com/albert-einshutoin/qzt/issues/323)は履歴であり、pre.6の証拠ではありません。
 
 ## CLIの版と形式
 
-[CLIリファレンス](docs/CLI.ja.md)と以下の運用guideは、公開済み
-`v0.1.0-pre.5` binaryを対象とします。QZT container形式`qzt-0.1`は
+[CLIリファレンス](docs/CLI.ja.md)と以下の運用guideは、選択versionの
+`v0.1.0-pre.6` binaryを対象とします。QZT container形式`qzt-0.1`は
 CLIの配布versionとは別です。検索hitは原文byteに照合しますが、
 sidecarのcomplete宣言は網羅性を証明しません。capによる停止は検証済み部分結果、
 hard limitはエラーです。attestationと資源制限の自動化を切り替える前に
@@ -323,9 +323,9 @@ diff input.txt restored.txt
 
 ## CLIリファレンス
 
-この早見表と[CLIリファレンス](docs/CLI.ja.md)は公開pre.5 binaryの
-自動化契約を説明します。製品binaryの固定[source commit](https://github.com/albert-einshutoin/qzt/commit/3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe)より後に
-この文書を更新しています。QZT形式`v0.1`はCLI versionではありません。
+この早見表と[CLIリファレンス](docs/CLI.ja.md)は選択pre.6 binaryの
+自動化契約を説明します。candidateと公開物の証拠は
+[release gate](docs/releases/v0.1.0-pre.6-candidate.md)で分けて記録します。QZT形式`v0.1`はCLI versionではありません。
 
 ```sh
 qzt pack input.txt -o output.qzt

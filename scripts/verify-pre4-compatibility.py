@@ -109,7 +109,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pre3-bin", required=True, type=Path)
     parser.add_argument("--candidate-bin", required=True, type=Path)
-    parser.add_argument("--candidate-tag", choices=("v0.1.0-pre.4", "v0.1.0-pre.5"),
+    parser.add_argument("--candidate-tag", choices=("v0.1.0-pre.4", "v0.1.0-pre.5", "v0.1.0-pre.6"),
                         default="v0.1.0-pre.4")
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()

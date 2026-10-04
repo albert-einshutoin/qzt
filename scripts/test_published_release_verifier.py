@@ -20,6 +20,16 @@ ATTEMPT = 1
 
 
 class PublishedReleaseTests(unittest.TestCase):
+    def test_candidate_override_cannot_use_an_external_download_url(self):
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(verifier.subprocess, "run") as run:
+            with self.assertRaisesRegex(RuntimeError, "explicit loopback"):
+                verifier.run_installer(Path("installer"), Path(directory),
+                                       "x86_64-pc-windows-msvc", "0" * 64, Path("vectors"),
+                                       "v0.1.0-pre.6", "qzt 0.1.0-pre.6", "public-workflow-v1",
+                                       candidate_base="https://example.invalid")
+            run.assert_not_called()
+
     def metadata(self):
         return {
             f"{verifier.API}/git/ref/tags/{TAG}": {"object": {"type": "tag", "url": "tag-object"}},
