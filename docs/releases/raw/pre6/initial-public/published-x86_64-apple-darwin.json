@@ -29,7 +29,7 @@
       "search_to_context": "passed",
       "zero_and_capped_zero": "passed"
     },
-    "isolation_verifier_sha256": "43b8adc15ecebd19761b8600e8c5e9c3766ec5ee60313bc0c6b7ecbbc27a0347",
+    "isolation_verifier_sha256": "25f6bf1c5d4205cc0714459f4350426a26b3f7389d47fe41ffeffd3234df727f",
     "ok": true,
     "profile": "public-workflow-v1",
     "shared_smoke_sha256": "8af456ef5a83783389cfbc2fc6913de0771391afd45559fcc2ec0c89ce2343a2",
@@ -70,7 +70,7 @@
   "archive_size": 656932,
   "archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-x86_64-apple-darwin.tar.xz",
   "installer": {
-    "installed_binary_path": "/private/var/folders/20/jp1_0n3n7kndh6rnbqb5344m0000gn/T/qzt-published-213emqg5/install/bin/qzt",
+    "installed_binary_path": "/private/var/folders/20/jp1_0n3n7kndh6rnbqb5344m0000gn/T/qzt-published-jbpphy7s/install/bin/qzt",
     "installed_binary_sha256": "c68bb779f5589a84ec92ba98ac438536343474847ca65f5b15e375a84b47d1b2",
     "installed_binary_version": "qzt 0.1.0-pre.6",
     "installed_smoke": {
@@ -102,7 +102,7 @@
         "search_to_context": "passed",
         "zero_and_capped_zero": "passed"
       },
-      "isolation_verifier_sha256": "43b8adc15ecebd19761b8600e8c5e9c3766ec5ee60313bc0c6b7ecbbc27a0347",
+      "isolation_verifier_sha256": "25f6bf1c5d4205cc0714459f4350426a26b3f7389d47fe41ffeffd3234df727f",
       "ok": true,
       "profile": "public-workflow-v1",
       "shared_smoke_sha256": "8af456ef5a83783389cfbc2fc6913de0771391afd45559fcc2ec0c89ce2343a2",
@@ -140,14 +140,13 @@
       }
     },
     "installer_checksum_skip_lines": [],
-    "installer_output": "installing to /var/folders/20/jp1_0n3n7kndh6rnbqb5344m0000gn/T/qzt-published-213emqg5/install/bin\n  qzt\neverything's installed!\n\ndownloading qzt 0.1.0-pre.6 x86_64-apple-darwin\n",
+    "installer_output": "installing to /var/folders/20/jp1_0n3n7kndh6rnbqb5344m0000gn/T/qzt-published-jbpphy7s/install/bin\n  qzt\neverything's installed!\n\ndownloading qzt 0.1.0-pre.6 x86_64-apple-darwin\n",
     "installer_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-installer.sh",
     "selected_archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-x86_64-apple-darwin.tar.xz",
     "selected_target": "x86_64-apple-darwin"
   },
   "kind": "local",
   "linux_linkage": "not applicable outside Linux",
-  "powershell_guide": null,
   "product_source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
   "published_at": "2026-10-04T17:03:24Z",
   "release_id": 403118863,
@@ -160,8 +159,8 @@
   "target": "x86_64-apple-darwin",
   "verifier_architecture": "x86_64",
   "verifier_os": "Darwin",
-  "verifier_runner": "GitHub Actions 1000062069",
+  "verifier_runner": "GitHub Actions 1000062061",
   "verifier_rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
-  "verifier_sha": "a36b579ed3561803c8fcdc7ba1416dec7de7c529",
+  "verifier_sha": "766793b739343e30fe8c7760855ebee74d91f4b9",
   "version": "qzt 0.1.0-pre.6"
 }

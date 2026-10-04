@@ -1,7 +1,7 @@
 {
-  "archive_binary_sha256": "c68bb779f5589a84ec92ba98ac438536343474847ca65f5b15e375a84b47d1b2",
+  "archive_binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
   "archive_binary_smoke": {
-    "binary_sha256": "c68bb779f5589a84ec92ba98ac438536343474847ca65f5b15e375a84b47d1b2",
+    "binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
     "binary_version": "qzt 0.1.0-pre.6",
     "compatibility": {
       "core_vectors": [
@@ -29,11 +29,11 @@
       "search_to_context": "passed",
       "zero_and_capped_zero": "passed"
     },
-    "isolation_verifier_sha256": "43b8adc15ecebd19761b8600e8c5e9c3766ec5ee60313bc0c6b7ecbbc27a0347",
+    "isolation_verifier_sha256": "25f6bf1c5d4205cc0714459f4350426a26b3f7389d47fe41ffeffd3234df727f",
     "ok": true,
     "profile": "public-workflow-v1",
     "shared_smoke_sha256": "8af456ef5a83783389cfbc2fc6913de0771391afd45559fcc2ec0c89ce2343a2",
-    "target": "x86_64-apple-darwin",
+    "target": "aarch64-apple-darwin",
     "vector_sha256": {
       "corrupt_chunk_data.qzt.hex": "d9a99f41048b7b980cf1cee72d633a12763353a37eb42042643851e6a8db9aba",
       "corrupt_footer_checksum.qzt.hex": "4020a3235a47535c2cef557727cfb5330d44ed059b58c162bf5f033d681ff45a",
@@ -66,15 +66,15 @@
       ]
     }
   },
-  "archive_sha256": "428dd9ffc3ecf173a8fe83a4cbb0cbe1dc82a5d8f6d9d6823cad5240e4adcc54",
-  "archive_size": 656932,
-  "archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-x86_64-apple-darwin.tar.xz",
+  "archive_sha256": "3383cecbeed70ad5ec0fde64c7840f4e32746e46c7d75241505937613579c056",
+  "archive_size": 529824,
+  "archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-aarch64-apple-darwin.tar.xz",
   "installer": {
-    "installed_binary_path": "/private/var/folders/20/jp1_0n3n7kndh6rnbqb5344m0000gn/T/qzt-published-213emqg5/install/bin/qzt",
-    "installed_binary_sha256": "c68bb779f5589a84ec92ba98ac438536343474847ca65f5b15e375a84b47d1b2",
+    "installed_binary_path": "/private/var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/qzt-published-cemjp3p0/install/bin/qzt",
+    "installed_binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
     "installed_binary_version": "qzt 0.1.0-pre.6",
     "installed_smoke": {
-      "binary_sha256": "c68bb779f5589a84ec92ba98ac438536343474847ca65f5b15e375a84b47d1b2",
+      "binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
       "binary_version": "qzt 0.1.0-pre.6",
       "compatibility": {
         "core_vectors": [
@@ -102,11 +102,11 @@
         "search_to_context": "passed",
         "zero_and_capped_zero": "passed"
       },
-      "isolation_verifier_sha256": "43b8adc15ecebd19761b8600e8c5e9c3766ec5ee60313bc0c6b7ecbbc27a0347",
+      "isolation_verifier_sha256": "25f6bf1c5d4205cc0714459f4350426a26b3f7389d47fe41ffeffd3234df727f",
       "ok": true,
       "profile": "public-workflow-v1",
       "shared_smoke_sha256": "8af456ef5a83783389cfbc2fc6913de0771391afd45559fcc2ec0c89ce2343a2",
-      "target": "x86_64-apple-darwin",
+      "target": "aarch64-apple-darwin",
       "vector_sha256": {
         "corrupt_chunk_data.qzt.hex": "d9a99f41048b7b980cf1cee72d633a12763353a37eb42042643851e6a8db9aba",
         "corrupt_footer_checksum.qzt.hex": "4020a3235a47535c2cef557727cfb5330d44ed059b58c162bf5f033d681ff45a",
@@ -139,29 +139,30 @@
         ]
       }
     },
-    "installer_checksum_skip_lines": [],
-    "installer_output": "installing to /var/folders/20/jp1_0n3n7kndh6rnbqb5344m0000gn/T/qzt-published-213emqg5/install/bin\n  qzt\neverything's installed!\n\ndownloading qzt 0.1.0-pre.6 x86_64-apple-darwin\n",
+    "installer_checksum_skip_lines": [
+      "skipping sha256 checksum verification (it requires the 'sha256sum' command)"
+    ],
+    "installer_output": "skipping sha256 checksum verification (it requires the 'sha256sum' command)\ninstalling to /var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/qzt-published-cemjp3p0/install/bin\n  qzt\neverything's installed!\n\ndownloading qzt 0.1.0-pre.6 aarch64-apple-darwin\n",
     "installer_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-installer.sh",
-    "selected_archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-x86_64-apple-darwin.tar.xz",
-    "selected_target": "x86_64-apple-darwin"
+    "selected_archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-aarch64-apple-darwin.tar.xz",
+    "selected_target": "aarch64-apple-darwin"
   },
   "kind": "local",
   "linux_linkage": "not applicable outside Linux",
-  "powershell_guide": null,
   "product_source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
   "published_at": "2026-10-04T17:03:24Z",
   "release_id": 403118863,
   "release_run_attempt": 1,
   "release_run_id": 37218860231,
   "release_url": "https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.6",
-  "sidecar_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-x86_64-apple-darwin.tar.xz.sha256",
+  "sidecar_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-aarch64-apple-darwin.tar.xz.sha256",
   "smoke_profile": "public-workflow-v1",
   "tag": "v0.1.0-pre.6",
-  "target": "x86_64-apple-darwin",
-  "verifier_architecture": "x86_64",
+  "target": "aarch64-apple-darwin",
+  "verifier_architecture": "arm64",
   "verifier_os": "Darwin",
-  "verifier_runner": "GitHub Actions 1000062069",
+  "verifier_runner": "GitHub Actions 1000062065",
   "verifier_rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
-  "verifier_sha": "a36b579ed3561803c8fcdc7ba1416dec7de7c529",
+  "verifier_sha": "766793b739343e30fe8c7760855ebee74d91f4b9",
   "version": "qzt 0.1.0-pre.6"
 }

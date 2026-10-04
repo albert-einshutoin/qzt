@@ -99,8 +99,8 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.6 
 For platform prerequisites and the PowerShell tour, see the
 [public workflow guide](docs/guides/public-workflow.md). The published pre.6 CLI
 includes context and passed the C4 public workflow on all four native targets.
-Native execution of the literal README PowerShell steps is an additional W3
-check still pending; existing installer/C4 evidence does not cover that check.
+The literal README PowerShell installation and guide commands also passed
+natively on Windows; the published record keeps this additional check separately.
 
 Use the verified pre.6 binary from above (`QZT_BIN` must be its absolute
 path). Run this in a POSIX shell with `mktemp` and `cmp`. It creates a

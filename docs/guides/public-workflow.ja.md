@@ -5,7 +5,7 @@
 公開context対応previewは **v0.1.0-pre.6**、product sourceは
 `0c8110e6b6e08513b4def3f636b5b79d068e275f` です。[実Release URL検証](../releases/v0.1.0-pre.6-published.md)は
 native Windows PowerShell導入を含む全4 native targetでC4 profileに成功しました。
-README/guideのPowerShell手順そのもののnative実行はW3の追加checkとして未完了です。
+README/guideのPowerShell手順そのものもWindowsでnative実行に成功しました。
 source checkoutやRust buildは不要です。
 
 ## artifactを選んで導入する

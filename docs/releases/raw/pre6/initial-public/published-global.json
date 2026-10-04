@@ -91,8 +91,8 @@
   "tag": "v0.1.0-pre.6",
   "verifier_architecture": "x86_64",
   "verifier_os": "Linux",
-  "verifier_runner": "GitHub Actions 1000062066",
+  "verifier_runner": "GitHub Actions 1000062062",
   "verifier_rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
-  "verifier_sha": "a36b579ed3561803c8fcdc7ba1416dec7de7c529",
+  "verifier_sha": "766793b739343e30fe8c7760855ebee74d91f4b9",
   "version": "qzt 0.1.0-pre.6"
 }

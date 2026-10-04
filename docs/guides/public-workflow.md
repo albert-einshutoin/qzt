@@ -5,8 +5,8 @@
 The published context-enabled preview is **v0.1.0-pre.6**, from product source
 `0c8110e6b6e08513b4def3f636b5b79d068e275f`. The [actual Release URL verification](../releases/v0.1.0-pre.6-published.md)
 passed the C4 profile on all four native targets, including native Windows
-PowerShell installation. Literal README/guide PowerShell execution is an
-additional W3 check still pending. No source checkout or Rust build is needed.
+PowerShell installation. The literal README/guide PowerShell commands also
+passed natively on Windows. No source checkout or Rust build is needed.
 
 ## Select and install
 

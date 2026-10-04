@@ -96,8 +96,8 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.6 
 platformごとの前提条件とPowerShellのツアーは
 [公開workflow導入guide](docs/guides/public-workflow.ja.md)を参照してください。
 公開pre.6はcontextを含み、全4 native targetでC4公開workflowを検証済みです。
-READMEのPowerShell手順そのもののnative実行はW3の追加checkとして未完了です。
-既存installer/C4の証拠とは区別し、このcheckの結果を待っています。
+READMEのPowerShell導入手順とguideのcommandそのものもWindowsでnative実行に成功しました。
+公開検証記録では、この追加checkを既存installer/C4の証拠と分けて保存しています。
 
 上で検証したpre.6 binaryを使用し、`QZT_BIN`にはその絶対パスを設定します。
 POSIX shell、`mktemp`、`cmp`を使い、独立した使い捨てdirectoryで実行します。
