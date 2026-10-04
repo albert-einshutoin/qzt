@@ -2,16 +2,22 @@
 
 ## Unreleased
 
-Future work after the published pre.5 technical preview belongs here.
+Future work after the selected pre.6 preview belongs here.
 
-- Added the unreleased `qzt context` command to map one global search hit to
-  a document and bounded original-byte lines, with preflight decode budgets
-  and explicit ambiguous/missing mapping and context stop states. Published
-  `v0.1.0-pre.5` does not contain this command.
-- Fixed unreleased `qzt context` treating a zero-length document inside a hit
-  as an intersecting candidate, which could change a unique document scope to
-  container scope. Empty entries still count toward Index validation and the
-  inspected-document budget.
+## 0.1.0-pre.6 - 2026-10-05
+
+Context-enabled technical preview. Publication is gated on the exact-source
+W2 candidate evidence; W3 separately verifies actual Release URLs. This is a
+GitHub binary prerelease, not a crates.io publication.
+
+- Added `qzt context` to map a global hit to a document and bounded original-byte
+  lines with explicit ambiguous/missing mapping, stop states and decode budgets.
+- Fixed empty document entries intersecting a non-empty context hit.
+- Fixed the public search/context/verify interpretation contract without changing
+  format, schema or API: verified hit correctness does not establish coverage.
+- Reused `public-workflow-v1` on all four native archive targets and the native
+  Windows installer; expanded the smoke to all 14 frozen Core golden vectors.
+- Preserved QZT v0.1, supported QZI v1/v2, and the existing pre.3 compatibility gate.
 
 ## 0.1.0-pre.5 - 2026-09-27
 

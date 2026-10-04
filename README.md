@@ -14,8 +14,10 @@
 
 ## Install
 
-The currently published CLI is the
-[`v0.1.0-pre.5` GitHub prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5).
+The selected next preview is **v0.1.0-pre.6 (unpublished candidate)**.
+The installation commands below are fixed to that version and become available
+only after its GitHub Release is published and verified in W3. The currently
+published release remains [pre.5](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5).
 QZT v0.1 remains a technical preview. Download the archive and matching
 `.sha256` asset for your OS/architecture, verify the checksum, then extract.
 For Apple silicon (use `x86_64-apple-darwin` or
@@ -23,7 +25,7 @@ For Apple silicon (use `x86_64-apple-darwin` or
 
 ```sh
 set -eu
-release=v0.1.0-pre.5
+release=v0.1.0-pre.6
 target=aarch64-apple-darwin
 archive="qzt-${target}.tar.xz"
 base="https://github.com/albert-einshutoin/qzt/releases/download/${release}"
@@ -38,10 +40,10 @@ fi
 test "${expected}" = "${actual}"
 tar -xJf "${archive}"
 QZT_BIN="$(pwd)/qzt-${target}/qzt"
-test "$("$QZT_BIN" --version)" = 'qzt 0.1.0-pre.5'
+test "$("$QZT_BIN" --version)" = 'qzt 0.1.0-pre.6'
 ```
 
-The published CLI reports `qzt 0.1.0-pre.5`. Verify the sidecar's
+The selected binary must report `qzt 0.1.0-pre.6`. Verify the sidecar's
 authenticity through the Release and repository channel you trust. Set
 `QZT_BIN` to the extracted binary's absolute path for the tour below.
 
@@ -56,7 +58,7 @@ the extracted `qzt.exe`:
 
 ```powershell
 $ErrorActionPreference = "Stop"
-$release = "v0.1.0-pre.5"
+$release = "v0.1.0-pre.6"
 $installDir = Join-Path ([IO.Path]::GetTempPath()) ("qzt-install-" + [Guid]::NewGuid())
 New-Item -ItemType Directory $installDir | Out-Null
 Set-Location $installDir
@@ -73,19 +75,19 @@ if ($expected -ne $actual) { throw "SHA-256 checksum mismatch" }
 Expand-Archive $archive -DestinationPath extracted
 $QztBin = (Resolve-Path "extracted/qzt.exe").Path
 $version = & $QztBin --version
-if ($LASTEXITCODE -ne 0 -or $version -ne 'qzt 0.1.0-pre.5') { throw "Wrong binary version" }
+if ($LASTEXITCODE -ne 0 -or $version -ne 'qzt 0.1.0-pre.6') { throw "Wrong binary version" }
 ```
 
-The published [shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.sh)
-and [PowerShell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.5/qzt-installer.ps1)
+The selected [shell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-installer.sh)
+and [PowerShell installer](https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-installer.ps1)
 are alternatives. On macOS, the shell installer skips its own SHA-256 check if
 `sha256sum` is unavailable; use the archive and separately downloaded sidecar
 steps above, or provide `sha256sum` before running the installer. To build
-**this published version** from its source tag with
+**this selected version** from its source tag with
 Rust 1.87+:
 
 ```sh
-cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 --locked qzt
+cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.6 --locked qzt
 ```
 
 `cargo install qzt --version 0.1.0 --locked` is only an option after stable
@@ -96,12 +98,10 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.5 
 ## 60-second Tour
 
 For platform prerequisites and the PowerShell tour, see the
-[public workflow guide](docs/guides/public-workflow.md). Published pre.5
-supports the tour below; the guide labels the full context workflow as
-prepared for a future context-enabled release. No such release is currently
-published.
+[public workflow guide](docs/guides/public-workflow.md). The pre.6 candidate
+includes context; full public workflow completion requires W3 verification.
 
-Use the verified pre.5 binary from above (`QZT_BIN` must be its absolute
+Use the verified pre.6 binary from above (`QZT_BIN` must be its absolute
 path). Run this in a POSIX shell with `mktemp` and `cmp`. It creates a
 disposable directory:
 
@@ -131,18 +131,17 @@ source match was indexed. Deep verification reports `ok=true` and recomputes
 the original checksum. The deterministic attestation has
 `attestation_schema=qzt-attestation-v1`; keep any pre.2 versionless
 attestation with its original signature/timestamp. `cmp` succeeds only if
-export restored every byte. Run the
-[pre.5 release-binary smoke](docs/guides/examples/smoke-pre5-release-tour.sh)
-with the absolute binary path for automated JSON, determinism, and byte checks
-(`jq` required). The [published-asset verification record](https://github.com/albert-einshutoin/qzt/issues/323)
-records successful results for all four native targets. The
-[pre.2 smoke and measured record](docs/guides/tutorial-validation.md) remain
-historical evidence.
+export restored every byte. Follow the [full context workflow](docs/guides/public-workflow.md)
+for POSIX or native PowerShell. The [C4 smoke profile](docs/guides/public-workflow-smoke.md)
+checks selected binary hashes, context bytes, golden vectors and result contracts.
+The [pre.5 smoke](docs/guides/examples/smoke-pre5-release-tour.sh) and
+[pre.5 published verification](https://github.com/albert-einshutoin/qzt/issues/323)
+remain historical evidence, not pre.6 results.
 
 ## CLI version and format
 
 The [CLI reference](docs/CLI.md) and operational guides below describe the
-published `v0.1.0-pre.5` binary. The QZT container format remains `qzt-0.1`,
+selected `v0.1.0-pre.6` binary. The QZT container format remains `qzt-0.1`,
 independent of the CLI distribution version. Search hits are checked against
 original bytes, but a sidecar's completeness claim does not establish exhaustive
 coverage; named caps return verified partial results and hard limits are errors.
@@ -339,9 +338,8 @@ No output from `diff` means the restored bytes match the source.
 ## CLI Reference
 
 This command map and [the CLI reference](docs/CLI.md) describe the
-published pre.5 binary and its automation contract. The binary's fixed
-[source commit](https://github.com/albert-einshutoin/qzt/commit/3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe)
-precedes this documentation update. QZT format `v0.1` is not a CLI version.
+selected pre.6 binary and its automation contract. The [release gate](docs/releases/v0.1.0-pre.6-candidate.md)
+records the distinction between candidate and published evidence. QZT format `v0.1` is not a CLI version.
 
 ```sh
 qzt pack input.txt -o output.qzt

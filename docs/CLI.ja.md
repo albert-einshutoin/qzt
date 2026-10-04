@@ -1,12 +1,8 @@
-# qzt CLI リファレンス (公開pre.5・QZT形式v0.1)
+# qzt CLI リファレンス (pre.6 candidate・QZT形式v0.1)
 
-このページは[公開済み`v0.1.0-pre.5` CLI](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)と
-自動化向け契約を説明します。binaryのsourceはtag commit
-`3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`です。
-導入方法は[README](../README.ja.md)を参照してください。
-このリファレンスは公開後に更新され、製品sourceのtagより新しい文書です。
-`context`節は未公開の開発版コマンドです。公開pre.5には含まれず、
-現在のsourceをbuildして使用します。
+このページはcontextを含む選択version `v0.1.0-pre.6` CLIと自動化向け契約を説明します。
+[W2/W3 release gate](releases/v0.1.0-pre.6-candidate.md)を通過するまでは未公開candidateです。
+公開後に[固定version導入手順](../README.ja.md#install)を利用してください。
 `v0.1`はCLI配布versionではなくcontainer形式です。
 掲載例は[例の再現方法](#例の再現方法)のfixtureを使います。
 

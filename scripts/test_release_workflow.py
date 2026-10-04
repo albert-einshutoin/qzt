@@ -121,7 +121,7 @@ class CandidatePublicationBoundaryTests(unittest.TestCase):
         self.remote = self.root / "remote.git"
         subprocess.run(["git", "init", "-q", "--bare", str(self.remote)], check=True)
         self.git("init", "-q", "-b", "main")
-        (self.repo / "Cargo.toml").write_text('version = "0.1.0-pre.5"\n', encoding="utf-8")
+        (self.repo / "Cargo.toml").write_text('version = "0.1.0-pre.6"\n', encoding="utf-8")
         self.git("add", "Cargo.toml")
         self.git("-c", "user.name=QZT", "-c", "user.email=qzt@example.invalid",
                  "commit", "-qm", "source")
@@ -139,8 +139,8 @@ class CandidatePublicationBoundaryTests(unittest.TestCase):
                               capture_output=True, check=True)
 
     def publish_tag(self):
-        self.git("tag", "v0.1.0-pre.5")
-        self.git("push", "-q", "origin", "refs/tags/v0.1.0-pre.5")
+        self.git("tag", "v0.1.0-pre.6")
+        self.git("push", "-q", "origin", "refs/tags/v0.1.0-pre.6")
 
     def boundary(self, event):
         (self.root / "output").unlink(missing_ok=True)
@@ -178,7 +178,7 @@ class CandidatePublicationBoundaryTests(unittest.TestCase):
 
     def test_dirty_source_is_rejected_even_after_publication(self):
         self.publish_tag()
-        (self.repo / "Cargo.toml").write_text('version = "0.1.0-pre.6"\n', encoding="utf-8")
+        (self.repo / "Cargo.toml").write_text('version = "0.1.0-pre.7"\n', encoding="utf-8")
         self.assertNotEqual(self.boundary("pull_request").returncode, 0)
 
     def test_manual_candidate_outside_main_history_is_rejected(self):

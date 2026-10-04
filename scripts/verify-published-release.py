@@ -170,40 +170,52 @@ def source_and_checksums(assets, directory, tag_name, product_sha, base):
 
 
 def install_and_smoke(assets, directory, work, target, archive_binary_hash, vectors_dir,
-                      tag_name, version, base):
+                      tag_name, version, base, smoke_profile="preview-legacy"):
     windows = target.endswith("windows-msvc")
     name = "qzt-installer.ps1" if windows else "qzt-installer.sh"
     installer = download(assets, name, directory, base)
     require(ARCHIVES[target] in installer.read_text(encoding="utf-8"),
             "published installer does not contain the expected target archive")
+    return {"installer_url": f"{base}/{name}",
+            "selected_archive_url": f"{base}/{ARCHIVES[target]}",
+            **run_installer(installer, work, target, archive_binary_hash, vectors_dir,
+                            tag_name, version, smoke_profile)}
+
+
+def run_installer(installer, work, target, archive_binary_hash, vectors_dir,
+                  tag_name, version, smoke_profile, candidate_base=None):
+    windows = target.endswith("windows-msvc")
     install_root = work / "install"
     env = execution_env(work)
     env["QZT_INSTALL_DIR"] = str(install_root)
     env["QZT_NO_MODIFY_PATH"] = "1"
     env["INSTALLER_NO_MODIFY_PATH"] = "1"
+    if candidate_base is not None:
+        require(re.fullmatch(r"http://127\.0\.0\.1:[0-9]+", candidate_base) is not None,
+                "candidate installer base must be an explicit loopback server")
+        env["QZT_DOWNLOAD_URL"] = candidate_base
     cmd = (["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
             "-File", str(installer)] if windows else ["sh", str(installer)])
     result = subprocess.run(cmd, cwd=work, env=env, input=b"", capture_output=True,
                             timeout=180, check=False)
     log = (result.stdout + b"\n" + result.stderr).decode("utf-8", errors="replace")
-    require(result.returncode == 0, f"published installer failed: {log[-3000:]}")
-    require(target in log, "published installer did not report the expected target")
+    require(result.returncode == 0, f"installer failed: {log[-3000:]}")
+    require(target in log, "installer did not report the expected target")
     checksum_skip_lines = [line for line in log.splitlines()
                            if "skipping" in line.lower() and "checksum" in line.lower()]
     binary = (install_root / "bin" / ("qzt.exe" if windows else "qzt")).resolve()
     require(binary.is_file(), f"installer did not place the expected binary: {binary}")
     installed_hash = candidate.sha256(binary)
-    require(installed_hash == archive_binary_hash, "installed binary differs from published archive")
+    require(installed_hash == archive_binary_hash, "installed binary differs from selected archive")
     installed_work = work / "installed-smoke"
     installed_work.mkdir()
     with isolated_binary_env(work):
         require(candidate.command(binary, work, "--version")[0].strip() == version.encode(),
                 "installed binary reports the wrong version")
-        installed_smoke = candidate.smoke(binary, installed_work, vectors_dir, target, tag_name)
+        installed_smoke = candidate.run_smoke(binary, installed_work, vectors_dir, target,
+                                               tag_name, smoke_profile)
     return {
-        "installer_url": f"{base}/{name}",
         "selected_target": target,
-        "selected_archive_url": f"{base}/{ARCHIVES[target]}",
         "installed_binary_path": str(binary),
         "installed_binary_sha256": installed_hash,
         "installed_binary_version": version,

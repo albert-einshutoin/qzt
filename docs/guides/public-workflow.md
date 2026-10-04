@@ -2,13 +2,11 @@
 
 [日本語](public-workflow.ja.md)
 
-The published release is **v0.1.0-pre.5**, from product commit
-`3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`. It supports pack, inspection,
-search, deep verification and export. **It has no context command.** The full
-context workflow below is prepared for a future release; no context-enabled
-release is currently published. A main build with the same version string is
-not the published artifact. No source checkout or Rust build is needed for
-the published workflow.
+The selected context-enabled preview is **v0.1.0-pre.6**, currently an
+**unpublished candidate**. The commands below use only that version's assets;
+execute them after publication. W2 candidate evidence is separate from W3's
+actual Release URL evidence. See the [release gate](../releases/v0.1.0-pre.6-candidate.md).
+No source checkout or Rust build is needed for the public workflow.
 
 ## Select and install
 
@@ -29,7 +27,7 @@ Windows installation uses PowerShell 5.1+ with `Invoke-WebRequest`,
 checksum and binary version with your results. The release channel supplies
 the checksum's trust; checksum equality alone does not authenticate a publisher.
 
-## Run the currently published workflow
+## Run the basic workflow
 
 For POSIX, run the [README tour](../../README.md#60-second-tour) using `QZT_BIN`
 from installation. It requires `mktemp` and `cmp` and operates on a disposable
@@ -69,14 +67,10 @@ Deep verify reports `ok=true` and `original_checksum_verified=true`.
 Export matches every original byte. The base64 comparison above is for this
 tiny fixture, not a recommended comparison for large inputs.
 
-## Full workflow after a context-enabled artifact is published
+## Full context workflow
 
-**Prepared procedure; currently unavailable from a published release.** First
-select an explicitly context-enabled release and repeat installation with its
-documented tag and expected version, not pre.5's values. Keep using that exact
-extracted binary. The existing pre.5 candidate workflow does not build a new
-artifact after publication; a passing main CI is not a downloadable release.
-Do not skip context or fall back to a source build and call this workflow complete.
+Use the exact pre.6 binary installed above. Before publication this procedure
+is prepared only; W3 must confirm the real Release assets. Context is mandatory.
 
 POSIX requires `jq` and Python 3 in addition to the tools above. Start with the
 verified context-enabled `QZT_BIN` and run:
@@ -155,7 +149,6 @@ These small examples do not establish large-data memory, disk or time limits.
 
 For engineers, the [C4 extracted-binary smoke](public-workflow-smoke.md)
 checks the fixed profile with expected binary hash/version, golden vectors
-and fresh JSON evidence. Its macOS ARM64 main-build evidence is distinct
-from published release evidence. The PowerShell procedure above has not
-been executed on a native Windows host for this guide; next-release
-validation must run it on the exact Windows artifact.
+and fresh JSON evidence. Candidate checks run all four native targets and the
+Windows PowerShell installer; their results do not establish public availability.
+W3 must repeat the same profile on the real Release URLs.

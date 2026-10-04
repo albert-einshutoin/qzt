@@ -292,6 +292,18 @@ def smoke(binary, work, vectors_dir, target, expected_tag):
             "repeated_token_ngram": repeated_result}
 
 
+def run_smoke(binary, work, vectors_dir, target, tag, profile="preview-legacy"):
+    if profile == "preview-legacy":
+        return smoke(binary, work, vectors_dir, target, tag)
+    require(profile == "public-workflow-v1", "unsupported smoke profile")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "public_workflow", Path(__file__).with_name("verify-public-workflow.py"))
+    workflow = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(workflow)
+    return workflow.verify(binary.resolve(), sha256(binary), tag, target, vectors_dir)
+
+
 def local(args):
     expected_os, expected_arch = TARGETS[args.target]
     require((platform.system(), platform.machine()) == (expected_os, expected_arch),
@@ -314,7 +326,8 @@ def local(args):
             linkage = "libc.so.6 and libgcc_s.so.1 only; no dynamic libzstd"
         work = root / "smoke"
         work.mkdir()
-        result = smoke(binary, work, args.vectors_dir.resolve(), args.target, args.expected_tag)
+        result = run_smoke(binary, work, args.vectors_dir.resolve(), args.target,
+                           args.expected_tag, args.smoke_profile)
         binary_digest = sha256(binary)
         binary_size = binary.stat().st_size
     return {"kind": "local", "target": args.target, "archive": archive.name,
@@ -382,6 +395,8 @@ def main():
         sub.add_argument("--build-env", type=Path, required=True)
         sub.add_argument("--output", type=Path, required=True)
         if kind == "local":
+            sub.add_argument("--smoke-profile", choices=("preview-legacy", "public-workflow-v1"),
+                             default="preview-legacy")
             sub.add_argument("--target", choices=TARGETS, required=True)
             sub.add_argument("--archive", type=Path, required=True)
             sub.add_argument("--checksum", type=Path, required=True)

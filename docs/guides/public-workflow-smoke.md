@@ -9,7 +9,7 @@ disposable input/output and the existing isolated binary environment.
 Published `v0.1.0-pre.5` has no context command. Keep using its existing
 `verify-published-release.py` and `smoke-pre5-release-tour.sh` for its published
 workflow. This new profile is for a context-enabled main/candidate binary or
-a future release that explicitly adopts it. A main build reporting pre.5 is
+the selected pre.6 candidate/release that explicitly adopts it. A main build reporting pre.5 is
 not the published pre.5 artifact: bind evidence to binary SHA-256 as well as
 version. Never infer support from version alone.
 
@@ -22,7 +22,7 @@ On the matching native host, run (replace every placeholder):
 python3 scripts/verify-public-workflow.py \
   --binary /absolute/path/to/extracted/qzt \
   --binary-sha256 EXPECTED_EXTRACTED_BINARY_SHA256 \
-  --expected-tag v0.1.0-pre.5 \
+  --expected-tag v0.1.0-pre.6 \
   --target aarch64-apple-darwin \
   --vectors-dir tests/vectors \
   --output /absolute/path/to/fresh-workflow-evidence.json
@@ -41,23 +41,27 @@ real search-hit coordinates into context, compare the reversible bytes with
 the source, distinguish document scope and budget fragments, retain unknown
 coverage for ordinary/capped zero hits, and reject a corrupt QZI. It checks
 that context does not claim document checksum, query or provenance validation.
+The profile additionally checks all 14 frozen golden Core vectors at their
+recorded open/deep failure stages, byte equality for every valid export and
+unsupported QZT version rejection. Optional-index assertions remain in the
+F1 Rust gate; this CLI smoke does not claim full extension-kit conformance.
 
 Only a fully successful run emits `ok:true` with `profile:public-workflow-v1`.
 The report records binary SHA-256/version, native target, the runner and reused
-verifier hashes, and hashes of both golden vector files. Check process exit
+verifier hashes, and hashes of the complete golden manifest/vector files. Check process exit
 status before accepting a report. These small fixtures are workflow and
 format regression evidence, not a resource envelope, benchmark, comprehensive
 corruption test, or evidence of independent real-data adoption.
 
-For the existing pre.3 ↔ pre.5-versioned main/candidate QZT/QZI comparison,
-use the unchanged compatibility runner with checksum-verified extracted
+For the existing pre.3 ↔ pre.6 main/candidate QZT/QZI comparison,
+use the existing compatibility runner with checksum-verified extracted
 binaries:
 
 ```sh
 python3 scripts/verify-pre4-compatibility.py \
   --pre3-bin /absolute/path/to/published-pre3/qzt \
   --candidate-bin /absolute/path/to/context-enabled-main/qzt \
-  --candidate-tag v0.1.0-pre.5 \
+  --candidate-tag v0.1.0-pre.6 \
   --output /absolute/path/to/compatibility.json
 ```
 

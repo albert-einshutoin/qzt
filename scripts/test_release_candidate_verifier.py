@@ -22,6 +22,13 @@ spec.loader.exec_module(candidate)
 
 
 class VersionBoundaryTests(unittest.TestCase):
+    def test_unknown_profile_is_not_a_legacy_success(self):
+        with patch.object(candidate, "smoke") as smoke:
+            with self.assertRaisesRegex(RuntimeError, "unsupported smoke profile"):
+                candidate.run_smoke(Path("missing"), Path("work"), Path("vectors"),
+                                    "aarch64-apple-darwin", "v0.1.0-pre.6", "unknown")
+            smoke.assert_not_called()
+
     def test_global_accepts_cargo_dist_checksum_with_trailing_blank_line(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
