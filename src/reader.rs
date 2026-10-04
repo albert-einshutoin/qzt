@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::Path;
 #[cfg(windows)]
 use std::sync::Mutex;
@@ -11,6 +11,7 @@ use crate::chunk_table::{
 use crate::error::{QztError, Result};
 use crate::fixed::PhysicalRange;
 use crate::chunker::NewlineMode;
+use crate::codec::decode_chunk;
 use crate::format::FOOTER_TRAILER_LEN;
 use crate::io::{ReadAt, hash_read_at_range, open_file_with_len};
 use crate::limits::ResourceLimits;
@@ -1107,9 +1108,7 @@ fn decode_compressed_entry(
             .map(|dictionary| dictionary.bytes.as_slice())
             .ok_or(QztError::MissingDictionary)?
     };
-    let decoder = zstd::stream::Decoder::with_dictionary(compressed, dictionary)
-        .map_err(|_| QztError::ZstdDecodeError)?;
-    let decoded = decode_with_output_limit(decoder, entry.uncompressed_size)?;
+    let decoded = decode_chunk(compressed, dictionary, entry.uncompressed_size)?;
     if usize_to_u64(decoded.len())? != entry.uncompressed_size {
         return Err(QztError::ChunkSizeMismatch);
     }
@@ -1205,27 +1204,6 @@ fn line_start_chunk_index(entries: &[ChunkEntry], line_zero_based: u64) -> Resul
     } else {
         Err(QztError::LineOutOfRange)
     }
-}
-
-fn decode_with_output_limit(
-    decoder: zstd::stream::Decoder<'_, &[u8]>,
-    expected_size: u64,
-) -> Result<Vec<u8>> {
-    let capacity = u64_to_usize(expected_size)?;
-    let read_limit = expected_size
-        .checked_add(1)
-        .ok_or(QztError::ResourceLimitExceeded)?;
-    let mut decoded = Vec::with_capacity(capacity);
-    let mut limited = decoder.take(read_limit);
-    limited
-        .read_to_end(&mut decoded)
-        .map_err(|_| QztError::ZstdDecodeError)?;
-
-    if usize_to_u64(decoded.len())? > expected_size {
-        return Err(QztError::ResourceLimitExceeded);
-    }
-
-    Ok(decoded)
 }
 
 fn local_line_starts(decoded: &[u8], flags: u32) -> Vec<usize> {

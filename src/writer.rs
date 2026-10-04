@@ -4,6 +4,7 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use crate::cbor::validate_deterministic_with_limits;
 use crate::chunk_table::ChunkEntry;
 use crate::chunker::{plan_chunks, ChunkerOptions, NewlineMode};
+use crate::codec::encode_chunk;
 use crate::dense_line_index::line_start_offsets;
 use crate::dense_line_index::DenseLineIndex;
 use crate::error::{QztError, Result};
@@ -516,8 +517,7 @@ impl<W: Read + Write + Seek> QztFileWriter<W> {
         check_chunk_table_size(self.entries.len().checked_add(1).ok_or(QztError::ResourceLimitExceeded)?)?;
         ResourceLimits::default().enforce_chunk_sizes(0, usize_to_u64(uncompressed.len())?)?;
         std::str::from_utf8(uncompressed).map_err(|_| QztError::InvalidUtf8)?;
-        let compressed = zstd::stream::encode_all(uncompressed, self.options.zstd_level)
-            .map_err(|_| QztError::ZstdEncodeError)?;
+        let compressed = encode_chunk(uncompressed, self.options.zstd_level)?;
         if compressed.is_empty() {
             return Err(QztError::ChunkSizeMismatch);
         }
@@ -773,8 +773,7 @@ fn pack_bytes_internal(
             .checked_add(u64_to_usize(chunk.uncompressed_size)?)
             .ok_or(QztError::ResourceLimitExceeded)?;
         let uncompressed = input.get(start..end).ok_or(QztError::ContainerCorrupt)?;
-        let compressed = zstd::stream::encode_all(uncompressed, options.zstd_level)
-            .map_err(|_| QztError::ZstdEncodeError)?;
+        let compressed = encode_chunk(uncompressed, options.zstd_level)?;
 
         if compressed.is_empty() {
             return Err(QztError::ChunkSizeMismatch);
