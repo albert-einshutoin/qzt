@@ -2,11 +2,11 @@
 
 [日本語](public-workflow.ja.md)
 
-The selected context-enabled preview is **v0.1.0-pre.6**, currently an
-**unpublished candidate**. The commands below use only that version's assets;
-execute them after publication. W2 candidate evidence is separate from W3's
-actual Release URL evidence. See the [release gate](../releases/v0.1.0-pre.6-candidate.md).
-No source checkout or Rust build is needed for the public workflow.
+The published context-enabled preview is **v0.1.0-pre.6**, from product source
+`0c8110e6b6e08513b4def3f636b5b79d068e275f`. The [actual Release URL verification](../releases/v0.1.0-pre.6-published.md)
+passed the C4 profile on all four native targets, including native Windows
+PowerShell installation. Literal README/guide PowerShell execution is an
+additional W3 check still pending. No source checkout or Rust build is needed.
 
 ## Select and install
 
@@ -69,8 +69,7 @@ tiny fixture, not a recommended comparison for large inputs.
 
 ## Full context workflow
 
-Use the exact pre.6 binary installed above. Before publication this procedure
-is prepared only; W3 must confirm the real Release assets. Context is mandatory.
+Use the exact pre.6 binary installed above. The real Release assets passed W3. Context is mandatory.
 
 POSIX requires `jq` and Python 3 in addition to the tools above. Start with the
 verified context-enabled `QZT_BIN` and run:
@@ -151,4 +150,4 @@ For engineers, the [C4 extracted-binary smoke](public-workflow-smoke.md)
 checks the fixed profile with expected binary hash/version, golden vectors
 and fresh JSON evidence. Candidate checks run all four native targets and the
 Windows PowerShell installer; their results do not establish public availability.
-W3 must repeat the same profile on the real Release URLs.
+W3 repeated the same profile on the real Release URLs; see the published record above.

@@ -1,0 +1,39 @@
+{
+  "candidate_binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
+  "containers": {
+    "pre3": {
+      "bytes": 1864,
+      "deep_attestation_byte_equal": true,
+      "deep_attestation_sha256": "aadfd74b2052c257e6aca0a7a95654f95a010e40ede760f1bb1c650405a883c3",
+      "sha256": "7162a16240aa2ac501f1461f7e1c2d221050d1afade1941d8657ff6784eecc54"
+    },
+    "pre6_candidate": {
+      "bytes": 1864,
+      "deep_attestation_byte_equal": true,
+      "deep_attestation_sha256": "aadfd74b2052c257e6aca0a7a95654f95a010e40ede760f1bb1c650405a883c3",
+      "sha256": "7162a16240aa2ac501f1461f7e1c2d221050d1afade1941d8657ff6784eecc54"
+    }
+  },
+  "cross_version_deep_verify_export_search": "passed",
+  "pre3_binary_sha256": "2e77275b033d498fdd61e97352fdfb06ac80aa95f3ea790f2b5727aa3512872b",
+  "same_qzt_token_ngram_qzi_byte_equal": true,
+  "sidecars": {
+    "pre3-ngram": {
+      "bytes": 920,
+      "sha256": "4e297ba1c75208b218e0abaed2d06382026cfa7e38ea9fced80bfd453037c2dc"
+    },
+    "pre3-token": {
+      "bytes": 867,
+      "sha256": "771300991448262181938739395e262fdaced92672531be2938e6cc2e982a428"
+    },
+    "pre6_candidate-ngram": {
+      "bytes": 920,
+      "sha256": "4e297ba1c75208b218e0abaed2d06382026cfa7e38ea9fced80bfd453037c2dc"
+    },
+    "pre6_candidate-token": {
+      "bytes": 867,
+      "sha256": "771300991448262181938739395e262fdaced92672531be2938e6cc2e982a428"
+    }
+  },
+  "source_sha256": "925eb99a334b23b9de76084cdb6ef9b252e644668a7f49a4a05178986c49f35f"
+}

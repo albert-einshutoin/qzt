@@ -1,24 +1,22 @@
 # QZT Release Checklist
 
-## Selected next preview: pre.6
+## Published context preview: pre.6
 
-`v0.1.0-pre.6` is an unpublished candidate. The [W2/W3 gate](releases/v0.1.0-pre.6-candidate.md)
-requires exact-main candidate verification on all four native targets, the C4
-context workflow, F1 compatibility and native Windows PowerShell installation
-before the protected tag-only release. W3 then downloads the real Release URLs;
-only its successful evidence can establish public workflow completion.
-The published pre.5 records below remain historical and cannot satisfy pre.6 gates.
-
+`v0.1.0-pre.6` is published from `0c8110e6b6e08513b4def3f636b5b79d068e275f`. The
+[W2/W3 record](releases/v0.1.0-pre.6-published.md) preserves the exact-source
+candidate and actual Release URL checks: all four native C4 archive/installer
+workflows, F1 compatibility, native Windows PowerShell and all 14 assets passed.
+Release run37218860231 attempt1 used the normal protected owner approval.
+The older pre.5 records below remain historical; they do not describe pre.6.
 
 日本語版: [RELEASE.ja.md](RELEASE.ja.md)
 
-This runbook prepares and publishes QZT v0.1.0 without blurring the boundary
-between reversible validation and the irreversible crates.io upload. QZT v0.1
-must be described as a technical preview, not as production-ready software.
+This runbook separates GitHub preview validation from irreversible crates.io
+upload. QZT remains a technical preview, not production-ready software.
 
 ## Published pre.5 GitHub prerelease (2026-09-27)
 
-The current [`v0.1.0-pre.5` prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
+The historical [`v0.1.0-pre.5` prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
 is a GitHub binary technical preview, built by the ordinary tag-only
 [run 36317632199 attempt 1](https://github.com/albert-einshutoin/qzt/actions/runs/36317632199)
 from annotated tag commit `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`.
@@ -28,8 +26,8 @@ Release is a non-draft prerelease with exactly 14 public assets. No crates.io
 publication is implied. The [candidate #321](https://github.com/albert-einshutoin/qzt/issues/321)
 is a distinct unpublished rehearsal.
 
-The read-only [published verifier](../.github/workflows/verify-published-release.yml)
-pins the tag, version, fixed product SHA, release run ID/attempt, and its own
+At the time, the read-only [published verifier](../.github/workflows/verify-published-release.yml)
+pinned the tag, version, fixed product SHA, release run ID/attempt, and its own
 commit. Its [run 36318204357](https://github.com/albert-einshutoin/qzt/actions/runs/36318204357)
 downloaded the actual Release URLs and passed global source/asset verification
 plus archive, binary, installer, and smoke checks on macOS ARM/Intel, Linux x64,

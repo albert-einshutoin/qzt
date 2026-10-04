@@ -2,11 +2,11 @@
 
 [English](public-workflow.md)
 
-context対応previewの選択versionは **v0.1.0-pre.6**、現在は**未公開candidate**です。
-以下はこのversionのartifactだけを使う手順です。公開後に実行してください。
-W2 candidateの証拠と、W3の実Release URLの証拠は別です。
-[release gate](../releases/v0.1.0-pre.6-candidate.md)を参照してください。
-公開workflowにsource checkoutやRust buildは不要です。
+公開context対応previewは **v0.1.0-pre.6**、product sourceは
+`0c8110e6b6e08513b4def3f636b5b79d068e275f` です。[実Release URL検証](../releases/v0.1.0-pre.6-published.md)は
+native Windows PowerShell導入を含む全4 native targetでC4 profileに成功しました。
+README/guideのPowerShell手順そのもののnative実行はW3の追加checkとして未完了です。
+source checkoutやRust buildは不要です。
 
 ## artifactを選んで導入する
 
@@ -67,8 +67,7 @@ Deep verifyは`ok=true`、`original_checksum_verified=true`を返し、exportは
 
 ## contextを含む全workflow
 
-上で導入した正確なpre.6 binaryを使います。公開前は準備済み手順であり、
-W3で実Release artifactを確認する必要があります。contextは必須です。
+上で導入した正確なpre.6 binaryを使います。実Release artifactでW3検証済みです。contextは必須です。
 
 POSIXでは上記の道具に加えて`jq`とPython 3を使います。検証済みのcontext対応
 `QZT_BIN`から開始します。
@@ -146,4 +145,4 @@ QZTを保持してdeep verifyし、`sidecar-rebuild`で別のQZIを明示的に�
 Engineering向けの[C4展開済みbinary smoke](public-workflow-smoke.md)は期待hash/version、
 golden vector、新しいJSON証拠fileを要求します。macOS ARM64のmain build証拠は
 公開release証拠とは別です。このguideのcandidateは4 native targetとWindows PowerShell installerで確認し、
-W3で実Release URLから同じprofileを再実行します。candidate結果は公開到達性の証拠ではありません。
+W3で実Release URLから同じprofileを再実行し成功しました。candidate結果は公開到達性の証拠ではありません。

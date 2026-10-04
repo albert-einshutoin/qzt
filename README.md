@@ -14,10 +14,9 @@
 
 ## Install
 
-The selected next preview is **v0.1.0-pre.6 (unpublished candidate)**.
-The installation commands below are fixed to that version and become available
-only after its GitHub Release is published and verified in W3. The currently
-published release remains [pre.5](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5).
+The published CLI is [v0.1.0-pre.6](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.6),
+including context. The [four-native-target verification record](docs/releases/v0.1.0-pre.6-published.md)
+binds the actual Release artifacts to their fixed source and hashes.
 QZT v0.1 remains a technical preview. Download the archive and matching
 `.sha256` asset for your OS/architecture, verify the checksum, then extract.
 For Apple silicon (use `x86_64-apple-darwin` or
@@ -98,8 +97,10 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.6 
 ## 60-second Tour
 
 For platform prerequisites and the PowerShell tour, see the
-[public workflow guide](docs/guides/public-workflow.md). The pre.6 candidate
-includes context; full public workflow completion requires W3 verification.
+[public workflow guide](docs/guides/public-workflow.md). The published pre.6 CLI
+includes context and passed the C4 public workflow on all four native targets.
+Native execution of the literal README PowerShell steps is an additional W3
+check still pending; existing installer/C4 evidence does not cover that check.
 
 Use the verified pre.6 binary from above (`QZT_BIN` must be its absolute
 path). Run this in a POSIX shell with `mktemp` and `cmp`. It creates a
@@ -141,7 +142,7 @@ remain historical evidence, not pre.6 results.
 ## CLI version and format
 
 The [CLI reference](docs/CLI.md) and operational guides below describe the
-selected `v0.1.0-pre.6` binary. The QZT container format remains `qzt-0.1`,
+published `v0.1.0-pre.6` binary. The QZT container format remains `qzt-0.1`,
 independent of the CLI distribution version. Search hits are checked against
 original bytes, but a sidecar's completeness claim does not establish exhaustive
 coverage; named caps return verified partial results and hard limits are errors.
@@ -338,8 +339,8 @@ No output from `diff` means the restored bytes match the source.
 ## CLI Reference
 
 This command map and [the CLI reference](docs/CLI.md) describe the
-selected pre.6 binary and its automation contract. The [release gate](docs/releases/v0.1.0-pre.6-candidate.md)
-records the distinction between candidate and published evidence. QZT format `v0.1` is not a CLI version.
+published pre.6 binary and its automation contract. The [release gate](docs/releases/v0.1.0-pre.6-candidate.md)
+records candidate and published evidence; see the [published results](docs/releases/v0.1.0-pre.6-published.md). QZT format `v0.1` is not a CLI version.
 
 ```sh
 qzt pack input.txt -o output.qzt
@@ -535,9 +536,9 @@ The [value roadmap #47](https://github.com/albert-einshutoin/qzt/issues/47),
 all its child issues #33–#46, the ten preview-hardening issues in #31, and the
 [#307 FFI audit](https://github.com/albert-einshutoin/qzt/issues/307) are
 complete. Core remains a release candidate; QZI search and the product remain
-a technical preview. The published [v0.1.0-pre.5](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
-binary comes from the fixed tag commit `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`;
-later documentation and verification commits do not change that binary. [#31](https://github.com/albert-einshutoin/qzt/issues/31)
+a technical preview. The published [v0.1.0-pre.6](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.6)
+binary comes from fixed tag commit `0c8110e6b6e08513b4def3f636b5b79d068e275f`; later documentation
+and verification commits do not change that binary. [#31](https://github.com/albert-einshutoin/qzt/issues/31)
 owns current priorities and deferred work; child issues and PRs hold evidence.
 The English/Japanese [status](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)
 and [status.ja.md](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.ja.md)

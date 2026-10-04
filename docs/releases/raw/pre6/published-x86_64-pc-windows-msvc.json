@@ -1,0 +1,166 @@
+{
+  "archive_binary_sha256": "83d5e33c09d962463eccb1c40f523b3967179bb6cb3466133f0b7d2d0fe8d3cc",
+  "archive_binary_smoke": {
+    "binary_sha256": "83d5e33c09d962463eccb1c40f523b3967179bb6cb3466133f0b7d2d0fe8d3cc",
+    "binary_version": "qzt 0.1.0-pre.6",
+    "compatibility": {
+      "core_vectors": [
+        "valid_c1",
+        "valid_empty",
+        "valid_crlf",
+        "valid_mixed_newline",
+        "valid_utf8_multibyte",
+        "valid_multi_chunk",
+        "valid_no_trailing_newline",
+        "valid_dense_line_index",
+        "valid_document_index",
+        "corrupt_header",
+        "corrupt_footer_checksum",
+        "corrupt_chunk_data",
+        "corrupt_truncated",
+        "corrupt_noncanonical_cbor"
+      ],
+      "unsupported_version": "rejected"
+    },
+    "context": {
+      "budget_fragment": "passed",
+      "corrupt_qzi": "passed",
+      "document_scope": "passed",
+      "search_to_context": "passed",
+      "zero_and_capped_zero": "passed"
+    },
+    "isolation_verifier_sha256": "546a97b8aa156b6d97f3d9fd191e091cc1325910e775de6d0e4e46d69f981b3b",
+    "ok": true,
+    "profile": "public-workflow-v1",
+    "shared_smoke_sha256": "9811ab009e8904f1a59a415017c9e5920c31b1842750c9d7d51c9f918fc7a405",
+    "target": "x86_64-pc-windows-msvc",
+    "vector_sha256": {
+      "corrupt_chunk_data.qzt.hex": "d9a99f41048b7b980cf1cee72d633a12763353a37eb42042643851e6a8db9aba",
+      "corrupt_footer_checksum.qzt.hex": "4020a3235a47535c2cef557727cfb5330d44ed059b58c162bf5f033d681ff45a",
+      "corrupt_header.qzt.hex": "fa339c9c662e647f6617de909d437608e80cf05e2dbaf517805ac7e8fe3f2b4a",
+      "corrupt_noncanonical_cbor.qzt.hex": "3afb1411f42ba7e873f6f240259feba63317d7639f3b494c3a41dd3c0db37460",
+      "corrupt_truncated.qzt.hex": "c1fef2fcd59a3f92732032c25e0c455ebca03d34363a80740a65b35982eeb909",
+      "manifest.tsv": "5a336819af995488aa3b7c409728dacca84117f249d775a79f8d105cc704f434",
+      "valid_c1.qzt.hex": "82d191b3bca4de6729b5dedbd5e8512ac8f395f3a8c5f095b33ce410c97686c8",
+      "valid_crlf.qzt.hex": "609001b31c9d3647b215da5b1e8e0d9040929d873aa8fa60ded1ad03664830e2",
+      "valid_dense_line_index.qzt.hex": "54444421e1bb0e852a70de65fdaf8eb3b6074e172a7a89230cf1653fc97476af",
+      "valid_document_index.qzt.hex": "b60bb1e5d7de3ea7d715101857fe57e54ba86f0403bb993023be57134b46513e",
+      "valid_empty.qzt.hex": "096ae9f0adcf5b5f043c73583a56c7e394adcefc366502a8dfae10b8f485d4e3",
+      "valid_mixed_newline.qzt.hex": "6f1ee2e7d04e907104a05aeabb977e947f11f2fa6a56ea4f46795db327d87648",
+      "valid_multi_chunk.qzt.hex": "591b5e0a15ec9a70b8a10ac8311156e199881af479ce733138fc923196e9fcfe",
+      "valid_no_trailing_newline.qzt.hex": "73a57ee96d03b95d93cffc1667e0271e7a84a12117cd2d925c54a44ed6be7763",
+      "valid_utf8_multibyte.qzt.hex": "b7174b7bfa7f16482c0975c3ba7586e8f2a50bf1da5b71d336ac1f3646b623ae"
+    },
+    "verifier_sha256": "2611c709f71d06ca1fafd35f4135716ce8b1aff9ecd07a3d17c4d3152b38a6ac",
+    "workflow": {
+      "failed_export_preservation": "passed",
+      "hard_error": "passed",
+      "normal_tour": "passed",
+      "readonly": "passed",
+      "repeated_token_ngram": "passed",
+      "result_cap": "passed",
+      "self_overwrite": "passed",
+      "v0_1_vectors": [
+        "valid_c1",
+        "valid_crlf"
+      ]
+    }
+  },
+  "archive_sha256": "184962374c78bf39e37e6f268aead0d3a9e0a0fcf061be038ae77c2d2eaf8ffd",
+  "archive_size": 686933,
+  "archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-x86_64-pc-windows-msvc.zip",
+  "installer": {
+    "installed_binary_path": "C:\\Users\\runneradmin\\AppData\\Local\\Temp\\qzt-published-0_v6vgb3\\install\\bin\\qzt.exe",
+    "installed_binary_sha256": "83d5e33c09d962463eccb1c40f523b3967179bb6cb3466133f0b7d2d0fe8d3cc",
+    "installed_binary_version": "qzt 0.1.0-pre.6",
+    "installed_smoke": {
+      "binary_sha256": "83d5e33c09d962463eccb1c40f523b3967179bb6cb3466133f0b7d2d0fe8d3cc",
+      "binary_version": "qzt 0.1.0-pre.6",
+      "compatibility": {
+        "core_vectors": [
+          "valid_c1",
+          "valid_empty",
+          "valid_crlf",
+          "valid_mixed_newline",
+          "valid_utf8_multibyte",
+          "valid_multi_chunk",
+          "valid_no_trailing_newline",
+          "valid_dense_line_index",
+          "valid_document_index",
+          "corrupt_header",
+          "corrupt_footer_checksum",
+          "corrupt_chunk_data",
+          "corrupt_truncated",
+          "corrupt_noncanonical_cbor"
+        ],
+        "unsupported_version": "rejected"
+      },
+      "context": {
+        "budget_fragment": "passed",
+        "corrupt_qzi": "passed",
+        "document_scope": "passed",
+        "search_to_context": "passed",
+        "zero_and_capped_zero": "passed"
+      },
+      "isolation_verifier_sha256": "546a97b8aa156b6d97f3d9fd191e091cc1325910e775de6d0e4e46d69f981b3b",
+      "ok": true,
+      "profile": "public-workflow-v1",
+      "shared_smoke_sha256": "9811ab009e8904f1a59a415017c9e5920c31b1842750c9d7d51c9f918fc7a405",
+      "target": "x86_64-pc-windows-msvc",
+      "vector_sha256": {
+        "corrupt_chunk_data.qzt.hex": "d9a99f41048b7b980cf1cee72d633a12763353a37eb42042643851e6a8db9aba",
+        "corrupt_footer_checksum.qzt.hex": "4020a3235a47535c2cef557727cfb5330d44ed059b58c162bf5f033d681ff45a",
+        "corrupt_header.qzt.hex": "fa339c9c662e647f6617de909d437608e80cf05e2dbaf517805ac7e8fe3f2b4a",
+        "corrupt_noncanonical_cbor.qzt.hex": "3afb1411f42ba7e873f6f240259feba63317d7639f3b494c3a41dd3c0db37460",
+        "corrupt_truncated.qzt.hex": "c1fef2fcd59a3f92732032c25e0c455ebca03d34363a80740a65b35982eeb909",
+        "manifest.tsv": "5a336819af995488aa3b7c409728dacca84117f249d775a79f8d105cc704f434",
+        "valid_c1.qzt.hex": "82d191b3bca4de6729b5dedbd5e8512ac8f395f3a8c5f095b33ce410c97686c8",
+        "valid_crlf.qzt.hex": "609001b31c9d3647b215da5b1e8e0d9040929d873aa8fa60ded1ad03664830e2",
+        "valid_dense_line_index.qzt.hex": "54444421e1bb0e852a70de65fdaf8eb3b6074e172a7a89230cf1653fc97476af",
+        "valid_document_index.qzt.hex": "b60bb1e5d7de3ea7d715101857fe57e54ba86f0403bb993023be57134b46513e",
+        "valid_empty.qzt.hex": "096ae9f0adcf5b5f043c73583a56c7e394adcefc366502a8dfae10b8f485d4e3",
+        "valid_mixed_newline.qzt.hex": "6f1ee2e7d04e907104a05aeabb977e947f11f2fa6a56ea4f46795db327d87648",
+        "valid_multi_chunk.qzt.hex": "591b5e0a15ec9a70b8a10ac8311156e199881af479ce733138fc923196e9fcfe",
+        "valid_no_trailing_newline.qzt.hex": "73a57ee96d03b95d93cffc1667e0271e7a84a12117cd2d925c54a44ed6be7763",
+        "valid_utf8_multibyte.qzt.hex": "b7174b7bfa7f16482c0975c3ba7586e8f2a50bf1da5b71d336ac1f3646b623ae"
+      },
+      "verifier_sha256": "2611c709f71d06ca1fafd35f4135716ce8b1aff9ecd07a3d17c4d3152b38a6ac",
+      "workflow": {
+        "failed_export_preservation": "passed",
+        "hard_error": "passed",
+        "normal_tour": "passed",
+        "readonly": "passed",
+        "repeated_token_ngram": "passed",
+        "result_cap": "passed",
+        "self_overwrite": "passed",
+        "v0_1_vectors": [
+          "valid_c1",
+          "valid_crlf"
+        ]
+      }
+    },
+    "installer_checksum_skip_lines": [],
+    "installer_output": "downloading qzt 0.1.0-pre.6 (x86_64-pc-windows-msvc)\r\ninstalling to C:\\Users\\runneradmin\\AppData\\Local\\Temp\\qzt-published-0_v6vgb3\\install\\bin\r\n  qzt.exe\r\neverything's installed!\r\n\n",
+    "installer_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-installer.ps1",
+    "selected_archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-x86_64-pc-windows-msvc.zip",
+    "selected_target": "x86_64-pc-windows-msvc"
+  },
+  "kind": "local",
+  "linux_linkage": "not applicable outside Linux",
+  "product_source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+  "published_at": "2026-10-04T17:03:24Z",
+  "release_id": 403118863,
+  "release_run_attempt": 1,
+  "release_run_id": 37218860231,
+  "release_url": "https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.6",
+  "sidecar_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-x86_64-pc-windows-msvc.zip.sha256",
+  "smoke_profile": "public-workflow-v1",
+  "tag": "v0.1.0-pre.6",
+  "target": "x86_64-pc-windows-msvc",
+  "verifier_architecture": "AMD64",
+  "verifier_os": "Windows",
+  "verifier_runner": "GitHub Actions 1000062063",
+  "verifier_rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "verifier_sha": "766793b739343e30fe8c7760855ebee74d91f4b9",
+  "version": "qzt 0.1.0-pre.6"
+}
