@@ -72,14 +72,14 @@ fn corrupt_container_is_a_failure_in_both_verify_formats() {
             .unwrap();
         assert_eq!(output.status.code(), Some(1));
         if format == "json" {
-            assert!(output.stderr.is_empty());
+            assert_eq!(output.stderr, [] as [u8; 0]);
             let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
             assert_eq!(report["ok"], false);
             assert_eq!(report["level"], "deep");
-            assert!(!report["error"].as_str().unwrap().is_empty());
+            assert_ne!(report["error"].as_str().unwrap(), "");
         } else {
-            assert!(output.stdout.is_empty());
-            assert!(!output.stderr.is_empty());
+            assert_eq!(output.stdout, [] as [u8; 0]);
+            assert_ne!(output.stderr, [] as [u8; 0]);
         }
     }
 }

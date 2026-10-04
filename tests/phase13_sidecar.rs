@@ -330,7 +330,7 @@ fn cli_inspect_sidecar_rejects_corruption_without_affecting_core_verify() {
             search.stdout.is_empty(),
             "mismatch is not a zero-hit report"
         );
-        assert!(!search.stderr.is_empty());
+        assert_ne!(search.stderr, [] as [u8; 0]);
     }
 
     let mut bytes = fs::read(&sidecar).expect("sidecar should be readable");

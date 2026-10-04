@@ -165,7 +165,7 @@ fn result_help_explains_independent_guarantees() {
             .output()
             .unwrap();
         assert!(output.status.success());
-        assert!(output.stderr.is_empty());
+        assert_eq!(output.stderr, [] as [u8; 0]);
         let text = String::from_utf8(output.stdout).unwrap();
         for phrase in required {
             assert!(
