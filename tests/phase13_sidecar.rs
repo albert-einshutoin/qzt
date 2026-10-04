@@ -315,6 +315,24 @@ fn cli_inspect_sidecar_rejects_corruption_without_affecting_core_verify() {
     assert_eq!(mismatch.status.code(), Some(1));
     assert_eq!(mismatch.stdout, [] as [u8; 0]);
 
+    for format in ["text", "json"] {
+        let search = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("search")
+            .arg(&other_packed)
+            .arg("different")
+            .arg("--sidecar")
+            .arg(&sidecar)
+            .args(["--format", format])
+            .output()
+            .unwrap();
+        assert_eq!(search.status.code(), Some(1));
+        assert!(
+            search.stdout.is_empty(),
+            "mismatch is not a zero-hit report"
+        );
+        assert_ne!(search.stderr, [] as [u8; 0]);
+    }
+
     let mut bytes = fs::read(&sidecar).expect("sidecar should be readable");
     flip_first_sidecar_payload_byte(&mut bytes);
     fs::write(&sidecar, bytes).expect("corrupt sidecar should be writable");
@@ -723,29 +741,37 @@ fn run_corrupted_sidecar_cli_test(label: &str, corrupt: impl FnOnce(&mut Vec<u8>
     corrupt(&mut sidecar);
     fs::write(&sidecar_path, &sidecar).expect("corrupted sidecar should be written");
 
-    let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
-        .arg("search")
-        .arg(&packed)
-        .arg("東京")
-        .arg("--sidecar")
-        .arg(&sidecar_path)
-        .output()
-        .expect("search command should run");
+    for format in ["text", "json"] {
+        let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .arg("search")
+            .arg(&packed)
+            .arg("東京")
+            .arg("--sidecar")
+            .arg(&sidecar_path)
+            .args(["--format", format])
+            .output()
+            .expect("search command should run");
 
-    assert_eq!(
-        output.status.code(),
-        Some(1),
-        "search must fail on corrupted sidecar ({label})"
-    );
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    assert!(
-        !stderr.is_empty(),
-        "stderr must contain a user-facing error ({label})"
-    );
-    assert!(
-        !stderr.contains("panicked"),
-        "corrupted sidecar must not panic ({label}): {stderr}"
-    );
+        assert_eq!(
+            output.status.code(),
+            Some(1),
+            "search must fail on corrupted sidecar ({label})"
+        );
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        assert!(
+            !stderr.is_empty(),
+            "stderr must contain a user-facing error ({label})"
+        );
+        assert!(
+            !stderr.contains("panicked"),
+            "corrupted sidecar must not panic ({label}): {stderr}"
+        );
+
+        assert!(
+            output.stdout.is_empty(),
+            "{format} must not emit a success/zero-hit report ({label})"
+        );
+    }
 
     assert_success(
         Command::new(env!("CARGO_BIN_EXE_qzt"))

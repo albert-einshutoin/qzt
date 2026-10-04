@@ -53,6 +53,38 @@ fn verify_json_distinguishes_structural_checksum_and_decode_work() {
 }
 
 #[test]
+fn corrupt_container_is_a_failure_in_both_verify_formats() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("truncated.qzt");
+    let mut bytes = valid_c1();
+    bytes.truncate(bytes.len() - 1);
+    fs::write(&path, bytes).unwrap();
+    for format in ["text", "json"] {
+        let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .args([
+                "verify",
+                path.to_str().unwrap(),
+                "--deep",
+                "--format",
+                format,
+            ])
+            .output()
+            .unwrap();
+        assert_eq!(output.status.code(), Some(1));
+        if format == "json" {
+            assert_eq!(output.stderr, [] as [u8; 0]);
+            let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+            assert_eq!(report["ok"], false);
+            assert_eq!(report["level"], "deep");
+            assert_ne!(report["error"].as_str().unwrap(), "");
+        } else {
+            assert_eq!(output.stdout, [] as [u8; 0]);
+            assert_ne!(output.stderr, [] as [u8; 0]);
+        }
+    }
+}
+
+#[test]
 fn text_and_json_name_the_same_deep_work() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("valid_c1.qzt");

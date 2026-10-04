@@ -494,6 +494,30 @@ fn search_text_mode_capped_metrics_contract() {
         "capped search must not set incomplete_reason: {text}"
     );
 
+    let json = run(&[
+        "search",
+        qzt,
+        "needle",
+        "--max-results",
+        "2",
+        "--format",
+        "json",
+    ]);
+    assert!(json.status.success());
+    let value: serde_json::Value = serde_json::from_slice(&json.stdout).unwrap();
+    assert_eq!(value["capped"], true);
+    assert_eq!(value["stop_reason"], "max_search_results");
+    assert!(value["incomplete_reason"].is_null());
+    assert_unverified_coverage(&value, true);
+    assert_eq!(value["hits"].as_array().unwrap().len(), 2);
+    for hit in value["hits"].as_array().unwrap() {
+        assert_eq!(hit["source"], "verified_original_bytes");
+        let offset = hit["logical_offset"].as_u64().unwrap();
+        assert!(text.contains(&format!("hit logical_offset={offset} ")));
+    }
+    assert!(text.contains("stop_reason=max_search_results"));
+    assert!(text.contains("index_complete_declared=true index_coverage_verified=false"));
+
     let _ = fs::remove_dir_all(base);
 }
 

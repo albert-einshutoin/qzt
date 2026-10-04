@@ -127,6 +127,56 @@ fn every_subcommand_exposes_command_specific_help() {
 }
 
 #[test]
+fn result_help_explains_independent_guarantees() {
+    for (command, required) in [
+        (
+            "search",
+            &[
+                "Exit 0 does not prove coverage",
+                "capped",
+                "stop_reason",
+                "incomplete_reason",
+                "index_coverage_verified (currently false)",
+                "zero hits",
+            ][..],
+        ),
+        (
+            "context",
+            &[
+                "mapping_status",
+                "before/after stop",
+                "fragment flags",
+                "Only read chunks are verified",
+                "full document are not",
+            ][..],
+        ),
+        (
+            "verify",
+            &[
+                "Quick checks structure",
+                "normal also checks compressed checksums",
+                "deep decodes",
+                "does not verify QZI or search coverage",
+            ][..],
+        ),
+    ] {
+        let output = Command::new(env!("CARGO_BIN_EXE_qzt"))
+            .args([command, "--help"])
+            .output()
+            .unwrap();
+        assert!(output.status.success());
+        assert_eq!(output.stderr, [] as [u8; 0]);
+        let text = String::from_utf8(output.stdout).unwrap();
+        for phrase in required {
+            assert!(
+                text.contains(phrase),
+                "{command} help misses {phrase}: {text}"
+            );
+        }
+    }
+}
+
+#[test]
 fn pack_accepts_options_before_the_input_path() {
     let base = crate::support::secure_temp_root()
         .join(format!("qzt-cli-options-first-{}", std::process::id()));

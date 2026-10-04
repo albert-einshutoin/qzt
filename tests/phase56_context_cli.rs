@@ -627,26 +627,40 @@ fn text_and_json_agree_on_coordinates_status_stops_and_display() {
     let args = [
         "--offset", "9", "--length", "3", "--before", "1", "--after", "1",
     ];
-    let value = json(&path, &[&args[..], &["--format", "json"]].concat());
-    let text = String::from_utf8(run(&path, &args).stdout).unwrap();
-    let hit_start = value["hit"]["logical_offset"].as_u64().unwrap();
-    let hit_end = value["hit"]["end"].as_u64().unwrap();
-    let excerpt_start = value["excerpt"]["logical_offset"].as_u64().unwrap();
-    let excerpt_end = excerpt_start + value["excerpt"]["byte_length"].as_u64().unwrap();
-    assert!(text.contains(&format!("hit {hit_start}:{hit_end}")));
-    assert!(text.contains("mapping: unique"));
-    assert!(text.contains(&format!("excerpt {excerpt_start}:{excerpt_end}")));
-    for direction in ["before", "after"] {
-        let detail = &value[direction];
-        assert!(text.contains(&format!(
-            "{direction}: {}/{} stop={}",
-            detail["returned"].as_u64().unwrap(),
-            detail["requested"].as_u64().unwrap(),
-            detail["stop"].as_str().unwrap(),
-        )));
+    for extra in [&[][..], &["--max-scan-bytes", "3"][..]] {
+        let args = [&args[..], extra].concat();
+        let value = json(&path, &[&args[..], &["--format", "json"]].concat());
+        let text = String::from_utf8(run(&path, &args).stdout).unwrap();
+        let hit_start = value["hit"]["logical_offset"].as_u64().unwrap();
+        let hit_end = value["hit"]["end"].as_u64().unwrap();
+        let excerpt_start = value["excerpt"]["logical_offset"].as_u64().unwrap();
+        let excerpt_end = excerpt_start + value["excerpt"]["byte_length"].as_u64().unwrap();
+        assert!(text.contains(&format!("hit {hit_start}:{hit_end}")));
+        assert!(text.contains("mapping: unique"));
+        assert!(text.contains(&format!("excerpt {excerpt_start}:{excerpt_end}")));
+        for direction in ["before", "after"] {
+            let detail = &value[direction];
+            assert!(text.contains(&format!(
+                "{direction}: {}/{} stop={}",
+                detail["returned"].as_u64().unwrap(),
+                detail["requested"].as_u64().unwrap(),
+                detail["stop"].as_str().unwrap(),
+            )));
+        }
+        assert!(text.contains(value["excerpt"]["text_escaped"].as_str().unwrap()));
+        assert!(!text.contains('\x1b'));
+        for edge in ["leading_fragment", "trailing_fragment"] {
+            assert!(text.contains(&format!(
+                "{edge}={}",
+                value["excerpt"][edge].as_bool().unwrap()
+            )));
+        }
+        if !extra.is_empty() {
+            assert_eq!(value["before"]["stop"], "budget");
+            assert_eq!(value["after"]["stop"], "budget");
+            assert_eq!(value["excerpt"]["bytes_hex"], "74776f");
+        }
     }
-    assert!(text.contains(value["excerpt"]["text_escaped"].as_str().unwrap()));
-    assert!(!text.contains('\x1b'));
 }
 
 #[test]

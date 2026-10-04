@@ -46,6 +46,39 @@ v0.1では次の意味を固定します。
   部分出力が残る可能性があります。
 - 現在progress出力はありません。将来追加する場合もstderrだけを使用します。
 
+### search・context・verifyの結果判定
+
+最初に終了状態、次にreportの保証範囲を確認します。終了`0`は依頼した処理の成功です。
+検索の網羅性、contextの完全な取得、deep検証は、それぞれ独立した保証です。
+
+| 観測結果 | 保証すること | 保証しないこと |
+|---|---|---|
+| Search hitの`source=verified_original_bytes` | 返したhitが原文byteでqueryのtoken/ngram条件を満たす。 | 全hitを返したこと、full queryが同じdocument内にあること。 |
+| `capped=true`と名前付き`stop_reason` | 設定上限で停止した。`hits=[]`でも同じ。 | 後続hitの不存在。結果上限に達しても、追加hitがあるとは証明しない。 |
+| `incomplete_reason`がnull以外 | query/indexが完全な回答を供給できない。理由を確認する。 | capなし・0件でも、原文に存在しないという判定。 |
+| `capped=false`、理由null、`hits=[]` | 今回のindex/query処理がverified hitを返さなかった。 | 原文での不存在。`index_coverage_verified=false`なら網羅性はunknown。 |
+| `index_complete_declared=true` | indexが完全性を宣言している。 | 網羅性の検証。checksum/source bindingはpostingの完全性を証明しない。 |
+| Contextの`before.stop`または`after.stop`が`budget`、excerptのfragment flagがtrue | 制限内のbyteを返した。該当端は行の途中で切れている可能性がある。 | 要求した全context行、excerpt外のbyte。両側のstopとfragment flagをそれぞれ確認する。 |
+| Contextのstopが`scope_boundary` | 選択したdocument/containerのscope境界に到達した。 | scope外のcontext。document境界は物理行を分断し得る。 |
+| Context mappingが`ambiguous`、`cross_document`、`unmapped`、`no_document_index` | hitを一意に帰属できず、container scopeを使う。 | 一意なdocument所有。`unique`もdocument checksumやsearch queryの検証ではない。 |
+| Verifyの`ok=true` | 要求した`level`と報告counter/statusの範囲だけ検証成功。 | quick/normalでのdeep保証、QZI検証、検索網羅性、外部provenance。 |
+| 終了`1`：破損QZTまたは拒否されたQZI | 要求した処理は失敗。成功search/context reportは出さない。 | 0件という判定。coreの`verify`はQZIを読まず、sidecarだけの破損なら成功し得る。 |
+
+自動化では出力を採用する前に終了コードを確認し、必要なfieldとJSON型を要求します。
+必要な保証に関するfield欠落・未知のstatus値は、保証済みとして扱いません。
+互換性のため未知の*key*は無視しますが、未知の状態を検証成功と解釈してはいけません。
+coverage fieldの欠落も網羅性の証拠にはなりません。stderr warningの有無を判定に
+使わないでください。capやcoverage unknownはwarningなしで終了`0`になり得ます。
+
+Searchではverified hitを網羅性と独立して扱い、`capped`/`stop_reason`、
+`incomplete_reason`、`index_coverage_verified`を確認します。現在、原文での不存在を
+網羅的に証明するCLI reportはありません。Contextではmapping/scope、両側のstopと
+fragment flagを確認し、正確なbyteは表示文ではなく`excerpt.bytes_hex`から復元します。
+両stopが`complete`でも保証は選択scopeで要求したcontextだけであり、`verification`も
+明記した処理だけです。Verifyでは要求levelの`ok=true`とcounter/statusを確認します。
+optional checksum/indexの`absent`は検証済みではありません。失敗JSON（`ok:false`）を
+stdoutへ出す`verify --format json`の例外は、上のstdout/stderr契約に従います。
+
 ### file出力の保護
 
 `pack`、`pack-docs`、`export`、`doc`、`sidecar-rebuild`は、いずれかの入力と
