@@ -14,9 +14,8 @@
 
 ## Install / インストール
 
-次previewの選択versionは **v0.1.0-pre.6（未公開candidate）** です。
-下の導入commandはこのversionに固定されており、GitHub Release公開とW3検証の後に利用できます。
-現在の公開版は引き続き[pre.5](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)です。
+公開CLIはcontextを含む[v0.1.0-pre.6](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.6)です。
+[4 native targetの検証記録](docs/releases/v0.1.0-pre.6-published.md)で実Release artifactのsourceとhashを確認できます。
 QZT v0.1はtechnical previewのままです。OSとarchitectureに合う
 archiveと対応する`.sha256`を取得し、checksum検証後に展開してください。
 Apple siliconの例です（Intel Macは`x86_64-apple-darwin`、Linux x64は
@@ -96,7 +95,9 @@ cargo install --git https://github.com/albert-einshutoin/qzt --tag v0.1.0-pre.6 
 
 platformごとの前提条件とPowerShellのツアーは
 [公開workflow導入guide](docs/guides/public-workflow.ja.md)を参照してください。
-pre.6 candidateはcontextを含みます。公開全workflowの完了にはW3の実公開物検証が必要です。
+公開pre.6はcontextを含み、全4 native targetでC4公開workflowを検証済みです。
+READMEのPowerShell導入手順とguideのcommandそのものもWindowsでnative実行に成功しました。
+公開検証記録では、この追加checkを既存installer/C4の証拠と分けて保存しています。
 
 上で検証したpre.6 binaryを使用し、`QZT_BIN`にはその絶対パスを設定します。
 POSIX shell、`mktemp`、`cmp`を使い、独立した使い捨てdirectoryで実行します。
@@ -135,7 +136,7 @@ POSIX／native PowerShellの[全context workflow](docs/guides/public-workflow.ja
 
 ## CLIの版と形式
 
-[CLIリファレンス](docs/CLI.ja.md)と以下の運用guideは、選択versionの
+[CLIリファレンス](docs/CLI.ja.md)と以下の運用guideは、公開versionの
 `v0.1.0-pre.6` binaryを対象とします。QZT container形式`qzt-0.1`は
 CLIの配布versionとは別です。検索hitは原文byteに照合しますが、
 sidecarのcomplete宣言は網羅性を証明しません。capによる停止は検証済み部分結果、
@@ -323,9 +324,9 @@ diff input.txt restored.txt
 
 ## CLIリファレンス
 
-この早見表と[CLIリファレンス](docs/CLI.ja.md)は選択pre.6 binaryの
+この早見表と[CLIリファレンス](docs/CLI.ja.md)は公開pre.6 binaryの
 自動化契約を説明します。candidateと公開物の証拠は
-[release gate](docs/releases/v0.1.0-pre.6-candidate.md)で分けて記録します。QZT形式`v0.1`はCLI versionではありません。
+[公開検証記録](docs/releases/v0.1.0-pre.6-published.md)で分けて記録します。QZT形式`v0.1`はCLI versionではありません。
 
 ```sh
 qzt pack input.txt -o output.qzt
@@ -496,8 +497,8 @@ Document Indexが不要なら`core`など別のprofileを選んでください�
 [価値ロードマップ #47](https://github.com/albert-einshutoin/qzt/issues/47)と
 子Issue #33–#46、#31のpreview hardening対象10件、[FFI監査 #307](https://github.com/albert-einshutoin/qzt/issues/307)は
 完了しています。Coreはrelease candidate、QZI検索と製品全体はtechnical previewです。
-公開済み[v0.1.0-pre.5](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)
-binaryの生成元は固定tag commit `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`で、
+公開済み[v0.1.0-pre.6](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.6)
+binaryの生成元は固定tag commit `0c8110e6b6e08513b4def3f636b5b79d068e275f`で、
 後続の文書・検証PRはbinaryを変更しません。現在の優先度と保留判断は
 [#31](https://github.com/albert-einshutoin/qzt/issues/31)、証拠は子Issue・PRに置きます。
 英日の[status](https://github.com/albert-einshutoin/qzt/blob/main/tasks/status.md)と

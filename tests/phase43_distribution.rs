@@ -231,6 +231,7 @@ fn published_release_verification_keeps_product_and_verifier_separate() {
     assert!(PUBLISHED_WORKFLOW.contains("permissions:\n  contents: read\n  actions: read"));
     assert!(PUBLISHED_WORKFLOW.contains("verify-published-release.py global"));
     assert!(PUBLISHED_WORKFLOW.contains("verify-published-release.py local"));
+    assert!(PUBLISHED_WORKFLOW.contains("--smoke-profile public-workflow-v1"));
     assert!(PUBLISHED_WORKFLOW.contains("retention-days: 14"));
     for (target, runner) in [
         ("aarch64-apple-darwin", "macos-14"),
@@ -253,10 +254,10 @@ fn published_release_verification_keeps_product_and_verifier_separate() {
         PUBLISHED_VERIFIER.contains("PRODUCT_SHA = \"017d4d19739800773ab6a54adf636ff5a43ec1fc\"")
     );
     assert!(PUBLISHED_VERIFIER.contains("candidate.checksum_matches(archive, sidecar)"));
-    assert!(PUBLISHED_VERIFIER.contains("candidate.smoke(binary, smoke_work"));
+    assert!(PUBLISHED_VERIFIER.contains("candidate.run_smoke(binary, smoke_work"));
     assert!(PUBLISHED_VERIFIER.contains("VERSION = \"qzt 0.1.0-pre.3\""));
-    assert!(PUBLISHED_WORKFLOW.contains("PRODUCT_SHA: 3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe"));
-    assert!(PUBLISHED_WORKFLOW.contains("RELEASE_RUN_ID: '36317632199'"));
+    assert!(PUBLISHED_WORKFLOW.contains("PRODUCT_SHA: 0c8110e6b6e08513b4def3f636b5b79d068e275f"));
+    assert!(PUBLISHED_WORKFLOW.contains("RELEASE_RUN_ID: ${{ inputs.release_run_id }}"));
     assert!(PUBLISHED_VERIFIER.contains("candidate.check_source_archive_commit"));
     assert!(CI_WORKFLOW.contains("python -m unittest discover -s scripts"));
     assert!(PUBLISHED_VERIFIER.contains("QZT_INSTALL_DIR"));

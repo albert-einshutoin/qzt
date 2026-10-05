@@ -225,7 +225,37 @@ def run_installer(installer, work, target, archive_binary_hash, vectors_dir,
     }
 
 
-def verify_local(assets, target, vectors_dir, directory, tag_name, version, base):
+def verify_powershell_guide(work, tag_name, binary_hash):
+    repo = Path(__file__).resolve().parent.parent
+    readme, guide = repo / "README.md", repo / "docs/guides/public-workflow.md"
+    pattern = r"```powershell\r?\n(.*?)\r?\n```"
+    install = re.findall(pattern, readme.read_text(encoding="utf-8"), re.S)
+    tours = re.findall(pattern, guide.read_text(encoding="utf-8"), re.S)
+    require(len(install) == 1 and len(tours) == 2 and tag_name in install[0] and
+            candidate.expected_version(tag_name) in install[0], "unexpected PowerShell guide version/layout")
+    version_line = "$version = & $QztBin --version"
+    verify_line = "$verify = Invoke-Qzt verify"
+    require(install[0].count(version_line) == tours[0].count(verify_line) == 1,
+            "PowerShell guide insertion point changed")
+    # Bind the downloaded guide binary before its first execution; insert the
+    # context block where the guide asks, between search and deep verify/export.
+    guard = f"if ((Get-FileHash -Algorithm SHA256 $QztBin).Hash.ToLowerInvariant() -ne '{binary_hash}') {{ throw 'Guide binary hash differs' }}\n"
+    script = install[0].replace(version_line, guard + version_line) + "\n" + \
+        tours[0].replace(verify_line, tours[1] + "\n" + verify_line)
+    path = work / "public-guide.ps1"
+    path.write_text(script, encoding="utf-8")
+    result = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                             "-File", str(path)], cwd=work, env=execution_env(work), input=b"",
+                            capture_output=True, timeout=180, check=False)
+    log = (result.stdout + b"\n" + result.stderr).decode("utf-8", errors="replace")
+    require(result.returncode == 0, f"native PowerShell public guide failed: {log[-3000:]}")
+    return {"ok": True, "readme_sha256": candidate.sha256(readme),
+            "guide_sha256": candidate.sha256(guide), "script_sha256": candidate.sha256(path),
+            "binary_sha256": binary_hash, "output": log[-3000:]}
+
+
+def verify_local(assets, target, vectors_dir, directory, tag_name, version, base,
+                 smoke_profile="preview-legacy"):
     expected = TARGETS[target]
     actual = (platform.system(), platform.machine())
     require(actual == expected, f"target {target} does not match native runner {actual}")
@@ -246,16 +276,20 @@ def verify_local(assets, target, vectors_dir, directory, tag_name, version, base
         smoke_work = work / "archive-smoke"
         smoke_work.mkdir()
         with isolated_binary_env(work):
-            smoke = candidate.smoke(binary, smoke_work, vectors_dir, target, tag_name)
+            smoke = candidate.run_smoke(binary, smoke_work, vectors_dir, target, tag_name, smoke_profile)
         binary_hash = candidate.sha256(binary)
         install = install_and_smoke(assets, directory, work, target, binary_hash, vectors_dir,
-                                    tag_name, version, base)
+                                    tag_name, version, base, smoke_profile)
+        guide = (verify_powershell_guide(work, tag_name, binary_hash)
+                 if target.endswith("windows-msvc") and smoke_profile == "public-workflow-v1"
+                 else None)
     return {
         "target": target, "archive_url": f"{base}/{archive_name}",
         "sidecar_url": f"{base}/{archive_name}.sha256",
         "archive_sha256": archive_hash, "archive_size": archive.stat().st_size,
         "archive_binary_sha256": binary_hash, "archive_binary_smoke": smoke,
         "linux_linkage": linkage, "installer": install,
+        "powershell_guide": guide,
     }
 
 
@@ -265,6 +299,8 @@ def main():
     parser.add_argument("--target", choices=TARGETS)
     parser.add_argument("--vectors-dir", type=Path)
     parser.add_argument("--tag", required=True)
+    parser.add_argument("--smoke-profile", choices=("preview-legacy", "public-workflow-v1"),
+                        default="preview-legacy")
     parser.add_argument("--version", required=True)
     parser.add_argument("--product-sha", required=True)
     parser.add_argument("--release-run-id", required=True, type=int)
@@ -296,9 +332,10 @@ def main():
             require(args.target is not None and args.vectors_dir is not None,
                     "local verification needs target and vectors")
             outcome = verify_local(assets, args.target, args.vectors_dir.resolve(), directory,
-                                   args.tag, args.version, base)
+                                   args.tag, args.version, base, args.smoke_profile)
     evidence = {
         "kind": args.kind, "tag": args.tag, "version": args.version,
+        "smoke_profile": args.smoke_profile,
         "product_source_sha": args.product_sha,
         "release_run_id": args.release_run_id, "release_run_attempt": args.release_run_attempt,
         "release_id": release["id"],

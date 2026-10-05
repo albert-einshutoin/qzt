@@ -1,0 +1,98 @@
+{
+  "aggregate_checksum_entries": [
+    "qzt-aarch64-apple-darwin.tar.xz",
+    "qzt-x86_64-apple-darwin.tar.xz",
+    "qzt-x86_64-pc-windows-msvc.zip",
+    "qzt-x86_64-unknown-linux-gnu.tar.xz",
+    "source.tar.gz"
+  ],
+  "assets": {
+    "dist-manifest.json": {
+      "github_digest": "sha256:3dac1ac0804619bb6542aa990d8f381d0af47bce1579d515bd9ea332c5336041",
+      "sha256": "3dac1ac0804619bb6542aa990d8f381d0af47bce1579d515bd9ea332c5336041",
+      "size": 16252
+    },
+    "qzt-aarch64-apple-darwin.tar.xz": {
+      "github_digest": "sha256:3383cecbeed70ad5ec0fde64c7840f4e32746e46c7d75241505937613579c056",
+      "sha256": "3383cecbeed70ad5ec0fde64c7840f4e32746e46c7d75241505937613579c056",
+      "size": 529824
+    },
+    "qzt-aarch64-apple-darwin.tar.xz.sha256": {
+      "github_digest": "sha256:ce145b74581fdb8e7aebab3187c173dc0933d0c9ddcc0c8b61ea1e684fb7b507",
+      "sha256": "ce145b74581fdb8e7aebab3187c173dc0933d0c9ddcc0c8b61ea1e684fb7b507",
+      "size": 99
+    },
+    "qzt-installer.ps1": {
+      "github_digest": "sha256:5e4fb3fbfd23cdd442fab74b1f5b084c463c2ca1680c21c992b3bb23a0f25df1",
+      "sha256": "5e4fb3fbfd23cdd442fab74b1f5b084c463c2ca1680c21c992b3bb23a0f25df1",
+      "size": 21569
+    },
+    "qzt-installer.sh": {
+      "github_digest": "sha256:370cbf2d73dce29d67768b45a41a8be4dc14684dffd5d0e2df125ffac273afa5",
+      "sha256": "370cbf2d73dce29d67768b45a41a8be4dc14684dffd5d0e2df125ffac273afa5",
+      "size": 52836
+    },
+    "qzt-x86_64-apple-darwin.tar.xz": {
+      "github_digest": "sha256:428dd9ffc3ecf173a8fe83a4cbb0cbe1dc82a5d8f6d9d6823cad5240e4adcc54",
+      "sha256": "428dd9ffc3ecf173a8fe83a4cbb0cbe1dc82a5d8f6d9d6823cad5240e4adcc54",
+      "size": 656932
+    },
+    "qzt-x86_64-apple-darwin.tar.xz.sha256": {
+      "github_digest": "sha256:4bf9f3b0036b797e5a88584778f83a8f8a76481761faecd77ade18ccb05b60ac",
+      "sha256": "4bf9f3b0036b797e5a88584778f83a8f8a76481761faecd77ade18ccb05b60ac",
+      "size": 98
+    },
+    "qzt-x86_64-pc-windows-msvc.zip": {
+      "github_digest": "sha256:184962374c78bf39e37e6f268aead0d3a9e0a0fcf061be038ae77c2d2eaf8ffd",
+      "sha256": "184962374c78bf39e37e6f268aead0d3a9e0a0fcf061be038ae77c2d2eaf8ffd",
+      "size": 686933
+    },
+    "qzt-x86_64-pc-windows-msvc.zip.sha256": {
+      "github_digest": "sha256:2bf7a7019bd7ba4d41bdb793825eb1805e8f15d921be0c6454680e8ab41db451",
+      "sha256": "2bf7a7019bd7ba4d41bdb793825eb1805e8f15d921be0c6454680e8ab41db451",
+      "size": 98
+    },
+    "qzt-x86_64-unknown-linux-gnu.tar.xz": {
+      "github_digest": "sha256:74ad48fba3ae7c07126092172bac11f85f83acc03db02472e1db9909e3db9e30",
+      "sha256": "74ad48fba3ae7c07126092172bac11f85f83acc03db02472e1db9909e3db9e30",
+      "size": 711260
+    },
+    "qzt-x86_64-unknown-linux-gnu.tar.xz.sha256": {
+      "github_digest": "sha256:5f6cea27c48efbf2cbe9ce41d2d8be426c286647814bcdad6ffad47984efce4f",
+      "sha256": "5f6cea27c48efbf2cbe9ce41d2d8be426c286647814bcdad6ffad47984efce4f",
+      "size": 103
+    },
+    "sha256.sum": {
+      "github_digest": "sha256:37f239f169e6fee4a0fe1e27db54fc0f968359df2e17bfe17fca590b50be3cb7",
+      "sha256": "37f239f169e6fee4a0fe1e27db54fc0f968359df2e17bfe17fca590b50be3cb7",
+      "size": 475
+    },
+    "source.tar.gz": {
+      "github_digest": "sha256:62e041f266106a5d939f3863a89e41a5e443ac5c586a63f8e69a1710e82e2361",
+      "sha256": "62e041f266106a5d939f3863a89e41a5e443ac5c586a63f8e69a1710e82e2361",
+      "size": 838907
+    },
+    "source.tar.gz.sha256": {
+      "github_digest": "sha256:f42081dc8adc4140c39405b668cb7a12e81588b5fffbf29ad3469315ee98c155",
+      "sha256": "f42081dc8adc4140c39405b668cb7a12e81588b5fffbf29ad3469315ee98c155",
+      "size": 81
+    }
+  },
+  "kind": "global",
+  "product_source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+  "published_at": "2026-10-04T17:03:24Z",
+  "release_id": 403118863,
+  "release_run_attempt": 1,
+  "release_run_id": 37218860231,
+  "release_url": "https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.6",
+  "smoke_profile": "public-workflow-v1",
+  "source_tree_match": true,
+  "source_tree_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+  "tag": "v0.1.0-pre.6",
+  "verifier_architecture": "x86_64",
+  "verifier_os": "Linux",
+  "verifier_runner": "GitHub Actions 1000062066",
+  "verifier_rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "verifier_sha": "a36b579ed3561803c8fcdc7ba1416dec7de7c529",
+  "version": "qzt 0.1.0-pre.6"
+}

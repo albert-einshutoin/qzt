@@ -20,6 +20,13 @@ ATTEMPT = 1
 
 
 class PublishedReleaseTests(unittest.TestCase):
+    def test_powershell_guide_for_another_version_is_not_executed(self):
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(verifier.subprocess, "run") as run:
+            with self.assertRaisesRegex(RuntimeError, "PowerShell guide version/layout"):
+                verifier.verify_powershell_guide(Path(directory), "v0.1.0-pre.3", "0" * 64)
+            run.assert_not_called()
+
     def test_candidate_override_cannot_use_an_external_download_url(self):
         with tempfile.TemporaryDirectory() as directory, \
              patch.object(verifier.subprocess, "run") as run:

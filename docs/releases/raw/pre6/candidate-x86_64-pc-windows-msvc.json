@@ -1,0 +1,133 @@
+{
+  "architecture": "AMD64",
+  "archive": "qzt-x86_64-pc-windows-msvc.zip",
+  "archive_sha256": "9e6397a3c959091ad8153f7a43388707d6bc11422c9ac960402f6df514abf87a",
+  "archive_size": 686932,
+  "artifact_retention_days": 14,
+  "binary_sha256": "18a4134a2c71a113170e51d548a5fb2879c8b87f6501ea05004353ccb2f5a2de",
+  "binary_size": 1572864,
+  "binary_version": "qzt 0.1.0-pre.6",
+  "build_environment": {
+    "build_command": "dist build --tag=v0.1.0-pre.6 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=x86_64-pc-windows-msvc",
+    "build_flags": {
+      "CARGO_BUILD_TARGET": null,
+      "CARGO_ENCODED_RUSTFLAGS": null,
+      "CARGO_PROFILE_DIST_CODEGEN_UNITS": null,
+      "CARGO_PROFILE_DIST_DEBUG": null,
+      "CARGO_PROFILE_DIST_LTO": null,
+      "CARGO_PROFILE_DIST_OPT_LEVEL": null,
+      "CC": null,
+      "CFLAGS": null,
+      "CXX": null,
+      "CXXFLAGS": null,
+      "MACOSX_DEPLOYMENT_TARGET": null,
+      "RUSTFLAGS": null,
+      "RUSTUP_TOOLCHAIN": "stable-x86_64-pc-windows-msvc",
+      "SDKROOT": null
+    },
+    "build_profile": "dist (release with thin LTO)",
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)\nrelease: 1.98.1\ncommit-hash: 797e8a9bca276c1c9f9f738d2a20f484fa4eea9d\ncommit-date: 2026-08-05\nhost: x86_64-pc-windows-msvc\nlibgit2: 1.9.4 (sys:0.21.0 vendored)\nlibcurl: 8.21.0-DEV (sys:0.4.90+curl-8.21.0 vendored ssl:Schannel)\nos: Windows 10.0.20348 (Windows Server 2022 Datacenter) [64-bit]",
+    "cargo_dist": "cargo-dist 0.31.0",
+    "cargo_path": "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+    "features": "default; no feature override",
+    "github_run": {
+      "job": "build-local",
+      "repository": "albert-einshutoin/qzt",
+      "run_attempt": "1",
+      "run_id": "37218270173"
+    },
+    "recorded_at_utc": "2026-10-04T16:51:51.934827+00:00",
+    "runner": {
+      "architecture": "X64",
+      "name": "GitHub Actions 1000062048",
+      "os": "Windows",
+      "platform": "Windows-2022Server-10.0.20348-SP0"
+    },
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-pc-windows-msvc\nrelease: 1.98.1\nLLVM version: 22.1.8",
+    "rustc_path": "C:\\Users\\runneradmin\\.cargo\\bin\\rustc.EXE",
+    "rustup_cargo": "C:\\Users\\runneradmin\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\cargo.exe",
+    "rustup_rustc": "C:\\Users\\runneradmin\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "rustup_toolchain": "stable-x86_64-pc-windows-msvc (overridden by environment variable RUSTUP_TOOLCHAIN)",
+    "schema": "qzt-build-environment-v1",
+    "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+    "target": "x86_64-pc-windows-msvc"
+  },
+  "build_environment_sha256": "deac4229e5a628b02d55f12c895ba39d2b3c23ee4cc3291c49cec55415e9d408",
+  "checksum_sidecar_sha256": "1a3eac3c5920ba7d29f655ed8a82b18de0392e8ed57f8cb2a4306b47658bf32d",
+  "checksum_sidecar_size": 98,
+  "dist_version": "0.31.0",
+  "kind": "local",
+  "linux_linkage": "not applicable outside Linux",
+  "os": "Windows",
+  "runner": "GitHub Actions 1000062048",
+  "smoke": {
+    "binary_sha256": "18a4134a2c71a113170e51d548a5fb2879c8b87f6501ea05004353ccb2f5a2de",
+    "binary_version": "qzt 0.1.0-pre.6",
+    "compatibility": {
+      "core_vectors": [
+        "valid_c1",
+        "valid_empty",
+        "valid_crlf",
+        "valid_mixed_newline",
+        "valid_utf8_multibyte",
+        "valid_multi_chunk",
+        "valid_no_trailing_newline",
+        "valid_dense_line_index",
+        "valid_document_index",
+        "corrupt_header",
+        "corrupt_footer_checksum",
+        "corrupt_chunk_data",
+        "corrupt_truncated",
+        "corrupt_noncanonical_cbor"
+      ],
+      "unsupported_version": "rejected"
+    },
+    "context": {
+      "budget_fragment": "passed",
+      "corrupt_qzi": "passed",
+      "document_scope": "passed",
+      "search_to_context": "passed",
+      "zero_and_capped_zero": "passed"
+    },
+    "isolation_verifier_sha256": "2c53b91b4bc5abab357def96b05bb2a163ea94d88998fccb9a2a821618033d24",
+    "ok": true,
+    "profile": "public-workflow-v1",
+    "shared_smoke_sha256": "9811ab009e8904f1a59a415017c9e5920c31b1842750c9d7d51c9f918fc7a405",
+    "target": "x86_64-pc-windows-msvc",
+    "vector_sha256": {
+      "corrupt_chunk_data.qzt.hex": "d9a99f41048b7b980cf1cee72d633a12763353a37eb42042643851e6a8db9aba",
+      "corrupt_footer_checksum.qzt.hex": "4020a3235a47535c2cef557727cfb5330d44ed059b58c162bf5f033d681ff45a",
+      "corrupt_header.qzt.hex": "fa339c9c662e647f6617de909d437608e80cf05e2dbaf517805ac7e8fe3f2b4a",
+      "corrupt_noncanonical_cbor.qzt.hex": "3afb1411f42ba7e873f6f240259feba63317d7639f3b494c3a41dd3c0db37460",
+      "corrupt_truncated.qzt.hex": "c1fef2fcd59a3f92732032c25e0c455ebca03d34363a80740a65b35982eeb909",
+      "manifest.tsv": "5a336819af995488aa3b7c409728dacca84117f249d775a79f8d105cc704f434",
+      "valid_c1.qzt.hex": "82d191b3bca4de6729b5dedbd5e8512ac8f395f3a8c5f095b33ce410c97686c8",
+      "valid_crlf.qzt.hex": "609001b31c9d3647b215da5b1e8e0d9040929d873aa8fa60ded1ad03664830e2",
+      "valid_dense_line_index.qzt.hex": "54444421e1bb0e852a70de65fdaf8eb3b6074e172a7a89230cf1653fc97476af",
+      "valid_document_index.qzt.hex": "b60bb1e5d7de3ea7d715101857fe57e54ba86f0403bb993023be57134b46513e",
+      "valid_empty.qzt.hex": "096ae9f0adcf5b5f043c73583a56c7e394adcefc366502a8dfae10b8f485d4e3",
+      "valid_mixed_newline.qzt.hex": "6f1ee2e7d04e907104a05aeabb977e947f11f2fa6a56ea4f46795db327d87648",
+      "valid_multi_chunk.qzt.hex": "591b5e0a15ec9a70b8a10ac8311156e199881af479ce733138fc923196e9fcfe",
+      "valid_no_trailing_newline.qzt.hex": "73a57ee96d03b95d93cffc1667e0271e7a84a12117cd2d925c54a44ed6be7763",
+      "valid_utf8_multibyte.qzt.hex": "b7174b7bfa7f16482c0975c3ba7586e8f2a50bf1da5b71d336ac1f3646b623ae"
+    },
+    "verifier_sha256": "2611c709f71d06ca1fafd35f4135716ce8b1aff9ecd07a3d17c4d3152b38a6ac",
+    "workflow": {
+      "failed_export_preservation": "passed",
+      "hard_error": "passed",
+      "normal_tour": "passed",
+      "readonly": "passed",
+      "repeated_token_ngram": "passed",
+      "result_cap": "passed",
+      "self_overwrite": "passed",
+      "v0_1_vectors": [
+        "valid_c1",
+        "valid_crlf"
+      ]
+    }
+  },
+  "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+  "tag": "v0.1.0-pre.6",
+  "target": "x86_64-pc-windows-msvc",
+  "verifier_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f"
+}

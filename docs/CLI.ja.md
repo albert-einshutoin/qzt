@@ -1,8 +1,9 @@
-# qzt CLI リファレンス (pre.6 candidate・QZT形式v0.1)
+# qzt CLI リファレンス (公開pre.6・QZT形式v0.1)
 
-このページはcontextを含む選択version `v0.1.0-pre.6` CLIと自動化向け契約を説明します。
-[W2/W3 release gate](releases/v0.1.0-pre.6-candidate.md)を通過するまでは未公開candidateです。
-公開後に[固定version導入手順](../README.ja.md#install)を利用してください。
+このページはcontextを含む公開 `v0.1.0-pre.6` CLIと自動化向け契約を説明します。
+product sourceは `0c8110e6b6e08513b4def3f636b5b79d068e275f` です。
+[実Release検証](releases/v0.1.0-pre.6-published.md)が全4 native targetで成功しました。
+[固定version導入手順](../README.ja.md#install)を利用してください。
 `v0.1`はCLI配布versionではなくcontainer形式です。
 掲載例は[例の再現方法](#例の再現方法)のfixtureを使います。
 

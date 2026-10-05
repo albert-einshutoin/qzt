@@ -1,0 +1,133 @@
+{
+  "architecture": "arm64",
+  "archive": "qzt-aarch64-apple-darwin.tar.xz",
+  "archive_sha256": "a57fbb48a74824f40674b160e880209e96259f641da4140ca37ed1d84f028ed6",
+  "archive_size": 529712,
+  "artifact_retention_days": 14,
+  "binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
+  "binary_size": 1699264,
+  "binary_version": "qzt 0.1.0-pre.6",
+  "build_environment": {
+    "build_command": "dist build --tag=v0.1.0-pre.6 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=aarch64-apple-darwin",
+    "build_flags": {
+      "CARGO_BUILD_TARGET": null,
+      "CARGO_ENCODED_RUSTFLAGS": null,
+      "CARGO_PROFILE_DIST_CODEGEN_UNITS": null,
+      "CARGO_PROFILE_DIST_DEBUG": null,
+      "CARGO_PROFILE_DIST_LTO": null,
+      "CARGO_PROFILE_DIST_OPT_LEVEL": null,
+      "CC": null,
+      "CFLAGS": null,
+      "CXX": null,
+      "CXXFLAGS": null,
+      "MACOSX_DEPLOYMENT_TARGET": null,
+      "RUSTFLAGS": null,
+      "RUSTUP_TOOLCHAIN": "stable-aarch64-apple-darwin",
+      "SDKROOT": null
+    },
+    "build_profile": "dist (release with thin LTO)",
+    "cargo": "cargo 1.98.0 (797e8a9bc 2026-08-05)\nrelease: 1.98.0\ncommit-hash: 797e8a9bca276c1c9f9f738d2a20f484fa4eea9d\ncommit-date: 2026-08-05\nhost: aarch64-apple-darwin\nlibgit2: 1.9.4 (sys:0.21.0 vendored)\nlibcurl: 8.7.1 (sys:0.4.90+curl-8.21.0 system ssl:(SecureTransport) LibreSSL/3.3.6)\nssl: OpenSSL 3.6.3 9 Jun 2026\nos: Mac OS 14.8.9 [64-bit]",
+    "cargo_dist": "cargo-dist 0.31.0",
+    "cargo_path": "/Users/runner/.cargo/bin/cargo",
+    "features": "default; no feature override",
+    "github_run": {
+      "job": "build-local",
+      "repository": "albert-einshutoin/qzt",
+      "run_attempt": "1",
+      "run_id": "37218270173"
+    },
+    "recorded_at_utc": "2026-10-04T16:51:44.083998+00:00",
+    "runner": {
+      "architecture": "ARM64",
+      "name": "GitHub Actions 1000062047",
+      "os": "macOS",
+      "platform": "macOS-14.8.9-arm64-arm-64bit"
+    },
+    "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: aarch64-apple-darwin\nrelease: 1.98.0\nLLVM version: 22.1.8",
+    "rustc_path": "/Users/runner/.cargo/bin/rustc",
+    "rustup_cargo": "/Users/runner/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+    "rustup_rustc": "/Users/runner/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc",
+    "rustup_toolchain": "stable-aarch64-apple-darwin (overridden by environment variable RUSTUP_TOOLCHAIN)",
+    "schema": "qzt-build-environment-v1",
+    "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+    "target": "aarch64-apple-darwin"
+  },
+  "build_environment_sha256": "0423816294b8afe63adde0856c1ecc3cfe2ba4ebfc3a728aee1624cef3eef99f",
+  "checksum_sidecar_sha256": "9e32e2a87eea8d4a44fb7d85362019a0392a4c60ee9e0e3e67ae1aca646a52e3",
+  "checksum_sidecar_size": 99,
+  "dist_version": "0.31.0",
+  "kind": "local",
+  "linux_linkage": "not applicable outside Linux",
+  "os": "Darwin",
+  "runner": "GitHub Actions 1000062047",
+  "smoke": {
+    "binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
+    "binary_version": "qzt 0.1.0-pre.6",
+    "compatibility": {
+      "core_vectors": [
+        "valid_c1",
+        "valid_empty",
+        "valid_crlf",
+        "valid_mixed_newline",
+        "valid_utf8_multibyte",
+        "valid_multi_chunk",
+        "valid_no_trailing_newline",
+        "valid_dense_line_index",
+        "valid_document_index",
+        "corrupt_header",
+        "corrupt_footer_checksum",
+        "corrupt_chunk_data",
+        "corrupt_truncated",
+        "corrupt_noncanonical_cbor"
+      ],
+      "unsupported_version": "rejected"
+    },
+    "context": {
+      "budget_fragment": "passed",
+      "corrupt_qzi": "passed",
+      "document_scope": "passed",
+      "search_to_context": "passed",
+      "zero_and_capped_zero": "passed"
+    },
+    "isolation_verifier_sha256": "3986f4bee041ab93d7991f6b0135c2d5ad79d27eca134b83c401142053e095f8",
+    "ok": true,
+    "profile": "public-workflow-v1",
+    "shared_smoke_sha256": "8af456ef5a83783389cfbc2fc6913de0771391afd45559fcc2ec0c89ce2343a2",
+    "target": "aarch64-apple-darwin",
+    "vector_sha256": {
+      "corrupt_chunk_data.qzt.hex": "d9a99f41048b7b980cf1cee72d633a12763353a37eb42042643851e6a8db9aba",
+      "corrupt_footer_checksum.qzt.hex": "4020a3235a47535c2cef557727cfb5330d44ed059b58c162bf5f033d681ff45a",
+      "corrupt_header.qzt.hex": "fa339c9c662e647f6617de909d437608e80cf05e2dbaf517805ac7e8fe3f2b4a",
+      "corrupt_noncanonical_cbor.qzt.hex": "3afb1411f42ba7e873f6f240259feba63317d7639f3b494c3a41dd3c0db37460",
+      "corrupt_truncated.qzt.hex": "c1fef2fcd59a3f92732032c25e0c455ebca03d34363a80740a65b35982eeb909",
+      "manifest.tsv": "5a336819af995488aa3b7c409728dacca84117f249d775a79f8d105cc704f434",
+      "valid_c1.qzt.hex": "82d191b3bca4de6729b5dedbd5e8512ac8f395f3a8c5f095b33ce410c97686c8",
+      "valid_crlf.qzt.hex": "609001b31c9d3647b215da5b1e8e0d9040929d873aa8fa60ded1ad03664830e2",
+      "valid_dense_line_index.qzt.hex": "54444421e1bb0e852a70de65fdaf8eb3b6074e172a7a89230cf1653fc97476af",
+      "valid_document_index.qzt.hex": "b60bb1e5d7de3ea7d715101857fe57e54ba86f0403bb993023be57134b46513e",
+      "valid_empty.qzt.hex": "096ae9f0adcf5b5f043c73583a56c7e394adcefc366502a8dfae10b8f485d4e3",
+      "valid_mixed_newline.qzt.hex": "6f1ee2e7d04e907104a05aeabb977e947f11f2fa6a56ea4f46795db327d87648",
+      "valid_multi_chunk.qzt.hex": "591b5e0a15ec9a70b8a10ac8311156e199881af479ce733138fc923196e9fcfe",
+      "valid_no_trailing_newline.qzt.hex": "73a57ee96d03b95d93cffc1667e0271e7a84a12117cd2d925c54a44ed6be7763",
+      "valid_utf8_multibyte.qzt.hex": "b7174b7bfa7f16482c0975c3ba7586e8f2a50bf1da5b71d336ac1f3646b623ae"
+    },
+    "verifier_sha256": "0830e3d2afbaf3f238168be423eeddab24a4819995c4417e8e481fd585e7be18",
+    "workflow": {
+      "failed_export_preservation": "passed",
+      "hard_error": "passed",
+      "normal_tour": "passed",
+      "readonly": "not applicable outside Windows",
+      "repeated_token_ngram": "passed",
+      "result_cap": "passed",
+      "self_overwrite": "passed",
+      "v0_1_vectors": [
+        "valid_c1",
+        "valid_crlf"
+      ]
+    }
+  },
+  "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+  "tag": "v0.1.0-pre.6",
+  "target": "aarch64-apple-darwin",
+  "verifier_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f"
+}

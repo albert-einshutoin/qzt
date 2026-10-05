@@ -1,0 +1,372 @@
+{
+  "aggregate_checksum_entries": [
+    "qzt-aarch64-apple-darwin.tar.xz",
+    "qzt-x86_64-apple-darwin.tar.xz",
+    "qzt-x86_64-pc-windows-msvc.zip",
+    "qzt-x86_64-unknown-linux-gnu.tar.xz",
+    "source.tar.gz"
+  ],
+  "build_environments": {
+    "aarch64-apple-darwin": {
+      "record": {
+        "build_command": "dist build --tag=v0.1.0-pre.6 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=aarch64-apple-darwin",
+        "build_flags": {
+          "CARGO_BUILD_TARGET": null,
+          "CARGO_ENCODED_RUSTFLAGS": null,
+          "CARGO_PROFILE_DIST_CODEGEN_UNITS": null,
+          "CARGO_PROFILE_DIST_DEBUG": null,
+          "CARGO_PROFILE_DIST_LTO": null,
+          "CARGO_PROFILE_DIST_OPT_LEVEL": null,
+          "CC": null,
+          "CFLAGS": null,
+          "CXX": null,
+          "CXXFLAGS": null,
+          "MACOSX_DEPLOYMENT_TARGET": null,
+          "RUSTFLAGS": null,
+          "RUSTUP_TOOLCHAIN": "stable-aarch64-apple-darwin",
+          "SDKROOT": null
+        },
+        "build_profile": "dist (release with thin LTO)",
+        "cargo": "cargo 1.98.0 (797e8a9bc 2026-08-05)\nrelease: 1.98.0\ncommit-hash: 797e8a9bca276c1c9f9f738d2a20f484fa4eea9d\ncommit-date: 2026-08-05\nhost: aarch64-apple-darwin\nlibgit2: 1.9.4 (sys:0.21.0 vendored)\nlibcurl: 8.7.1 (sys:0.4.90+curl-8.21.0 system ssl:(SecureTransport) LibreSSL/3.3.6)\nssl: OpenSSL 3.6.3 9 Jun 2026\nos: Mac OS 14.8.9 [64-bit]",
+        "cargo_dist": "cargo-dist 0.31.0",
+        "cargo_path": "/Users/runner/.cargo/bin/cargo",
+        "features": "default; no feature override",
+        "github_run": {
+          "job": "build-local",
+          "repository": "albert-einshutoin/qzt",
+          "run_attempt": "1",
+          "run_id": "37218270173"
+        },
+        "recorded_at_utc": "2026-10-04T16:51:44.083998+00:00",
+        "runner": {
+          "architecture": "ARM64",
+          "name": "GitHub Actions 1000062047",
+          "os": "macOS",
+          "platform": "macOS-14.8.9-arm64-arm-64bit"
+        },
+        "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: aarch64-apple-darwin\nrelease: 1.98.0\nLLVM version: 22.1.8",
+        "rustc_path": "/Users/runner/.cargo/bin/rustc",
+        "rustup_cargo": "/Users/runner/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+        "rustup_rustc": "/Users/runner/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc",
+        "rustup_toolchain": "stable-aarch64-apple-darwin (overridden by environment variable RUSTUP_TOOLCHAIN)",
+        "schema": "qzt-build-environment-v1",
+        "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+        "target": "aarch64-apple-darwin"
+      },
+      "sha256": "0423816294b8afe63adde0856c1ecc3cfe2ba4ebfc3a728aee1624cef3eef99f"
+    },
+    "global": {
+      "record": {
+        "build_command": "dist build --tag=v0.1.0-pre.6 --allow-dirty --output-format=json --artifacts=global",
+        "build_flags": {
+          "CARGO_BUILD_TARGET": null,
+          "CARGO_ENCODED_RUSTFLAGS": null,
+          "CARGO_PROFILE_DIST_CODEGEN_UNITS": null,
+          "CARGO_PROFILE_DIST_DEBUG": null,
+          "CARGO_PROFILE_DIST_LTO": null,
+          "CARGO_PROFILE_DIST_OPT_LEVEL": null,
+          "CC": null,
+          "CFLAGS": null,
+          "CXX": null,
+          "CXXFLAGS": null,
+          "MACOSX_DEPLOYMENT_TARGET": null,
+          "RUSTFLAGS": null,
+          "RUSTUP_TOOLCHAIN": "stable-x86_64-unknown-linux-gnu",
+          "SDKROOT": null
+        },
+        "build_profile": "global artifacts; no Rust compile",
+        "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)\nrelease: 1.98.1\ncommit-hash: 797e8a9bca276c1c9f9f738d2a20f484fa4eea9d\ncommit-date: 2026-08-05\nhost: x86_64-unknown-linux-gnu\nlibgit2: 1.9.4 (sys:0.21.0 vendored)\nlibcurl: 8.21.0-DEV (sys:0.4.90+curl-8.21.0 vendored ssl:OpenSSL/3.6.3)\nssl: OpenSSL 3.6.3 9 Jun 2026\nos: Ubuntu 22.4.0 (jammy) [64-bit]",
+        "cargo_dist": "cargo-dist 0.31.0",
+        "cargo_path": "/home/runner/.cargo/bin/cargo",
+        "features": "not applicable",
+        "github_run": {
+          "job": "build-global",
+          "repository": "albert-einshutoin/qzt",
+          "run_attempt": "1",
+          "run_id": "37218270173"
+        },
+        "recorded_at_utc": "2026-10-04T16:52:58.720451+00:00",
+        "runner": {
+          "architecture": "X64",
+          "name": "GitHub Actions 1000062050",
+          "os": "Linux",
+          "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.35"
+        },
+        "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+        "rustc_path": "/home/runner/.cargo/bin/rustc",
+        "rustup_cargo": "/home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+        "rustup_rustc": "/home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+        "rustup_toolchain": "stable-x86_64-unknown-linux-gnu (overridden by environment variable RUSTUP_TOOLCHAIN)",
+        "schema": "qzt-build-environment-v1",
+        "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+        "target": "global"
+      },
+      "sha256": "3ba1681ecf578cde4064befdd69a4dca1864aa60a5351bc4274c908699925f0a"
+    },
+    "x86_64-apple-darwin": {
+      "record": {
+        "build_command": "dist build --tag=v0.1.0-pre.6 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=x86_64-apple-darwin",
+        "build_flags": {
+          "CARGO_BUILD_TARGET": null,
+          "CARGO_ENCODED_RUSTFLAGS": null,
+          "CARGO_PROFILE_DIST_CODEGEN_UNITS": null,
+          "CARGO_PROFILE_DIST_DEBUG": null,
+          "CARGO_PROFILE_DIST_LTO": null,
+          "CARGO_PROFILE_DIST_OPT_LEVEL": null,
+          "CC": null,
+          "CFLAGS": null,
+          "CXX": null,
+          "CXXFLAGS": null,
+          "MACOSX_DEPLOYMENT_TARGET": null,
+          "RUSTFLAGS": null,
+          "RUSTUP_TOOLCHAIN": "stable-x86_64-apple-darwin",
+          "SDKROOT": null
+        },
+        "build_profile": "dist (release with thin LTO)",
+        "cargo": "cargo 1.98.0 (797e8a9bc 2026-08-05)\nrelease: 1.98.0\ncommit-hash: 797e8a9bca276c1c9f9f738d2a20f484fa4eea9d\ncommit-date: 2026-08-05\nhost: x86_64-apple-darwin\nlibgit2: 1.9.4 (sys:0.21.0 vendored)\nlibcurl: 8.7.1 (sys:0.4.90+curl-8.21.0 system ssl:(SecureTransport) LibreSSL/3.3.6)\nssl: OpenSSL 3.6.3 9 Jun 2026\nos: Mac OS 15.7.9 [64-bit]",
+        "cargo_dist": "cargo-dist 0.31.0",
+        "cargo_path": "/Users/runner/.cargo/bin/cargo",
+        "features": "default; no feature override",
+        "github_run": {
+          "job": "build-local",
+          "repository": "albert-einshutoin/qzt",
+          "run_attempt": "1",
+          "run_id": "37218270173"
+        },
+        "recorded_at_utc": "2026-10-04T16:51:41.951749+00:00",
+        "runner": {
+          "architecture": "X64",
+          "name": "GitHub Actions 1000062046",
+          "os": "macOS",
+          "platform": "macOS-15.7.9-x86_64-i386-64bit"
+        },
+        "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)\nbinary: rustc\ncommit-hash: 88d9e12ae178fab0fb5cc050a94da85685d449ea\ncommit-date: 2026-08-18\nhost: x86_64-apple-darwin\nrelease: 1.98.0\nLLVM version: 22.1.8",
+        "rustc_path": "/Users/runner/.cargo/bin/rustc",
+        "rustup_cargo": "/Users/runner/.rustup/toolchains/stable-x86_64-apple-darwin/bin/cargo",
+        "rustup_rustc": "/Users/runner/.rustup/toolchains/stable-x86_64-apple-darwin/bin/rustc",
+        "rustup_toolchain": "stable-x86_64-apple-darwin (overridden by environment variable RUSTUP_TOOLCHAIN)",
+        "schema": "qzt-build-environment-v1",
+        "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+        "target": "x86_64-apple-darwin"
+      },
+      "sha256": "dc994333ebd3c6d2562b6b06e7766956e6e059e1a9b03e8f512f406587417ff1"
+    },
+    "x86_64-pc-windows-msvc": {
+      "record": {
+        "build_command": "dist build --tag=v0.1.0-pre.6 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=x86_64-pc-windows-msvc",
+        "build_flags": {
+          "CARGO_BUILD_TARGET": null,
+          "CARGO_ENCODED_RUSTFLAGS": null,
+          "CARGO_PROFILE_DIST_CODEGEN_UNITS": null,
+          "CARGO_PROFILE_DIST_DEBUG": null,
+          "CARGO_PROFILE_DIST_LTO": null,
+          "CARGO_PROFILE_DIST_OPT_LEVEL": null,
+          "CC": null,
+          "CFLAGS": null,
+          "CXX": null,
+          "CXXFLAGS": null,
+          "MACOSX_DEPLOYMENT_TARGET": null,
+          "RUSTFLAGS": null,
+          "RUSTUP_TOOLCHAIN": "stable-x86_64-pc-windows-msvc",
+          "SDKROOT": null
+        },
+        "build_profile": "dist (release with thin LTO)",
+        "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)\nrelease: 1.98.1\ncommit-hash: 797e8a9bca276c1c9f9f738d2a20f484fa4eea9d\ncommit-date: 2026-08-05\nhost: x86_64-pc-windows-msvc\nlibgit2: 1.9.4 (sys:0.21.0 vendored)\nlibcurl: 8.21.0-DEV (sys:0.4.90+curl-8.21.0 vendored ssl:Schannel)\nos: Windows 10.0.20348 (Windows Server 2022 Datacenter) [64-bit]",
+        "cargo_dist": "cargo-dist 0.31.0",
+        "cargo_path": "C:\\Users\\runneradmin\\.cargo\\bin\\cargo.EXE",
+        "features": "default; no feature override",
+        "github_run": {
+          "job": "build-local",
+          "repository": "albert-einshutoin/qzt",
+          "run_attempt": "1",
+          "run_id": "37218270173"
+        },
+        "recorded_at_utc": "2026-10-04T16:51:51.934827+00:00",
+        "runner": {
+          "architecture": "X64",
+          "name": "GitHub Actions 1000062048",
+          "os": "Windows",
+          "platform": "Windows-2022Server-10.0.20348-SP0"
+        },
+        "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-pc-windows-msvc\nrelease: 1.98.1\nLLVM version: 22.1.8",
+        "rustc_path": "C:\\Users\\runneradmin\\.cargo\\bin\\rustc.EXE",
+        "rustup_cargo": "C:\\Users\\runneradmin\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\cargo.exe",
+        "rustup_rustc": "C:\\Users\\runneradmin\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+        "rustup_toolchain": "stable-x86_64-pc-windows-msvc (overridden by environment variable RUSTUP_TOOLCHAIN)",
+        "schema": "qzt-build-environment-v1",
+        "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+        "target": "x86_64-pc-windows-msvc"
+      },
+      "sha256": "deac4229e5a628b02d55f12c895ba39d2b3c23ee4cc3291c49cec55415e9d408"
+    },
+    "x86_64-unknown-linux-gnu": {
+      "record": {
+        "build_command": "dist build --tag=v0.1.0-pre.6 --print=linkage --allow-dirty --output-format=json --artifacts=local --target=x86_64-unknown-linux-gnu",
+        "build_flags": {
+          "CARGO_BUILD_TARGET": null,
+          "CARGO_ENCODED_RUSTFLAGS": null,
+          "CARGO_PROFILE_DIST_CODEGEN_UNITS": null,
+          "CARGO_PROFILE_DIST_DEBUG": null,
+          "CARGO_PROFILE_DIST_LTO": null,
+          "CARGO_PROFILE_DIST_OPT_LEVEL": null,
+          "CC": null,
+          "CFLAGS": null,
+          "CXX": null,
+          "CXXFLAGS": null,
+          "MACOSX_DEPLOYMENT_TARGET": null,
+          "RUSTFLAGS": null,
+          "RUSTUP_TOOLCHAIN": "stable-x86_64-unknown-linux-gnu",
+          "SDKROOT": null
+        },
+        "build_profile": "dist (release with thin LTO)",
+        "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)\nrelease: 1.98.1\ncommit-hash: 797e8a9bca276c1c9f9f738d2a20f484fa4eea9d\ncommit-date: 2026-08-05\nhost: x86_64-unknown-linux-gnu\nlibgit2: 1.9.4 (sys:0.21.0 vendored)\nlibcurl: 8.21.0-DEV (sys:0.4.90+curl-8.21.0 vendored ssl:OpenSSL/3.6.3)\nssl: OpenSSL 3.6.3 9 Jun 2026\nos: Ubuntu 22.4.0 (jammy) [64-bit]",
+        "cargo_dist": "cargo-dist 0.31.0",
+        "cargo_path": "/home/runner/.cargo/bin/cargo",
+        "features": "default; no feature override",
+        "github_run": {
+          "job": "build-local",
+          "repository": "albert-einshutoin/qzt",
+          "run_attempt": "1",
+          "run_id": "37218270173"
+        },
+        "recorded_at_utc": "2026-10-04T16:51:37.185300+00:00",
+        "runner": {
+          "architecture": "X64",
+          "name": "GitHub Actions 1000062045",
+          "os": "Linux",
+          "platform": "Linux-6.8.0-1064-azure-x86_64-with-glibc2.35"
+        },
+        "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+        "rustc_path": "/home/runner/.cargo/bin/rustc",
+        "rustup_cargo": "/home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo",
+        "rustup_rustc": "/home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc",
+        "rustup_toolchain": "stable-x86_64-unknown-linux-gnu (overridden by environment variable RUSTUP_TOOLCHAIN)",
+        "schema": "qzt-build-environment-v1",
+        "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+        "target": "x86_64-unknown-linux-gnu"
+      },
+      "sha256": "24a42b70b79afff98fb47a43cdc3706ab39e362b4188c8fc3c3d836c23634a48"
+    }
+  },
+  "build_manifests": {
+    "aarch64-apple-darwin": {
+      "artifacts": [
+        "qzt-aarch64-apple-darwin.tar.xz",
+        "qzt-aarch64-apple-darwin.tar.xz.sha256"
+      ],
+      "sha256": "72377b6a998d94554644555b84e585ba2c3b25cd32e41a4bdd2bca7e8d73520e"
+    },
+    "global": {
+      "artifacts": [
+        "qzt-aarch64-apple-darwin.tar.xz",
+        "qzt-aarch64-apple-darwin.tar.xz.sha256",
+        "qzt-installer.ps1",
+        "qzt-installer.sh",
+        "qzt-x86_64-apple-darwin.tar.xz",
+        "qzt-x86_64-apple-darwin.tar.xz.sha256",
+        "qzt-x86_64-pc-windows-msvc.zip",
+        "qzt-x86_64-pc-windows-msvc.zip.sha256",
+        "qzt-x86_64-unknown-linux-gnu.tar.xz",
+        "qzt-x86_64-unknown-linux-gnu.tar.xz.sha256",
+        "sha256.sum",
+        "source.tar.gz",
+        "source.tar.gz.sha256"
+      ],
+      "sha256": "53afec7a01a8b5a08e438d74256c853647288f7b97b181c1b6e0025f89227d4d"
+    },
+    "x86_64-apple-darwin": {
+      "artifacts": [
+        "qzt-x86_64-apple-darwin.tar.xz",
+        "qzt-x86_64-apple-darwin.tar.xz.sha256"
+      ],
+      "sha256": "f24667ee7ffc5da993874e49a0bd7bdf40f2d51de6a4711fa0c06fa3e17fb097"
+    },
+    "x86_64-pc-windows-msvc": {
+      "artifacts": [
+        "qzt-x86_64-pc-windows-msvc.zip",
+        "qzt-x86_64-pc-windows-msvc.zip.sha256"
+      ],
+      "sha256": "f026d021e88a0c45d08766743ac61b6b8a207043b2c79f82015a8549473040c4"
+    },
+    "x86_64-unknown-linux-gnu": {
+      "artifacts": [
+        "qzt-x86_64-unknown-linux-gnu.tar.xz",
+        "qzt-x86_64-unknown-linux-gnu.tar.xz.sha256"
+      ],
+      "sha256": "070fe622343c80da1da527b61bdfb1aa38a94deb466e7ef894294e7153a3d44e"
+    }
+  },
+  "host_generated_dist_manifest": "not built; host/publish not run",
+  "planned_public_asset_names": [
+    "dist-manifest.json",
+    "qzt-aarch64-apple-darwin.tar.xz",
+    "qzt-aarch64-apple-darwin.tar.xz.sha256",
+    "qzt-installer.ps1",
+    "qzt-installer.sh",
+    "qzt-x86_64-apple-darwin.tar.xz",
+    "qzt-x86_64-apple-darwin.tar.xz.sha256",
+    "qzt-x86_64-pc-windows-msvc.zip",
+    "qzt-x86_64-pc-windows-msvc.zip.sha256",
+    "qzt-x86_64-unknown-linux-gnu.tar.xz",
+    "qzt-x86_64-unknown-linux-gnu.tar.xz.sha256",
+    "sha256.sum",
+    "source.tar.gz",
+    "source.tar.gz.sha256"
+  ],
+  "source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+  "staged_assets": {
+    "qzt-aarch64-apple-darwin.tar.xz": {
+      "sha256": "a57fbb48a74824f40674b160e880209e96259f641da4140ca37ed1d84f028ed6",
+      "size": 529712
+    },
+    "qzt-aarch64-apple-darwin.tar.xz.sha256": {
+      "sha256": "9e32e2a87eea8d4a44fb7d85362019a0392a4c60ee9e0e3e67ae1aca646a52e3",
+      "size": 99
+    },
+    "qzt-installer.ps1": {
+      "sha256": "5e4fb3fbfd23cdd442fab74b1f5b084c463c2ca1680c21c992b3bb23a0f25df1",
+      "size": 21569
+    },
+    "qzt-installer.sh": {
+      "sha256": "34d3217dac4a82495b22ac029edf6e95e5ac0d9edd2f9a48d005892528bc03f4",
+      "size": 52836
+    },
+    "qzt-x86_64-apple-darwin.tar.xz": {
+      "sha256": "3e68669bbc67298d7fe3b5a5bf600f868d85620d05be873e861a955bc1044230",
+      "size": 656764
+    },
+    "qzt-x86_64-apple-darwin.tar.xz.sha256": {
+      "sha256": "db69eb40132187d2806f7dc4f0a5d1b272dd294123b48908abee566d2290d5c1",
+      "size": 98
+    },
+    "qzt-x86_64-pc-windows-msvc.zip": {
+      "sha256": "9e6397a3c959091ad8153f7a43388707d6bc11422c9ac960402f6df514abf87a",
+      "size": 686932
+    },
+    "qzt-x86_64-pc-windows-msvc.zip.sha256": {
+      "sha256": "1a3eac3c5920ba7d29f655ed8a82b18de0392e8ed57f8cb2a4306b47658bf32d",
+      "size": 98
+    },
+    "qzt-x86_64-unknown-linux-gnu.tar.xz": {
+      "sha256": "f5bd45edf59f6d3e247c51f4765fd7f71c3071e241216a74035fa15a008bf72a",
+      "size": 711444
+    },
+    "qzt-x86_64-unknown-linux-gnu.tar.xz.sha256": {
+      "sha256": "4b0121c8ed51a0f8fa7f6e3a75593202e1d0d19786deb95c003d865807e94c55",
+      "size": 103
+    },
+    "sha256.sum": {
+      "sha256": "54b0b17532a2d0155c76368a0d2bbab562d8bd19b45eb662a07e274c06c1f491",
+      "size": 475
+    },
+    "source.tar.gz": {
+      "sha256": "62e041f266106a5d939f3863a89e41a5e443ac5c586a63f8e69a1710e82e2361",
+      "size": 838907
+    },
+    "source.tar.gz.sha256": {
+      "sha256": "f42081dc8adc4140c39405b668cb7a12e81588b5fffbf29ad3469315ee98c155",
+      "size": 81
+    }
+  },
+  "tag": "v0.1.0-pre.6"
+}

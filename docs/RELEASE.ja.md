@@ -1,5 +1,14 @@
 # QZT リリースチェックリスト
 
+## 公開済みcontext preview: pre.6
+
+`v0.1.0-pre.6`は固定製品source `0c8110e6b6e08513b4def3f636b5b79d068e275f`から公開しました。
+[W2/W3検証記録](releases/v0.1.0-pre.6-published.md)は、exact-source candidateと
+実Release URLを区別して保存します。全4 native targetのC4 archive/installer workflow、
+F1互換性、native Windows PowerShell、公開14 assetの照合に成功しました。
+公開run 37218860231 attempt 1では通常の保護environmentでownerが承認しました。
+以下のpre.5記録は履歴で、pre.6の証拠ではありません。
+
 English: [RELEASE.md](RELEASE.md)
 
 この手順書は、可逆な検証と非可逆な crates.io 公開を明確に分離して
@@ -8,7 +17,7 @@ technical preview として説明します。
 
 ## 公開済みpre.5 GitHub prerelease（2026-09-27）
 
-現在の[`v0.1.0-pre.5` prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)は
+過去の[`v0.1.0-pre.5` prerelease](https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.5)は
 GitHub binary technical previewです。annotated tagの製品commit
 `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`から通常のtag-only
 [run 36317632199 attempt 1](https://github.com/albert-einshutoin/qzt/actions/runs/36317632199)
@@ -17,7 +26,7 @@ GitHub binary technical previewです。annotated tagの製品commit
 prereleaseで公開assetは正確に14件です。crates.io公開はしていません。
 [候補#321](https://github.com/albert-einshutoin/qzt/issues/321)は別の未公開検証です。
 
-読み取り専用の[公開物verifier](../.github/workflows/verify-published-release.yml)は
+当時の読み取り専用の[公開物verifier](../.github/workflows/verify-published-release.yml)は
 tag、version、固定製品SHA、公開run ID/attempt、検証commitを明示します。
 [run 36318204357](https://github.com/albert-einshutoin/qzt/actions/runs/36318204357)は
 実Release URLを取得し、globalのsource/asset照合とmacOS ARM/Intel、Linux x64、

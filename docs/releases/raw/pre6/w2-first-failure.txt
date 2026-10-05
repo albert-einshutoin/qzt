@@ -1,0 +1,7 @@
+Unpublished candidate failure retained: https://github.com/albert-einshutoin/qzt/actions/runs/37217654941
+Source: 34e2f8daba2345b9c3064b70046e2818c34abeb5
+assemble at 2026-10-04T16:43:48Z:
+RuntimeError: release plan differs from the expected 13 build assets
+Cause: rehearsal verifier retained TAG=v0.1.0-pre.5 while candidate plan was pre.6.
+Fixed by explicit required expected-tag at shared manifest checks (4b30952).
+This failed run is not W2 acceptance evidence. No tag/Release existed then.

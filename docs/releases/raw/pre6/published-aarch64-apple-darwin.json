@@ -1,0 +1,169 @@
+{
+  "archive_binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
+  "archive_binary_smoke": {
+    "binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
+    "binary_version": "qzt 0.1.0-pre.6",
+    "compatibility": {
+      "core_vectors": [
+        "valid_c1",
+        "valid_empty",
+        "valid_crlf",
+        "valid_mixed_newline",
+        "valid_utf8_multibyte",
+        "valid_multi_chunk",
+        "valid_no_trailing_newline",
+        "valid_dense_line_index",
+        "valid_document_index",
+        "corrupt_header",
+        "corrupt_footer_checksum",
+        "corrupt_chunk_data",
+        "corrupt_truncated",
+        "corrupt_noncanonical_cbor"
+      ],
+      "unsupported_version": "rejected"
+    },
+    "context": {
+      "budget_fragment": "passed",
+      "corrupt_qzi": "passed",
+      "document_scope": "passed",
+      "search_to_context": "passed",
+      "zero_and_capped_zero": "passed"
+    },
+    "isolation_verifier_sha256": "43b8adc15ecebd19761b8600e8c5e9c3766ec5ee60313bc0c6b7ecbbc27a0347",
+    "ok": true,
+    "profile": "public-workflow-v1",
+    "shared_smoke_sha256": "8af456ef5a83783389cfbc2fc6913de0771391afd45559fcc2ec0c89ce2343a2",
+    "target": "aarch64-apple-darwin",
+    "vector_sha256": {
+      "corrupt_chunk_data.qzt.hex": "d9a99f41048b7b980cf1cee72d633a12763353a37eb42042643851e6a8db9aba",
+      "corrupt_footer_checksum.qzt.hex": "4020a3235a47535c2cef557727cfb5330d44ed059b58c162bf5f033d681ff45a",
+      "corrupt_header.qzt.hex": "fa339c9c662e647f6617de909d437608e80cf05e2dbaf517805ac7e8fe3f2b4a",
+      "corrupt_noncanonical_cbor.qzt.hex": "3afb1411f42ba7e873f6f240259feba63317d7639f3b494c3a41dd3c0db37460",
+      "corrupt_truncated.qzt.hex": "c1fef2fcd59a3f92732032c25e0c455ebca03d34363a80740a65b35982eeb909",
+      "manifest.tsv": "5a336819af995488aa3b7c409728dacca84117f249d775a79f8d105cc704f434",
+      "valid_c1.qzt.hex": "82d191b3bca4de6729b5dedbd5e8512ac8f395f3a8c5f095b33ce410c97686c8",
+      "valid_crlf.qzt.hex": "609001b31c9d3647b215da5b1e8e0d9040929d873aa8fa60ded1ad03664830e2",
+      "valid_dense_line_index.qzt.hex": "54444421e1bb0e852a70de65fdaf8eb3b6074e172a7a89230cf1653fc97476af",
+      "valid_document_index.qzt.hex": "b60bb1e5d7de3ea7d715101857fe57e54ba86f0403bb993023be57134b46513e",
+      "valid_empty.qzt.hex": "096ae9f0adcf5b5f043c73583a56c7e394adcefc366502a8dfae10b8f485d4e3",
+      "valid_mixed_newline.qzt.hex": "6f1ee2e7d04e907104a05aeabb977e947f11f2fa6a56ea4f46795db327d87648",
+      "valid_multi_chunk.qzt.hex": "591b5e0a15ec9a70b8a10ac8311156e199881af479ce733138fc923196e9fcfe",
+      "valid_no_trailing_newline.qzt.hex": "73a57ee96d03b95d93cffc1667e0271e7a84a12117cd2d925c54a44ed6be7763",
+      "valid_utf8_multibyte.qzt.hex": "b7174b7bfa7f16482c0975c3ba7586e8f2a50bf1da5b71d336ac1f3646b623ae"
+    },
+    "verifier_sha256": "0830e3d2afbaf3f238168be423eeddab24a4819995c4417e8e481fd585e7be18",
+    "workflow": {
+      "failed_export_preservation": "passed",
+      "hard_error": "passed",
+      "normal_tour": "passed",
+      "readonly": "not applicable outside Windows",
+      "repeated_token_ngram": "passed",
+      "result_cap": "passed",
+      "self_overwrite": "passed",
+      "v0_1_vectors": [
+        "valid_c1",
+        "valid_crlf"
+      ]
+    }
+  },
+  "archive_sha256": "3383cecbeed70ad5ec0fde64c7840f4e32746e46c7d75241505937613579c056",
+  "archive_size": 529824,
+  "archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-aarch64-apple-darwin.tar.xz",
+  "installer": {
+    "installed_binary_path": "/private/var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/qzt-published-1hzgzfqx/install/bin/qzt",
+    "installed_binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
+    "installed_binary_version": "qzt 0.1.0-pre.6",
+    "installed_smoke": {
+      "binary_sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2",
+      "binary_version": "qzt 0.1.0-pre.6",
+      "compatibility": {
+        "core_vectors": [
+          "valid_c1",
+          "valid_empty",
+          "valid_crlf",
+          "valid_mixed_newline",
+          "valid_utf8_multibyte",
+          "valid_multi_chunk",
+          "valid_no_trailing_newline",
+          "valid_dense_line_index",
+          "valid_document_index",
+          "corrupt_header",
+          "corrupt_footer_checksum",
+          "corrupt_chunk_data",
+          "corrupt_truncated",
+          "corrupt_noncanonical_cbor"
+        ],
+        "unsupported_version": "rejected"
+      },
+      "context": {
+        "budget_fragment": "passed",
+        "corrupt_qzi": "passed",
+        "document_scope": "passed",
+        "search_to_context": "passed",
+        "zero_and_capped_zero": "passed"
+      },
+      "isolation_verifier_sha256": "43b8adc15ecebd19761b8600e8c5e9c3766ec5ee60313bc0c6b7ecbbc27a0347",
+      "ok": true,
+      "profile": "public-workflow-v1",
+      "shared_smoke_sha256": "8af456ef5a83783389cfbc2fc6913de0771391afd45559fcc2ec0c89ce2343a2",
+      "target": "aarch64-apple-darwin",
+      "vector_sha256": {
+        "corrupt_chunk_data.qzt.hex": "d9a99f41048b7b980cf1cee72d633a12763353a37eb42042643851e6a8db9aba",
+        "corrupt_footer_checksum.qzt.hex": "4020a3235a47535c2cef557727cfb5330d44ed059b58c162bf5f033d681ff45a",
+        "corrupt_header.qzt.hex": "fa339c9c662e647f6617de909d437608e80cf05e2dbaf517805ac7e8fe3f2b4a",
+        "corrupt_noncanonical_cbor.qzt.hex": "3afb1411f42ba7e873f6f240259feba63317d7639f3b494c3a41dd3c0db37460",
+        "corrupt_truncated.qzt.hex": "c1fef2fcd59a3f92732032c25e0c455ebca03d34363a80740a65b35982eeb909",
+        "manifest.tsv": "5a336819af995488aa3b7c409728dacca84117f249d775a79f8d105cc704f434",
+        "valid_c1.qzt.hex": "82d191b3bca4de6729b5dedbd5e8512ac8f395f3a8c5f095b33ce410c97686c8",
+        "valid_crlf.qzt.hex": "609001b31c9d3647b215da5b1e8e0d9040929d873aa8fa60ded1ad03664830e2",
+        "valid_dense_line_index.qzt.hex": "54444421e1bb0e852a70de65fdaf8eb3b6074e172a7a89230cf1653fc97476af",
+        "valid_document_index.qzt.hex": "b60bb1e5d7de3ea7d715101857fe57e54ba86f0403bb993023be57134b46513e",
+        "valid_empty.qzt.hex": "096ae9f0adcf5b5f043c73583a56c7e394adcefc366502a8dfae10b8f485d4e3",
+        "valid_mixed_newline.qzt.hex": "6f1ee2e7d04e907104a05aeabb977e947f11f2fa6a56ea4f46795db327d87648",
+        "valid_multi_chunk.qzt.hex": "591b5e0a15ec9a70b8a10ac8311156e199881af479ce733138fc923196e9fcfe",
+        "valid_no_trailing_newline.qzt.hex": "73a57ee96d03b95d93cffc1667e0271e7a84a12117cd2d925c54a44ed6be7763",
+        "valid_utf8_multibyte.qzt.hex": "b7174b7bfa7f16482c0975c3ba7586e8f2a50bf1da5b71d336ac1f3646b623ae"
+      },
+      "verifier_sha256": "0830e3d2afbaf3f238168be423eeddab24a4819995c4417e8e481fd585e7be18",
+      "workflow": {
+        "failed_export_preservation": "passed",
+        "hard_error": "passed",
+        "normal_tour": "passed",
+        "readonly": "not applicable outside Windows",
+        "repeated_token_ngram": "passed",
+        "result_cap": "passed",
+        "self_overwrite": "passed",
+        "v0_1_vectors": [
+          "valid_c1",
+          "valid_crlf"
+        ]
+      }
+    },
+    "installer_checksum_skip_lines": [
+      "skipping sha256 checksum verification (it requires the 'sha256sum' command)"
+    ],
+    "installer_output": "skipping sha256 checksum verification (it requires the 'sha256sum' command)\ninstalling to /var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/qzt-published-1hzgzfqx/install/bin\n  qzt\neverything's installed!\n\ndownloading qzt 0.1.0-pre.6 aarch64-apple-darwin\n",
+    "installer_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-installer.sh",
+    "selected_archive_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-aarch64-apple-darwin.tar.xz",
+    "selected_target": "aarch64-apple-darwin"
+  },
+  "kind": "local",
+  "linux_linkage": "not applicable outside Linux",
+  "powershell_guide": null,
+  "product_source_sha": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+  "published_at": "2026-10-04T17:03:24Z",
+  "release_id": 403118863,
+  "release_run_attempt": 1,
+  "release_run_id": 37218860231,
+  "release_url": "https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.6",
+  "sidecar_url": "https://github.com/albert-einshutoin/qzt/releases/download/v0.1.0-pre.6/qzt-aarch64-apple-darwin.tar.xz.sha256",
+  "smoke_profile": "public-workflow-v1",
+  "tag": "v0.1.0-pre.6",
+  "target": "aarch64-apple-darwin",
+  "verifier_architecture": "arm64",
+  "verifier_os": "Darwin",
+  "verifier_runner": "GitHub Actions 1000062067",
+  "verifier_rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+  "verifier_sha": "a36b579ed3561803c8fcdc7ba1416dec7de7c529",
+  "version": "qzt 0.1.0-pre.6"
+}

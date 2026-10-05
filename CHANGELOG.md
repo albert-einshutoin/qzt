@@ -2,12 +2,12 @@
 
 ## Unreleased
 
-Future work after the selected pre.6 preview belongs here.
+Future work after the published pre.6 preview belongs here.
 
 ## 0.1.0-pre.6 - 2026-10-05
 
-Context-enabled technical preview. Publication is gated on the exact-source
-W2 candidate evidence; W3 separately verifies actual Release URLs. This is a
+Context-enabled technical preview. W2 exact-source candidate and W3 actual
+Release URL checks passed on all four native targets; see the [published record](docs/releases/v0.1.0-pre.6-published.md). This is a
 GitHub binary prerelease, not a crates.io publication.
 
 - Added `qzt context` to map a global hit to a document and bounded original-byte

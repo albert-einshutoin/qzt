@@ -1,9 +1,9 @@
-# qzt CLI Reference (pre.6 candidate; QZT format v0.1)
+# qzt CLI Reference (published pre.6; QZT format v0.1)
 
-This page describes the selected `v0.1.0-pre.6` CLI, including context,
-and its automation contract. It is an unpublished candidate until the
-[W2/W3 release gates](releases/v0.1.0-pre.6-candidate.md) pass.
-Use the [fixed-version installation steps](../README.md#install) after publication.
+This page describes the published `v0.1.0-pre.6` CLI, including context,
+and its automation contract. Product source is `0c8110e6b6e08513b4def3f636b5b79d068e275f`;
+[actual Release verification](releases/v0.1.0-pre.6-published.md) passed on four native targets.
+Use the [fixed-version installation steps](../README.md#install).
 `v0.1` identifies the container format, not the CLI distribution. Examples
 here use the fixture in [Reproducing the examples](#reproducing-the-examples).
 
