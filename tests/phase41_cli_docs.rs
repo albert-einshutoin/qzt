@@ -101,8 +101,8 @@ fn readmes_link_to_the_language_matching_reference() {
     let japanese_readme = include_str!("../README.ja.md");
     assert!(english_readme.contains("(docs/CLI.md)"));
     assert!(japanese_readme.contains("(docs/CLI.ja.md)"));
-    assert!(english_readme.contains("3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe"));
-    assert!(japanese_readme.contains("3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe"));
+    assert!(english_readme.contains("0c8110e6b6e08513b4def3f636b5b79d068e275f"));
+    assert!(japanese_readme.contains("0c8110e6b6e08513b4def3f636b5b79d068e275f"));
 }
 
 #[test]
