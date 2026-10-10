@@ -1,0 +1,61 @@
+Process:         qzt-before [66977]
+Path:            /Volumes/VOLUME/*/qzt-before
+Load Address:    0x102840000
+Identifier:      qzt-before
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  time [66975]
+Target Type:     live task
+
+Date/Time:       2026-10-10 23:26:04.499 +0900
+Launch Time:     2026-10-10 23:26:03.267 +0900
+OS Version:      macOS 27.0 (26A428)
+Report Version:  7
+Analysis Tool:   /usr/bin/heap
+
+Physical footprint:         39.3M
+Physical footprint (peak):  39.3M
+Idle exit:                  untracked
+----
+
+Process 66977: 4 zones
+
+All zones: 3627 nodes malloced - Sizes: 2448KB[1] 272KB[106] 256KB[1] 48KB[32] 20KB[4] 10KB[60] 6KB[1] 5KB[174] 3.5KB[1] 2.5KB[197] 1.5KB[1] 1.25KB[997] 1KB[1] 768[23] 640[200] 160[8] 128[4] 96[3] 80[3] 64[7] 48[14] 32[79] 16[1710] 
+
+Found:  68 ObjC classes
+Derived 14 type names for non-objects from allocation backtraces
+
+-----------------------------------------------------------------------
+All zones: 3627 nodes (37424688 bytes)
+
+   COUNT      BYTES       AVG   CLASS_NAME                                        TYPE    BINARY
+   =====      =====       ===   ==========                                        ====    ======
+    1585   36980128   23331.3   realloc in alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::h63d2eeb215865545  C++     qzt-before
+       1     262144  262144.0   malloc in qzt::codec::decode_chunk::h5bb67e86e59984c7  C++     qzt-before
+     211     137984     654.0   malloc in alloc::collections::btree::node::Handle$LT$alloc..collections..btree..node..NodeRef$LT$alloc..collections..btree..node..marker..Mut$C$K$C$V$C$alloc..collections..btree..node..marker..Leaf$GT$$C$alloc..collections..btree..node..marker..Edge$GT$::insert_recursing::h8a585569b0de41dd  C++     qzt-before
+    1629      26064      16.0   malloc in qzt::search::ngram_keys::hfdd552705430c750  C++     qzt-before
+       1       6144    6144.0   malloc in alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::h63d2eeb215865545  C++     qzt-before
+      21       3984     189.7   non-object in zone DefaultMallocZone_0x102ddc000          <unknown>
+      68       2176      32.0   Metaclass.data (metaclass_rw_v2_t)                C       libobjc.A.dylib
+       5       1392     278.4   xpc_string_t (Storage)                            C       libxpc.dylib
+      68       1088      16.0   Class.data (class_rw_v2_t)                        C       libobjc.A.dylib
+       2        656     328.0   malloc in _RNvNtNtNtNtNtCsaLOjE9VYtxK_3std3sys3pal4unix14stack_overflow11thread_info16set_current_info  C       qzt-before
+       1        640     640.0   malloc in alloc::collections::btree::map::entry::Entry$LT$K$C$V$C$A$GT$::or_default::habba2e6fbe6b7833  C++     qzt-before
+       4        480     120.0   malloc in _RNvNtCsaLOjE9VYtxK_3std3env7args_os    C       qzt-before
+       6        416      69.3   xpc_dictionary_t (Storage)                        C       libxpc.dylib
+       3        288      96.0   xpc_dictionary_t                                  ObjC    libxpc.dylib
+       5        240      48.0   xpc_string_t                                      ObjC    libxpc.dylib
+       1        128     128.0   dispatch_queue_t (serial)                         ObjC    libdispatch.dylib
+       1        128     128.0   malloc in _$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..spec_from_iter_nested..SpecFromIterNested$LT$T$C$I$GT$$GT$::from_iter::ha4fabea532f7537d  C++     qzt-before
+       1        128     128.0   malloc in dyld::ThreadLocalVariables::instantiateVariable(dyld::ThreadLocalVariables::Thunk const&)  C++     libdyld.dylib
+       1         80      80.0   pthread_mutex_t                                   C       libpthread.dylib
+       1         80      80.0   xpc_array_t (Storage)                             C       libxpc.dylib
+       4         64      16.0   malloc in qzt::schema::Checksum::from_raw_bytes::hf9e24b914a41eab2  C++     qzt-before
+       1         64      64.0   xpc_pipe_t                                        ObjC    libxpc.dylib
+       3         48      16.0   malloc in _RNvXs4_NtCs8dnTdrJsiec_5alloc6stringNtB5_6StringNtNtCs6sq8b9ugfBC_4core5clone5Clone5clone  C       qzt-before
+       1         48      48.0   Class.data.extended (class_rw_ext_t)              C       libobjc.A.dylib
+       1         48      48.0   xpc_array_t                                       ObjC    libxpc.dylib
+       1         32      32.0   Class.methodCache._buckets (bucket_t)             C       libobjc.A.dylib
+       1         16      16.0   malloc in qzt::schema::Checksum::from_hasher::h7c8de395028b30de  C++     qzt-before
+

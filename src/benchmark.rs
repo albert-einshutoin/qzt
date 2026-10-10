@@ -6,8 +6,11 @@ use crate::corpus::{generate_validation_corpus, CorpusKind, ValidationCorpusOpti
 use crate::error::{QztError, Result};
 use crate::primitives::{u64_to_usize, usize_to_u64};
 use crate::reader::{QztFileReader, QztReader};
-use crate::search::{RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
-use crate::sidecar::{build_search_sidecar, QziFileSidecar, SidecarIndexKind};
+use crate::search::{IndexBuildLimits, RawTokenIndex, SearchOptions, TokenIndexBuildOptions};
+use crate::sidecar::{
+    build_search_sidecar_from_file_with_options, QziFileSidecar, SidecarBuildOptions,
+    SidecarIndexKind,
+};
 use crate::writer::{pack_bytes_with_container_id, WriterOptions};
 
 /// Reproducible release benchmark configuration.
@@ -23,6 +26,8 @@ pub struct ReleaseBenchmarkOptions {
     pub query_repetitions: usize,
     /// Number of unmeasured warm-up executions before each query measurement.
     pub query_warmup_repetitions: usize,
+    /// Explicit construction admission used by both sidecar builds.
+    pub index_build_limits: IndexBuildLimits,
 }
 
 impl Default for ReleaseBenchmarkOptions {
@@ -33,6 +38,7 @@ impl Default for ReleaseBenchmarkOptions {
             range_size: 256 * 1024,
             query_repetitions: 5,
             query_warmup_repetitions: 2,
+            index_build_limits: IndexBuildLimits::default(),
         }
     }
 }
@@ -348,15 +354,27 @@ pub fn run_release_benchmark_with_corpus(
     let range_elapsed = started.elapsed();
     let range_bytes = usize_to_u64(range.len())?;
 
-    let qzi_token = build_search_sidecar(&packed, SidecarIndexKind::Token)?;
-    let qzi_ngram = build_search_sidecar(&packed, SidecarIndexKind::Ngram { n: 3 })?;
+    let file_reader = QztFileReader::open_read_at(packed.as_slice(), packed.len() as u64)?;
+    let build_options = SidecarBuildOptions {
+        limits: options.index_build_limits,
+        ..Default::default()
+    };
+    let qzi_token = build_search_sidecar_from_file_with_options(
+        &file_reader,
+        SidecarIndexKind::Token,
+        build_options,
+    )?;
+    let qzi_ngram = build_search_sidecar_from_file_with_options(
+        &file_reader,
+        SidecarIndexKind::Ngram { n: 3 },
+        build_options,
+    )?;
     let qzi_token_bytes = usize_to_u64(qzi_token.len())?;
     let qzi_ngram_bytes = usize_to_u64(qzi_ngram.len())?;
 
     // Release measurements exercise the same lazy, bounded-memory sidecar path
     // as the CLI. Decoding every posting at open would benchmark the legacy
     // in-memory compatibility API and reject otherwise valid large corpora.
-    let file_reader = QztFileReader::open_read_at(packed.as_slice(), packed.len() as u64)?;
     let token_sidecar = QziFileSidecar::open_read_at(
         qzi_token.as_slice(),
         qzi_token.len() as u64,

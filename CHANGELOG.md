@@ -2,7 +2,24 @@
 
 ## Unreleased
 
-Future work after the published pre.6 preview belongs here.
+- Add shared `IndexBuildLimits` to token/ngram source builders, materialized
+  index encoding and QZI construction: 1,000,000 granules, 262,144 distinct
+  keys, 8,000,000 key/granule pairs, 16 MiB distinct key bytes and 128 MiB
+  encoded bytes by default. These are named logical-structure/phase limits,
+  not a process RSS ceiling. Prior accepted inputs may now need explicit limits.
+- Add five `--max-build-*` options to transient `search` and `sidecar-rebuild`.
+  Invalid arguments exit 2 before I/O; overruns exit 1 without partial indexes
+  or replacement of an existing QZI. Build options with `--sidecar` are rejected.
+- Replace the preview `build_search_sidecar_from_file_with_line_limit` API with
+  `build_search_sidecar_from_file_with_options` / `SidecarBuildOptions`.
+  Both raw build-option structs gain `limits`; token `from_parts` now takes an
+  explicit `IndexBuildLimits`. Reader/query limits and QZT/QZI formats remain
+  unchanged. Scalar n-grams are emitted incrementally before admission rather
+  than building a temporary full-line key vector.
+
+These changes are local source work after published pre.6; the public pre.6
+binary does not have the new construction options. See
+[the construction contract](docs/QZT_v0.1_Memory_Guarantees.md#index-construction-admission-unreleased).
 
 ## 0.1.0-pre.6 - 2026-10-05
 

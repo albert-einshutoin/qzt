@@ -1,0 +1,7 @@
+{
+  "status": 0,
+  "threadId": "01a12680-eda3-79c2-b2bf-d3a835fc346d",
+  "rawOutput": "ALLOW: fresh READ_ONLY/STATIC_ONLY stop-gate\n\n- 製品5 sourceのSHA-256は `completion-receipt.json` と一致。\n- 同梱44原本のサイズ/SHA-256は evidence index と一致。\n- 122 records、244 stdout/stderr、未同梱95件の境界と歴史的local-only扱いは明記。\n- portable手順は絶対path依存なし。fresh tmp、fixture生成、size/hash/query照合、既存入力/QZI保持、新規完成品なしを確認する構成。\n- 10/100MiB完走、RSS/OOM、第三者検証、公開pre.6同一性を過大保証していない。\n- 過去ALLOW/receiptと今回のfresh Gate、PR HEAD CI、merge後main検証を分離している。\n- 追加差分に受入回帰・データ保護・証拠過大保証のBLOCK要因は確認なし。\n\n未実施のPR HEAD CI/security、merge SHAのmain検証、Issue完了は成功扱いしていない。製品コードの実行/import/test、編集、network、DB/env/secrets操作も行っていない。\n\nPortable手順は生成sourceのhash照合が対象で、歴史的QZT/QZI binaryのbyte同一性までは保証しないが、その制約は資料内で明示済み。",
+  "touchedFiles": [],
+  "reasoningSummary": []
+}

@@ -69,6 +69,7 @@ fn unsorted_posting_lists_are_rejected() {
         vec![granule(0, 0, 6), granule(1, 6, 6), granule(2, 12, 6)],
         vec![term_with_real_hash(b"alpha")],
         vec![vec![2, 1]],
+        qzt::IndexBuildLimits::default(),
     )
     .expect_err("unsorted postings must be invalid");
 
@@ -96,6 +97,7 @@ fn exact_key_comparison_wins_over_key_hash_collision() {
         vec![granule(0, 0, 6), granule(1, 6, 6)],
         vec![term(b"alpha", beta_hash), term(b"beta", beta_hash)],
         vec![vec![0], vec![1]],
+        qzt::IndexBuildLimits::default(),
     )
     .expect("collision fixture should be structurally valid");
 
@@ -116,6 +118,7 @@ fn token_search_candidates_are_verified_against_original_bytes() {
         base_index.granules.clone(),
         vec![term_with_real_hash(b"alpha")],
         vec![vec![0, 1]],
+        qzt::IndexBuildLimits::default(),
     )
     .expect("stale candidate fixture should be structurally valid");
     let reader = QztReader::open(container).expect("reader should open");

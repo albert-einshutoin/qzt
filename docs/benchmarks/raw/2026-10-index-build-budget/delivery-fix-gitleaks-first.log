@@ -1,0 +1,263 @@
+﻿2026-10-10T15:52:28.8494872Z Current runner version: '2.337.0'
+2026-10-10T15:52:28.8517561Z ##[group]Runner Image Provisioner
+2026-10-10T15:52:28.8518332Z Hosted Compute Agent
+2026-10-10T15:52:28.8518812Z Version: 20261002.596
+2026-10-10T15:52:28.8519421Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-10T15:52:28.8520045Z Build Date: 2026-10-02T22:28:27Z
+2026-10-10T15:52:28.8520580Z Worker ID: {1c8358b7-20e6-43bb-9a75-6c5e19697e43}
+2026-10-10T15:52:28.8521244Z Region: eastus
+2026-10-10T15:52:28.8521718Z Cloud: Azure
+2026-10-10T15:52:28.8522187Z ##[endgroup]
+2026-10-10T15:52:28.8523484Z ##[group]Operating System
+2026-10-10T15:52:28.8524048Z Ubuntu
+2026-10-10T15:52:28.8524591Z 24.04.5
+2026-10-10T15:52:28.8525228Z LTS
+2026-10-10T15:52:28.8525750Z ##[endgroup]
+2026-10-10T15:52:28.8526215Z ##[group]Runner Image
+2026-10-10T15:52:28.8526707Z Image: ubuntu-24.04
+2026-10-10T15:52:28.8527237Z Version: 20261004.327.1
+2026-10-10T15:52:28.8528259Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-10T15:52:28.8529552Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-10T15:52:28.8530370Z ##[endgroup]
+2026-10-10T15:52:28.8531310Z ##[group]GITHUB_TOKEN Permissions
+2026-10-10T15:52:28.8533000Z Contents: read
+2026-10-10T15:52:28.8533562Z Metadata: read
+2026-10-10T15:52:28.8534025Z ##[endgroup]
+2026-10-10T15:52:28.8536414Z Secret source: Actions
+2026-10-10T15:52:28.8537183Z Cache mode: write
+2026-10-10T15:52:28.8537976Z Prepare workflow directory
+2026-10-10T15:52:28.9210970Z Prepare all required actions
+2026-10-10T15:52:28.9265466Z Getting action download info
+2026-10-10T15:52:29.0731908Z Download action repository 'actions/checkout@v6' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-10-10T15:52:29.8480823Z Download action repository 'gitleaks/gitleaks-action@v3' (SHA:e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e)
+2026-10-10T15:52:30.3799792Z Complete job name: gitleaks
+2026-10-10T15:52:30.4549426Z ##[group]Run actions/checkout@v6
+2026-10-10T15:52:30.4550543Z with:
+2026-10-10T15:52:30.4551215Z   fetch-depth: 0
+2026-10-10T15:52:30.4551972Z   repository: albert-einshutoin/qzt
+2026-10-10T15:52:30.4558595Z   token: ***
+2026-10-10T15:52:30.4559292Z   ssh-strict: true
+2026-10-10T15:52:30.4560005Z   ssh-user: git
+2026-10-10T15:52:30.4560719Z   persist-credentials: true
+2026-10-10T15:52:30.4561509Z   clean: true
+2026-10-10T15:52:30.4562230Z   sparse-checkout-cone-mode: true
+2026-10-10T15:52:30.4563075Z   fetch-tags: false
+2026-10-10T15:52:30.4563804Z   show-progress: true
+2026-10-10T15:52:30.4564523Z   lfs: false
+2026-10-10T15:52:30.4565427Z   submodules: false
+2026-10-10T15:52:30.4566191Z   set-safe-directory: true
+2026-10-10T15:52:30.4567010Z   allow-unsafe-pr-checkout: false
+2026-10-10T15:52:30.4568103Z ##[endgroup]
+2026-10-10T15:52:30.5428361Z Syncing repository: albert-einshutoin/qzt
+2026-10-10T15:52:30.5431575Z ##[group]Getting Git version info
+2026-10-10T15:52:30.5433158Z Working directory is '/home/runner/work/qzt/qzt'
+2026-10-10T15:52:30.5435614Z [command]/usr/bin/git version
+2026-10-10T15:52:30.6489482Z git version 2.55.0
+2026-10-10T15:52:30.6507303Z ##[endgroup]
+2026-10-10T15:52:30.6519708Z Temporarily overriding HOME='/home/runner/work/_temp/391f5ad9-7e39-4174-9d42-e9f603bcb508' before making global git config changes
+2026-10-10T15:52:30.6523845Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T15:52:30.6525818Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/qzt/qzt
+2026-10-10T15:52:30.6628645Z Deleting the contents of '/home/runner/work/qzt/qzt'
+2026-10-10T15:52:30.6633031Z ##[group]Determining repository object format
+2026-10-10T15:52:30.6635498Z ##[endgroup]
+2026-10-10T15:52:30.6637211Z ##[group]Initializing the repository
+2026-10-10T15:52:30.6638806Z [command]/usr/bin/git init /home/runner/work/qzt/qzt
+2026-10-10T15:52:30.7113996Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-10T15:52:30.7117168Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-10T15:52:30.7120243Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-10T15:52:30.7122240Z hint: call:
+2026-10-10T15:52:30.7123581Z hint:
+2026-10-10T15:52:30.7125311Z hint: 	git config --global init.defaultBranch <name>
+2026-10-10T15:52:30.7127118Z hint:
+2026-10-10T15:52:30.7128672Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-10T15:52:30.7131058Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-10T15:52:30.7133044Z hint:
+2026-10-10T15:52:30.7134166Z hint: 	git branch -m <name>
+2026-10-10T15:52:30.7144343Z hint:
+2026-10-10T15:52:30.7145704Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-10T15:52:30.7147268Z Initialized empty Git repository in /home/runner/work/qzt/qzt/.git/
+2026-10-10T15:52:30.7150046Z [command]/usr/bin/git remote add origin https://github.com/albert-einshutoin/qzt
+2026-10-10T15:52:30.7293799Z ##[endgroup]
+2026-10-10T15:52:30.7295859Z ##[group]Disabling automatic garbage collection
+2026-10-10T15:52:30.7297432Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-10T15:52:30.7551991Z ##[endgroup]
+2026-10-10T15:52:30.7553760Z ##[group]Setting up auth
+2026-10-10T15:52:30.7555276Z Removing SSH command configuration
+2026-10-10T15:52:30.7557380Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T15:52:30.7593339Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-10T15:52:30.9394303Z Removing HTTP extra header
+2026-10-10T15:52:30.9402332Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T15:52:30.9437302Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-10T15:52:30.9641978Z Removing includeIf entries pointing to credentials config files
+2026-10-10T15:52:30.9648123Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T15:52:30.9681756Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-10T15:52:30.9883599Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-10T15:52:31.0391522Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/qzt/qzt/.git.path /home/runner/work/_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:31.1215209Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/qzt/qzt/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:31.1579715Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:31.2381472Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:31.3571485Z ##[endgroup]
+2026-10-10T15:52:31.3572405Z ##[group]Fetching the repository
+2026-10-10T15:52:31.3580528Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +064712a74b68af83d963c4e5c5b2cbdf2ae482a6:refs/remotes/pull/345/merge
+2026-10-10T15:52:31.9994284Z From https://github.com/albert-einshutoin/qzt
+2026-10-10T15:52:31.9995342Z  * [new branch]      codex/external-validation-kit-pre6       -> origin/codex/external-validation-kit-pre6
+2026-10-10T15:52:31.9996581Z  * [new branch]      codex/index-build-resource-budgets       -> origin/codex/index-build-resource-budgets
+2026-10-10T15:52:31.9997394Z  * [new branch]      codex/w2-pre6-candidate                  -> origin/codex/w2-pre6-candidate
+2026-10-10T15:52:31.9998282Z  * [new branch]      codex/w3-pre6-public-verification        -> origin/codex/w3-pre6-public-verification
+2026-10-10T15:52:31.9999062Z  * [new branch]      docs/issue-130-qzi-sidecar-spec          -> origin/docs/issue-130-qzi-sidecar-spec
+2026-10-10T15:52:31.9999748Z  * [new branch]      feat/327-context                         -> origin/feat/327-context
+2026-10-10T15:52:32.0000293Z  * [new branch]      feat/selective-test-ci                   -> origin/feat/selective-test-ci
+2026-10-10T15:52:32.0000811Z  * [new branch]      fix/context-empty-document               -> origin/fix/context-empty-document
+2026-10-10T15:52:32.0001330Z  * [new branch]      issue-27-ngram-rss                       -> origin/issue-27-ngram-rss
+2026-10-10T15:52:32.0001827Z  * [new branch]      issue-287-qzi-chunk-ranges               -> origin/issue-287-qzi-chunk-ranges
+2026-10-10T15:52:32.0002369Z  * [new branch]      issue-288-dli-allocation-bounds          -> origin/issue-288-dli-allocation-bounds
+2026-10-10T15:52:32.0002920Z  * [new branch]      issue-289-search-resource-budgets        -> origin/issue-289-search-resource-budgets
+2026-10-10T15:52:32.0003460Z  * [new branch]      issue-290-safe-file-output               -> origin/issue-290-safe-file-output
+2026-10-10T15:52:32.0004182Z  * [new branch]      issue-291-search-evidence                -> origin/issue-291-search-evidence
+2026-10-10T15:52:32.0004934Z  * [new branch]      issue-292-verify-report                  -> origin/issue-292-verify-report
+2026-10-10T15:52:32.0005664Z  * [new branch]      issue-293-writer-reader-contract         -> origin/issue-293-writer-reader-contract
+2026-10-10T15:52:32.0006360Z  * [new branch]      issue-294-qzi-dli-fuzz                   -> origin/issue-294-qzi-dli-fuzz
+2026-10-10T15:52:32.0006905Z  * [new branch]      issue-295-cli-resource-benchmark         -> origin/issue-295-cli-resource-benchmark
+2026-10-10T15:52:32.0007405Z  * [new branch]      issue-296-release-tour                   -> origin/issue-296-release-tour
+2026-10-10T15:52:32.0007905Z  * [new branch]      issue-309-progress-docs-sync             -> origin/issue-309-progress-docs-sync
+2026-10-10T15:52:32.0008442Z  * [new branch]      issue-311-pre3-candidate                 -> origin/issue-311-pre3-candidate
+2026-10-10T15:52:32.0008997Z  * [new branch]      issue-325-ci-log-handoff                 -> origin/issue-325-ci-log-handoff
+2026-10-10T15:52:32.0009495Z  * [new branch]      issue-semgrep-ffi-audit                  -> origin/issue-semgrep-ffi-audit
+2026-10-10T15:52:32.0009928Z  * [new branch]      main                                     -> origin/main
+2026-10-10T15:52:32.0010350Z  * [new branch]      perf/token-qzi-open-316                  -> origin/perf/token-qzi-open-316
+2026-10-10T15:52:32.0010831Z  * [new branch]      pre3-publication-docs                    -> origin/pre3-publication-docs
+2026-10-10T15:52:32.0011469Z  * [new branch]      product/c1-result-contract               -> origin/product/c1-result-contract
+2026-10-10T15:52:32.0012068Z  * [new branch]      product/c4-public-workflow-smoke         -> origin/product/c4-public-workflow-smoke
+2026-10-10T15:52:32.0012657Z  * [new branch]      product/w1-public-workflow-guide         -> origin/product/w1-public-workflow-guide
+2026-10-10T15:52:32.0013392Z  * [new branch]      refactor/internal-codec                  -> origin/refactor/internal-codec
+2026-10-10T15:52:32.0013864Z  * [new branch]      release/pre4-candidate                   -> origin/release/pre4-candidate
+2026-10-10T15:52:32.0014323Z  * [new branch]      release/pre5-candidate                   -> origin/release/pre5-candidate
+2026-10-10T15:52:32.0014806Z  * [new branch]      release/pre5-publication                 -> origin/release/pre5-publication
+2026-10-10T15:52:32.0015727Z  * [new branch]      test/issue-136-zero-result-cap           -> origin/test/issue-136-zero-result-cap
+2026-10-10T15:52:32.0016250Z  * [new branch]      test/issue-137-stdin-boundaries          -> origin/test/issue-137-stdin-boundaries
+2026-10-10T15:52:32.0016702Z  * [new tag]         v0.1.0-pre.1                             -> v0.1.0-pre.1
+2026-10-10T15:52:32.0017064Z  * [new tag]         v0.1.0-pre.2                             -> v0.1.0-pre.2
+2026-10-10T15:52:32.0017405Z  * [new tag]         v0.1.0-pre.3                             -> v0.1.0-pre.3
+2026-10-10T15:52:32.0017743Z  * [new tag]         v0.1.0-pre.4                             -> v0.1.0-pre.4
+2026-10-10T15:52:32.0018081Z  * [new tag]         v0.1.0-pre.5                             -> v0.1.0-pre.5
+2026-10-10T15:52:32.0018417Z  * [new tag]         v0.1.0-pre.6                             -> v0.1.0-pre.6
+2026-10-10T15:52:32.0018795Z  * [new ref]         064712a74b68af83d963c4e5c5b2cbdf2ae482a6 -> pull/345/merge
+2026-10-10T15:52:32.0020003Z ##[endgroup]
+2026-10-10T15:52:32.0020378Z ##[group]Determining the checkout info
+2026-10-10T15:52:32.0020750Z ##[endgroup]
+2026-10-10T15:52:32.0020983Z [command]/usr/bin/git sparse-checkout disable
+2026-10-10T15:52:32.0057279Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-10T15:52:32.0086229Z ##[group]Checking out the ref
+2026-10-10T15:52:32.0089563Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/345/merge
+2026-10-10T15:52:32.0486178Z Note: switching to 'refs/remotes/pull/345/merge'.
+2026-10-10T15:52:32.0494143Z 
+2026-10-10T15:52:32.0494498Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-10T15:52:32.0495387Z changes and commit them, and you can discard any commits you make in this
+2026-10-10T15:52:32.0496034Z state without impacting any branches by switching back to a branch.
+2026-10-10T15:52:32.0496384Z 
+2026-10-10T15:52:32.0496946Z If you want to create a new branch to retain commits you create, you may
+2026-10-10T15:52:32.0497576Z do so (now or later) by using -c with the switch command. Example:
+2026-10-10T15:52:32.0497868Z 
+2026-10-10T15:52:32.0498077Z   git switch -c <new-branch-name>
+2026-10-10T15:52:32.0498294Z 
+2026-10-10T15:52:32.0498458Z Or undo this operation with:
+2026-10-10T15:52:32.0498658Z 
+2026-10-10T15:52:32.0498797Z   git switch -
+2026-10-10T15:52:32.0498967Z 
+2026-10-10T15:52:32.0499254Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-10T15:52:32.0499634Z 
+2026-10-10T15:52:32.0500153Z HEAD is now at 064712a Merge 31457cb94b3a234970d7c5d0b596b6e2b33967e7 into 9cf2c7c66a88c9f37a67567e5fa2247941b93dea
+2026-10-10T15:52:32.0501786Z ##[endgroup]
+2026-10-10T15:52:32.0539294Z [command]/usr/bin/git log -1 --format=%H
+2026-10-10T15:52:32.0563179Z 064712a74b68af83d963c4e5c5b2cbdf2ae482a6
+2026-10-10T15:52:32.0754524Z ##[group]Run gitleaks/gitleaks-action@v3
+2026-10-10T15:52:32.0754841Z env:
+2026-10-10T15:52:32.0756978Z   GITHUB_TOKEN: ***
+2026-10-10T15:52:32.0757219Z   GITLEAKS_ENABLE_COMMENTS: false
+2026-10-10T15:52:32.0757482Z ##[endgroup]
+2026-10-10T15:52:32.2136231Z (node:2070) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-10T15:52:32.2137188Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-10T15:52:32.2232269Z (node:2070) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-10T15:52:32.4484386Z [albert-einshutoin] is an individual user. No license key is required.
+2026-10-10T15:52:32.4485157Z gitleaks version: 8.24.3
+2026-10-10T15:52:32.4486931Z Version to install: 8.24.3 (target directory: /tmp/gitleaks-8.24.3)
+2026-10-10T15:52:32.5577844Z Cache hit for: gitleaks-cache-8.24.3-linux-x64
+2026-10-10T15:52:32.7734480Z Received 5717459 of 5717459 (100.0%), 33.0 MBs/sec
+2026-10-10T15:52:32.7735590Z Cache Size: ~5 MB (5717459 B)
+2026-10-10T15:52:32.7760930Z [command]/usr/bin/tar -xf /home/runner/work/_temp/317e095f-5b13-47ff-a7ce-afd2d5f5fe9b/cache.tzst -P -C /home/runner/work/qzt/qzt --use-compress-program unzstd
+2026-10-10T15:52:32.8046793Z Cache restored successfully
+2026-10-10T15:52:32.8051892Z Gitleaks restored from cache
+2026-10-10T15:52:32.8055575Z event type: pull_request
+2026-10-10T15:52:33.0769509Z gitleaks cmd: gitleaks detect --redact -v --exit-code=2 --report-format=sarif --report-path=results.sarif --log-level=debug --log-opts=--no-merges --first-parent 31457cb94b3a234970d7c5d0b596b6e2b33967e7^..31457cb94b3a234970d7c5d0b596b6e2b33967e7
+2026-10-10T15:52:33.0783238Z [command]/tmp/gitleaks-8.24.3/gitleaks detect --redact -v --exit-code=2 --report-format=sarif --report-path=results.sarif --log-level=debug --log-opts=--no-merges --first-parent 31457cb94b3a234970d7c5d0b596b6e2b33967e7^..31457cb94b3a234970d7c5d0b596b6e2b33967e7
+2026-10-10T15:52:33.2935891Z 
+2026-10-10T15:52:33.2937238Z     ○
+2026-10-10T15:52:33.2937531Z     │╲
+2026-10-10T15:52:33.2937714Z     │ ○
+2026-10-10T15:52:33.2937878Z     ○ ░
+2026-10-10T15:52:33.2938046Z     ░    gitleaks
+2026-10-10T15:52:33.2938168Z 
+2026-10-10T15:52:33.2938428Z [90m3:52PM[0m DBG using github.com/wasilibs/go-re2 regex engine
+2026-10-10T15:52:33.2938951Z [90m3:52PM[0m DBG no gitleaks config found in path .gitleaks.toml, using default gitleaks config
+2026-10-10T15:52:33.3999379Z [90m3:52PM[0m DBG executing: /usr/bin/git -C . log -p -U0 --no-merges --first-parent 31457cb94b3a234970d7c5d0b596b6e2b33967e7^..31457cb94b3a234970d7c5d0b596b6e2b33967e7
+2026-10-10T15:52:33.4042149Z [90m3:52PM[0m DBG SCM platform parsed from host [36mhost=[0mgithub.com [36mplatform=[0mgithub
+2026-10-10T15:52:33.4418105Z Finding:     .../index-build-budget/token.qzi.hex": "[1;3;mREDACTED[0m"
+2026-10-10T15:52:33.4418765Z Secret:      [1;3;mREDACTED[0m
+2026-10-10T15:52:33.4419113Z RuleID:      generic-api-key
+2026-10-10T15:52:33.4419427Z Entropy:     3.912142
+2026-10-10T15:52:33.4419889Z File:        docs/benchmarks/raw/2026-10-index-build-budget/golden-provenance.json
+2026-10-10T15:52:33.4420473Z Line:        41
+2026-10-10T15:52:33.4420769Z Commit:      31457cb94b3a234970d7c5d0b596b6e2b33967e7
+2026-10-10T15:52:33.4421163Z Author:      albert einshutoin
+2026-10-10T15:52:33.4421493Z Email:       einstein.4s.1110@gmail.com
+2026-10-10T15:52:33.4421837Z Date:        2026-10-10T15:52:17Z
+2026-10-10T15:52:33.4422655Z Fingerprint: 31457cb94b3a234970d7c5d0b596b6e2b33967e7:docs/benchmarks/raw/2026-10-index-build-budget/golden-provenance.json:generic-api-key:41
+2026-10-10T15:52:33.4424137Z Link:        https://github.com/albert-einshutoin/qzt/blob/31457cb94b3a234970d7c5d0b596b6e2b33967e7/docs/benchmarks/raw/2026-10-index-build-budget/golden-provenance.json#L41
+2026-10-10T15:52:33.4424977Z 
+2026-10-10T15:52:33.4895789Z [90m3:52PM[0m [32mINF[0m [1m1 commits scanned.[0m
+2026-10-10T15:52:33.4896325Z [90m3:52PM[0m DBG Note: this number might be smaller than expected due to commits with no additions
+2026-10-10T15:52:33.4896835Z [90m3:52PM[0m [32mINF[0m [1mscanned ~1016492 bytes (1.02 MB) in 197ms[0m
+2026-10-10T15:52:33.4897187Z [90m3:52PM[0m [33mWRN[0m [1mleaks found: 1[0m
+2026-10-10T15:52:33.4923675Z Artifact name is valid!
+2026-10-10T15:52:33.4924036Z Root directory input is valid!
+2026-10-10T15:52:33.6960795Z Beginning upload of artifact content to blob storage
+2026-10-10T15:52:33.7212637Z Uploaded bytes 7145
+2026-10-10T15:52:33.7371049Z Finished uploading artifact content to blob storage!
+2026-10-10T15:52:33.7371816Z SHA256 digest of uploaded artifact zip is a31d3c3c42f5b3808ae2500ac06abf3dcdbd3f8e0808f42ef642ca9e8e521af1
+2026-10-10T15:52:33.7372977Z Finalizing artifact upload
+2026-10-10T15:52:33.9356862Z Artifact gitleaks-results.sarif.zip successfully finalized. Artifact ID 11675011995
+2026-10-10T15:52:33.9357442Z skipping comments
+2026-10-10T15:52:33.9389030Z ##[warning]🛑 Leaks detected, see job summary for details
+2026-10-10T15:52:33.9579395Z Post job cleanup.
+2026-10-10T15:52:34.0286493Z [command]/usr/bin/git version
+2026-10-10T15:52:34.0326097Z git version 2.55.0
+2026-10-10T15:52:34.0359156Z Temporarily overriding HOME='/home/runner/work/_temp/b28e65ed-5b47-4495-b786-f940ef34ca8d' before making global git config changes
+2026-10-10T15:52:34.0360320Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T15:52:34.0363472Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/qzt/qzt
+2026-10-10T15:52:34.0397628Z Removing SSH command configuration
+2026-10-10T15:52:34.0403548Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T15:52:34.0454889Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-10T15:52:34.0661613Z Removing HTTP extra header
+2026-10-10T15:52:34.0667237Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T15:52:34.0704206Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-10T15:52:34.0931188Z Removing includeIf entries pointing to credentials config files
+2026-10-10T15:52:34.0938827Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T15:52:34.0966990Z includeif.gitdir:/home/runner/work/qzt/qzt/.git.path
+2026-10-10T15:52:34.0967769Z includeif.gitdir:/home/runner/work/qzt/qzt/.git/worktrees/*.path
+2026-10-10T15:52:34.0968593Z includeif.gitdir:/github/workspace/.git.path
+2026-10-10T15:52:34.0969099Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-10T15:52:34.0977471Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/qzt/qzt/.git.path
+2026-10-10T15:52:34.1003730Z /home/runner/work/_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:34.1015859Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/qzt/qzt/.git.path /home/runner/work/_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:34.1055527Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/qzt/qzt/.git/worktrees/*.path
+2026-10-10T15:52:34.1088500Z /home/runner/work/_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:34.1099517Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/qzt/qzt/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:34.1141511Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-10T15:52:34.1165874Z /github/runner_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:34.1174678Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:34.1210336Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-10T15:52:34.1233223Z /github/runner_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:34.1239876Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config
+2026-10-10T15:52:34.1298029Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-10T15:52:34.1496930Z Removing credentials config '/home/runner/work/_temp/git-credentials-be173146-f0ca-4b39-ac92-48ab7b4b9262.config'
+2026-10-10T15:52:34.1631020Z Cleaning up orphan processes

@@ -1,7 +1,9 @@
 # qzt CLI Reference (published pre.6; QZT format v0.1)
 
 This page describes the published `v0.1.0-pre.6` CLI, including context,
-and its automation contract. Product source is `0c8110e6b6e08513b4def3f636b5b79d068e275f`;
+and its automation contract. The explicitly marked Unreleased `--max-build-*`
+source additions below are absent from public pre.6 binaries.
+Product source is `0c8110e6b6e08513b4def3f636b5b79d068e275f`;
 [actual Release verification](releases/v0.1.0-pre.6-published.md) passed on four native targets.
 Use the [fixed-version installation steps](../README.md#install).
 `v0.1` identifies the container format, not the CLI distribution. Examples
@@ -266,6 +268,11 @@ Search verified original UTF-8 bytes.
 | `--max-physical-decoded-bytes <N|NKiB|NMiB|NGiB>` | Full chunk decompression bytes; default 256 MiB. |
 | `--max-physical-decoded-chunks <N>` | Chunk decompression calls; default 10,000. |
 | `--max-line-bytes <N|NKiB|NMiB|NGiB>` | Source line bytes for index build without `--sidecar`; default 16 MiB. |
+| `--max-build-granules <N>` | Unreleased: retained line records; default 1,000,000. |
+| `--max-build-keys <N>` | Unreleased: distinct dictionary keys; default 262,144. |
+| `--max-build-postings <N>` | Unreleased: distinct key/line pairs; default 8,000,000. |
+| `--max-build-key-bytes <N|NKiB|NMiB|NGiB>` | Unreleased: retained distinct key bytes; default 16 MiB. |
+| `--max-build-encoded-bytes <N|NKiB|NMiB|NGiB>` | Unreleased: transient posting+skip bytes or QZI data sections; each phase independently, default 128 MiB. |
 | `--max-results <N>` | Result cap; default 10,000. |
 | `--format text\|json` | Default text. |
 
@@ -390,6 +397,19 @@ does not upgrade the QZT from quick structural validation; use
 coverage; successful inspection does not prove that every match has a posting.
 
 ### `qzt sidecar-rebuild <FILE> -o <OUTPUT.qzi> [OPTIONS]`
+
+Unreleased source builds support the five `--max-build-*` options listed above
+for both token and n-gram indexes. Public pre.6 binaries do not support them.
+Limits are inclusive; zero permits no units. Invalid values exit 2 before I/O,
+while overruns/overflow exit 1 without a partial index or a new completed QZI.
+Input QZT and existing output remain protected by atomic output handling.
+Transient `search` applies the same limits; combining them with `--sidecar` is
+a usage error because that path does not build an index.
+
+Default acceptance is narrower. These are logical structure/encoded phase
+budgets, not an RSS guarantee: allocator capacity, BTree nodes, decoded chunks,
+line carry, normalized-token scratch and QZI header/manifest are excluded. See
+the [construction contract](QZT_v0.1_Memory_Guarantees.md#index-construction-admission-unreleased).
 
 Build a QZI sidecar. Options are `--index token|ngram` (default token),
 `--ngram <N>` (default 3), `--max-line-bytes <N|NKiB|NMiB|NGiB>`

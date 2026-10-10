@@ -10,10 +10,11 @@ use std::path::Path;
 use std::process::ExitCode;
 
 use qzt::{
-    Checksum, DocumentSpan, NgramIndexBuildOptions, QziFileSidecar, QztError, QztFileReader,
-    QztFileWriter, RawNgramIndex, RawTokenIndex, ReadAt, SearchIndexSource, SearchOptions,
-    SearchReport, SidecarIndexKind, TokenIndexBuildOptions, VerifyLevel, VerifyReport,
-    WriterBuilder, WriterOptions, build_search_sidecar_from_file_with_line_limit,
+    Checksum, DocumentSpan, IndexBuildLimits, NgramIndexBuildOptions, QziFileSidecar, QztError,
+    QztFileReader, QztFileWriter, RawNgramIndex, RawTokenIndex, ReadAt, SearchIndexSource,
+    SearchOptions, SearchReport, SidecarBuildOptions, SidecarIndexKind, TokenIndexBuildOptions,
+    VerifyLevel, VerifyReport, WriterBuilder, WriterOptions,
+    build_search_sidecar_from_file_with_options,
 };
 
 type CliResult<T> = std::result::Result<T, CliError>;
@@ -154,6 +155,11 @@ fn print_command_help(command: &str) -> ExitCode {
                 "  --max-physical-decoded-bytes <N>  Physical chunk byte limit (default: 256MiB)\n",
                 "  --max-physical-decoded-chunks <N>  Chunk decode limit (default: 10000)\n",
                 "  --max-line-bytes <N>      Build-time line limit without --sidecar (default: 16MiB)\n",
+                "  --max-build-granules <N>  Build granules (default: 1000000)\n",
+                "  --max-build-keys <N>      Distinct build keys (default: 262144)\n",
+                "  --max-build-postings <N>  Build key/granule pairs (default: 8000000)\n",
+                "  --max-build-key-bytes <N> Distinct key bytes (default: 16MiB)\n",
+                "  --max-build-encoded-bytes <N> Encoded build bytes (default: 128MiB)\n",
                 "  --max-results <N>         Result cap\n",
                 "  --format text|json        Output format (default: text)"
             ),
@@ -190,7 +196,12 @@ fn print_command_help(command: &str) -> ExitCode {
                 "  -o, --output <PATH>  Output .qzi path (required)\n",
                 "  --index token|ngram  Index kind (default: token)\n",
                 "  --ngram <N>          N-gram width (default: 3)\n",
-                "  --max-line-bytes <N>  Source line limit (default: 16MiB)"
+                "  --max-line-bytes <N>  Source line limit (default: 16MiB)\n",
+                "  --max-build-granules <N>  Build granules (default: 1000000)\n",
+                "  --max-build-keys <N>      Distinct build keys (default: 262144)\n",
+                "  --max-build-postings <N>  Build key/granule pairs (default: 8000000)\n",
+                "  --max-build-key-bytes <N> Distinct key bytes (default: 16MiB)\n",
+                "  --max-build-encoded-bytes <N> Encoded build bytes (default: 128MiB)"
             ),
         ),
         "verify" => print_simple_command_help(
@@ -1974,6 +1985,35 @@ fn run_doc(mut args: impl Iterator<Item = String>) -> ExitCode {
     }
 }
 
+fn is_build_limit_option(flag: &str) -> bool {
+    matches!(
+        flag,
+        "--max-build-granules"
+            | "--max-build-keys"
+            | "--max-build-postings"
+            | "--max-build-key-bytes"
+            | "--max-build-encoded-bytes"
+    )
+}
+
+fn set_build_limit(flag: &str, value: Option<String>, limits: &mut IndexBuildLimits) -> Option<()> {
+    let value = value?;
+    let count = if matches!(flag, "--max-build-key-bytes" | "--max-build-encoded-bytes") {
+        parse_byte_limit(&value)?
+    } else {
+        value.parse::<u64>().ok()?
+    };
+    match flag {
+        "--max-build-granules" => limits.max_granules = count,
+        "--max-build-keys" => limits.max_distinct_keys = count,
+        "--max-build-postings" => limits.max_posting_ids = count,
+        "--max-build-key-bytes" => limits.max_key_bytes = count,
+        "--max-build-encoded-bytes" => limits.max_encoded_bytes = count,
+        _ => return None,
+    }
+    Some(())
+}
+
 fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     let Some(path) = args.next() else {
         eprintln!("qzt search: missing file");
@@ -1988,10 +2028,19 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
     let mut index_kind = "token";
     let mut ngram = 3_usize;
     let mut max_line_bytes = TokenIndexBuildOptions::default().max_line_bytes;
+    let mut build_limits = IndexBuildLimits::default();
+    let mut explicit_build_limits = false;
     let mut sidecar_path = None;
     let mut format = SearchFormat::Text;
     while let Some(arg) = args.next() {
         match arg.as_str() {
+            flag if is_build_limit_option(flag) => {
+                if set_build_limit(flag, args.next(), &mut build_limits).is_none() {
+                    eprintln!("qzt search: invalid {flag}");
+                    return ExitCode::from(2);
+                }
+                explicit_build_limits = true;
+            }
             "--index" => {
                 let Some(value) = args.next() else {
                     eprintln!("qzt search: missing --index value");
@@ -2098,6 +2147,10 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
         }
     }
 
+    if sidecar_path.is_some() && explicit_build_limits {
+        eprintln!("qzt search: build limits cannot be used with --sidecar");
+        return ExitCode::from(2);
+    }
     let result: CliResult<_> = (|| {
         if u64::try_from(query.len()).map_err(|_| QztError::ResourceLimitExceeded)?
             > options.max_query_bytes
@@ -2115,6 +2168,7 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                     source: SearchIndexSource::RawUtf8,
                     n: ngram,
                     max_line_bytes,
+                    limits: build_limits,
                     ..NgramIndexBuildOptions::default()
                 },
             )?;
@@ -2124,6 +2178,7 @@ fn run_search(mut args: impl Iterator<Item = String>) -> ExitCode {
                 &reader,
                 TokenIndexBuildOptions {
                     max_line_bytes,
+                    limits: build_limits,
                     ..TokenIndexBuildOptions::default()
                 },
             )?;
@@ -2150,8 +2205,15 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
     let mut index_kind = "token";
     let mut ngram = 3_usize;
     let mut max_line_bytes = TokenIndexBuildOptions::default().max_line_bytes;
+    let mut build_limits = IndexBuildLimits::default();
     while let Some(arg) = args.next() {
         match arg.as_str() {
+            flag if is_build_limit_option(flag) => {
+                if set_build_limit(flag, args.next(), &mut build_limits).is_none() {
+                    eprintln!("qzt sidecar-rebuild: invalid {flag}");
+                    return ExitCode::from(2);
+                }
+            }
             "-o" | "--output" => {
                 let Some(path) = args.next() else {
                     eprintln!("qzt sidecar-rebuild: missing output path");
@@ -2208,8 +2270,14 @@ fn run_sidecar_rebuild(mut args: impl Iterator<Item = String>) -> ExitCode {
     let result: CliResult<()> = (|| {
         check_output_collision(Path::new(&output_path), &[Path::new(&path)])?;
         let reader = QztFileReader::open_path(&path)?;
-        let sidecar =
-            build_search_sidecar_from_file_with_line_limit(&reader, kind, max_line_bytes)?;
+        let sidecar = build_search_sidecar_from_file_with_options(
+            &reader,
+            kind,
+            SidecarBuildOptions {
+                max_line_bytes,
+                limits: build_limits,
+            },
+        )?;
         write_container_atomically(Path::new(&output_path), &[Path::new(&path)], &sidecar)?;
         Ok(())
     })();

@@ -1,0 +1,66 @@
+{
+  "record_kind": "derived fixture digest inventory; original historical JSON is local-only",
+  "original_location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-provenance.json",
+  "original_sha256": "b0ce878a8785968284f0896c5dc793b074ad60e6c37f5b9a586ff8d6c56a74ce",
+  "source_main": "9cf2c7c66a88c9f37a67567e5fa2247941b93dea",
+  "before_binary_sha256": "c4b1eebd2dae7f4eb7c9fe80ab538c6ad2d15cb846e635f05ec3770dabbc3263",
+  "commands": [
+    [
+      "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/qzt-before",
+      "pack",
+      "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-input.txt",
+      "-o",
+      "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-input.qzt",
+      "--chunk-size",
+      "16",
+      "--max-chunk-size",
+      "16"
+    ],
+    [
+      "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/qzt-before",
+      "sidecar-rebuild",
+      "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-input.qzt",
+      "-o",
+      "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-token.qzi",
+      "--index",
+      "token",
+      "--ngram",
+      "2"
+    ],
+    [
+      "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/qzt-before",
+      "sidecar-rebuild",
+      "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-input.qzt",
+      "-o",
+      "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-ngram.qzi",
+      "--index",
+      "ngram",
+      "--ngram",
+      "2"
+    ]
+  ],
+  "input_utf8": "AA aa\n東京😀 aa\n_tail-a 😀😀\n",
+  "vector_files": [
+    {
+      "path": "tests/fixtures/index-build-budget/token.qzi.hex",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "bb43d1a0897e243006ce816bfa0574897fd3037d6151b3fc3f0a14eac6426a6d"
+      }
+    },
+    {
+      "path": "tests/fixtures/index-build-budget/source.qzt.hex",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "208ef9516c9cc57c6e45cec3631513813953853d44c721c0b8c8b3ba314d755a"
+      }
+    },
+    {
+      "path": "tests/fixtures/index-build-budget/ngram.qzi.hex",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "dea2aa8ac1190617f5dfcfb3498a0521876f3bd465cd43d7238c1b7700df1d44"
+      }
+    }
+  ]
+}

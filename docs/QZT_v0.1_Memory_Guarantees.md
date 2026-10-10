@@ -74,7 +74,7 @@ an empty query or empty source remains valid where it uses no such unit.
 | Physical bytes (256 MiB) | Cumulative full uncompressed chunk sizes on cache misses, before decompression | `max_physical_decoded_bytes` cap | `max_physical_decoded_bytes` / `--max-physical-decoded-bytes` |
 | Physical chunks (10,000) | Cumulative decompression calls on cache misses, before decompression | `max_physical_decoded_chunks` cap | `max_physical_decoded_chunks` / `--max-physical-decoded-chunks` |
 | Results (10,000) | Verified hit spans retained, before further span generation | `max_search_results` cap | `max_search_results` / `--max-results` |
-| Source line (16 MiB) | One line's original bytes including LF and optional CR, before carry growth or key generation | Error | `TokenIndexBuildOptions` / `NgramIndexBuildOptions.max_line_bytes`; `build_search_sidecar_from_file_with_line_limit`; CLI `--max-line-bytes` during raw build or `sidecar-rebuild` |
+| Source line (16 MiB) | One line's original bytes including LF and optional CR, before carry growth or key generation | Error | `TokenIndexBuildOptions` / `NgramIndexBuildOptions.max_line_bytes`; `SidecarBuildOptions.max_line_bytes`; CLI `--max-line-bytes` during raw build or `sidecar-rebuild` |
 
 File-backed QZI also applies the lower of its open-time `SidecarLimits` and
 query `SearchOptions` for encoded posting bytes and decoded IDs. Stored QZI
@@ -89,3 +89,54 @@ independent `incomplete_reason` describes index/query semantic incompleteness.
 `index_complete_declared` is the index's declaration;
 `index_coverage_verified` is currently false even when the declaration is true.
 Adjacent token-boundary reads use the same logical and physical budgets.
+
+## Index construction admission (Unreleased)
+
+Added after public pre.6. These source APIs/options are absent from the public
+pre.6 binary. One `IndexBuildLimits` applies to token and Unicode-scalar n-gram
+construction through `build_from_container`, `build_from_file`, transient CLI
+search, QZI default memory/file builders and the custom sidecar builder.
+No raw-scan or alternate-builder fallback occurs on refusal.
+
+| Field | Default | Unit and check point |
+|---|---:|---|
+| `max_granules` | 1,000,000 | Retained line records; before push. |
+| `max_distinct_keys` | 262,144 | Dictionary keys; before new-key copy/insert. |
+| `max_posting_ids` | 8,000,000 | Distinct key/line pairs across all lists; before push. Repetitions within one line are free, a new line costs another pair. |
+| `max_key_bytes` | 16 MiB | Sum of retained distinct key lengths; before new-key copy/insert. An individual scratch key must also fit this limit. |
+| `max_encoded_bytes` | 128 MiB | Transient delta postings plus 24-byte skip records, or QZI granule+dictionary+posting data sections; each phase is checked independently before encoding. |
+
+All limits are inclusive; zero allows no elements/bytes in that unit. Empty
+raw indexes use zero retained/encoded posting bytes. An empty QZI still needs
+16 data-section header bytes, plus the excluded envelope. Overflow and overrun
+return `ResourceLimitExceeded` (CLI exit 1), never a capped or partial-success
+index. Invalid CLI values are usage errors (exit 2) before file I/O. Token
+`from_parts` takes explicit limits; n-gram `from_parts` uses its options' limits
+and validates already-materialized counts before encoding.
+
+The count limits bound logical lengths, **not requested/allocated capacities**.
+Vector spare capacity, BTree nodes, allocator bookkeeping, the decoded Reader
+chunk, line carry, one normalized-token scratch key and QZI header/manifest are
+excluded. The existing Reader limits and separate source-line limit still
+apply. Data sections, the final QZI output and raw structures may coexist;
+the encoded limit is not their summed live memory. Caller-supplied materialized
+arrays and public post-construction mutation are not admission-controlled
+allocations. No strict RSS or OOM-prevention guarantee is made.
+
+The initial defaults keep distinct-key bytes at 16 MiB, logical u64 posting
+payload at 64,000,000 bytes, granules at one million and each encoded phase at
+128 MiB. Small C2/C4 profiles observed growth in line keys, posting maps and
+later encoding; the defaults add explicit admission before the larger
+100 MiB runs that previously hit external monitoring. They are conservative
+operation budgets, not source-size-to-RSS estimates. Acceptance is intentionally
+narrower: inputs formerly accepted may now require raised explicit limits or
+may be refused. Safe refusal is not evidence of faster processing or large-input
+support. See the [plan and profile rationale](benchmarks/2026-10-index-build-budget-plan.md).
+
+QZI opening/reconstruction continues under the existing `SidecarLimits`.
+Its materialized reconstruction passes those established Reader counts to the
+same constructor; source-build defaults do not tighten Reader acceptance.
+Query, Reader limits, source binding, posting order/deduplication and QZI v1/v2
+bytes are unchanged for admitted builds. CLI builds complete bytes before
+the existing atomic-output path, so refusal preserves input and existing output
+and does not create a new completed QZI.

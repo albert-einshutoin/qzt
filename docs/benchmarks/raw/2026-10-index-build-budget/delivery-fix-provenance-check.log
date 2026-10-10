@@ -1,0 +1,3 @@
+first ad-hoc verification command: exit1, incorrect duplicated archive/path join; no product execution or edits
+corrected verification command uses inventory location field: exit0
+43 exact included originals; 96 omitted original bytes/hashes preserved; derived bundle and fixture digests verified; 5 product source hashes unchanged

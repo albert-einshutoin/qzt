@@ -3,8 +3,8 @@ use std::process::Command;
 
 use qzt::{
     NgramIndexBuildOptions, QziFileSidecar, QztError, QztFileReader, QztReader, RawNgramIndex,
-    RawTokenIndex, SearchOptions, SidecarIndexKind, TokenIndexBuildOptions, build_search_sidecar,
-    build_search_sidecar_from_file_with_line_limit, pack_bytes,
+    RawTokenIndex, SearchOptions, SidecarBuildOptions, SidecarIndexKind, TokenIndexBuildOptions,
+    build_search_sidecar, build_search_sidecar_from_file_with_options, pack_bytes,
 };
 mod support;
 use support::{CountingReadAt, writer_options};
@@ -278,11 +278,26 @@ fn line_limit_counts_lf_crlf_unterminated_and_continuation_bytes() {
             let file = QztFileReader::open_read_at(container.as_slice(), container.len() as u64)
                 .expect("file");
             assert_eq!(
-                build_search_sidecar_from_file_with_line_limit(&file, kind, rejected).map(|_| ()),
+                build_search_sidecar_from_file_with_options(
+                    &file,
+                    kind,
+                    SidecarBuildOptions {
+                        max_line_bytes: rejected,
+                        ..Default::default()
+                    }
+                )
+                .map(|_| ()),
                 Err(QztError::ResourceLimitExceeded)
             );
-            build_search_sidecar_from_file_with_line_limit(&file, kind, accepted)
-                .expect("boundary accepted");
+            build_search_sidecar_from_file_with_options(
+                &file,
+                kind,
+                SidecarBuildOptions {
+                    max_line_bytes: accepted,
+                    ..Default::default()
+                },
+            )
+            .expect("boundary accepted");
         }
     }
 }

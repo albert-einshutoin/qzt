@@ -1,0 +1,34 @@
+{
+  "goal": "検索index構築に明示的な資源予算を導入し、超過時に既存データを保護してエラー終了できるようにする",
+  "status": "complete-local-delivery",
+  "before_gate_audit_sha256": "0953357e0a4a2dd5cf6c04f6593d7966594daf677df06420fb0fae8db311ba4d",
+  "gate_sha256": "5a3f2102c2a502cb1309e56c790d741915ae1520680c49bebed6d50e57005c8f",
+  "delivery_manifest_sha256": "6bd31481bfe406ab94f632f8e09b209f7fcbec76fd3de0ef6c69e555a17d5628",
+  "gate": "ALLOW",
+  "unresolved_blockers": [],
+  "pending": [],
+  "final_product_source_sha256": {
+    "src/lib.rs": "571c0767561b79a1427c0053b22954b83401d6d0b57481ae30cb2a3965b87282",
+    "src/main.rs": "7c2cd4ef6b1186e5c9f214bf8de1b00da7c44f750b81cc32e0a0a36f506b8442",
+    "src/search.rs": "80f2e6bea09c84db133749f2423afb604aad4c45c32117af0de137381a3ad5ec",
+    "src/sidecar.rs": "e5f25a140919bc15eb5e4664fa73111605e3352c8949b62bb50ddb137e7ced43",
+    "src/benchmark.rs": "d9a47be5d491bf59b2bc6bf68af8272d7471a484375e400ab7066045db497111"
+  },
+  "final_binary_sha256": "0f3c589ffa081141b07d3419bbf8e856329eab002ac10b2ecc7fee8dab0a1304",
+  "make_check": {
+    "passed": 514,
+    "failed": 0,
+    "ignored": 3
+  },
+  "package": "passed",
+  "msrv": "1.87 check passed with per-command installed SDK15.2",
+  "specialist": "same Sol medium Rust/resource reviewer; final scope approved",
+  "limitations": [
+    "named logical structures and encoded phases only; no strict RSS/OOM guarantee",
+    "default admission narrowed including C2/C4 10MiB ngram",
+    "100MiB completion unverified; final product refusal verified",
+    "G3 overall / third-party validation / production-ready not achieved"
+  ],
+  "external_writes": false,
+  "commits": false
+}

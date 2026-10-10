@@ -17,10 +17,10 @@ use crate::schema::{
 };
 use crate::search::{
     compact_line_granules_supported, count_chunks, decode_delta_varint_u64_with_limit,
-    early_exit_report, elapsed_ms, empty_search_metrics, encode_delta_varint_u64,
+    early_exit_report, elapsed_ms, empty_search_metrics, encode_delta_varint_u64, encoded_delta_varint_size,
     intersect_postings, key_hash, ngram_keys_for_query, substring_spans, term_index_for_key,
     unique_query_keys, validate_granule_chunk_span, verified_spans, verify_candidates, NgramIndexBuildOptions, PlannerDecision,
-    RawNgramIndex, RawTokenIndex, SearchGranule, SearchOptions, SearchReport, TermDictionaryEntry,
+    RawNgramIndex, RawTokenIndex, SearchGranule, SearchOptions, SearchReport, TermDictionaryEntry, IndexBuildLimits,
 };
 use crate::skeleton::open_skeleton_details;
 
@@ -62,6 +62,35 @@ impl Default for SidecarLimits {
             max_posting_bytes_per_query: 128 * 1024 * 1024,
             max_decoded_posting_ids: 10_000_000,
         }
+    }
+}
+
+impl SidecarLimits {
+    // Materialized Reader reconstruction is governed by its existing open
+    // limits, not source-build defaults. It never invokes a source builder.
+    fn reconstruction_limits(self) -> IndexBuildLimits {
+        IndexBuildLimits {
+            max_granules: self.max_granule_count,
+            max_distinct_keys: self.max_term_count,
+            max_posting_ids: self.max_decoded_posting_ids,
+            max_key_bytes: self.max_terms_size,
+            max_encoded_bytes: u64::MAX,
+        }
+    }
+}
+
+/// Source line and index admission limits for QZI construction.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SidecarBuildOptions {
+    /// Maximum source-line bytes including LF and optional CR; default 16 MiB.
+    pub max_line_bytes: u64,
+    /// Shared token/ngram construction and encoding limits.
+    pub limits: IndexBuildLimits,
+}
+
+impl Default for SidecarBuildOptions {
+    fn default() -> Self {
+        Self { max_line_bytes: 16 * 1024 * 1024, limits: IndexBuildLimits::default() }
     }
 }
 
@@ -201,24 +230,23 @@ pub fn build_search_sidecar_from_file<R: ReadAt>(
     reader: &QztFileReader<R>,
     kind: SidecarIndexKind,
 ) -> Result<Vec<u8>> {
-    build_search_sidecar_from_file_with_line_limit(
-        reader,
-        kind,
-        crate::search::TokenIndexBuildOptions::default().max_line_bytes,
-    )
+    build_search_sidecar_from_file_with_options(reader, kind, SidecarBuildOptions::default())
 }
 
-/// Builds a QZI sidecar with a caller-selected maximum source-line size.
-/// The limit includes LF and any preceding CR; zero accepts only empty input.
+/// Builds a QZI sidecar with shared token/ngram admission limits.
+///
+/// All limits are inclusive. Encoded bytes bound the sum of the granule,
+/// dictionary and posting sections before encoding; header/manifest are excluded.
+/// These limits do not bound allocator capacity or total process RSS.
 ///
 /// # Errors
 ///
-/// Returns `ResourceLimitExceeded` before indexing a line longer than
-/// `max_line_bytes`, or the errors of [`build_search_sidecar_from_file`].
-pub fn build_search_sidecar_from_file_with_line_limit<R: ReadAt>(
+/// Returns `ResourceLimitExceeded` on a line, retained structure or encoded
+/// section overrun/overflow, or the errors of [`build_search_sidecar_from_file`].
+pub fn build_search_sidecar_from_file_with_options<R: ReadAt>(
     reader: &QztFileReader<R>,
     kind: SidecarIndexKind,
-    max_line_bytes: u64,
+    options: SidecarBuildOptions,
 ) -> Result<Vec<u8>> {
     let details = reader.skeleton_details();
     let footer_checksum = reader.footer_checksum()?;
@@ -229,7 +257,8 @@ pub fn build_search_sidecar_from_file_with_line_limit<R: ReadAt>(
             let index = RawTokenIndex::build_from_file(
                 reader,
                 crate::search::TokenIndexBuildOptions {
-                    max_line_bytes,
+                    max_line_bytes: options.max_line_bytes,
+                    limits: options.limits,
                     ..crate::search::TokenIndexBuildOptions::default()
                 },
             )?;
@@ -247,7 +276,8 @@ pub fn build_search_sidecar_from_file_with_line_limit<R: ReadAt>(
             let index = RawNgramIndex::build_from_file(
                 reader,
                 NgramIndexBuildOptions {
-                    max_line_bytes,
+                    max_line_bytes: options.max_line_bytes,
+                    limits: options.limits,
                     n,
                     ..NgramIndexBuildOptions::default()
                 },
@@ -271,6 +301,7 @@ pub fn build_search_sidecar_from_file_with_line_limit<R: ReadAt>(
     };
     let format_version = SidecarFormatVersion::V2;
     let term_encoding = TermEncoding::CompactV2;
+    check_build_section_size(&granules, &terms, &postings, granule_encoding, options.limits.max_encoded_bytes)?;
     let granule_bytes = encode_granules(&granules, granule_encoding)?;
     let posting_bytes = encode_posting_section(&postings)?;
     let term_bytes = encode_terms(&terms, term_encoding)?;
@@ -314,13 +345,13 @@ pub fn build_search_sidecar_from_file_with_line_limit<R: ReadAt>(
     };
     let manifest_bytes = encode_manifest(&manifest)?;
 
-    let mut bytes = Vec::with_capacity(
-        HEADER_LEN
-            + manifest_bytes.len()
-            + granule_bytes.len()
-            + term_bytes.len()
-            + posting_bytes.len(),
-    );
+    let capacity = HEADER_LEN.checked_add(manifest_bytes.len())
+        .and_then(|size| size.checked_add(granule_bytes.len()))
+        .and_then(|size| size.checked_add(term_bytes.len()))
+        .and_then(|size| size.checked_add(posting_bytes.len()))
+        .ok_or(QztError::ResourceLimitExceeded)?;
+    let mut bytes = Vec::new();
+    bytes.try_reserve_exact(capacity).map_err(|_| QztError::ResourceLimitExceeded)?;
     bytes.extend_from_slice(SIDECAR_MAGIC);
     bytes.extend_from_slice(&usize_to_u64(manifest_bytes.len())?.to_le_bytes());
     bytes.extend_from_slice(&manifest_bytes);
@@ -430,6 +461,7 @@ impl QziSidecar {
                     granules,
                     terms,
                     postings,
+                    limits.reconstruction_limits(),
                 )?;
                 index.complete = manifest.complete;
                 SidecarSearchIndex::Token(index)
@@ -446,6 +478,7 @@ impl QziSidecar {
                         n,
                         complete: manifest.complete,
                         high_df_per_million: manifest.high_df_per_million,
+                        limits: limits.reconstruction_limits(),
                         ..NgramIndexBuildOptions::default()
                     },
                 )?)
@@ -1465,6 +1498,39 @@ fn decode_granule_record(
         return Err(QztError::ContainerCorrupt);
     }
     Ok(granule)
+}
+
+fn check_build_section_size(
+    granules: &[SearchGranule],
+    terms: &[TermDictionaryEntry],
+    postings: &[Vec<u64>],
+    encoding: GranuleEncoding,
+    limit: u64,
+) -> Result<()> {
+    let width = match encoding {
+        GranuleEncoding::LineImpliedV2 => COMPACT_LINE_GRANULE_RECORD_LEN,
+        GranuleEncoding::LegacyV1 => LEGACY_GRANULE_RECORD_LEN,
+    };
+    let mut size = usize_to_u64(granules.len())?.checked_mul(width)
+        .and_then(|value| value.checked_add(16)).ok_or(QztError::ResourceLimitExceeded)?;
+    let add = |size: &mut u64, bytes: u64| -> Result<()> {
+        *size = size.checked_add(bytes).ok_or(QztError::ResourceLimitExceeded)?;
+        if *size > limit { return Err(QztError::ResourceLimitExceeded); }
+        Ok(())
+    };
+    add(&mut size, 0)?;
+    for (term, list) in terms.iter().zip(postings) {
+        let length = usize_to_u64(term.key.len())?;
+        // CompactV2 contains three varints and the original key bytes.
+        add(&mut size, length)?;
+        for mut value in [length, term.granule_frequency, term.posting_size] {
+            let mut bytes = 1;
+            while value >= 128 { value >>= 7; bytes += 1; }
+            add(&mut size, bytes)?;
+        }
+        add(&mut size, encoded_delta_varint_size(list)?)?;
+    }
+    Ok(())
 }
 
 fn encode_terms(terms: &[TermDictionaryEntry], encoding: TermEncoding) -> Result<Vec<u8>> {

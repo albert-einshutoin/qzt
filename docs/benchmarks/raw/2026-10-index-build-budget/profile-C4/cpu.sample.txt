@@ -1,0 +1,478 @@
+Analysis of sampling qzt-before (pid 67256) every 1 millisecond
+Process:         qzt-before [67256]
+Path:            /Volumes/VOLUME/*/qzt-before
+Load Address:    0x100060000
+Identifier:      qzt-before
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  time [67254]
+Target Type:     live task
+
+Date/Time:       2026-10-10 23:26:08.574 +0900
+Launch Time:     2026-10-10 23:26:08.416 +0900
+OS Version:      macOS 27.0 (26A428)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         58.8M
+Physical footprint (peak):  58.8M
+Idle exit:                  untracked
+----
+
+Call graph:
+    637 Thread_104242550   DispatchQueue_1: com.apple.main-thread  (serial)
+      637 start  (in dyld) + 6688  [0x1819cbe80]
+        637 main  (in qzt-before) + 52  [0x1000706d0]
+          637 _RNvNtCsaLOjE9VYtxK_3std2rt19lang_start_internal  (in qzt-before) + 952  [0x100168508]
+            637 std::rt::lang_start::_$u7b$$u7b$closure$u7d$$u7d$::h8b8d2915b159cb82  (in qzt-before) + 16  [0x100089034]
+              637 std::sys::backtrace::__rust_begin_short_backtrace::h147a11fe9767efc6  (in qzt-before) + 12  [0x100088678]
+                637 qzt::main::h504079d8e2bd32f2  (in qzt-before) + 884  [0x10006a334]
+                  637 qzt::run_sidecar_rebuild::h55b6a77752ade296  (in qzt-before) + 1468  [0x1000690ac]
+                    637 qzt::sidecar::build_search_sidecar_from_file_with_line_limit::h8a7cd0d75a53187c  (in qzt-before) + 460  [0x100075f5c]
+                      632 qzt::search::RawNgramIndex::build_from_file::h5babccf678e31ff0  (in qzt-before) + 520  [0x1000823fc]
+                      + 365 qzt::search::emit_line_granule::hc0c2587691b37e9e  (in qzt-before) + 288  [0x100083b80]
+                      + ! 240 qzt::search::ngram_keys::hfdd552705430c750  (in qzt-before) + 316  [0x10008d1f8]
+                      + ! : 228 _malloc_zone_malloc_instrumented_or_legacy  (in libsystem_malloc.dylib) + 152  [0x181bc8630]
+                      + ! : | 193 stack_logging_lite_malloc  (in MallocStackLogging) + 140  [0x1b289a400]
+                      + ! : | + 165 add_stack_to_ptr  (in MallocStackLogging) + 312  [0x1b289afd8]
+                      + ! : | + ! 116 uniquing_table_stack_retain  (in MallocStackLogging) + 88  [0x1b2899300]
+                      + ! : | + ! : 114 thread_stack_pcs  (in libsystem_c.dylib) + 28  [0x181c3794c]
+                      + ! : | + ! : | 39 __thread_stack_pcs  (in libsystem_c.dylib) + 336,428,...  [0x181c64cec,0x181c64d48,...]
+                      + ! : | + ! : | 23 __thread_stack_pcs  (in libsystem_c.dylib) + 400  [0x181c64d2c]
+                      + ! : | + ! : | + 23 pthread_stack_frame_decode_np  (in libsystem_pthread.dylib) + 0,32,...  [0x181da018c,0x181da01ac,...]
+                      + ! : | + ! : | 17 ???  (in <unknown binary>)  [0x1895f396c]
+                      + ! : | + ! : | 15 __thread_stack_pcs  (in libsystem_c.dylib) + 128  [0x181c64c1c]
+                      + ! : | + ! : | + 15 _dyld_stack_range  (in libdyld.dylib) + 48,12,...  [0x18197a208,0x18197a1e4,...]
+                      + ! : | + ! : | 8 __thread_stack_pcs  (in libsystem_c.dylib) + 84  [0x181c64bf0]
+                      + ! : | + ! : | + 8 pthread_get_stacksize_np  (in libsystem_pthread.dylib) + 16,196,...  [0x181d9f0b4,0x181d9f168,...]
+                      + ! : | + ! : | 3 __thread_stack_pcs  (in libsystem_c.dylib) + 72  [0x181c64be4]
+                      + ! : | + ! : | + 3 pthread_get_stackaddr_np  (in libsystem_pthread.dylib) + 32,48  [0x181d9ee38,0x181d9ee48]
+                      + ! : | + ! : | 3 __thread_stack_pcs  (in libsystem_c.dylib) + 112  [0x181c64c0c]
+                      + ! : | + ! : | + 3 pthread_stack_frame_decode_np  (in libsystem_pthread.dylib) + 0,32  [0x181da018c,0x181da01ac]
+                      + ! : | + ! : | 2 ???  (in <unknown binary>)  [0x1895f2cac]
+                      + ! : | + ! : | 2 __thread_stack_pcs  (in libsystem_c.dylib) + 64  [0x181c64bdc]
+                      + ! : | + ! : | + 2 pthread_self  (in libsystem_pthread.dylib) + 28  [0x181d9d684]
+                      + ! : | + ! : | 1 ???  (in <unknown binary>)  [0x1895f2ca0]
+                      + ! : | + ! : | 1 ???  (in <unknown binary>)  [0x1895f38ac]
+                      + ! : | + ! : 2 __thread_stack_pcs  (in libsystem_c.dylib) + 904,916  [0x181c64f24,0x181c64f30]
+                      + ! : | + ! 40 uniquing_table_stack_retain  (in MallocStackLogging) + 128  [0x1b2899328]
+                      + ! : | + ! : 33 uniquing_table_stack_retain_internal  (in MallocStackLogging) + 188,280,...  [0x1b2899504,0x1b2899560,...]
+                      + ! : | + ! : 3 uniquing_table_stack_retain_internal  (in MallocStackLogging) + 64  [0x1b2899488]
+                      + ! : | + ! : | 3 uniquing_table_retain  (in MallocStackLogging) + 56,16  [0x1b2899e88,0x1b2899e60]
+                      + ! : | + ! : 2 uniquing_table_retain  (in MallocStackLogging) + 108  [0x1b2899ebc]
+                      + ! : | + ! : 2 uniquing_table_stack_retain_internal  (in MallocStackLogging) + 2360  [0x1b2899d80]
+                      + ! : | + ! :   2 uniquing_table_release  (in MallocStackLogging) + 28  [0x1b2899238]
+                      + ! : | + ! 5 uniquing_table_stack_retain  (in MallocStackLogging) + 64  [0x1b28992e8]
+                      + ! : | + ! : 2 msl_get_hash_cache  (in MallocStackLogging) + 52  [0x1b28993ac]
+                      + ! : | + ! : | 2 pthread_getspecific  (in libsystem_pthread.dylib) + 4  [0x181d9cd60]
+                      + ! : | + ! : 2 msl_get_hash_cache  (in MallocStackLogging) + 24  [0x1b2899390]
+                      + ! : | + ! : 1 ???  (in <unknown binary>)  [0x1b96e5d4c]
+                      + ! : | + ! 2 msl_get_hash_cache  (in MallocStackLogging) + 128,132  [0x1b28993f8,0x1b28993fc]
+                      + ! : | + ! 1 ???  (in <unknown binary>)  [0x1b96e5ecc]
+                      + ! : | + ! 1 uniquing_table_stack_retain  (in MallocStackLogging) + 20  [0x1b28992bc]
+                      + ! : | + 6 add_stack_to_ptr  (in MallocStackLogging) + 140  [0x1b289af2c]
+                      + ! : | + ! 6 xzm_malloc_zone_size  (in libsystem_malloc.dylib) + 24,92,...  [0x181bb831c,0x181bb8360,...]
+                      + ! : | + 4 add_stack_to_ptr  (in MallocStackLogging) + 92  [0x1b289aefc]
+                      + ! : | + ! 2 _platform_memset  (in libsystem_platform.dylib) + 180,200  [0x181dabb44,0x181dabb58]
+                      + ! : | + ! 2 msl_payload_set_in_lite_zone_ptr  (in MallocStackLogging) + 24,136  [0x1b289fc50,0x1b289fcc0]
+                      + ! : | + 3 add_stack_to_ptr  (in MallocStackLogging) + 64  [0x1b289aee0]
+                      + ! : | + ! 2 __malloc_stack_logging_is_reentered  (in MallocStackLogging) + 28  [0x1b28a04a8]
+                      + ! : | + ! : 2 pthread_self  (in libsystem_pthread.dylib) + 28  [0x181d9d684]
+                      + ! : | + ! 1 ???  (in <unknown binary>)  [0x1b96e5d6c]
+                      + ! : | + 3 add_stack_to_ptr  (in MallocStackLogging) + 344  [0x1b289aff8]
+                      + ! : | + ! 2 msl_payload_create  (in MallocStackLogging) + 0,184  [0x1b289fb00,0x1b289fbb8]
+                      + ! : | + ! 1 mach_continuous_approximate_time  (in libsystem_kernel.dylib) + 76  [0x181d64540]
+                      + ! : | + 2 __malloc_stack_logging_is_reentered  (in MallocStackLogging) + 44  [0x1b28a04b8]
+                      + ! : | + 2 add_stack_to_ptr  (in MallocStackLogging) + 236  [0x1b289af8c]
+                      + ! : | + ! 2 __prepare_to_log_stacks_unlocked  (in MallocStackLogging) + 12  [0x1b289c6d8]
+                      + ! : | + 2 add_stack_to_ptr  (in MallocStackLogging) + 264  [0x1b289afa8]
+                      + ! : | + ! 2 global_uniquing_table  (in MallocStackLogging) + 4  [0x1b289c238]
+                      + ! : | + 1 ???  (in <unknown binary>)  [0x1b96e599c]
+                      + ! : | + 1 add_stack_to_ptr  (in MallocStackLogging) + 56  [0x1b289aed8]
+                      + ! : | + ! 1 msl_payload_get_invalid  (in MallocStackLogging) + 0  [0x1b289fdf8]
+                      + ! : | + 1 add_stack_to_ptr  (in MallocStackLogging) + 324  [0x1b289afe4]
+                      + ! : | + ! 1 uniquing_table_node_count  (in MallocStackLogging) + 0  [0x1b2899f84]
+                      + ! : | + 1 add_stack_to_ptr  (in MallocStackLogging) + 264  [0x1b289afa8]
+                      + ! : | + 1 msl_payload_create  (in MallocStackLogging) + 228  [0x1b289fbe4]
+                      + ! : | + 1 uniquing_table_stack_retain  (in MallocStackLogging) + 184  [0x1b2899360]
+                      + ! : | 16 stack_logging_lite_malloc  (in MallocStackLogging) + 108  [0x1b289a3e0]
+                      + ! : | + 11 _xzm_xzone_malloc_tiny  (in libsystem_malloc.dylib) + 244,404,...  [0x181bbcb40,0x181bbcbe0,...]
+                      + ! : | + 5 _xzm_malloc  (in libsystem_malloc.dylib) + 276,0,...  [0x181bbbf08,0x181bbbdf4,...]
+                      + ! : | 8 stack_logging_lite_malloc  (in MallocStackLogging) + 80  [0x1b289a3c4]
+                      + ! : | + 6 required_allocation_size  (in MallocStackLogging) + 48,188,...  [0x1b289add0,0x1b289ae5c,...]
+                      + ! : | + 1 required_allocation_size  (in MallocStackLogging) + 108  [0x1b289ae0c]
+                      + ! : | + ! 1 xzm_good_size  (in libsystem_malloc.dylib) + 8  [0x181bb3b80]
+                      + ! : | + 1 required_allocation_size  (in MallocStackLogging) + 152  [0x1b289ae38]
+                      + ! : | +   1 xzm_good_size  (in libsystem_malloc.dylib) + 168  [0x181bb3c20]
+                      + ! : | 5 stack_logging_lite_malloc  (in MallocStackLogging) + 84,44,...  [0x1b289a3c8,0x1b289a3a0,...]
+                      + ! : | 2 required_allocation_size  (in MallocStackLogging) + 184  [0x1b289ae58]
+                      + ! : | 2 xzm_malloc_zone_malloc  (in libsystem_malloc.dylib) + 76  [0x181bb8684]
+                      + ! : | 1 add_stack_to_ptr  (in MallocStackLogging) + 116  [0x1b289af14]
+                      + ! : | 1 default_zone_malloc  (in libsystem_malloc.dylib) + 0  [0x181b89d04]
+                      + ! : 8 _malloc_zone_malloc_instrumented_or_legacy  (in libsystem_malloc.dylib) + 80,184,...  [0x181bc85e8,0x181bc8650,...]
+                      + ! : 2 _malloc_zone_malloc  (in libsystem_malloc.dylib) + 44  [0x181bc851c]
+                      + ! : 1 _RNvCsGIExRX8pES_7___rustc11___rdl_alloc  (in qzt-before) + 0  [0x10015c4f8]
+                      + ! : 1 stack_logging_lite_malloc  (in MallocStackLogging) + 224  [0x1b289a454]
+                      + ! 53 qzt::search::ngram_keys::hfdd552705430c750  (in qzt-before) + 84  [0x10008d110]
+                      + ! : 30 <deduplicated_symbol>  (in qzt-before) + 536  [0x1000ad09c]
+                      + ! : | 30 alloc::raw_vec::RawVecInner$LT$A$GT$::reserve::do_reserve_and_handle::h948876e1dceefa69  (in qzt-before) + 108  [0x100186a2c]
+                      + ! : |   29 alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::h63d2eeb215865545  (in qzt-before) + 92  [0x100186968]
+                      + ! : |   + 28 _realloc  (in libsystem_malloc.dylib) + 456  [0x181bc9358]
+                      + ! : |   + ! 28 _malloc_zone_realloc  (in libsystem_malloc.dylib) + 148  [0x181bc8b2c]
+                      + ! : |   + !   17 stack_logging_lite_realloc  (in MallocStackLogging) + 528  [0x1b289a8f8]
+                      + ! : |   + !   : 17 add_stack_to_ptr  (in MallocStackLogging) + 312  [0x1b289afd8]
+                      + ! : |   + !   :   10 uniquing_table_stack_retain  (in MallocStackLogging) + 88  [0x1b2899300]
+                      + ! : |   + !   :   | 10 thread_stack_pcs  (in libsystem_c.dylib) + 28  [0x181c3794c]
+                      + ! : |   + !   :   |   7 __thread_stack_pcs  (in libsystem_c.dylib) + 476,336,...  [0x181c64d78,0x181c64cec,...]
+                      + ! : |   + !   :   |   2 __thread_stack_pcs  (in libsystem_c.dylib) + 400  [0x181c64d2c]
+                      + ! : |   + !   :   |   + 2 pthread_stack_frame_decode_np  (in libsystem_pthread.dylib) + 0,16  [0x181da018c,0x181da019c]
+                      + ! : |   + !   :   |   1 __thread_stack_pcs  (in libsystem_c.dylib) + 128  [0x181c64c1c]
+                      + ! : |   + !   :   |     1 _dyld_stack_range  (in libdyld.dylib) + 48  [0x18197a208]
+                      + ! : |   + !   :   6 uniquing_table_stack_retain  (in MallocStackLogging) + 128  [0x1b2899328]
+                      + ! : |   + !   :   | 6 uniquing_table_stack_retain_internal  (in MallocStackLogging) + 84,184,...  [0x1b289949c,0x1b2899500,...]
+                      + ! : |   + !   :   1 msl_get_hash_cache  (in MallocStackLogging) + 132  [0x1b28993fc]
+                      + ! : |   + !   8 stack_logging_lite_realloc  (in MallocStackLogging) + 200  [0x1b289a7b0]
+                      + ! : |   + !   : 7 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 1028  [0x181bb9414]
+                      + ! : |   + !   : | 5 _xzm_free  (in libsystem_malloc.dylib) + 1384  [0x181bc0c68]
+                      + ! : |   + !   : | + 5 mach_absolute_time  (in libsystem_kernel.dylib) + 108  [0x181d5d0f8]
+                      + ! : |   + !   : | 2 _xzm_free  (in libsystem_malloc.dylib) + 28,380  [0x181bc071c,0x181bc087c]
+                      + ! : |   + !   : 1 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 896  [0x181bb9390]
+                      + ! : |   + !   :   1 _xzm_xzone_malloc_tiny  (in libsystem_malloc.dylib) + 524  [0x181bbcc58]
+                      + ! : |   + !   2 stack_logging_lite_realloc  (in MallocStackLogging) + 132  [0x1b289a76c]
+                      + ! : |   + !   : 1 required_allocation_size  (in MallocStackLogging) + 228  [0x1b289ae84]
+                      + ! : |   + !   : | 1 xzm_good_size  (in libsystem_malloc.dylib) + 168  [0x181bb3c20]
+                      + ! : |   + !   : 1 required_allocation_size  (in MallocStackLogging) + 132  [0x1b289ae24]
+                      + ! : |   + !   1 stack_logging_lite_realloc  (in MallocStackLogging) + 80  [0x1b289a738]
+                      + ! : |   + 1 _realloc  (in libsystem_malloc.dylib) + 88  [0x181bc91e8]
+                      + ! : |   +   1 stack_logging_lite_size  (in MallocStackLogging) + 36  [0x1b289a310]
+                      + ! : |   +     1 xzm_malloc_zone_size  (in libsystem_malloc.dylib) + 164  [0x181bb83a8]
+                      + ! : |   1 alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::h63d2eeb215865545  (in qzt-before) + 36  [0x100186930]
+                      + ! : 16 <deduplicated_symbol>  (in qzt-before) + 292  [0x1000acfa8]
+                      + ! : | 16 _malloc_zone_malloc_instrumented_or_legacy  (in libsystem_malloc.dylib) + 152  [0x181bc8630]
+                      + ! : |   13 stack_logging_lite_malloc  (in MallocStackLogging) + 140  [0x1b289a400]
+                      + ! : |   + 11 add_stack_to_ptr  (in MallocStackLogging) + 312  [0x1b289afd8]
+                      + ! : |   + ! 6 uniquing_table_stack_retain  (in MallocStackLogging) + 128  [0x1b2899328]
+                      + ! : |   + ! : 6 uniquing_table_stack_retain_internal  (in MallocStackLogging) + 216,324,...  [0x1b2899520,0x1b289958c,...]
+                      + ! : |   + ! 4 uniquing_table_stack_retain  (in MallocStackLogging) + 88  [0x1b2899300]
+                      + ! : |   + ! : 4 thread_stack_pcs  (in libsystem_c.dylib) + 28  [0x181c3794c]
+                      + ! : |   + ! :   1 ???  (in <unknown binary>)  [0x1895f396c]
+                      + ! : |   + ! :   1 __thread_stack_pcs  (in libsystem_c.dylib) + 128  [0x181c64c1c]
+                      + ! : |   + ! :   | 1 _dyld_stack_range  (in libdyld.dylib) + 48  [0x18197a208]
+                      + ! : |   + ! :   1 __thread_stack_pcs  (in libsystem_c.dylib) + 400  [0x181c64d2c]
+                      + ! : |   + ! :   | 1 pthread_stack_frame_decode_np  (in libsystem_pthread.dylib) + 32  [0x181da01ac]
+                      + ! : |   + ! :   1 __thread_stack_pcs  (in libsystem_c.dylib) + 336  [0x181c64cec]
+                      + ! : |   + ! 1 uniquing_table_stack_retain_internal  (in MallocStackLogging) + 2424  [0x1b2899dc0]
+                      + ! : |   + 1 add_stack_to_ptr  (in MallocStackLogging) + 92  [0x1b289aefc]
+                      + ! : |   + ! 1 msl_payload_set_in_lite_zone_ptr  (in MallocStackLogging) + 56  [0x1b289fc70]
+                      + ! : |   + 1 add_stack_to_ptr  (in MallocStackLogging) + 344  [0x1b289aff8]
+                      + ! : |   +   1 ???  (in <unknown binary>)  [0x1b96e5b0c]
+                      + ! : |   2 stack_logging_lite_malloc  (in MallocStackLogging) + 108  [0x1b289a3e0]
+                      + ! : |   + 1 _xzm_malloc  (in libsystem_malloc.dylib) + 276  [0x181bbbf08]
+                      + ! : |   + 1 _xzm_xzone_malloc_tiny  (in libsystem_malloc.dylib) + 244  [0x181bbcb40]
+                      + ! : |   1 add_stack_to_ptr  (in MallocStackLogging) + 116  [0x1b289af14]
+                      + ! : 7 <deduplicated_symbol>  (in qzt-before) + 376,436,...  [0x1000acffc,0x1000ad038,...]
+                      + ! 52 qzt::search::ngram_keys::hfdd552705430c750  (in qzt-before) + 372  [0x10008d230]
+                      + ! : 51 alloc::raw_vec::RawVec$LT$T$C$A$GT$::grow_one::h149e00d429a854f1  (in qzt-before) + 60  [0x100186334]
+                      + ! : | 46 alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::h63d2eeb215865545  (in qzt-before) + 92  [0x100186968]
+                      + ! : | + 44 _realloc  (in libsystem_malloc.dylib) + 456  [0x181bc9358]
+                      + ! : | + ! 44 _malloc_zone_realloc  (in libsystem_malloc.dylib) + 148  [0x181bc8b2c]
+                      + ! : | + !   31 stack_logging_lite_realloc  (in MallocStackLogging) + 528  [0x1b289a8f8]
+                      + ! : | + !   : 30 add_stack_to_ptr  (in MallocStackLogging) + 312  [0x1b289afd8]
+                      + ! : | + !   : | 19 uniquing_table_stack_retain  (in MallocStackLogging) + 88  [0x1b2899300]
+                      + ! : | + !   : | + 19 thread_stack_pcs  (in libsystem_c.dylib) + 28  [0x181c3794c]
+                      + ! : | + !   : | +   11 __thread_stack_pcs  (in libsystem_c.dylib) + 476,336,...  [0x181c64d78,0x181c64cec,...]
+                      + ! : | + !   : | +   2 __thread_stack_pcs  (in libsystem_c.dylib) + 72  [0x181c64be4]
+                      + ! : | + !   : | +   ! 2 pthread_get_stackaddr_np  (in libsystem_pthread.dylib) + 32  [0x181d9ee38]
+                      + ! : | + !   : | +   2 __thread_stack_pcs  (in libsystem_c.dylib) + 400  [0x181c64d2c]
+                      + ! : | + !   : | +   ! 2 pthread_stack_frame_decode_np  (in libsystem_pthread.dylib) + 32  [0x181da01ac]
+                      + ! : | + !   : | +   1 ???  (in <unknown binary>)  [0x1895f38ac]
+                      + ! : | + !   : | +   1 ???  (in <unknown binary>)  [0x1895f396c]
+                      + ! : | + !   : | +   1 __thread_stack_pcs  (in libsystem_c.dylib) + 84  [0x181c64bf0]
+                      + ! : | + !   : | +   ! 1 pthread_get_stacksize_np  (in libsystem_pthread.dylib) + 196  [0x181d9f168]
+                      + ! : | + !   : | +   1 __thread_stack_pcs  (in libsystem_c.dylib) + 128  [0x181c64c1c]
+                      + ! : | + !   : | +     1 _dyld_stack_range  (in libdyld.dylib) + 48  [0x18197a208]
+                      + ! : | + !   : | 9 uniquing_table_stack_retain  (in MallocStackLogging) + 128  [0x1b2899328]
+                      + ! : | + !   : | + 9 uniquing_table_stack_retain_internal  (in MallocStackLogging) + 1208,280,...  [0x1b2899900,0x1b2899560,...]
+                      + ! : | + !   : | 1 thread_stack_pcs  (in libsystem_c.dylib) + 32  [0x181c37950]
+                      + ! : | + !   : | 1 uniquing_table_stack_retain  (in MallocStackLogging) + 140  [0x1b2899334]
+                      + ! : | + !   : 1 add_stack_to_ptr  (in MallocStackLogging) + 92  [0x1b289aefc]
+                      + ! : | + !   :   1 _platform_memset  (in libsystem_platform.dylib) + 188  [0x181dabb4c]
+                      + ! : | + !   10 stack_logging_lite_realloc  (in MallocStackLogging) + 200  [0x1b289a7b0]
+                      + ! : | + !   : 5 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 1028  [0x181bb9414]
+                      + ! : | + !   : | 3 _xzm_free  (in libsystem_malloc.dylib) + 564,236  [0x181bc0934,0x181bc07ec]
+                      + ! : | + !   : | 2 _xzm_free  (in libsystem_malloc.dylib) + 1384  [0x181bc0c68]
+                      + ! : | + !   : |   2 mach_absolute_time  (in libsystem_kernel.dylib) + 108,112  [0x181d5d0f8,0x181d5d0fc]
+                      + ! : | + !   : 3 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 896  [0x181bb9390]
+                      + ! : | + !   : | 2 _xzm_xzone_malloc_tiny  (in libsystem_malloc.dylib) + 0,244  [0x181bbca4c,0x181bbcb40]
+                      + ! : | + !   : | 1 _xzm_malloc  (in libsystem_malloc.dylib) + 0  [0x181bbbdf4]
+                      + ! : | + !   : 2 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 996  [0x181bb93f4]
+                      + ! : | + !   :   2 _platform_memmove  (in libsystem_platform.dylib) + 180  [0x181dabe14]
+                      + ! : | + !   1 add_stack_to_ptr  (in MallocStackLogging) + 116  [0x1b289af14]
+                      + ! : | + !   1 stack_logging_lite_realloc  (in MallocStackLogging) + 248  [0x1b289a7e0]
+                      + ! : | + !   : 1 uniquing_table_stack_release  (in MallocStackLogging) + 60  [0x1b28a0abc]
+                      + ! : | + !   1 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 1048  [0x181bb9428]
+                      + ! : | + 2 _realloc  (in libsystem_malloc.dylib) + 88  [0x181bc91e8]
+                      + ! : | +   2 stack_logging_lite_size  (in MallocStackLogging) + 68  [0x1b289a330]
+                      + ! : | +     2 msl_payload_get_size_info  (in MallocStackLogging) + 164  [0x1b289fdf0]
+                      + ! : | 5 alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::h63d2eeb215865545  (in qzt-before) + 120  [0x100186984]
+                      + ! : |   5 _malloc_zone_malloc_instrumented_or_legacy  (in libsystem_malloc.dylib) + 152  [0x181bc8630]
+                      + ! : |     4 stack_logging_lite_malloc  (in MallocStackLogging) + 140  [0x1b289a400]
+                      + ! : |     ! 3 add_stack_to_ptr  (in MallocStackLogging) + 312  [0x1b289afd8]
+                      + ! : |     ! : 2 uniquing_table_stack_retain  (in MallocStackLogging) + 88  [0x1b2899300]
+                      + ! : |     ! : | 2 thread_stack_pcs  (in libsystem_c.dylib) + 28  [0x181c3794c]
+                      + ! : |     ! : |   1 __thread_stack_pcs  (in libsystem_c.dylib) + 128  [0x181c64c1c]
+                      + ! : |     ! : |   + 1 _dyld_stack_range  (in libdyld.dylib) + 48  [0x18197a208]
+                      + ! : |     ! : |   1 __thread_stack_pcs  (in libsystem_c.dylib) + 440  [0x181c64d54]
+                      + ! : |     ! : 1 uniquing_table_stack_retain  (in MallocStackLogging) + 128  [0x1b2899328]
+                      + ! : |     ! :   1 uniquing_table_stack_retain_internal  (in MallocStackLogging) + 416  [0x1b28995e8]
+                      + ! : |     ! 1 add_stack_to_ptr  (in MallocStackLogging) + 140  [0x1b289af2c]
+                      + ! : |     !   1 xzm_malloc_zone_size  (in libsystem_malloc.dylib) + 164  [0x181bb83a8]
+                      + ! : |     1 stack_logging_lite_malloc  (in MallocStackLogging) + 108  [0x1b289a3e0]
+                      + ! : |       1 xzm_malloc_zone_malloc  (in libsystem_malloc.dylib) + 40  [0x181bb8660]
+                      + ! : |         1 malloc_get_thread_options  (in libsystem_malloc.dylib) + 4  [0x181bc980c]
+                      + ! : 1 alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::h63d2eeb215865545  (in qzt-before) + 172  [0x1001869b8]
+                      + ! 7 qzt::search::ngram_keys::hfdd552705430c750  (in qzt-before) + 348  [0x10008d218]
+                      + ! : 7 _platform_memmove  (in libsystem_platform.dylib) + 452,12,...  [0x181dabf24,0x181dabd6c,...]
+                      + ! 7 qzt::search::ngram_keys::hfdd552705430c750  (in qzt-before) + 364,400,...  [0x10008d228,0x10008d24c,...]
+                      + ! 3 qzt::search::ngram_keys::hfdd552705430c750  (in qzt-before) + 144  [0x10008d14c]
+                      + ! : 1 _RNvCsGIExRX8pES_7___rustc13___rdl_dealloc  (in qzt-before) + 0  [0x10015c564]
+                      + ! : 1 _xzm_free_zone  (in libsystem_malloc.dylib) + 744  [0x181bc47d8]
+                      + ! : | 1 mach_absolute_time  (in libsystem_kernel.dylib) + 112  [0x181d5d0fc]
+                      + ! : 1 stack_logging_lite_free  (in MallocStackLogging) + 96  [0x1b289a6ac]
+                      + ! :   1 uniquing_table_stack_release  (in MallocStackLogging) + 60  [0x1b28a0abc]
+                      + ! :     1 uniquing_table_node_release_internal  (in MallocStackLogging) + 56  [0x1b2899ef8]
+                      + ! 3 qzt::search::ngram_keys::hfdd552705430c750  (in qzt-before) + 304  [0x10008d1ec]
+                      + !   3 _RNvCsGIExRX8pES_7___rustc35___rust_no_alloc_shim_is_unstable_v2  (in qzt-before) + 0  [0x100089bc0]
+                      + 120 qzt::search::emit_line_granule::hc0c2587691b37e9e  (in qzt-before) + 468  [0x100083c34]
+                      + ! 106 _platform_memcmp  (in libsystem_platform.dylib) + 272,280,...  [0x181da9280,0x181da9288,...]
+                      + ! 14 DYLD-STUB$$memcmp  (in qzt-before) + 4  [0x10018c5c4]
+                      + 63 qzt::search::emit_line_granule::hc0c2587691b37e9e  (in qzt-before) + 496,516,...  [0x100083c50,0x100083c64,...]
+                      + 60 qzt::search::emit_line_granule::hc0c2587691b37e9e  (in qzt-before) + 592  [0x100083cb0]
+                      + ! 13 find_zone_and_free  (in libsystem_malloc.dylib) + 84  [0x181bc8e44]
+                      + ! : 12 stack_logging_lite_size  (in MallocStackLogging) + 36  [0x1b289a310]
+                      + ! : | 12 xzm_malloc_zone_size  (in libsystem_malloc.dylib) + 200,268,...  [0x181bb83cc,0x181bb8410,...]
+                      + ! : 1 stack_logging_lite_size  (in MallocStackLogging) + 32  [0x1b289a30c]
+                      + ! 9 stack_logging_lite_free  (in MallocStackLogging) + 96  [0x1b289a6ac]
+                      + ! : 4 uniquing_table_stack_release  (in MallocStackLogging) + 12  [0x1b28a0a8c]
+                      + ! : 3 uniquing_table_stack_release  (in MallocStackLogging) + 60  [0x1b28a0abc]
+                      + ! : | 3 uniquing_table_node_release_internal  (in MallocStackLogging) + 108  [0x1b2899f2c]
+                      + ! : 1 uniquing_table_retain  (in MallocStackLogging) + 108  [0x1b2899ebc]
+                      + ! : 1 uniquing_table_stack_release  (in MallocStackLogging) + 44  [0x1b28a0aac]
+                      + ! :   1 uniquing_table_retain  (in MallocStackLogging) + 32  [0x1b2899e70]
+                      + ! 8 _xzm_free_zone  (in libsystem_malloc.dylib) + 112,692,...  [0x181bc4560,0x181bc47a4,...]
+                      + ! 8 stack_logging_lite_free  (in MallocStackLogging) + 44  [0x1b289a678]
+                      + ! : 8 xzm_malloc_zone_size  (in libsystem_malloc.dylib) + 48,152,...  [0x181bb8334,0x181bb839c,...]
+                      + ! 6 find_zone_and_free  (in libsystem_malloc.dylib) + 440,44,...  [0x181bc8fa8,0x181bc8e1c,...]
+                      + ! 3 xzm_malloc_zone_size  (in libsystem_malloc.dylib) + 708  [0x181bb85c8]
+                      + ! 2 default_zone_free_definite_size  (in libsystem_malloc.dylib) + 8  [0x181b8aa10]
+                      + ! 2 stack_logging_lite_free  (in MallocStackLogging) + 60  [0x1b289a688]
+                      + ! : 2 msl_payload_from_lite_zone_ptr_internal  (in MallocStackLogging) + 4  [0x1b289fe24]
+                      + ! 2 stack_logging_lite_free  (in MallocStackLogging) + 64  [0x1b289a68c]
+                      + ! : 2 msl_payload_get_uniquing_table_index  (in MallocStackLogging) + 28  [0x1b289fd44]
+                      + ! 2 stack_logging_lite_free  (in MallocStackLogging) + 80  [0x1b289a69c]
+                      + ! : 2 global_uniquing_table  (in MallocStackLogging) + 4  [0x1b289c238]
+                      + ! 2 stack_logging_lite_free  (in MallocStackLogging) + 28,80  [0x1b289a668,0x1b289a69c]
+                      + ! 2 stack_logging_lite_size  (in MallocStackLogging) + 84  [0x1b289a340]
+                      + ! 1 _RNvCsGIExRX8pES_7___rustc13___rdl_dealloc  (in qzt-before) + 0  [0x10015c564]
+                      + 8 qzt::search::emit_line_granule::hc0c2587691b37e9e  (in qzt-before) + 804  [0x100083d84]
+                      + ! 3 _xzm_free_zone  (in libsystem_malloc.dylib) + 744  [0x181bc47d8]
+                      + ! : 3 mach_absolute_time  (in libsystem_kernel.dylib) + 108  [0x181d5d0f8]
+                      + ! 2 _xzm_free_zone  (in libsystem_malloc.dylib) + 208,372  [0x181bc45c0,0x181bc4664]
+                      + ! 1 find_zone_and_free  (in libsystem_malloc.dylib) + 84  [0x181bc8e44]
+                      + ! : 1 stack_logging_lite_size  (in MallocStackLogging) + 36  [0x1b289a310]
+                      + ! :   1 xzm_malloc_zone_size  (in libsystem_malloc.dylib) + 364  [0x181bb8470]
+                      + ! 1 stack_logging_lite_free  (in MallocStackLogging) + 96  [0x1b289a6ac]
+                      + ! : 1 uniquing_table_stack_release  (in MallocStackLogging) + 12  [0x1b28a0a8c]
+                      + ! 1 uniquing_table_release  (in MallocStackLogging) + 48  [0x1b289924c]
+                      + 5 _xzm_free_zone  (in libsystem_malloc.dylib) + 1088  [0x181bc4930]
+                      + 5 qzt::search::emit_line_granule::hc0c2587691b37e9e  (in qzt-before) + 664  [0x100083cf8]
+                      + ! 5 alloc::raw_vec::RawVec$LT$T$C$A$GT$::grow_one::h8b702eb6c3811383  (in qzt-before) + 60  [0x10018660c]
+                      + !   5 alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::h63d2eeb215865545  (in qzt-before) + 92  [0x100186968]
+                      + !     5 _realloc  (in libsystem_malloc.dylib) + 456  [0x181bc9358]
+                      + !       5 _malloc_zone_realloc  (in libsystem_malloc.dylib) + 148  [0x181bc8b2c]
+                      + !         3 stack_logging_lite_realloc  (in MallocStackLogging) + 200  [0x1b289a7b0]
+                      + !         : 2 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 896  [0x181bb9390]
+                      + !         : | 2 _xzm_xzone_malloc_tiny  (in libsystem_malloc.dylib) + 160,520  [0x181bbcaec,0x181bbcc54]
+                      + !         : 1 xzm_malloc_zone_malloc_type_realloc  (in libsystem_malloc.dylib) + 996  [0x181bb93f4]
+                      + !         :   1 _platform_memmove  (in libsystem_platform.dylib) + 88  [0x181dabdb8]
+                      + !         2 stack_logging_lite_realloc  (in MallocStackLogging) + 528  [0x1b289a8f8]
+                      + !           2 add_stack_to_ptr  (in MallocStackLogging) + 312  [0x1b289afd8]
+                      + !             1 uniquing_table_stack_retain  (in MallocStackLogging) + 88  [0x1b2899300]
+                      + !             | 1 thread_stack_pcs  (in libsystem_c.dylib) + 28  [0x181c3794c]
+                      + !             |   1 __thread_stack_pcs  (in libsystem_c.dylib) + 112  [0x181c64c0c]
+                      + !             |     1 pthread_stack_frame_decode_np  (in libsystem_pthread.dylib) + 20  [0x181da01a0]
+                      + !             1 uniquing_table_stack_retain  (in MallocStackLogging) + 128  [0x1b2899328]
+                      + !               1 uniquing_table_stack_retain_internal  (in MallocStackLogging) + 280  [0x1b2899560]
+                      + 2 find_zone_and_free  (in libsystem_malloc.dylib) + 504  [0x181bc8fe8]
+                      + 2 stack_logging_lite_free  (in MallocStackLogging) + 152  [0x1b289a6e4]
+                      + 1 qzt::search::emit_line_granule::hc0c2587691b37e9e  (in qzt-before) + 100  [0x100083ac4]
+                      + ! 1 qzt::search::chunk_span_for_range::he02dc935634f1840  (in qzt-before) + 128  [0x1000923e8]
+                      + 1 qzt::search::emit_line_granule::hc0c2587691b37e9e  (in qzt-before) + 616  [0x100083cc8]
+                      +   1 alloc::collections::btree::map::entry::Entry$LT$K$C$V$C$A$GT$::or_default::habba2e6fbe6b7833  (in qzt-before) + 20  [0x1000848d8]
+                      5 qzt::search::RawNgramIndex::build_from_file::h5babccf678e31ff0  (in qzt-before) + 212  [0x1000822c8]
+                        5 qzt::reader::QztFileReader$LT$R$GT$::decode_entry::h73820388b65f5c0f  (in qzt-before) + 276  [0x10007981c]
+                          3 qzt::reader::decode_compressed_entry::h1412d31e59adcb25  (in qzt-before) + 240  [0x10009ef70]
+                          ! 3 qzt::codec::decode_chunk::h5bb67e86e59984c7  (in qzt-before) + 268  [0x1000b7854]
+                          !   3 std::io::default_read_to_end::he35c0b662b6b3ca5  (in qzt-before) + 400  [0x1000aa034]
+                          !     3 _$LT$zstd..stream..zio..reader..Reader$LT$R$C$D$GT$$u20$as$u20$std..io..Read$GT$::read::h8cd365be7764d9e8  (in qzt-before) + 356  [0x1000a9be0]
+                          !       3 zstd_safe::DCtx::decompress_stream::h05d71d4dafa112d1  (in qzt-before) + 72  [0x1000aebac]
+                          !         3 ZSTD_decompressStream  (in qzt-before) + 2292  [0x10012274c]
+                          !           3 ZSTD_decompressContinue  (in qzt-before) + 256  [0x100121044]
+                          !             1 ZSTD_decompressBlock_internal  (in qzt-before) + 120  [0x100123d78]
+                          !             : 1 ZSTD_decodeLiteralsBlock  (in qzt-before) + 1428  [0x1001235c4]
+                          !             :   1 HUF_decompress4X_hufOnly_wksp  (in qzt-before) + 196  [0x10011f680]
+                          !             :     1 ???  (in <unknown binary>)  [0x74b39ca83c]
+                          !             :       1 HUF_readDTableX2_wksp  (in qzt-before) + 5024  [0x10011a9c0]
+                          !             1 ZSTD_decompressBlock_internal  (in qzt-before) + 192  [0x100123dc0]
+                          !             : 1 ZSTD_decodeSeqHeaders  (in qzt-before) + 280  [0x100123a08]
+                          !             :   1 ZSTD_buildSeqTable  (in qzt-before) + 148  [0x100123ba0]
+                          !             :     1 FSE_readNCount_bmi2  (in qzt-before) + 612  [0x1000bc6fc]
+                          !             1 ZSTD_decompressBlock_internal  (in qzt-before) + 404  [0x100123e94]
+                          !               1 ZSTD_decompressSequences  (in qzt-before) + 1016  [0x100127aec]
+                          2 qzt::reader::decode_compressed_entry::h1412d31e59adcb25  (in qzt-before) + 300  [0x10009efac]
+                            2 blake3::hash::hc88f3a17e20d6080  (in qzt-before) + 192  [0x1000b8c8c]
+                              2 blake3::compress_subtree_to_parent_node::hc22db8461dfa3608  (in qzt-before) + 92  [0x1000b8b08]
+                                2 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 288  [0x1000b8618]
+                                  2 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 288  [0x1000b8618]
+                                    1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 244  [0x1000b85ec]
+                                    : 1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 244  [0x1000b85ec]
+                                    :   1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 288  [0x1000b8618]
+                                    :     1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 288  [0x1000b8618]
+                                    :       1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 548  [0x1000b871c]
+                                    :         1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 548  [0x1000b871c]
+                                    :           1 blake3_hash_many_neon  (in qzt-before) + 2108  [0x1000bafb0]
+                                    1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 288  [0x1000b8618]
+                                      1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 244  [0x1000b85ec]
+                                        1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 244  [0x1000b85ec]
+                                          1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 288  [0x1000b8618]
+                                            1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 548  [0x1000b871c]
+                                              1 blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 548  [0x1000b871c]
+                                                1 blake3_hash_many_neon  (in qzt-before) + 2108  [0x1000bafb0]
+
+Total number in stack (recursive counted multiple, when >=5):
+        7       uniquing_table_stack_retain_internal  (in MallocStackLogging) + 0  [0x1b2899448]
+        7       xzm_malloc_zone_size  (in libsystem_malloc.dylib) + 0  [0x181bb8304]
+        6       __thread_stack_pcs  (in libsystem_c.dylib) + 0  [0x181c64b9c]
+        6       add_stack_to_ptr  (in MallocStackLogging) + 312  [0x1b289afd8]
+        6       blake3::compress_subtree_wide::h9ebb9af415bf768b  (in qzt-before) + 288  [0x1000b8618]
+        6       pthread_stack_frame_decode_np  (in libsystem_pthread.dylib) + 0  [0x181da018c]
+        6       thread_stack_pcs  (in libsystem_c.dylib) + 28  [0x181c3794c]
+        6       uniquing_table_stack_retain  (in MallocStackLogging) + 128  [0x1b2899328]
+        6       uniquing_table_stack_retain  (in MallocStackLogging) + 88  [0x1b2899300]
+        5       __thread_stack_pcs  (in libsystem_c.dylib) + 128  [0x181c64c1c]
+        5       _dyld_stack_range  (in libdyld.dylib) + 0  [0x18197a1d8]
+        5       _xzm_xzone_malloc_tiny  (in libsystem_malloc.dylib) + 0  [0x181bbca4c]
+
+Sort by top of stack, same collapsed (when >= 5):
+        _platform_memcmp  (in libsystem_platform.dylib)        106
+        qzt::search::emit_line_granule::hc0c2587691b37e9e  (in qzt-before)        63
+        __thread_stack_pcs  (in libsystem_c.dylib)        61
+        uniquing_table_stack_retain_internal  (in MallocStackLogging)        57
+        pthread_stack_frame_decode_np  (in libsystem_pthread.dylib)        32
+        xzm_malloc_zone_size  (in libsystem_malloc.dylib)        32
+        ???  (in <unknown binary>)  [0x1895f396c]        19
+        _dyld_stack_range  (in libdyld.dylib)        19
+        _xzm_xzone_malloc_tiny  (in libsystem_malloc.dylib)        17
+        _xzm_free_zone  (in libsystem_malloc.dylib)        15
+        DYLD-STUB$$memcmp  (in qzt-before)        14
+        mach_absolute_time  (in libsystem_kernel.dylib)        11
+        _platform_memmove  (in libsystem_platform.dylib)        10
+        pthread_get_stacksize_np  (in libsystem_pthread.dylib)        9
+        required_allocation_size  (in MallocStackLogging)        9
+        _malloc_zone_malloc_instrumented_or_legacy  (in libsystem_malloc.dylib)        8
+        find_zone_and_free  (in libsystem_malloc.dylib)        8
+        <deduplicated_symbol>  (in qzt-before)        7
+        _xzm_malloc  (in libsystem_malloc.dylib)        7
+        qzt::search::ngram_keys::hfdd552705430c750  (in qzt-before)        7
+        uniquing_table_retain  (in MallocStackLogging)        7
+        stack_logging_lite_malloc  (in MallocStackLogging)        6
+        uniquing_table_stack_release  (in MallocStackLogging)        6
+        _xzm_free  (in libsystem_malloc.dylib)        5
+        msl_get_hash_cache  (in MallocStackLogging)        5
+        pthread_get_stackaddr_np  (in libsystem_pthread.dylib)        5
+
+Binary Images:
+       0x100060000 -        0x1001b7d27 +qzt-before (0) <C92D68B7-BDC5-381E-BEAA-1D7894556986> /Volumes/*/qzt-before
+       0x181918000 -        0x1819675f7  libobjc.A.dylib (973.1) <C0680DF6-9900-3C29-A071-95A031686EF8> /usr/lib/libobjc.A.dylib
+       0x181968000 -        0x18197223f  libsharedcache.dylib (0) <117C1ED6-AE11-3D9E-B05B-844F35395552> /usr/lib/libsharedcache.dylib
+       0x181973000 -        0x181999d3b  libdyld.dylib (27062) <62863BCA-DD60-3D32-A9DB-89099BA6F3D7> /usr/lib/system/libdyld.dylib
+       0x18199a000 -        0x181a596e3  dyld (1.0.0 - 27062) <D341DDCB-7969-3A9C-8E03-0CF4751398A9> /usr/lib/dyld
+       0x181a5a000 -        0x181a5d01f  libsystem_blocks.dylib (98.1) <6F304731-D95D-3501-B4AD-F2934F7F2446> /usr/lib/system/libsystem_blocks.dylib
+       0x181a5e000 -        0x181ab30df  libxpc.dylib (3298.1.1) <0791121F-B5FC-3F84-BF04-115E86D2D882> /usr/lib/system/libxpc.dylib
+       0x181ab4000 -        0x181ad3c13  libsystem_trace.dylib (1966.1.1) <B48A8E3E-A12A-3342-8321-428B555E965E> /usr/lib/system/libsystem_trace.dylib
+       0x181ad4000 -        0x181b88f27  libcorecrypto.dylib (2109.0.22) <807AA6C9-5D8A-3CA5-B4CE-FACE5296EF6A> /usr/lib/system/libcorecrypto.dylib
+       0x181b89000 -        0x181bdec5f  libsystem_malloc.dylib (886.0.8) <2339CB57-FE5A-3154-A206-A76059C749EB> /usr/lib/system/libsystem_malloc.dylib
+       0x181bdf000 -        0x181c2519f  libdispatch.dylib (1605.0.2) <022BF08F-0B3A-3225-9E65-16D1553CE90D> /usr/lib/system/libdispatch.dylib
+       0x181c26000 -        0x181c28d2b  libsystem_featureflags.dylib (108) <20C1CAB2-1F13-3426-8146-9CAE9FF2A33D> /usr/lib/system/libsystem_featureflags.dylib
+       0x181c29000 -        0x181cabca3  libsystem_c.dylib (1786.0.3) <FBA7B23E-AA60-3A90-9AA4-A7A2E0AD63EE> /usr/lib/system/libsystem_c.dylib
+       0x181cac000 -        0x181d41033  libc++.1.dylib (2200.27) <1E9BA4AA-B5DA-3CF3-80AC-4B880049573F> /usr/lib/libc++.1.dylib
+       0x181d42000 -        0x181d5beff  libc++abi.dylib (2200.27) <A21743EE-6E1C-3E74-97EA-7AF793DE4BDF> /usr/lib/libc++abi.dylib
+       0x181d5c000 -        0x181d9a9ab  libsystem_kernel.dylib (13432.1.9) <F63BF418-8F75-34A4-AAF1-8CAF2B9B6A05> /usr/lib/system/libsystem_kernel.dylib
+       0x181d9b000 -        0x181da791b  libsystem_pthread.dylib (553.0.1) <5A1828C3-CBC2-3B85-BD07-C8ED10021A41> /usr/lib/system/libsystem_pthread.dylib
+       0x181da8000 -        0x181db14f3  libsystem_platform.dylib (402.0.1.0.1) <080E4444-A0FB-3913-9756-4E470015F32F> /usr/lib/system/libsystem_platform.dylib
+       0x181db2000 -        0x181de0903  libsystem_info.dylib (603) <BC387AEB-1CEF-3513-92D7-D7F913596711> /usr/lib/system/libsystem_info.dylib
+       0x185f0a000 -        0x185f13b13  libsystem_darwin.dylib (1786.0.3) <4E66C888-993C-3E6A-A8DA-A949C01C5B67> /usr/lib/system/libsystem_darwin.dylib
+       0x186364000 -        0x186375b8b  libsystem_notify.dylib (368) <58FD36D8-37A7-311C-80F2-8E64DD8710CF> /usr/lib/system/libsystem_notify.dylib
+       0x1884c1000 -        0x1884dbd93  libsystem_networkextension.dylib (2340.1.2) <22E1D190-486F-324F-ABA4-F36AB841BFE9> /usr/lib/system/libsystem_networkextension.dylib
+       0x188569000 -        0x188580247  libsystem_asl.dylib (409) <B4D449B7-A821-3A9A-8019-E917B291F10A> /usr/lib/system/libsystem_asl.dylib
+       0x189514000 -        0x189514f2f  libobjcMsgSend.dylib (973.1) <41179EDE-DC97-3BBE-8848-6400D12C1436> /usr/lib/objc/libobjcMsgSend.dylib
+       0x18a660000 -        0x18a667edf  libsystem_symptoms.dylib (2394.0.4) <60EE7884-9F4E-3184-A6AC-FA40A7A0297D> /usr/lib/system/libsystem_symptoms.dylib
+       0x18e9f8000 -        0x18ea32aeb  libsystem_containermanager.dylib (833.0.8.0.1) <08A57205-555D-3792-8931-9D5B585AF326> /usr/lib/system/libsystem_containermanager.dylib
+       0x19004b000 -        0x19004f317  libsystem_configuration.dylib (1446) <F3EB66A7-7A24-3AE5-B6E8-9A37BB00F119> /usr/lib/system/libsystem_configuration.dylib
+       0x190050000 -        0x190056e03  libsystem_sandbox.dylib (3051.0.52) <1E892B56-092E-3832-BDE3-DCE356D7A4FA> /usr/lib/system/libsystem_sandbox.dylib
+       0x191514000 -        0x191514f2f  libobjcMsgSend1.dylib (973.1) <B40D9B2A-E1EE-37ED-8004-711A1F263DE1> /usr/lib/objc/libobjcMsgSend1.dylib
+       0x191c34000 -        0x191c36f93  libquarantine.dylib (217.0.4) <7FD4AE22-86EF-382B-83F5-ADF9336C1160> /usr/lib/system/libquarantine.dylib
+       0x192346000 -        0x19234c1e7  libsystem_coreservices.dylib (203) <57248E07-11A5-3857-918E-4A3A63B69FE8> /usr/lib/system/libsystem_coreservices.dylib
+       0x19290e000 -        0x19294bb27  libsystem_m.dylib (3326.0.1) <A3FB340F-3ED5-30F4-8B64-9D5860F64D35> /usr/lib/system/libsystem_m.dylib
+       0x19294d000 -        0x1929504f7  libmacho.dylib (27062) <50DEADEC-3E99-3519-AFC3-4A3FEB3F14C3> /usr/lib/system/libmacho.dylib
+       0x19296a000 -        0x192976707  libcommonCrypto.dylib (600041) <41C99F45-C5E6-39DB-B1F2-A1BEA9D242A4> /usr/lib/system/libcommonCrypto.dylib
+       0x192977000 -        0x192980c87  libunwind.dylib (2200.5) <3070AB81-B082-39E8-8A00-EF88DDE9AC47> /usr/lib/system/libunwind.dylib
+       0x192988000 -        0x1929927eb  libcopyfile.dylib (260.0.3) <72D95AF9-BF5E-3A84-81A6-BCC5BDB99857> /usr/lib/system/libcopyfile.dylib
+       0x192993000 -        0x1929968bf  libcompiler_rt.dylib (103.4) <DFB5CE7F-A36E-36AA-BECE-1392D3D43607> /usr/lib/system/libcompiler_rt.dylib
+       0x192997000 -        0x19299c077  libsystem_collections.dylib (1786.0.3) <1E8022D4-5A37-3A7A-8936-603E6FA88358> /usr/lib/system/libsystem_collections.dylib
+       0x19299d000 -        0x19299ff1f  libsystem_secinit.dylib (182) <DE037464-4C5D-3E96-A33F-2A4557CC6A20> /usr/lib/system/libsystem_secinit.dylib
+       0x1929a0000 -        0x1929a297f  libremovefile.dylib (96) <E6E6DFCF-6B2C-3F30-A59D-816CAB1190CE> /usr/lib/system/libremovefile.dylib
+       0x1929a3000 -        0x1929a3e27  libkeymgr.dylib (31) <5EC997EF-3ADA-360B-9FCD-5F940C83FA4E> /usr/lib/system/libkeymgr.dylib
+       0x1929a4000 -        0x1929acaf7  libsystem_dnssd.dylib (3111.0.5.0.1) <DE22096F-1E5B-3D6E-8164-771582DD6391> /usr/lib/system/libsystem_dnssd.dylib
+       0x1929ad000 -        0x1929b1f1b  libcache.dylib (95) <80BAE197-E285-3F6E-A1EE-B77FE37D7E5D> /usr/lib/system/libcache.dylib
+       0x1929b2000 -        0x1929b38f3  libSystem.B.dylib (1359) <4FDC9AA6-B344-37FE-B8C6-A4C94A038F57> /usr/lib/libSystem.B.dylib
+       0x199514000 -        0x199514f2f  libobjcMsgSend2.dylib (973.1) <BD27A84B-C9AE-3282-BBEA-3B6119837B5A> /usr/lib/objc/libobjcMsgSend2.dylib
+       0x1a1514000 -        0x1a1514f2f  libobjcMsgSend3.dylib (973.1) <C0860D68-DDFC-3BD7-8B06-DB0645CBBED4> /usr/lib/objc/libobjcMsgSend3.dylib
+       0x1a9514000 -        0x1a9514f2f  libobjcMsgSend4.dylib (973.1) <A6153BF5-622B-3B01-81B6-F64A365EF613> /usr/lib/objc/libobjcMsgSend4.dylib
+       0x1b1514000 -        0x1b1514f2f  libobjcMsgSend5.dylib (973.1) <3913A71C-B29A-3AEA-820B-BEC40AC1861A> /usr/lib/objc/libobjcMsgSend5.dylib
+       0x1b2897000 -        0x1b28a3437  com.apple.MallocStackLogging (1.0 - 65000) <FF92B432-827A-36CD-A3CB-7BAAA6581179> /System/Library/PrivateFrameworks/MallocStackLogging.framework/Versions/A/MallocStackLogging
+       0x1b9514000 -        0x1b9514f2f  libobjcMsgSend6.dylib (973.1) <9BC523A3-E167-3F6C-8CAE-0F3EBA671791> /usr/lib/objc/libobjcMsgSend6.dylib
+       0x1c1514000 -        0x1c1514f2f  libobjcMsgSend7.dylib (973.1) <248B7BCE-5B4C-34C7-A340-43D5228628C5> /usr/lib/objc/libobjcMsgSend7.dylib
+       0x1c9514000 -        0x1c9514f2f  libobjcMsgSend8.dylib (973.1) <3E041BAD-A8E8-3069-B741-78CD1A45B176> /usr/lib/objc/libobjcMsgSend8.dylib
+       0x1d1514000 -        0x1d1514f2f  libobjcMsgSend9.dylib (973.1) <34A67969-21A0-39D6-BB81-8FDA5A2409DB> /usr/lib/objc/libobjcMsgSend9.dylib
+       0x1d9514000 -        0x1d9514f2f  libobjcMsgSend10.dylib (973.1) <678186C0-8EAD-3B35-8CBB-00285B41E4A0> /usr/lib/objc/libobjcMsgSend10.dylib
+       0x1e1514000 -        0x1e1514f2f  libobjcMsgSend11.dylib (973.1) <E05CB08C-E956-36FA-8967-AE8E346A8D2C> /usr/lib/objc/libobjcMsgSend11.dylib
+       0x209514000 -        0x209514f2f  libobjcMsgSend12.dylib (973.1) <10AB03AA-FF1F-3FDC-9DFB-BFC40042C501> /usr/lib/objc/libobjcMsgSend12.dylib
+       0x211514000 -        0x211514f2f  libobjcMsgSend13.dylib (973.1) <ABF53427-FA6F-3D0D-8F9D-7AD795CA5C92> /usr/lib/objc/libobjcMsgSend13.dylib
+       0x219514000 -        0x219514f2f  libobjcMsgSend14.dylib (973.1) <9A844C46-A6DA-34D4-8EBF-2AD775C30684> /usr/lib/objc/libobjcMsgSend14.dylib
+       0x221514000 -        0x221514f2f  libobjcMsgSend15.dylib (973.1) <7C995666-2B2D-3284-AA0A-EBF7C922838E> /usr/lib/objc/libobjcMsgSend15.dylib
+       0x229514000 -        0x229514f2f  libobjcMsgSend16.dylib (973.1) <B6C0E14B-53AE-3E22-9ED5-1729C49F46F2> /usr/lib/objc/libobjcMsgSend16.dylib
+       0x231514000 -        0x231514f2f  libobjcMsgSend17.dylib (973.1) <07B4CF85-251B-301B-832B-20B315A59E19> /usr/lib/objc/libobjcMsgSend17.dylib
+       0x239514000 -        0x239514f2f  libobjcMsgSend18.dylib (973.1) <43E575B7-04DB-3999-A633-1A3B638BA6E3> /usr/lib/objc/libobjcMsgSend18.dylib
+       0x241514000 -        0x241514f2f  libobjcMsgSend19.dylib (973.1) <736F4D85-76F7-3B28-8D87-C07E8F7A0EF4> /usr/lib/objc/libobjcMsgSend19.dylib
+       0x249514000 -        0x249514f2f  libobjcMsgSend20.dylib (973.1) <74E67C8B-6BCA-3184-A18E-A97F370052C6> /usr/lib/objc/libobjcMsgSend20.dylib
+       0x251514000 -        0x251514f2f  libobjcMsgSend21.dylib (973.1) <CC0D732F-98E7-3888-9E15-70984DA2FB04> /usr/lib/objc/libobjcMsgSend21.dylib
+       0x259514000 -        0x259514f2f  libobjcMsgSend22.dylib (973.1) <85A60286-5DE3-32BA-B18C-2A498B065C88> /usr/lib/objc/libobjcMsgSend22.dylib
+       0x261514000 -        0x261514f2f  libobjcMsgSend23.dylib (973.1) <5452A0D2-6B19-39BE-ADDD-80B7BCDE3A98> /usr/lib/objc/libobjcMsgSend23.dylib
+       0x269514000 -        0x269514f2f  libobjcMsgSend24.dylib (973.1) <94BBF2D6-722B-350D-8557-4D25A8E8D53A> /usr/lib/objc/libobjcMsgSend24.dylib
+       0x271514000 -        0x271514f2f  libobjcMsgSend25.dylib (973.1) <35481387-5A8E-3AE4-86A6-94CEB3CC8726> /usr/lib/objc/libobjcMsgSend25.dylib
+       0x289514000 -        0x289514f2f  libobjcMsgSend26.dylib (973.1) <9E0C8664-E7F4-39D1-AAFC-BD92B255E4E8> /usr/lib/objc/libobjcMsgSend26.dylib
+       0x291514000 -        0x291514f2f  libobjcMsgSend27.dylib (973.1) <FD424935-55A9-3650-955A-EED3441A1D19> /usr/lib/objc/libobjcMsgSend27.dylib
+       0x299514000 -        0x299514f2f  libobjcMsgSend28.dylib (973.1) <09BA7B97-7DF7-3C7F-932A-B6847662FC49> /usr/lib/objc/libobjcMsgSend28.dylib
+       0x2a1514000 -        0x2a1514f2f  libobjcMsgSend29.dylib (973.1) <36D5BA3F-2139-30B0-8558-556764BE9813> /usr/lib/objc/libobjcMsgSend29.dylib
+       0x2a9514000 -        0x2a9514f2f  libobjcMsgSend30.dylib (973.1) <9F05564A-9D12-372C-98FC-E9F0E6BE4F04> /usr/lib/objc/libobjcMsgSend30.dylib
+       0x2ae22e000 -        0x2ae234fe5  libRosetta.dylib (385) <E359944B-D230-33F9-A04E-0C3B17C3326E> /usr/lib/libRosetta.dylib
+       0x2aec1d000 -        0x2aec2075b  libsystem_darwindirectory.dylib (129.0.1) <61264923-2AA5-3658-B8C4-550C71E9D4B3> /usr/lib/system/libsystem_darwindirectory.dylib
+       0x2aec21000 -        0x2aec2bd9b  libsystem_eligibility.dylib (446.1.3) <EDDE8E9C-A2CF-3931-BBB3-321CB852EB30> /usr/lib/system/libsystem_eligibility.dylib
+       0x2aec2c000 -        0x2aec3542b  libsystem_sanitizers.dylib (32) <7138ED99-7AA0-34EA-B35B-20EF6ADB1EED> /usr/lib/system/libsystem_sanitizers.dylib
+       0x2aec36000 -        0x2aec36a13  libsystem_trial.dylib (511) <6AE48824-EC44-3A8C-B501-BE57DBE892E7> /usr/lib/system/libsystem_trial.dylib
+       0x2b1514000 -        0x2b1514f2f  libobjcMsgSend31.dylib (973.1) <0985E20F-78C3-3466-A2B2-DBB95F7104A3> /usr/lib/objc/libobjcMsgSend31.dylib
+       0x2b9514000 -        0x2b9514f2f  libobjcMsgSend32.dylib (973.1) <0D309D58-D576-3E5D-AD4B-6D55AB491702> /usr/lib/objc/libobjcMsgSend32.dylib
+       0x2c1514000 -        0x2c1514f2f  libobjcMsgSend33.dylib (973.1) <346E0484-48FA-369B-8A64-93B5F5341CFE> /usr/lib/objc/libobjcMsgSend33.dylib
+       0x2c9514000 -        0x2c9514f2f  libobjcMsgSend34.dylib (973.1) <6A31F809-BCBE-3E01-A367-E91FDACCE324> /usr/lib/objc/libobjcMsgSend34.dylib

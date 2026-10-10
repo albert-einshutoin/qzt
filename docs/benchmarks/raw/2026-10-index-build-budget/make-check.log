@@ -1,0 +1,929 @@
+cargo fmt --all -- --check
+cargo clippy --all-targets --all-features -- -D warnings
+    Checking qzt v0.1.0-pre.6 (/Volumes/Satechi/Developer/qzt-index-budget-20261010)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.55s
+cargo check --lib --bins
+    Checking qzt v0.1.0-pre.6 (/Volumes/Satechi/Developer/qzt-index-budget-20261010)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.52s
+cargo test --all-targets --all-features
+   Compiling qzt v0.1.0-pre.6 (/Volumes/Satechi/Developer/qzt-index-budget-20261010)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.44s
+     Running unittests src/lib.rs (target/debug/deps/qzt-21dc6e63b1855c7b)
+
+running 63 tests
+test primitives::tests::usize_max_fits_in_u64_on_64_bit ... ok
+test primitives::tests::usize_to_u64_zero_roundtrips ... ok
+test primitives::tests::u64_to_usize_zero_roundtrips ... ok
+test primitives::tests::roundtrip_u32_max_boundary ... ok
+test dense_line_index::allocation_tests::reservation_failure_is_a_regular_error ... ok
+test chunk_table::search_tests::partition_by_end_supports_byte_and_line_boundaries ... ok
+test reader::document_hasher_tests::hashes_document_contained_in_a_single_chunk ... ok
+test reader::document_hasher_tests::hashes_document_spanning_multiple_chunks ... ok
+test reader::document_hasher_tests::hashes_out_of_order_documents_by_their_original_index ... ok
+test codec::tests::decoded_output_at_limit_succeeds_and_over_limit_is_rejected ... ok
+test reader::document_hasher_tests::hashes_overlapping_documents_independently ... ok
+test reader::search_cache_budget_tests::hits_are_free_and_evicted_chunks_are_charged_again ... ok
+test reader::document_hasher_tests::empty_documents_are_excluded_from_results ... ok
+test schema::accessors::field_skips_non_text_keys_without_allocating ... ok
+test schema::accessors::optional_checksum_returns_none_when_key_absent ... ok
+test io::shared_tests::open_file_with_len_returns_the_same_handle_length ... ok
+test schema::accessors::reject_unknown_keys_keeps_allowing_listed_keys ... ok
+test schema::refactor::block_descriptor_constructors_set_distinct_types_and_required_flag ... ok
+test schema::refactor::decode_prologue_rejects_unknown_keys_before_schema_check ... ok
+test schema::refactor::decode_prologue_rejects_wrong_schema_name ... ok
+test schema::refactor::decode_prologue_rejects_wrong_format_version ... ok
+test schema::refactor::metadata_empty_matches_for_source_with_zero_size_and_lf_count ... ok
+test schema::refactor::metadata_for_source_defaults_dictionary_mode_to_none ... ok
+test search::serialized_metrics_tests::build_counter_overflow_and_inclusive_limit_fail_before_increment ... ok
+test search::serialized_metrics_tests::chunk_counter_merges_unordered_contained_adjacent_and_wide_spans ... ok
+test search::serialized_metrics_tests::bounded_span_generation_preserves_token_and_and_ngram_overlap_order ... ok
+test search::serialized_metrics_tests::intersection_work_budget_has_an_inclusive_boundary_without_truncation ... ok
+test schema::refactor::document_index_decode_rejects_duplicate_document_ids ... ok
+test search::serialized_metrics_tests::oversized_line_uses_legacy_granule_size_in_metrics ... ok
+test search::serialized_metrics_tests::shared_chunk_counter_deduplicates_overlapping_spans ... ok
+test schema::refactor::document_index_writer_budget_matches_reader_cbor_accounting ... ok
+test search::serialized_metrics_tests::shared_search_helpers_preserve_empty_report_contract ... ok
+test sidecar::manifest_tests::decoders_reject_impossible_counts_before_allocation ... ok
+test sidecar::manifest_tests::file_term_dictionary_rejects_unsorted_bad_hash_flags_and_ranges ... ok
+test sidecar::manifest_tests::legacy_bad_first_hash_stops_before_later_malformed_record ... ok
+test sidecar::manifest_tests::legacy_granule_records_remain_decodable ... ok
+test search::serialized_metrics_tests::raw_builder_from_parts_and_public_mutation_do_not_claim_coverage_proof ... ok
+test sidecar::manifest_tests::granule_coordinates_respect_chunk_boundaries_eof_and_continuation ... ok
+test sidecar::manifest_tests::manifest_rejects_unsupported_source_format_version ... ok
+test sidecar::manifest_tests::manifest_schema_and_encoding_fields_are_a_fixed_contract ... ok
+test sidecar::manifest_tests::manifest_u32_overflow_preserves_resource_limit_error ... ok
+test sidecar::manifest_tests::posting_decode_enforces_one_cumulative_id_budget ... ok
+test sidecar::manifest_tests::legacy_saved_key_hash_is_checked_with_valid_section_checksum ... ok
+test sidecar::manifest_tests::malformed_candidate_is_checked_before_memory_cap_but_lazy_cap_skips_unread_record ... ok
+test io::shared_tests::range_hash_matches_the_exact_selected_bytes_across_buffer_boundaries ... ok
+test sidecar::manifest_tests::in_memory_and_file_open_fail_closed_on_term_frequency_tamper ... ok
+test sidecar::manifest_tests::empty_source_has_zero_granules_in_both_encodings_and_readers ... ok
+test sidecar::manifest_tests::search_rejects_a_reader_other_than_the_bound_container ... ok
+test sidecar::manifest_tests::qzi_granule_claiming_two_chunks_for_one_chunk_is_rejected ... ok
+test sidecar::manifest_tests::clipped_token_granule_does_not_create_a_false_hit ... ok
+test sidecar::manifest_tests::section_limits_are_checked_before_section_io_or_decode ... ok
+test sidecar::manifest_tests::multiline_granule_does_not_satisfy_line_local_token_and ... ok
+test writer::writer_contract_tests::reader_chunk_and_block_bounds_are_inclusive_for_writer ... ok
+test writer::writer_contract_tests::writer_cbor_block_uses_reader_item_allocation_and_stored_size_limits ... ok
+test skeleton::allocation_tests::positioned_block_read_reports_reservation_failure ... ok
+test writer::writer_contract_tests::encoded_and_expanded_index_bounds_are_checked_separately ... ok
+test search::serialized_metrics_tests::many_empty_lines_do_not_hide_a_later_same_line_token_match ... ok
+test sidecar::manifest_tests::token_boundary_read_preflights_adjacent_chunk_and_logical_bytes ... ok
+test sidecar::manifest_tests::v1_sidecar_payload_remains_readable_after_v2_introduction ... ok
+test sidecar::manifest_tests::search_budgets_apply_to_v1_v2_token_and_ngram_on_both_reader_paths ... ok
+test sidecar::manifest_tests::qzi_v1_v2_early_reports_keep_query_and_cap_status_independent ... ok
+test sidecar::manifest_tests::token_and_ngram_v1_v2_reject_invalid_granules_on_both_reader_paths ... ok
+test sidecar::manifest_tests::qzi_v1_v2_reports_declaration_without_claiming_verified_coverage ... ok
+
+test result: ok. 63 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/main.rs (target/debug/deps/qzt-bc69627f5feb1c57)
+
+running 11 tests
+test cli_json::tests::escape_control_character ... ok
+test cli_json::tests::escape_plain_string_unchanged ... ok
+test cli_json::tests::hex_single_byte ... ok
+test cli_json::tests::hex_empty ... ok
+test cli_json::tests::escape_tab_cr_lf ... ok
+test cli_json::tests::escape_quote_and_backslash ... ok
+test cli_attest::tests::absent_container_checksum_is_canonical_null ... ok
+test cli_json::tests::hex_two_bytes ... ok
+test atomic_output_tests::cleanup_failure_keeps_primary_error_and_names_remaining_file ... ok
+test atomic_output_tests::post_replace_sync_failure_reports_replacement_and_keeps_new_content ... ok
+test atomic_output_tests::failures_before_replacement_preserve_old_and_new_destinations ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/cli_help.rs (target/debug/deps/cli_help-e0ad3bed781c0dec)
+
+running 6 tests
+test pack_rejects_invalid_profile_with_usage_error ... ok
+test pack_help_states_technical_preview_positioning ... ok
+test pack_help_lists_supported_profiles ... ok
+test result_help_explains_independent_guarantees ... ok
+test pack_accepts_options_before_the_input_path ... ok
+test every_subcommand_exposes_command_specific_help ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/json_output_serde_roundtrip.rs (target/debug/deps/json_output_serde_roundtrip-c9fa239938a1af85)
+
+running 5 tests
+test docs_json_serde_roundtrip_has_required_fields ... ok
+test verify_json_serde_roundtrip_has_required_fields ... ok
+test search_json_serde_roundtrip_has_required_fields ... ok
+test verify_json_error_contract_is_stable ... ok
+test info_json_serde_roundtrip_has_required_fields ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/makefile_contract.rs (target/debug/deps/makefile_contract-8e62016ba51c3427)
+
+running 2 tests
+test bench_profile_matrix_runs_only_the_named_matrix_test ... ok
+test bench_profile_runs_only_the_named_profile_test ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase0_smoke.rs (target/debug/deps/phase0_smoke-895ff594b6995d2f)
+
+running 4 tests
+test fixture_directories_exist ... ok
+test library_can_be_imported ... ok
+test cli_responds_to_help ... ok
+test cli_help_command_matches_help_flag ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase10_dense_line_index.rs (target/debug/deps/phase10_dense_line_index-81cb7e7aab62a572)
+
+running 13 tests
+test dense_decoder_checks_counts_varints_and_ranges_without_allocating ... ok
+test dense_decoder_rejects_impossible_declared_offsets_before_reserve ... ok
+test dense_line_index_reads_final_line_without_newline ... ok
+test dense_allocation_budget_is_cumulative_and_shared_by_readers ... ok
+test deep_verify_detects_dense_line_index_disagreement ... ok
+test recomputed_original_checksum_mismatch_is_deep_only_for_both_readers ... ok
+test dense_line_index_count_mismatch_is_rejected ... ok
+test impossible_declared_lines_reach_chunk_table_before_dli_allocation ... ok
+test checksum_valid_malformed_dli_reaches_decoder_in_both_readers ... ok
+test dense_reader_preserves_newline_and_empty_inputs ... ok
+test memory_profile_below_dense_threshold_omits_dense_line_index ... ok
+test memory_profile_at_dense_threshold_writes_dense_line_index ... ok
+test sparse_vs_dense_line_lookup_benchmark_records_threshold_evidence ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/phase10_document_index.rs (target/debug/deps/phase10_document_index-de67d3543d2ed6b9)
+
+running 9 tests
+test document_spanning_multiple_chunks_deep_verifies ... ok
+test out_of_order_documents_deep_verify ... ok
+test document_index_chunk_range_inconsistency_is_rejected_by_deep_verify ... ok
+test memory_profile_writes_document_index_flags_and_deep_verifies ... ok
+test empty_document_deep_verifies_without_decoded_bytes ... ok
+test document_index_ranges_are_verified_by_deep_verify ... ok
+test read_document_resolves_by_id_and_reports_missing ... ok
+test document_checksum_mismatch_is_rejected_by_deep_verify ... ok
+test info_json_identity_fields_survive_document_index_container ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase11_search.rs (target/debug/deps/phase11_search-3745d6e8945bdff6)
+
+running 12 tests
+test exact_key_comparison_wins_over_key_hash_collision ... ok
+test delta_varint_postings_round_trip_large_granule_ids ... ok
+test unsorted_posting_lists_are_rejected ... ok
+test token_search_candidates_are_verified_against_original_bytes ... ok
+test multi_token_search_returns_verified_hits_for_every_query_token ... ok
+test normalized_token_index_is_rejected_in_phase11 ... ok
+test line_granules_are_inside_original_and_cover_overlapping_chunks ... ok
+test term_dictionary_and_postings_are_sorted ... ok
+test unindexable_query_reports_incomplete_reason ... ok
+test token_build_and_search_from_file_match_in_memory_paths ... ok
+test dense_query_amortizes_physical_chunk_decodes ... ok
+test cli_search_reports_verified_hits_and_metrics ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/phase12_ngram_planner.rs (target/debug/deps/phase12_ngram_planner-03a49473094ffeea)
+
+running 11 tests
+test normalized_ngram_index_is_rejected_without_mapping_metadata ... ok
+test ngram_declaration_uses_raw_unicode_scalar_without_normalization ... ok
+test missing_key_in_complete_index_returns_no_match_without_decode ... ok
+test repeated_ngrams_have_one_posting_per_line_in_increasing_order ... ok
+test missing_key_in_incomplete_index_reports_incomplete_without_fallback_decode ... ok
+test query_shorter_than_n_reports_incomplete_reason ... ok
+test ngram_search_verifies_substring_across_chunk_boundaries ... ok
+test planner_uses_rarest_non_high_df_key_first ... ok
+test ngram_build_and_search_from_file_match_in_memory_paths ... ok
+test cli_ngram_search_reports_benchmark_metrics ... ok
+test skip_data_reduces_reported_posting_bytes_for_long_lists ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/phase13_sidecar.rs (target/debug/deps/phase13_sidecar-929dee96e2b0ab11)
+
+running 31 tests
+test file_sidecar_open_rejects_wrong_source_container ... ok
+test common_term_sidecar_query_is_capped_without_decoding_candidates ... ok
+test dense_sidecar_query_amortizes_physical_chunk_decodes ... ok
+test file_sidecar_cold_open_verifies_sections_then_query_reads_only_needed_records ... ok
+test file_sidecar_search_matches_in_memory_sidecar_search ... ok
+test missing_or_rejected_sidecar_does_not_break_core_operations ... ok
+test file_sidecar_search_reads_lazily_from_sidecar ... ok
+test rare_term_sidecar_query_decodes_only_candidate_overlapping_chunks ... ok
+test rejected_sidecar_does_not_break_core_operations ... ok
+test cli_search_rejects_checksum_consistent_out_of_range_chunk_span ... ok
+test section_checksum_bit_flip_sidecar_is_rejected ... ok
+test sidecar_lookup_matches_transient_ngram_index_behavior ... ok
+test file_sidecar_index_size_bytes_follows_serialized_manifest_model ... ok
+test cli_rebuilds_sidecar_and_searches_with_it ... ok
+test cli_search_reports_user_readable_unsupported_sidecar_version ... ok
+test manifest_byte_flip_sidecar_cli_exits_without_panic ... ok
+test truncated_section_sidecar_is_rejected ... ok
+test unsupported_source_format_version_sidecar_is_rejected ... ok
+test cli_inspects_validated_token_and_ngram_sidecars_as_text_and_json ... ok
+test wrong_source_container_id_sidecar_is_rejected ... ok
+test wrong_source_original_checksum_sidecar_is_rejected ... ok
+test zero_length_granules_section_sidecar_is_rejected ... ok
+test section_checksum_bit_flip_sidecar_cli_exits_without_panic ... ok
+test cli_inspect_sidecar_rejects_corruption_without_affecting_core_verify ... ok
+test postings_byte_flip_sidecar_cli_exits_without_panic ... ok
+test terms_byte_flip_sidecar_cli_exits_without_panic ... ok
+test truncated_section_sidecar_cli_exits_without_panic ... ok
+test zero_length_granules_section_sidecar_cli_exits_without_panic ... ok
+test large_sorted_dictionary_looks_up_high_key_for_raw_and_file_sidecar ... ok
+test token_sidecar_for_ten_mib_conversation_corpus_stays_compact ... ok
+test token_sidecar_for_ten_mib_high_cardinality_log_stays_within_value_budget ... ok
+
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.77s
+
+     Running tests/phase15_file_reader.rs (target/debug/deps/phase15_file_reader-ca1246da70253dc8)
+
+running 4 tests
+test open_path_reports_io_error_for_missing_file ... ok
+test file_reader_open_does_not_touch_chunk_data_region ... ok
+test file_reader_range_reads_only_overlapping_chunks ... ok
+test file_reader_matches_in_memory_reader_for_range_line_and_export ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase16_streaming_verify.rs (target/debug/deps/phase16_streaming_verify-2c524f98b0238ac6)
+
+running 4 tests
+test export_to_streams_chunk_order_without_materializing_api_requirement ... ok
+test deep_verify_rejects_stale_document_index_with_range_scoped_read ... ok
+test file_backed_deep_verify_matches_in_memory_deep_verify ... ok
+test file_backed_normal_verify_hashes_compressed_chunks_with_bounded_reads ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/phase17_streaming_writer.rs (target/debug/deps/phase17_streaming_writer-8f3269e75cff2b63)
+
+running 13 tests
+test nonempty_sink_is_rejected_before_header_write ... ok
+test streaming_writer_rejects_invalid_utf8 ... ok
+test constructor_seek_failure_writes_nothing_and_push_failure_poisoning ... ok
+test empty_append_mode_file_cannot_report_unreadable_success ... ok
+test optional_indexes_remain_readable_by_default_readers ... ok
+test buffered_sink_is_flushed_before_prefix_read_and_success ... ok
+test empty_sink_with_capacity_and_advanced_position_is_normalized ... ok
+test finish_io_failures_poison_writer_without_later_writes ... ok
+test writer_builder_rejects_chunk_size_above_default_reader_limit ... ok
+test streamed_container_round_trips_and_finish_is_single_shot ... ok
+test push_fragmentation_does_not_change_output ... ok
+test streaming_writer_is_byte_identical_to_pack_bytes ... ok
+test writer_rejects_document_index_that_default_reader_cannot_decode ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+     Running tests/phase18_competitive_benchmark.rs (target/debug/deps/phase18_competitive_benchmark-e7e81a16b08af948)
+
+running 1 test
+test competitive_benchmark_records_qzt_vs_raw_zstd_range_metrics ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/phase19_resource_governance.rs (target/debug/deps/phase19_resource_governance-08c713c63dfb11c3)
+
+running 7 tests
+test cbor_decoder_applies_item_budget_across_nested_containers ... ok
+test cbor_decoder_uses_caller_supplied_allocation_budget ... ok
+test cbor_decoder_applies_allocation_budget_to_the_complete_value ... ok
+test cbor_decoder_rejects_excessive_nesting_before_recursing_unboundedly ... ok
+test open_with_limits_threads_cbor_budget_into_metadata_decode ... ok
+test search_result_cap_limits_hits_and_marks_report_capped ... ok
+test physical_decode_budget_stops_before_a_large_chunk_is_read ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/phase19_search_budgets.rs (target/debug/deps/phase19_search_budgets-e1f1f58df8cebdbb)
+
+running 5 tests
+test physical_bytes_and_chunk_count_are_charged_for_cache_misses_only ... ok
+test posting_bytes_ids_and_intersection_work_are_independent_of_candidate_cap ... ok
+test query_bytes_and_distinct_keys_are_bounded_on_all_search_paths ... ok
+test line_limit_counts_lf_crlf_unterminated_and_continuation_bytes ... ok
+test cli_rejects_oversized_query_before_open_or_index_build_and_reports_cap_reason ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/phase1_cbor.rs (target/debug/deps/phase1_cbor-98ea9aac53327117)
+
+running 12 tests
+test accepts_canonical_text_keyed_map ... ok
+test encoder_handles_negative_integer_boundaries_without_panics ... ok
+test rejects_indefinite_length_strings ... ok
+test encoder_uses_shortest_integer_encodings ... ok
+test rejects_duplicate_map_keys ... ok
+test encoder_sorts_map_keys_by_encoded_bytes ... ok
+test encoder_rejects_duplicate_map_keys ... ok
+test rejects_non_shortest_integer_encoding ... ok
+test rejects_missing_required_closed_schema_field ... ok
+test rejects_tags_and_floats ... ok
+test rejects_unknown_closed_schema_field ... ok
+test rejects_unsorted_map_keys ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase1_primitives.rs (target/debug/deps/phase1_primitives-34920f1a7cc80def)
+
+running 8 tests
+test checked_range_overflow_uses_specific_errors ... ok
+test little_endian_fixtures_decode ... ok
+test short_primitive_reads_are_fallible ... ok
+test checked_physical_end_matches_checked_add ... ok
+test u32_round_trip ... ok
+test checked_logical_end_matches_checked_add ... ok
+test u16_round_trip ... ok
+test u64_round_trip ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/phase20_public_api.rs (target/debug/deps/phase20_public_api-a1c1d702436c75f4)
+
+running 9 tests
+test public_writer_surface_uses_builder_for_optional_features ... ok
+test profile_validation_writer_builder_rejects_unknown_profile ... ok
+test profile_validation_memory_profile_rejects_missing_document_index ... ok
+test document_index_rejects_explicit_container_id_mismatch_during_pack ... ok
+test document_index_supplies_default_container_id ... ok
+test crate_root_public_api_snapshot_compiles ... ok
+test profile_validation_core_profile_pack_export_round_trips ... ok
+test memory_profile_accepts_document_index ... ok
+test writer_builder_reproduces_simplified_pack_entry_points ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase21_evidence_retrieval.rs (target/debug/deps/phase21_evidence_retrieval-af0746bf84e02673)
+
+running 3 tests
+test verified_range_read_returns_bytes_or_fails_closed ... ok
+test concurrent_file_backed_verified_reads_match_serial_reads ... ok
+test verified_document_read_resolves_document_index ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase22_vectors.rs (target/debug/deps/phase22_vectors-b8666df5fee5a068)
+
+running 8 tests
+test regenerate_vectors ... ignored, only run manually to regenerate test vectors
+test manifest_export_escape_grammar_is_strict_and_byte_preserving ... ok
+test published_manifest_has_v1_schema_and_required_coverage ... ok
+test extension_aware_runner_matches_index_expectations ... ok
+test valid_vectors_encode_the_declared_core_features ... ok
+test published_vector_files_match_frozen_blake3 ... ok
+test portable_vector_runner_matches_manifest ... ok
+test vectors_regenerate_byte_identically ... ok
+
+test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/phase23_acceptance.rs (target/debug/deps/phase23_acceptance-a8666a9384b3152a)
+
+running 4 tests
+test validation_corpora_are_deterministic ... ok
+test corruption_sweep_detects_chunk_metadata_and_index_mutations ... ok
+test soft_targets_are_recorded_without_hard_failing_on_band_drift ... ok
+test hard_invariants_hold_for_c1_through_c6 ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/phase23a_validation_corpus.rs (target/debug/deps/phase23a_validation_corpus-faffcabcf2ac8002)
+
+running 2 tests
+test c1_fixture_has_conversation_shape_and_is_deterministic ... ok
+test c1_conversation_pack_export_document_index_and_utf8_boundary_smoke ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase2_fixed.rs (target/debug/deps/phase2_fixed-6f63674ebef0283f)
+
+running 7 tests
+test footer_trailer_rejects_corrupt_magic_length_and_version ... ok
+test footer_trailer_round_trips_with_exact_layout ... ok
+test physical_ranges_are_half_open_and_must_not_overlap_reserved_or_each_other ... ok
+test invalid_index_hint_offset_is_non_authoritative_for_header_decode ... ok
+test header_rejects_invalid_magic_flags_reserved_and_version ... ok
+test header_round_trips_with_exact_layout ... ok
+test physical_ranges_reject_too_small_files_and_out_of_bounds_ranges ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase30_public_docs.rs (target/debug/deps/phase30_public_docs-c52acbe599881a6c)
+
+running 4 tests
+test internal_module_declarations_do_not_hide_dead_code ... ok
+test default_public_surface_denies_missing_documentation ... ok
+test temporary_public_documentation_lint_allows_are_removed ... ok
+test local_quality_gate_treats_rustdoc_warnings_as_errors ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase35_docs_doc_cli.rs (target/debug/deps/phase35_docs_doc_cli-0da6410c44ccc803)
+
+running 19 tests
+test doc_no_index_exits_1 ... ok
+test docs_json_checksum_has_algorithm_and_value_keys ... ok
+test docs_json_first_line_is_one_based ... ok
+test doc_unknown_id_exits_1 ... ok
+test docs_json_contains_documents_array ... ok
+test doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds ... ok
+test docs_no_index_exits_1_json ... ok
+test doc_verified_extracts_correct_bytes ... ok
+test doc_corrupt_verified_exits_1_no_verify_succeeds ... ok
+test doc_corrupt_chunk_payload_verified_fails_no_verify_returns_garbage ... ok
+test doc_verified_writes_to_output_file ... ok
+test docs_no_index_exits_1_text ... ok
+test docs_text_doc_id_tab_and_newline_are_escaped ... ok
+test docs_text_checksum_format_is_algorithm_colon_hex ... ok
+test docs_text_lists_two_documents_with_correct_ids ... ok
+test docs_text_first_line_is_one_based ... ok
+test docs_text_header_is_first_stdout_line ... ok
+test missing_errors::doc_reports_missing_index_and_missing_id_separately ... ok
+test eyeball_docs_and_doc_commands_manual_verify ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/phase36_search_json.rs (target/debug/deps/phase36_search_json-5a4bcdf502973eee)
+
+running 12 tests
+test search_json_quotes_incomplete_reason_when_present ... ok
+test search_json_outputs_hits_and_null_incomplete_reason ... ok
+test search_json_zero_hits_produces_empty_array ... ok
+test search_text_mode_unchanged ... ok
+test search_text_mode_capped_metrics_contract ... ok
+test search_json_max_results_zero_caps_empty_hits ... ok
+test search_json_escapes_query_with_double_quotes ... ok
+test search_json_source_field_is_string ... ok
+test search_text_metrics_escapes_query_control_chars ... ok
+test search_format_text_explicit_accepted ... ok
+test search_unknown_format_exits_2 ... ok
+test sidecar_json_does_not_promote_declared_complete_to_verified_coverage ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/phase37_stdin_pack.rs (target/debug/deps/phase37_stdin_pack-3d94abfa4f149284)
+
+running 6 tests
+test pack_stdin_rejects_non_streaming_profile ... ok
+test pack_stdin_rejects_dense_line_index ... ok
+test pack_reads_stdin_and_roundtrips ... ok
+test pack_file_input_unchanged ... ok
+test pack_stdin_empty_input_roundtrips ... ok
+test pack_stdin_one_byte_deep_verifies_and_roundtrips ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/phase38_document_spans.rs (target/debug/deps/phase38_document_spans-2ebbd15b0f060ab9)
+
+running 4 tests
+test supplied_document_indexes_reject_duplicate_doc_ids ... ok
+test document_spans_reject_duplicate_doc_ids_and_out_of_range_spans ... ok
+test memory_profile_accepts_document_spans ... ok
+test document_spans_build_entries_for_single_cross_chunk_and_empty_documents ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase38_pack_docs_cli.rs (target/debug/deps/phase38_pack_docs_cli-1463796aea1ed396)
+
+running 6 tests
+test pack_memory_profile_error_explains_the_document_index_requirement ... ok
+test pack_docs_rejects_duplicate_basenames_without_leaving_output_artifacts ... ok
+test pack_docs_round_trips_in_argument_order_with_prefixed_basenames ... ok
+test pack_docs_preserves_existing_output_permissions ... ok
+test pack_docs_memory_profile_is_available_and_help_explains_memory_cost ... ok
+test pack_docs_memory_uses_bounded_default_chunks_and_honors_explicit_sizes ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s
+
+     Running tests/phase39_attest_cli.rs (target/debug/deps/phase39_attest_cli-6eb405eabaab5d01)
+
+running 9 tests
+test attest_help_documents_the_stable_output_contract ... ok
+test attest_defaults_to_deep_verify ... ok
+test attest_reports_stdout_delivery_failure ... ok
+test attest_rejects_invalid_level_as_usage_error ... ok
+test attest_refuses_corrupt_container_without_stdout ... ok
+test attest_accepts_options_before_file_as_documented ... ok
+test attest_emits_null_for_legacy_container_without_container_checksum ... ok
+test attest_output_is_deterministic_and_canonical ... ok
+test attest_records_requested_verify_level ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/phase3_skeleton.rs (target/debug/deps/phase3_skeleton-297a9d2d52c4fa57)
+
+running 11 tests
+test chunk_table_block_size_must_match_fixed_record_size ... ok
+test chunk_count_mismatch_is_rejected ... ok
+test empty_chunk_table_is_valid_for_empty_source ... ok
+test chunk_table_rejects_per_chunk_line_excess_even_when_total_fits ... ok
+test chunk_table_rejects_cumulative_range_overflow ... ok
+test footer_payload_unknown_field_is_rejected ... ok
+test header_footer_container_id_mismatch_is_rejected ... ok
+test footer_payload_checksum_mismatch_is_rejected ... ok
+test chunk_table_rejects_more_lines_than_source_bytes ... ok
+test metadata_and_index_root_source_mismatch_is_rejected ... ok
+test empty_container_writes_and_opens_structurally ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase41_cli_docs.rs (target/debug/deps/phase41_cli_docs-d447775c84dcd473)
+
+running 10 tests
+test readmes_link_to_the_language_matching_reference ... ok
+test references_freeze_automation_boundaries_without_overclaiming_text ... ok
+test documented_search_defaults_and_schema_are_scoped_to_the_runtime_command ... ok
+test english_and_japanese_references_cover_every_command_and_option ... ok
+test documented_command_set_matches_the_cli_dispatch_and_outlines_match ... ok
+test version_stdout_matches_the_documented_stable_form ... ok
+test help_and_version_report_closed_stdout_as_runtime_failure ... ok
+test machine_readable_commands_report_closed_stdout_as_runtime_failure ... ok
+test machine_readable_schemas_and_defaults_match_the_documented_contract ... ok
+test every_operational_command_rejects_missing_and_unknown_arguments_on_stderr ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/phase42_release_readiness.rs (target/debug/deps/phase42_release_readiness-c41afbed245f8325)
+
+running 7 tests
+test docs_rs_builds_the_public_default_feature_surface ... ok
+test contributing_focused_internal_test_enables_the_required_feature ... ok
+test changelog_points_release_owners_to_the_new_gate ... ok
+test packaged_readmes_link_excluded_documents_to_the_repository ... ok
+test release_guide_preserves_owner_gate_and_dependency_checks ... ok
+test preview_candidate_manifest_preserves_package_metadata ... ok
+test package_excludes_repository_only_material ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/phase43_distribution.rs (target/debug/deps/phase43_distribution-42cc9458fbbd1b39)
+
+running 5 tests
+test distribution_is_reproducibly_pinned_for_the_preview_candidate ... ok
+test both_readmes_offer_installer_checksum_and_source_fallback_paths ... ok
+test published_release_verification_keeps_product_and_verifier_separate ... ok
+test candidate_workflow_builds_exact_unpublished_source_on_native_runners ... ok
+test generated_release_workflow_has_no_branch_or_pull_request_trigger ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase44_readme_product.rs (target/debug/deps/phase44_readme_product-d52e7907733f7143)
+
+running 3 tests
+test readmes_share_the_same_product_journey ... ok
+test readmes_lead_with_product_value_and_live_distribution ... ok
+test tour_closes_the_verified_evidence_loop_with_real_commands ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase44_safe_file_output.rs (target/debug/deps/phase44_safe_file_output-1a87d12d0819ea4f)
+
+running 6 tests
+test corrupt_export_keeps_existing_output_and_source ... ok
+test aliases_and_symlink_output_cannot_replace_an_input ... ok
+test cli_rejects_self_overwrite_before_writing ... ok
+test later_chunk_decode_failure_keeps_existing_output_and_cleans_temporary_file ... ok
+test replacement_preserves_existing_output_acl ... ok
+test normal_file_and_stdout_output_round_trip_and_replace ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/phase45_benchmark_publication.rs (target/debug/deps/phase45_benchmark_publication-30758e87944ed7fa)
+
+running 6 tests
+test current_competitive_log_contract_round_trips_through_publication_parser ... ok
+test benchmark_report_has_reproducible_and_honest_structure ... ok
+test report_does_not_overstate_partial_restore_evidence ... ok
+test readmes_publish_evidence_without_erasing_unmeasured_comparators ... ok
+test report_links_to_three_complete_raw_runs ... ok
+test published_numbers_are_derived_from_retained_raw_logs ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase46_partial_decompression.rs (target/debug/deps/phase46_partial_decompression-567b5c80e0c65b03)
+
+running 7 tests
+test published_structural_metrics_are_derived_from_all_retained_runs ... ok
+test production_probe_has_a_reproducible_and_honest_publication_contract ... ok
+test range_metrics_preserve_overflow_and_out_of_bounds_errors ... ok
+test range_metrics_count_both_chunks_crossed_by_a_boundary_range ... ok
+test empty_range_reports_zero_work ... ok
+test range_metrics_measure_only_the_single_intersecting_chunk ... ok
+test partial_decompression_probe_records_bounded_work_on_a_scalable_corpus ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+     Running tests/phase46_tutorials.rs (target/debug/deps/phase46_tutorials-8ae3999094cd04f6)
+
+running 6 tests
+test readme_use_cases_link_to_language_matching_tutorials ... ok
+test embedded_operational_templates_match_validated_files ... ok
+test tutorials_close_the_three_real_product_journeys ... ok
+test every_tutorial_declares_prerequisites_validation_and_limitations ... ok
+test guides_do_not_claim_search_hits_are_physical_decode_ranges ... ok
+test development_guide_numbers_match_the_source_built_cli_journeys ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/phase47_oss_governance.rs (target/debug/deps/phase47_oss_governance-9816a7f06f4697ec)
+
+running 2 tests
+test public_docs_link_to_private_vulnerability_reporting ... ok
+test pull_request_template_enforces_the_development_contract ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase47_verify_report.rs (target/debug/deps/phase47_verify_report-e38485ffdd0d8490)
+
+running 7 tests
+test quick_reads_no_chunk_payload_and_reports_no_payload_verification ... ok
+test empty_present_indexes_and_empty_original_checksum_are_distinct ... ok
+test both_readers_report_each_pass_without_inheriting_prior_work ... ok
+test text_and_json_name_the_same_deep_work ... ok
+test corrupt_container_is_a_failure_in_both_verify_formats ... ok
+test canonical_attestation_v1_matches_fixed_bytes_and_legacy_is_distinct ... ok
+test verify_json_distinguishes_structural_checksum_and_decode_work ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/phase48_public_release_docs.rs (target/debug/deps/phase48_public_release_docs-3840c2cb5ffe00a5)
+
+running 2 tests
+test japanese_contributor_guide_preserves_the_repository_contract ... ok
+test readmes_define_non_goals_and_link_release_contracts ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase49_ci_trigger_contract.rs (target/debug/deps/phase49_ci_trigger_contract-bfb8049b47b04319)
+
+running 2 tests
+test ci_does_not_run_both_push_and_pull_request_for_feature_branches ... ok
+test security_keeps_manual_and_scheduled_scans_without_duplicate_pr_runs ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase49_index_build_budgets.rs (target/debug/deps/phase49_index_build_budgets-85dd48a61eedb077)
+
+running 10 tests
+test scalar_ngram_boundaries_preserve_emoji_crlf_and_posting_order ... ok
+test unicode_crlf_cross_chunk_qzi_bytes_match_frozen_before_build ... ok
+test encoded_boundary_and_materialized_entrance_are_bounded ... ok
+test empty_input_accepts_zero_retained_and_minimal_section_budget ... ok
+test token_retained_boundaries_deduplicate_per_line_and_fold_ascii ... ok
+test sufficient_limits_match_default_bytes_and_file_search_contract ... ok
+test ngram_encoded_budget_includes_skip_records_at_the_exact_boundary ... ok
+test cli_build_refusal_preserves_source_and_existing_output ... ok
+test long_repetitive_line_uses_distinct_pairs_and_existing_line_limit ... ok
+test cli_invalid_limits_precede_io_and_rejection_leaves_no_new_output ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/phase4_chunker.rs (target/debug/deps/phase4_chunker-46ec96bf6ab00c45)
+
+running 9 tests
+test ascii_input_plans_contiguous_logical_offsets_and_lines ... ok
+test empty_input_produces_no_chunks_and_zero_lines ... ok
+test chunk_line_counts_sum_to_container_line_count_and_first_lines_are_contiguous ... ok
+test crlf_boundary_is_not_split_between_cr_and_lf ... ok
+test invalid_utf8_is_rejected_before_chunk_planning ... ok
+test no_valid_utf8_boundary_within_max_returns_resource_limit ... ok
+test long_line_exceeding_max_chunk_size_is_split_safely ... ok
+test japanese_and_emoji_boundaries_are_never_split ... ok
+test remaining_between_target_and_max_produces_multiple_chunks ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase50_dependency_policy.rs (target/debug/deps/phase50_dependency_policy-5515804a9256e780)
+
+running 3 tests
+test ci_enforces_dependency_license_ban_and_source_policy ... ok
+test contributor_guide_documents_the_local_dependency_gate ... ok
+test deny_config_is_fail_closed_for_licenses_and_dependency_sources ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase51_coverage_gate.rs (target/debug/deps/phase51_coverage_gate-6d81c9ab10e92ed5)
+
+running 3 tests
+test contributor_guides_document_the_reproducible_coverage_gate ... ok
+test ci_runs_the_pinned_local_coverage_gate ... ok
+test make_target_enforces_the_measured_line_coverage_floor ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase52_fuzz_example_smoke.rs (target/debug/deps/phase52_fuzz_example_smoke-6a2f69b48e227516)
+
+running 4 tests
+test normal_ci_executes_the_public_evidence_example_once ... ok
+test fuzz_smoke_is_bounded_scheduled_manual_and_reproducible ... ok
+test fuzz_workspace_is_licensed_versioned_and_dependency_audited ... ok
+test generated_fuzz_state_is_ignored_and_contributor_commands_are_documented ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase53_local_quality_tools.rs (target/debug/deps/phase53_local_quality_tools-fb0bccf9340c01e3)
+
+running 3 tests
+test default_local_gate_includes_rustdoc_warnings ... ok
+test semgrep_ignore_excludes_only_generated_non_source_state ... ok
+test quick_profile_target_reuses_the_exact_profile_path_with_small_counts ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase54_public_reference_gaps.rs (target/debug/deps/phase54_public_reference_gaps-26ca221e33b7bcd6)
+
+running 3 tests
+test japanese_competitive_benchmark_preserves_the_public_scope ... ok
+test docs_index_exposes_normative_and_companion_contracts ... ok
+test readmes_disclose_search_and_empty_line_boundaries ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase55_cli_regression_contracts.rs (target/debug/deps/phase55_cli_regression_contracts-4bfedd5cdba8d2e7)
+
+running 2 tests
+test qzt_error_display_keeps_representative_variants_human_readable ... ok
+test line_stdout_is_byte_identical_to_the_same_single_line_range ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/phase56_context_case_study.rs (target/debug/deps/phase56_context_case_study-89cc2b94267e1b49)
+
+running 1 test
+test qzt_only_recipient_can_follow_search_hits_to_document_and_original_lines ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
+     Running tests/phase56_context_cli.rs (target/debug/deps/phase56_context_cli-728c85236638a6b7)
+
+running 21 tests
+test document_boundary_can_split_a_physical_line_without_claiming_query_scope ... ok
+test empty_only_document_index_leaves_positive_hit_unmapped ... ok
+test a_partially_overlapping_second_document_makes_mapping_ambiguous ... ok
+test empty_document_inside_hit_does_not_change_unique_mapping_or_scope ... ok
+test hit_at_document_edges_does_not_escape_its_scope ... ok
+test insufficient_context_budget_is_distinct_from_missing_hit ... ok
+test bidi_and_invisible_format_controls_are_escaped_in_display_only ... ok
+test multiline_hit_counts_lines_outside_both_hit_endpoints ... ok
+test corrupt_chunk_is_error_and_dli_does_not_change_context ... ok
+test malformed_document_range_is_error_but_stale_document_checksum_is_not_claimed ... ok
+test empty_documents_at_hit_edges_and_outside_are_not_candidates ... ok
+test raw_bytes_survive_utf8_cuts_and_text_escapes_controls ... ok
+test scan_starting_just_after_lf_keeps_the_complete_preceding_line ... ok
+test scan_ending_just_after_lf_keeps_the_complete_hit_line ... ok
+test missing_index_and_argument_errors_are_explicit ... ok
+test partial_preceding_line_is_budget_stop_even_when_one_segment_is_visible ... ok
+test unique_document_maps_hit_and_restores_exact_lines ... ok
+test empty_entries_count_for_document_budget_but_not_candidate_budget ... ok
+test overlap_gap_crossing_and_empty_documents_never_invent_local_positions ... ok
+test text_and_json_agree_on_coordinates_status_stops_and_display ... ok
+test physical_chunk_and_render_budgets_gate_the_whole_command ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/phase5_writer.rs (target/debug/deps/phase5_writer-8d98953ed58c62be)
+
+running 10 tests
+test writer_rejects_invalid_utf8 ... ok
+test header_is_patched_with_metadata_and_index_hint_offsets ... ok
+test metadata_records_writer_options_used_for_pack ... ok
+test japanese_and_emoji_pack_export_equality ... ok
+test empty_file_pack_export_equality ... ok
+test ascii_file_pack_export_equality ... ok
+test compressed_and_uncompressed_checksums_match_exact_bytes ... ok
+test crlf_and_mixed_newline_pack_export_equality ... ok
+test long_line_pack_export_equality_and_continuation_flags ... ok
+test pack_smoke_benchmark_records_nonzero_throughput ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase6_reader.rs (target/debug/deps/phase6_reader-2a413acfb97634c9)
+
+running 5 tests
+test deep_verify_decompresses_and_reports_decoded_bytes ... ok
+test quick_verify_succeeds_without_decompressing_corrupt_compressed_chunk ... ok
+test normal_verify_detects_container_checksum_mismatch_when_present ... ok
+test reader_open_info_and_export_work_for_phase5_container ... ok
+test normal_verify_detects_compressed_chunk_checksum_mismatch ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase7_access.rs (target/debug/deps/phase7_access-b8f4765ffb22b0f0)
+
+running 6 tests
+test read_range_zero_length_and_overflow_are_handled ... ok
+test read_text_range_rejects_invalid_utf8_boundary ... ok
+test read_range_within_one_chunk_and_across_chunks ... ok
+test read_line_raw_reads_first_last_and_spanning_lines ... ok
+test phase7_intermediate_benchmark_records_nonzero_metrics ... ok
+test cli_range_and_line_smoke ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/phase8_reader_core.rs (target/debug/deps/phase8_reader_core-7d82c89592e4f307)
+
+running 8 tests
+test duplicate_required_chunk_table_block_is_rejected ... ok
+test missing_dictionary_is_rejected_at_open ... ok
+test duplicate_dictionary_id_is_rejected ... ok
+test known_extension_type_as_required_is_rejected_by_v01_core ... ok
+test dictionary_checksum_mismatch_is_rejected ... ok
+test dictionary_compressed_fixture_exports_exactly ... ok
+test resource_limits_are_enforced_before_decode ... ok
+test unknown_optional_block_is_ignored_but_unknown_required_block_is_rejected ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase9_cli_core.rs (target/debug/deps/phase9_cli_core-7c69374164a05554)
+
+running 27 tests
+test help_links_the_full_cli_stability_contract ... ok
+test docs_json_success_path_smoke ... ok
+test docs_no_document_index_exits_1 ... ok
+test doc_success_path_smoke ... ok
+test cli_pack_rejects_invalid_utf8 ... ok
+test doc_unknown_id_exits_1 ... ok
+test help_mentions_exit_codes ... ok
+test doc_tampered_entry_checksum_verified_exits_1_no_verify_succeeds ... ok
+test pack_help_mentions_stdin_packing_constraints ... ok
+test stdin_pack_memory_profile_conflict_exits_2_with_clear_stderr ... ok
+test stdin_pack_dense_line_index_conflict_exits_2_with_clear_stderr ... ok
+test cli_pack_profile_dense_and_writer_options_reach_metadata_and_info ... ok
+test cli_line_rejects_zero_and_reads_first_with_one ... ok
+test range_and_line_reject_unknown_trailing_options_as_usage_errors ... ok
+test info_format_text_explicit_accepted ... ok
+test info_unknown_format_exits_2 ... ok
+test info_format_missing_value_exits_2 ... ok
+test info_json_contains_container_id_and_checksum ... ok
+test cli_pack_info_verify_range_lines_and_export_round_trip ... ok
+test verify_format_missing_value_exits_2 ... ok
+test stdin_pack_table_driven_core_success_and_rejections ... ok
+test verify_deep_text_reports_decoded_bytes ... ok
+test streaming_pack_does_not_follow_the_legacy_temporary_path_symlink ... ok
+test verify_json_decoded_bytes_are_fixed_by_level ... ok
+test verify_json_reports_failure_with_exit_1 ... ok
+test verify_unknown_format_exits_2 ... ok
+test verify_json_reports_ok_with_counts ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/phase9_hardening.rs (target/debug/deps/phase9_hardening-1402c4fe2bf77c0f)
+
+running 3 tests
+test core_conformance_map_covers_all_items ... ok
+test malformed_open_and_verify_fuzz_smoke_does_not_panic ... ok
+test crlf_chunk_boundary_conformance_pack_verify_export_range_and_line ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase_cli_format_errors.rs (target/debug/deps/phase_cli_format_errors-915aa5b2c9f6d342)
+
+running 1 test
+test unknown_format_exits_2_with_message ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/phase_cli_stdin_pack.rs (target/debug/deps/phase_cli_stdin_pack-b979704b83bb222a)
+
+running 1 test
+test stdin_pack_rejects_non_streaming_paths ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/property_roundtrip.rs (target/debug/deps/property_roundtrip-d88fab006fc8dc94)
+
+running 3 tests
+test read_range_matches_original_slice ... ok
+test export_after_pack_is_identity ... ok
+test fragmented_stream_matches_memory_pack_and_both_readers ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+     Running tests/release_hardening.rs (target/debug/deps/release_hardening-a871f78df012fa70)
+
+running 4 tests
+test release_benchmark_profile ... ignored, Profiling run. Execute with `make bench-profile`
+test release_benchmark_profile_matrix ... ignored, Profiling run. Execute with `make bench-profile-matrix`
+test release_benchmark_reports_reproducible_large_corpus_metrics ... ok
+test release_value_targets_hold_for_ten_megabyte_logs ... FAILED
+
+failures:
+
+---- release_value_targets_hold_for_ten_megabyte_logs stdout ----
+
+thread 'release_value_targets_hold_for_ten_megabyte_logs' (104540030) panicked at tests/release_hardening.rs:30:6:
+10 MB release value gate should run: ResourceLimitExceeded
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    release_value_targets_hold_for_ten_megabyte_logs
+
+test result: FAILED. 1 passed; 1 failed; 2 ignored; 0 measured; 0 filtered out; finished in 9.37s
+
+error: test failed, to rerun pass `--test release_hardening`
+make: *** [test] Error 101

@@ -51,10 +51,31 @@ bytes outside a candidate granule when needed. QZT/QZI bytes are unchanged.
 `SearchMetrics::physical_decoded_chunks` counts cache misses, including a
 decompression after eviction. The `max_line_bytes` field is added to both
 `TokenIndexBuildOptions` and `NgramIndexBuildOptions` (16 MiB default), and
-`build_search_sidecar_from_file_with_line_limit` exposes it for QZI builds.
+`SidecarBuildOptions.max_line_bytes` exposes it for QZI builds.
 Complete struct literals need the new fields; use struct update syntax or set
 them explicitly. Larger valid queries and source lines require explicit
 limits. These are Rust API changes; QZT/QZI on-disk bytes are unchanged.
+
+### Unreleased construction budgets
+
+`TokenIndexBuildOptions` and `NgramIndexBuildOptions` now require `limits:
+IndexBuildLimits` in complete literals; use `..Default::default()` where suitable.
+`RawTokenIndex::from_parts` adds an explicit `IndexBuildLimits` argument.
+The custom QZI entry point is `build_search_sidecar_from_file_with_options` with
+`SidecarBuildOptions { max_line_bytes, limits }`. It replaces the technical-preview
+`build_search_sidecar_from_file_with_line_limit` helper; migrate the former third
+argument to `SidecarBuildOptions { max_line_bytes: old_limit, ..Default::default() }`.
+The default memory/file convenience functions delegate to the same custom builder.
+This is a preview source break while `publish=false`, with existing repository
+callers migrated in the same change. It does not add a compatibility path inside
+the builder. Public pre.6 binaries are unaffected.
+
+The [budget contract](QZT_v0.1_Memory_Guarantees.md#index-construction-admission-unreleased)
+defines inclusive defaults, zero, overflow, pre-growth checks and the excluded
+RSS/capacity ranges. Default admission is narrower; callers may set explicit
+larger limits at their own resource budget. Reader/query acceptance and serialized
+QZT/QZI remain unchanged for admitted inputs. Reconstruction of an already-decoded
+QZI uses its existing Reader limits rather than source-build defaults.
 
 ### Writer API consolidation
 

@@ -1,0 +1,41 @@
+{
+  "binary_sha256": "fa4b59924a0c003cf0812fef6fee1a6cd72db67acbd19d21817c4bf7ddbde5bd",
+  "timeout_seconds_per_case": 5,
+  "cases": [
+    {
+      "label": "oversized",
+      "exit_code": 101,
+      "input_bytes": 4097,
+      "output_protection_verified": true,
+      "stderr": "\nthread 'main' (106064845) panicked at scripts/index-build-budget-corpus.rs:14:5:\ninput exceeds 4096 bytes\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "label": "wrong_fields",
+      "exit_code": 101,
+      "input_bytes": 12,
+      "output_protection_verified": true,
+      "stderr": "\nthread 'main' (106064853) panicked at scripts/index-build-budget-corpus.rs:16:5:\nassertion `left == right` failed: stdin: KIND, BYTES, SEED, OUTPUT on four lines\n  left: 3\n right: 4\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "label": "wrong_kind",
+      "exit_code": 101,
+      "input_bytes": 96,
+      "output_protection_verified": true,
+      "stderr": "\nthread 'main' (106064857) panicked at scripts/index-build-budget-corpus.rs:21:14:\nonly C2/C4/C5 are in scope\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "label": "size_exceeds_scope",
+      "exit_code": 101,
+      "input_bytes": 102,
+      "output_protection_verified": true,
+      "stderr": "\nthread 'main' (106064862) panicked at scripts/index-build-budget-corpus.rs:24:5:\nassertion failed: (1..=104_857_600).contains(&target_bytes)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    },
+    {
+      "label": "existing_output",
+      "exit_code": 101,
+      "input_bytes": 100,
+      "output_protection_verified": true,
+      "stderr": "\nthread 'main' (106064869) panicked at scripts/index-build-budget-corpus.rs:32:26:\nfresh output required: Os { code: 17, kind: AlreadyExists, message: \"File exists\" }\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+    }
+  ]
+}

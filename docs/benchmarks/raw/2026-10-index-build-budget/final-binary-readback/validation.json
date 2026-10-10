@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "attempts": 26,
+  "success": 24,
+  "product_resource_refusal": 2,
+  "qzi_bytes_equal": true,
+  "source_hits_verified": true,
+  "valid_existing_qzi_preserved": true,
+  "input_qzt_preserved": true,
+  "source_and_binary_unchanged": true
+}

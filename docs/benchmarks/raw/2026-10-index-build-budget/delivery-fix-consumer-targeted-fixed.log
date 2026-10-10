@@ -1,0 +1,30 @@
+   Compiling qzt v0.1.0-pre.6 (/Volumes/Satechi/Developer/qzt-index-budget-delivery-20261011)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
+     Running tests/phase49_index_build_budgets.rs (target/debug/deps/phase49_index_build_budgets-46061ca7d319abcd)
+
+running 10 tests
+test unicode_crlf_cross_chunk_qzi_bytes_match_frozen_before_build ... ok
+test scalar_ngram_boundaries_preserve_emoji_crlf_and_posting_order ... ok
+test empty_input_accepts_zero_retained_and_minimal_section_budget ... ok
+test ngram_encoded_budget_includes_skip_records_at_the_exact_boundary ... ok
+test encoded_boundary_and_materialized_entrance_are_bounded ... ok
+test sufficient_limits_match_default_bytes_and_file_search_contract ... ok
+test token_retained_boundaries_deduplicate_per_line_and_fold_ascii ... ok
+test long_repetitive_line_uses_distinct_pairs_and_existing_line_limit ... ok
+test cli_build_refusal_preserves_source_and_existing_output ... ok
+test cli_invalid_limits_precede_io_and_rejection_leaves_no_new_output ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+     Running tests/release_hardening.rs (target/debug/deps/release_hardening-fbac7ebfe87e445a)
+
+running 6 tests
+test release_benchmark_profile ... ignored, Profiling run. Execute with `make bench-profile`
+test release_benchmark_profile_matrix ... ignored, Profiling run. Execute with `make bench-profile-matrix`
+test release_benchmark_applies_the_supplied_build_budget ... ok
+test matrix_refusal_is_not_a_success_and_does_not_hide_a_following_case ... ok
+test release_benchmark_reports_reproducible_large_corpus_metrics ... ok
+test release_value_targets_hold_for_ten_megabyte_logs_with_explicit_build_admission ... ok
+
+test result: ok. 4 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 11.81s
+

@@ -1,6 +1,8 @@
 # qzt CLI リファレンス (公開pre.6・QZT形式v0.1)
 
 このページはcontextを含む公開 `v0.1.0-pre.6` CLIと自動化向け契約を説明します。
+構築予算の `--max-build-*` はUnreleasedのsource変更です。公開pre.6 binaryには
+存在しません。以下の該当optionを使う場合は変更後のsource buildを明示してください。
 product sourceは `0c8110e6b6e08513b4def3f636b5b79d068e275f` です。
 [実Release検証](releases/v0.1.0-pre.6-published.md)が全4 native targetで成功しました。
 [固定version導入手順](../README.ja.md#install)を利用してください。
@@ -233,11 +235,22 @@ Document Index entryを一覧します。Indexなしは終了`1`。JSONは
 | `--max-physical-decoded-bytes <N|NKiB|NMiB|NGiB>` | 物理的に展開する完全chunkのbyte数。既定256 MiB。 |
 | `--max-physical-decoded-chunks <N>` | chunk展開回数。既定10,000。 |
 | `--max-line-bytes <N|NKiB|NMiB|NGiB>` | sidecarなしのindex構築時の行byte数。既定16 MiB。 |
+| `--max-build-granules <N>` | Unreleased: 構築する行granule数。既定1,000,000。 |
+| `--max-build-keys <N>` | Unreleased: distinct key数。既定262,144。 |
+| `--max-build-postings <N>` | Unreleased: 重複排除したkey/行pair総数。既定8,000,000。 |
+| `--max-build-key-bytes <N|NKiB|NMiB|NGiB>` | Unreleased: distinct keyの保持byte総数。既定16 MiB。 |
+| `--max-build-encoded-bytes <N|NKiB|NMiB|NGiB>` | Unreleased: transient posting+skip、またはQZI data sectionsの合計。各phase独立、既定128 MiB。 |
 | `--max-results <N>` | 結果上限。既定10,000。 |
 | `--format text\|json` | 既定text。 |
 
 byte suffixは大文字小文字を区別します。0は該当単位の作業を許しません。
 query・posting・index構築の超過は成功reportを出さずexit `1`です。
+Unreleasedの構築optionはtoken/ngramの両方に適用します。`--sidecar`との併用は
+構築がないため副作用前のexit `2`です。0は該当単位を許さず、境界はinclusive。
+保持数/byteの増加とencodingより前に拒否し、部分indexへfallbackしません。
+既定予算で以前受理した入力を拒否する場合があります。Vec容量・BTree/allocator・
+Reader decoded chunk・line carry・token scratch・QZI header/manifest・全RSSはこの予算の
+対象外です。[構築契約](QZT_v0.1_Memory_Guarantees.md#index-construction-admission-unreleased)を確認してください。
 candidate・logical/physical decode・結果上限は検証済みhitだけを含む理由付きcapです。
 課金単位と判定位置は[budget表](QZT_v0.1_Memory_Guarantees.md#search-and-index-build-budgets)を参照してください。
 
@@ -344,6 +357,10 @@ inspection成功でも全一致箇所にpostingがあるとは証明できませ
 QZIを作ります。`--index token|ngram`（既定token）、`--ngram <N>`（既定3）、
 `--max-line-bytes <N|NKiB|NMiB|NGiB>`（既定16 MiB、LFと直前のCRを含む）、
 必須`-o, --output`。行上限超過はkey生成前に拒否します。
+Unreleasedでは上の5つの`--max-build-*`も同じ既定値で使えます。
+不正値は副作用前のexit `2`、構築超過/overflowはexit `1`。
+超過時は入力QZTと既存出力QZIを保持し、新規完成QZIを残しません。
+予算内なら既存のQZI bytes、source bindingと検索結果契約を維持します。
 searchで開く際に対象containerとの対応を検証します。
 
 ### `qzt verify <FILE> [--quick|--normal|--deep] [--format text|json]`

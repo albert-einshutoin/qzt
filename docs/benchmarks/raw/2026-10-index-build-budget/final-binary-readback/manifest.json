@@ -1,0 +1,20 @@
+{
+  "binary": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/qzt-after-final",
+  "binary_sha256": "0f3c589ffa081141b07d3419bbf8e856329eab002ac10b2ecc7fee8dab0a1304",
+  "source_main": "9cf2c7c66a88c9f37a67567e5fa2247941b93dea",
+  "source_files": {
+    "src/lib.rs": "571c0767561b79a1427c0053b22954b83401d6d0b57481ae30cb2a3965b87282",
+    "src/main.rs": "7c2cd4ef6b1186e5c9f214bf8de1b00da7c44f750b81cc32e0a0a36f506b8442",
+    "src/search.rs": "80f2e6bea09c84db133749f2423afb604aad4c45c32117af0de137381a3ad5ec",
+    "src/sidecar.rs": "e5f25a140919bc15eb5e4664fa73111605e3352c8949b62bb50ddb137e7ced43",
+    "src/benchmark.rs": "d9a47be5d491bf59b2bc6bf68af8272d7471a484375e400ab7066045db497111"
+  },
+  "shared_meter_sha256": "d58fa136eac5bfb4fde680d89ad08bba7f965e7e7913dabe02705b80879dc2fb",
+  "driver_sha256": "10132ab37e55274977bd40b4c86645845233ec7dbd5a690dbdb15fa0b8d1757b",
+  "warmup": 0,
+  "samples": 1,
+  "cache": "uncontrolled",
+  "command_timeout": 180,
+  "overall_seconds": 3600,
+  "scope": "final correctness/refusal readback; no performance-improvement comparison"
+}

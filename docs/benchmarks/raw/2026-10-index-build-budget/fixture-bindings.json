@@ -1,0 +1,50 @@
+[
+  {
+    "fixture": "C2-1MiB",
+    "source_sha256": "c9dc0f86d33fe14c5c081cd6376882c0a930d8bb7e8fa36bd37a8caaf7101c42",
+    "source_bytes": 1048618,
+    "seed": 295,
+    "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C2-1MiB/corpus.qzt",
+    "qzt_sha256": "7c8b0cbab4e59e34f05a6a8baff5e387c4f0c9f16012711b4f2782ebe892e85e"
+  },
+  {
+    "fixture": "C4-1MiB",
+    "source_sha256": "4a041f51379635cb0abf1cb2066b1aedea1e94566b6f822d56dd9a3bf28c91e0",
+    "source_bytes": 1048618,
+    "seed": 295,
+    "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C4-1MiB/corpus.qzt",
+    "qzt_sha256": "27bd8c84be0b1d836ae6e7d0ff8055500ced58f25c4bd4d151c4f4070e82fe90"
+  },
+  {
+    "fixture": "C2-10MiB",
+    "source_sha256": "39d1f5802a815985f60ccba883b4afafbe39cddc539ef0f41d34467f95cee4f6",
+    "source_bytes": 10485802,
+    "seed": 295,
+    "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C2-10MiB/corpus.qzt",
+    "qzt_sha256": "e58ebd85d9b0d2b3f9628470dd76f5f3c8db6d2b83421d9d260d105d93e9e7fc"
+  },
+  {
+    "fixture": "C4-10MiB",
+    "source_sha256": "0d2ff72028e350c0e5b578d58469ab783da86e1101db68a16f60f7687b976423",
+    "source_bytes": 10485802,
+    "seed": 295,
+    "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C4-10MiB/corpus.qzt",
+    "qzt_sha256": "0a8426682b609ef4a36699d4f4005fd307c24dcfb43b810e415a56c5c83e4f9e"
+  },
+  {
+    "fixture": "C2-100MiB",
+    "source_sha256": "18de032bccdd319c32e6f4856b72fe8795b18ace001ed19c62207a873e0ea1db",
+    "source_bytes": 104857642,
+    "seed": 295,
+    "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C2-100MiB/corpus.qzt",
+    "qzt_sha256": "1bb2e8895fcb71ae2cfde6ee5442b5462a2614ec2ed17c785d886d6b3e74b1b8"
+  },
+  {
+    "fixture": "C4-100MiB",
+    "source_sha256": "2b1d29a24dd5efbc5af2f68709a6b29128148d8c0d5ccc0d29af2a1ac3394cd0",
+    "source_bytes": 104857642,
+    "seed": 295,
+    "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C4-100MiB/corpus.qzt",
+    "qzt_sha256": "8c1db7c71280a7726995ba7503c582bf9232ec4f301e3face30d9652177d8a00"
+  }
+]
