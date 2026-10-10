@@ -1,0 +1,43 @@
+Run a stop-gate review of the previous Claude turn.
+日本語、先頭ALLOW:またはBLOCK:。今回のPR345のCI/review修正だけをREAD_ONLY/STATIC_ONLYで確認。
+worktree=/Volumes/Satechi/Developer/qzt-index-budget-delivery-20261011
+base9cf2c7c66a88c9f37a67567e5fa2247941b93dea、current HEAD31457cb94b3a234970d7c5d0b596b6e2b33967e7、これから同じPRをamend更新する未commit差分。
+ユーザーはこの1 Issue344/PR345に限りcommit/push/normal hosted CI/review対応/merge/Issue完了を許可した。
+tag/release/crates.io/公開pre6asset変更、CI基盤変更、他Issueへ継続はしない。
+編集、コード実行/import/test、network、DB/env/secrets、subagentは禁止。指定fileのread/hashとdiff確認のみ。
+
+指定file:
+scripts/index-build-budget-corpus.rs
+tests/phase49_index_build_budgets.rs
+tests/release_hardening.rs
+docs/benchmarks/2026-10-index-build-budget-reproduce.md
+docs/benchmarks/2026-10-index-build-budget-delivery.md
+docs/benchmarks/2026-10-index-build-budget-delivery-evidence.json
+raw=docs/benchmarks/raw/2026-10-index-build-budget/
+raw/golden-provenance.json
+raw/delivery-fix-checkpoint.json
+raw/delivery-fix-specialist-review.md
+raw/delivery-fix-consumer-clippy-fixed.log
+raw/delivery-fix-consumer-targeted-fixed.log
+raw/delivery-fix-portable-fixed.log
+raw/delivery-fix-corpus-input-checks.json
+raw/delivery-fix-gitleaks-final-packaging.log
+source5filesは必要ならcompletion-receipt.jsonへhash照合のみ。全repo探索/製品の再設計レビューはしない。
+
+修正: Rust1.99追加Clippy lintに空stdout期待値assert_eqへ。adapterはargvを全廃、stdin4096byte/4行、生成<=100MiB、create_newを維持。
+PR P2コメントに対しprofile matrixの5明示env予算を既存benchmark optionsへ伝播し、既定値は製品defaultのまま。
+ResourceLimitExceededのみ非成功と記録して後続caseへ、その他のerrorはpanic。自動増額・fallbackはなし。
+旧golden JSONのSHA256値をgitleaks/GitGuardianがgeneric secret誤検出したが、小hex bytes照合済みdigestでありsecretではない。
+原JSONは旧worktreeでそのまま保持、Gitへはtyped digest inventoryを派生し元の所在/hashをexcluded local-onlyへ記録した。
+検出除外設定/check無効化はしない。初回HEAD/CI失敗ログは保存し、自己branchの単一commitだけamend、remote31457照合付きforce-with-lease予定。
+元主checkout/.devloopと既存証拠worktreeを保護する。
+
+検証: phase49 10PASS、release_hardening4PASS/2ignored、Clippy成功、C2/C4 1MiBportable成功、adapter不正/既存output拒否5件成功、compact evidence gitleaks findings0。
+Sol medium専門reviewはこの修正範囲Approve。製品5sourceは旧receiptとhash一致で、旧514PASS等はそのbytesの範囲で再利用。
+matrix100MBそのもの/完全localtest/profileは確認のためだけに再実行していない。
+43original/244embeddedstreams/96excluded、派生goldenを明確化。旧44/95初回checkpoint/Gateは過去状態として保持。
+初回CI失敗は成功へ書き換えていない。最終HEAD CI/security/merge SHA main検証はこれからで未実施。
+
+確認: 入力保護、拒否の非成功分類/他error伝播、明示予算、historical/derived証拠境界、過大保証とtask境界。
+実害のない好みや新framework/別設計は指摘対象外。修正必須なら直接の受入/回帰/security/provenanceだけ示す。
+Gate後はverdict/リンク記録とGitHub納品工程のみ予定。strictRSS/OOM防止、100MiB完走、G3全体、第三者検証、production-ready、公開releaseは未達と保持。

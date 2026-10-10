@@ -1,4 +1,5 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::borrow::Cow;
 use std::time::Instant;
 
 use crate::chunk_table::{ChunkEntry, chunk_index_for_logical_offset};
@@ -53,6 +54,65 @@ pub enum PostingGranularity {
     Line,
 }
 
+/// Admission limits for source index construction and materialized index encoding.
+///
+/// Counts and distinct key bytes bound named logical structures, not allocator
+/// capacity or process RSS. The encoded limit applies independently to transient
+/// posting/skip bytes and QZI data sections. Zero permits no work in that unit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct IndexBuildLimits {
+    /// Maximum retained line granules.
+    pub max_granules: u64,
+    /// Maximum distinct dictionary keys.
+    pub max_distinct_keys: u64,
+    /// Maximum distinct key/granule pairs across all posting lists.
+    pub max_posting_ids: u64,
+    /// Maximum sum of retained distinct key lengths in UTF-8 bytes.
+    pub max_key_bytes: u64,
+    /// Maximum transient posting/skip bytes or QZI data-section bytes.
+    /// QZI header/manifest and allocator spare capacity are excluded.
+    pub max_encoded_bytes: u64,
+}
+
+impl Default for IndexBuildLimits {
+    fn default() -> Self {
+        Self {
+            max_granules: 1_000_000,
+            max_distinct_keys: 262_144,
+            max_posting_ids: 8_000_000,
+            max_key_bytes: 16 * 1024 * 1024,
+            max_encoded_bytes: 128 * 1024 * 1024,
+        }
+    }
+}
+
+fn charge_build(value: &mut u64, amount: u64, limit: u64) -> Result<()> {
+    let next = value.checked_add(amount).ok_or(QztError::ResourceLimitExceeded)?;
+    if next > limit {
+        return Err(QztError::ResourceLimitExceeded);
+    }
+    *value = next;
+    Ok(())
+}
+
+impl IndexBuildLimits {
+    fn check_parts(self, granules: &[SearchGranule], terms: &[TermDictionaryEntry], postings: &[Vec<u64>]) -> Result<()> {
+        let mut count = 0;
+        charge_build(&mut count, usize_to_u64(granules.len())?, self.max_granules)?;
+        count = 0;
+        charge_build(&mut count, usize_to_u64(terms.len())?, self.max_distinct_keys)?;
+        let mut key_bytes = 0;
+        for term in terms {
+            charge_build(&mut key_bytes, usize_to_u64(term.key.len())?, self.max_key_bytes)?;
+        }
+        count = 0;
+        for list in postings {
+            charge_build(&mut count, usize_to_u64(list.len())?, self.max_posting_ids)?;
+        }
+        Ok(())
+    }
+}
+
 /// Build options for the transient raw token index.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct TokenIndexBuildOptions {
@@ -62,6 +122,8 @@ pub struct TokenIndexBuildOptions {
     pub posting_granularity: PostingGranularity,
     /// Maximum bytes in one source line, including LF and an optional CR.
     pub max_line_bytes: u64,
+    /// Limits checked before growing the source index or encoding postings.
+    pub limits: IndexBuildLimits,
 }
 
 impl Default for TokenIndexBuildOptions {
@@ -70,6 +132,7 @@ impl Default for TokenIndexBuildOptions {
             source: SearchIndexSource::RawUtf8,
             posting_granularity: PostingGranularity::Line,
             max_line_bytes: 16 * 1024 * 1024,
+            limits: IndexBuildLimits::default(),
         }
     }
 }
@@ -89,6 +152,8 @@ pub struct NgramIndexBuildOptions {
     pub posting_granularity: PostingGranularity,
     /// Maximum bytes in one source line, including LF and an optional CR.
     pub max_line_bytes: u64,
+    /// Limits checked before growing the source index or encoding postings.
+    pub limits: IndexBuildLimits,
     /// Number of Unicode scalar values in each indexed n-gram; must be nonzero.
     pub n: usize,
     /// Whether the dictionary contains every n-gram from the source.
@@ -106,6 +171,7 @@ impl Default for NgramIndexBuildOptions {
             source: SearchIndexSource::RawUtf8,
             posting_granularity: PostingGranularity::Line,
             max_line_bytes: 16 * 1024 * 1024,
+            limits: IndexBuildLimits::default(),
             n: 3,
             complete: true,
             high_df_per_million: 200_000,
@@ -455,13 +521,9 @@ impl RawTokenIndex {
                 &details.chunk_entries,
                 details.summary.original_size,
                 options.max_line_bytes,
+                options.limits,
                 |entry| reader.decode_entry(entry),
-                |line| {
-                    Ok(tokenize_ascii_lower(line)
-                        .into_iter()
-                        .map(|token| token.key)
-                        .collect())
-                },
+                BuildKeys::Token,
             )?,
         };
         Self::from_parts(
@@ -470,6 +532,7 @@ impl RawTokenIndex {
             granules,
             terms,
             postings,
+            options.limits,
         )
     }
 
@@ -489,11 +552,13 @@ impl RawTokenIndex {
         granules: Vec<SearchGranule>,
         mut terms: Vec<TermDictionaryEntry>,
         postings: Vec<Vec<u64>>,
+        limits: IndexBuildLimits,
     ) -> Result<Self> {
+        limits.check_parts(&granules, &terms, &postings)?;
         validate_granules(source_size_bytes, &granules)?;
         validate_term_dictionary_shape(&terms, &postings, granules.len())?;
 
-        let encoded = encode_posting_lists(&mut terms, &postings, false)?;
+        let encoded = encode_posting_lists(&mut terms, &postings, false, limits.max_encoded_bytes)?;
 
         Ok(Self {
             container_id,
@@ -760,11 +825,9 @@ impl RawNgramIndex {
                 &details.chunk_entries,
                 details.summary.original_size,
                 options.max_line_bytes,
+                options.limits,
                 |entry| reader.decode_entry(entry),
-                |line| {
-                    let text = std::str::from_utf8(line).map_err(|_| QztError::InvalidUtf8)?;
-                    Ok(ngram_keys(text, options.n))
-                },
+                BuildKeys::Ngram(options.n),
             )?,
         };
         Self::from_parts(
@@ -796,10 +859,14 @@ impl RawNgramIndex {
         postings: Vec<Vec<u64>>,
         options: NgramIndexBuildOptions,
     ) -> Result<Self> {
+        if options.n == 0 {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+        options.limits.check_parts(&granules, &terms, &postings)?;
         validate_granules(source_size_bytes, &granules)?;
         validate_term_dictionary_shape(&terms, &postings, granules.len())?;
 
-        let encoded = encode_posting_lists(&mut terms, &postings, true)?;
+        let encoded = encode_posting_lists(&mut terms, &postings, true, options.limits.max_encoded_bytes)?;
 
         Ok(Self {
             container_id,
@@ -1104,6 +1171,21 @@ pub fn encode_delta_varint_u64(values: &[u64]) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
+pub(crate) fn encoded_delta_varint_size(values: &[u64]) -> Result<u64> {
+    let mut size = 0_u64;
+    let mut previous = 0;
+    for (index, value) in values.iter().enumerate() {
+        let delta = if index == 0 { *value } else {
+            if *value <= previous { return Err(QztError::ContainerCorrupt); }
+            value.checked_sub(previous).ok_or(QztError::ContainerCorrupt)?
+        };
+        size = size.checked_add(usize_to_u64(varuint_len(delta))?)
+            .ok_or(QztError::ResourceLimitExceeded)?;
+        previous = *value;
+    }
+    Ok(size)
+}
+
 #[cfg(feature = "internal-testing")]
 /// Decodes unsigned delta varints into a strictly increasing sequence.
 ///
@@ -1153,6 +1235,47 @@ pub(crate) fn decode_delta_varint_u64_with_limit(
 /// Granules, sorted term dictionary, and per-term posting lists.
 type LineIndexParts = (Vec<SearchGranule>, Vec<TermDictionaryEntry>, Vec<Vec<u64>>);
 
+#[derive(Clone, Copy)]
+enum BuildKeys {
+    Token,
+    Ngram(usize),
+}
+
+struct BuildMeter {
+    limits: IndexBuildLimits,
+    mode: BuildKeys,
+    keys: u64,
+    key_bytes: u64,
+    postings: u64,
+}
+
+impl BuildMeter {
+    fn add_key(&mut self, map: &mut BTreeMap<Vec<u8>, Vec<u64>>, key: &[u8], fold: bool, granule: u64) -> Result<()> {
+        // A normalized token scratch key is at most one bounded source line.
+        // Check the individual key before creating even this temporary copy.
+        if usize_to_u64(key.len())? > self.limits.max_key_bytes {
+            return Err(QztError::ResourceLimitExceeded);
+        }
+        let key: Cow<'_, [u8]> = if fold && key.iter().any(u8::is_ascii_uppercase) {
+            Cow::Owned(key.iter().map(u8::to_ascii_lowercase).collect())
+        } else {
+            Cow::Borrowed(key)
+        };
+        if let Some(list) = map.get_mut(key.as_ref()) {
+            if list.last() != Some(&granule) {
+                charge_build(&mut self.postings, 1, self.limits.max_posting_ids)?;
+                list.push(granule);
+            }
+        } else {
+            charge_build(&mut self.keys, 1, self.limits.max_distinct_keys)?;
+            charge_build(&mut self.key_bytes, usize_to_u64(key.len())?, self.limits.max_key_bytes)?;
+            charge_build(&mut self.postings, 1, self.limits.max_posting_ids)?;
+            map.insert(key.into_owned(), vec![granule]);
+        }
+        Ok(())
+    }
+}
+
 /// Builds line granules and a sorted term dictionary in one pass over the
 /// container chunks. Only one decoded chunk plus the trailing incomplete line
 /// is held at a time; the posting map still grows with vocabulary.
@@ -1160,9 +1283,11 @@ fn build_line_index_streaming(
     entries: &[ChunkEntry],
     original_size: u64,
     max_line_bytes: u64,
+    limits: IndexBuildLimits,
     mut decode: impl FnMut(&ChunkEntry) -> Result<Vec<u8>>,
-    mut keys_for_line: impl FnMut(&[u8]) -> Result<Vec<Vec<u8>>>,
+    keys: BuildKeys,
 ) -> Result<LineIndexParts> {
+    let mut meter = BuildMeter { limits, mode: keys, keys: 0, key_bytes: 0, postings: 0 };
     let mut postings_by_key: BTreeMap<Vec<u8>, Vec<u64>> = BTreeMap::new();
     let mut granules: Vec<SearchGranule> = Vec::new();
     let mut carry: Vec<u8> = Vec::new();
@@ -1201,7 +1326,7 @@ fn build_line_index_streaming(
                 line_bytes,
                 &mut granules,
                 &mut postings_by_key,
-                &mut keys_for_line,
+                &mut meter,
             )?;
             carry.clear();
             consumed = index + 1;
@@ -1228,7 +1353,7 @@ fn build_line_index_streaming(
             &line_bytes,
             &mut granules,
             &mut postings_by_key,
-            &mut keys_for_line,
+            &mut meter,
         )?;
     }
 
@@ -1236,8 +1361,8 @@ fn build_line_index_streaming(
     let mut postings = Vec::with_capacity(postings_by_key.len());
     for (key, posting_list) in postings_by_key {
         terms.push(TermDictionaryEntry {
-            key: key.clone(),
             key_hash: key_hash(&key),
+            key,
             document_frequency: 0,
             granule_frequency: 0,
             posting_offset: 0,
@@ -1258,9 +1383,12 @@ fn emit_line_granule(
     line_bytes: &[u8],
     granules: &mut Vec<SearchGranule>,
     postings_by_key: &mut BTreeMap<Vec<u8>, Vec<u64>>,
-    keys_for_line: &mut impl FnMut(&[u8]) -> Result<Vec<Vec<u8>>>,
+    meter: &mut BuildMeter,
 ) -> Result<()> {
     let granule_id = usize_to_u64(granules.len())?;
+    if granule_id >= meter.limits.max_granules {
+        return Err(QztError::ResourceLimitExceeded);
+    }
     let byte_length = line_end
         .checked_sub(line_start)
         .ok_or(QztError::LogicalRangeOutOfBounds)?;
@@ -1274,12 +1402,32 @@ fn emit_line_granule(
         first_line: Some(granule_id),
         line_count: Some(1),
     });
-    for key in keys_for_line(line_bytes)? {
-        let posting_list = postings_by_key.entry(key).or_default();
-        // Lines are emitted in granule-id order, so only repeated keys in this
-        // line can duplicate the last posting.
-        if posting_list.last() != Some(&granule_id) {
-            posting_list.push(granule_id);
+    match meter.mode {
+        BuildKeys::Token => {
+            let mut cursor = 0;
+            while cursor < line_bytes.len() {
+                while cursor < line_bytes.len() && !is_token_byte(line_bytes[cursor]) {
+                    cursor += 1;
+                }
+                let start = cursor;
+                while cursor < line_bytes.len() && is_token_byte(line_bytes[cursor]) {
+                    cursor += 1;
+                }
+                if start < cursor {
+                    meter.add_key(postings_by_key, &line_bytes[start..cursor], true, granule_id)?;
+                }
+            }
+        }
+        BuildKeys::Ngram(n) => {
+            let text = std::str::from_utf8(line_bytes).map_err(|_| QztError::InvalidUtf8)?;
+            // Two scalar-boundary iterators avoid a line-sized boundary/key Vec
+            // before admission. End includes EOF, preserving newline n-grams.
+            let starts = text.char_indices().map(|(offset, _)| offset);
+            let ends = text.char_indices().map(|(offset, _)| offset)
+                .chain(std::iter::once(text.len())).skip(n);
+            for (start, end) in starts.zip(ends) {
+                meter.add_key(postings_by_key, &line_bytes[start..end], false, granule_id)?;
+            }
         }
     }
     Ok(())
@@ -1336,7 +1484,17 @@ fn encode_posting_lists(
     terms: &mut [TermDictionaryEntry],
     postings: &[Vec<u64>],
     with_skips: bool,
+    max_encoded_bytes: u64,
 ) -> Result<EncodedPostingLists> {
+    let mut size = 0;
+    for list in postings {
+        charge_build(&mut size, encoded_delta_varint_size(list)?, max_encoded_bytes)?;
+        if with_skips && list.len() >= 1024 {
+            let skips = usize_to_u64((list.len() - 1) / 128)?
+                .checked_mul(24).ok_or(QztError::ResourceLimitExceeded)?;
+            charge_build(&mut size, skips, max_encoded_bytes)?;
+        }
+    }
     let mut encoded_postings = Vec::with_capacity(postings.len());
     let mut skip_data = if with_skips {
         Vec::with_capacity(postings.len())
@@ -1358,7 +1516,7 @@ fn encode_posting_lists(
         term.posting_offset = posting_offset;
         term.posting_size = usize_to_u64(encoded.len())?;
         term.skip_offset = skip_offset;
-        term.skip_size = usize_to_u64(skips.len().saturating_mul(24))?;
+        term.skip_size = usize_to_u64(skips.len())?.checked_mul(24).ok_or(QztError::ResourceLimitExceeded)?;
         posting_offset = posting_offset
             .checked_add(term.posting_size)
             .ok_or(QztError::ResourceLimitExceeded)?;
@@ -1887,52 +2045,6 @@ pub(crate) fn ngram_keys_for_query(
     Ok(keys.into_iter().collect())
 }
 
-fn ngram_keys(text: &str, n: usize) -> Vec<Vec<u8>> {
-    if n == 0 {
-        return Vec::new();
-    }
-    let char_starts = text
-        .char_indices()
-        .map(|(offset, _)| offset)
-        .chain(std::iter::once(text.len()))
-        .collect::<Vec<_>>();
-    if char_starts.len().saturating_sub(1) < n {
-        return Vec::new();
-    }
-
-    let mut keys = Vec::new();
-    for window_start in 0..=char_starts.len() - 1 - n {
-        let start = char_starts[window_start];
-        let end = char_starts[window_start + n];
-        keys.push(text.as_bytes()[start..end].to_vec());
-    }
-    keys
-}
-
-fn tokenize_ascii_lower(bytes: &[u8]) -> Vec<TokenSpan> {
-    let mut tokens = Vec::new();
-    let mut cursor = 0_usize;
-    while cursor < bytes.len() {
-        while cursor < bytes.len() && !is_token_byte(bytes[cursor]) {
-            cursor += 1;
-        }
-        let start = cursor;
-        let mut key = Vec::new();
-        while cursor < bytes.len() && is_token_byte(bytes[cursor]) {
-            key.push(bytes[cursor].to_ascii_lowercase());
-            cursor += 1;
-        }
-        if start < cursor {
-            tokens.push(TokenSpan {
-                key,
-                start,
-                end: cursor,
-            });
-        }
-    }
-    tokens
-}
-
 fn is_token_byte(byte: u8) -> bool {
     byte.is_ascii_alphanumeric() || byte == b'_' || byte == b'-'
 }
@@ -1949,6 +2061,18 @@ mod serialized_metrics_tests {
     use super::*;
 
     #[test]
+    fn build_counter_overflow_and_inclusive_limit_fail_before_increment() {
+        let mut count = u64::MAX;
+        assert_eq!(charge_build(&mut count, 1, u64::MAX), Err(QztError::ResourceLimitExceeded));
+        assert_eq!(count, u64::MAX);
+        let mut count = 4;
+        assert_eq!(charge_build(&mut count, 1, 4), Err(QztError::ResourceLimitExceeded));
+        assert_eq!(count, 4);
+        charge_build(&mut count, 1, 5).unwrap();
+        assert_eq!(count, 5);
+    }
+
+    #[test]
     fn raw_builder_from_parts_and_public_mutation_do_not_claim_coverage_proof() {
         let container = crate::writer::pack_bytes(
             b"alpha\nalpha\n", crate::writer::WriterOptions::default(),
@@ -1958,6 +2082,7 @@ mod serialized_metrics_tests {
         let mut token = RawTokenIndex::from_parts(
             built.container_id, built.source_size_bytes,
             built.granules, built.terms, built.postings,
+            IndexBuildLimits::default(),
         ).unwrap();
         token.postings[0].pop();
         let report = token.search(&reader, "alpha", SearchOptions::default()).unwrap();
@@ -2130,6 +2255,7 @@ mod serialized_metrics_tests {
             vec![granule],
             vec![term],
             vec![vec![0]],
+            IndexBuildLimits::default(),
         )
         .expect("legacy fallback fixture should build");
 

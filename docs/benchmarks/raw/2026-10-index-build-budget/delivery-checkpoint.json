@@ -1,0 +1,32 @@
+{
+  "issue": "https://github.com/albert-einshutoin/qzt/issues/344",
+  "base_main": "9cf2c7c66a88c9f37a67567e5fa2247941b93dea",
+  "product_source_unchanged": [
+    "src/lib.rs",
+    "src/main.rs",
+    "src/search.rs",
+    "src/sidecar.rs",
+    "src/benchmark.rs"
+  ],
+  "product_sha256": {
+    "src/lib.rs": "571c0767561b79a1427c0053b22954b83401d6d0b57481ae30cb2a3965b87282",
+    "src/main.rs": "7c2cd4ef6b1186e5c9f214bf8de1b00da7c44f750b81cc32e0a0a36f506b8442",
+    "src/search.rs": "80f2e6bea09c84db133749f2423afb604aad4c45c32117af0de137381a3ad5ec",
+    "src/sidecar.rs": "e5f25a140919bc15eb5e4664fa73111605e3352c8949b62bb50ddb137e7ced43",
+    "src/benchmark.rs": "d9a47be5d491bf59b2bc6bf68af8272d7471a484375e400ab7066045db497111"
+  },
+  "historical_records_preserved": 44,
+  "embedded_original_streams": 244,
+  "omitted_count": 95,
+  "portable_small_replay": "passed C2/C4 1MiB only",
+  "product_profile_large_measurement_full_local_tests_repeated": false,
+  "new_scope": "compact evidence packaging and portable recipe only",
+  "compact_files": 46,
+  "compact_bytes": 764576,
+  "pending": [
+    "fresh delivery Companion Gate",
+    "PR HEAD CI/security",
+    "merge SHA main CI/security",
+    "Issue completion"
+  ]
+}

@@ -1,0 +1,49 @@
+Run a stop-gate review of the previous Claude turn.
+今回のGitHub納品Goalの追加差分と証拠整理だけを日本語でREAD_ONLY/STATIC_ONLYレビュー。
+先頭ALLOW:またはBLOCK:。編集、製品/計測コード実行/import/test、network、DB/env/secrets、Subagentは禁止。
+worktree=/Volumes/Satechi/Developer/qzt-index-budget-delivery-20261011、base9cf2c7c66a88c9f37a67567e5fa2247941b93dea。
+Issue344、このテーマ1件のPR/main納品のみ。今回はcommit/push/PR/CI/main mergeをユーザーが許可。
+tag/release/crates.io/公開pre6artifact変更は未許可。CI基盤変更なし。
+
+製品5files/src・既存test/hex・契約docsは完了receiptと21filesを照合し、製品API/境界bytesを変更していない。
+過去Sol medium専門review、514PASS/3ignored/package/条件付きMSRV/CompanionALLOWをhash一致の範囲で再利用。
+そのALLOWをこの新差分/PR HEADへ流用しないためのfresh Gate。
+プロファイル/大規模計測/完全localtestsを確認だけのために重ねていない。
+
+今回追加/変更scope:
+- docs/benchmarks/2026-10-index-build-budget-delivery.md
+- docs/benchmarks/2026-10-index-build-budget-delivery-evidence.json
+- docs/benchmarks/2026-10-index-build-budget-reproduce.md（repository root、fresh tmp、既存generatorを再利用するportable手順）
+- docs/benchmarks/2026-10-index-build-budget-issue-draft.md（今回のIssue/PR納品に更新）
+- scripts/index-build-budget-corpus.rs（前Goalの小adapterのbyte同一コピー。生成専用、既存src/corpus.rsを直接使用）
+- raw/2026-10-index-build-budget/の必要compact original receipts/logs/recordsとattempt-output.jsonl。
+source5filesはcompletion-receipt.jsonのhashに一致。直接関係するcallersと契約のみ必要なら読む。
+全repo探索や新しい製品設計レビューへ広げない。
+
+証拠:
+raw/2026-10-index-build-budget/delivery-checkpoint.json（fresh今回scope）、delivery-portable-check.log。
+新portable手順のC2/C4 1MiB size/hash/query oracle、pack→token/ngram→rare原文hit→製品拒否→既存input/QZI保持→新規完成品なしが実行成功。
+各command30秒、commands記録。RSS計測/strictmemory保証はしない。
+過去302MB archiveは元worktreeに保持。binary/QZI/corpus/重複snapshotをGitへ追加していない。
+44 original metadata/log filesと122record(96initial+26final)を同梱。
+244 stdout/stderr byteはUTF8へ可逆にまとめ、original sha256で照合したattempt-output.jsonlへ。
+source recordsの絶対pathは歴史的host path、current checkout fileではない。
+未同梱95fileはdelivery-evidence.jsonに元location/hash/size/reasonを記録。local-only原本はGitHubから確認可能/第三者検証済みとは言わない。
+過去failure make check/MSRV host SDK、refusal/unperformedも保持。過去値/receipt/false external_writesを現在の状態へ書き換えていない。
+旧report/planのcommit/外部納品なしは過去localGoalの記録と明示。今回PR/HEAD/merge証拠とは別。
+
+必須変更説明:
+IndexBuildLimits共有default granule1M/keys262144/posting8M/keybytes16MiB/encodedphase128MiB。
+C2/C4 10MiBngは新default拒否、posting16MのlimitedsmallcontrolはbeforeQZI/search一致。
+100MiBは製品の制限拒否と保護、完走/成功peak/性能改善unknown。
+Rustoptions limits/from_parts引数/with_line_limit→with_options preview break。
+publicpre6に新optionなし。同じversion文字列のlocalbuildを公開binaryと混同しない。
+namedlogical/phase budget、strictRSS/OOM保証/G3全体/第三者検証/production-ready/publicrelease未達。
+
+確認すること:
+compact original/embedded output/未同梱boundaryのprovenance、mutable新docsとhistoricalreceiptsを混同しないか。
+portablerecipeが固有絶対path/非同梱driverに依存せず、必要fixtureを生成/hash照合できるか。
+追加差分に受入回帰、安全性、データ保護、証拠過大保証の未修正要因があるか。
+手順の弱い保守契約や実害のある入力拒否不足以外の好み/newframework/scope外ではBLOCKしない。
+PR CI/securityはGate/commit後に最終HEADで実施。merge/main検証もその後。未実施を成功扱いしない。
+Gate後はverdictの記録とIssue/PRのリンク追加のみ、製品code/measurement値を変更しない予定。

@@ -1,0 +1,10 @@
+   Packaging qzt v0.1.0-pre.6 (/Volumes/Satechi/Developer/qzt-index-budget-20261010)
+    Updating crates.io index
+    Packaged 554 files, 9.1MiB (2.1MiB compressed)
+   Verifying qzt v0.1.0-pre.6 (/Volumes/Satechi/Developer/qzt-index-budget-20261010)
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling blake3 v1.8.5
+   Compiling zstd-safe v7.2.4
+   Compiling zstd v0.13.3
+   Compiling qzt v0.1.0-pre.6 (/Volumes/Satechi/Developer/qzt-index-budget-20261010/target/package/qzt-0.1.0-pre.6)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.01s

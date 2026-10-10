@@ -1,0 +1,158 @@
+{
+  "source_base": "9cf2c7c66a88c9f37a67567e5fa2247941b93dea",
+  "source_after_files": {
+    "src/lib.rs": "571c0767561b79a1427c0053b22954b83401d6d0b57481ae30cb2a3965b87282",
+    "src/main.rs": "7c2cd4ef6b1186e5c9f214bf8de1b00da7c44f750b81cc32e0a0a36f506b8442",
+    "src/search.rs": "80f2e6bea09c84db133749f2423afb604aad4c45c32117af0de137381a3ad5ec",
+    "src/sidecar.rs": "e5f25a140919bc15eb5e4664fa73111605e3352c8949b62bb50ddb137e7ced43"
+  },
+  "binary": {
+    "before": {
+      "path": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/qzt-before",
+      "sha256": "c4b1eebd2dae7f4eb7c9fe80ab538c6ad2d15cb846e635f05ec3770dabbc3263"
+    },
+    "after": {
+      "path": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/qzt-after-initial",
+      "sha256": "7c72a9138f72c7be2cdd733bdd2086925304d92227b7afd11d0e56a56d5b48e5"
+    },
+    "published-pre6": {
+      "path": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/acquisition/qzt-aarch64-apple-darwin/qzt",
+      "sha256": "00fa5541827b7a36199fecc9e5fd967900ca1f06b7866b38cea22c53e3721bd2"
+    }
+  },
+  "measurement_code_sha256": "4e1e498fc1b96a4bf60686d4f57eb6b1f343f479b4ef80e553d59fcb13855f82",
+  "shared_meter_sha256": "d58fa136eac5bfb4fde680d89ad08bba7f965e7e7913dabe02705b80879dc2fb",
+  "toolchain": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2\n",
+  "command_timeout": 180,
+  "total_seconds": 3600,
+  "automatic_retries": 0,
+  "warmup": 0,
+  "samples": 3,
+  "cache": "OS cache uncontrolled; instrumented profile excluded",
+  "fixtures": [
+    {
+      "bytes": 1048618,
+      "common": "qzt",
+      "common_source_occurrences": 8067,
+      "generation_command": [
+        "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/tools/resource-corpus",
+        "C2",
+        "1048576",
+        "295",
+        "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/inputs-final/C2-1MiB.txt"
+      ],
+      "id": "C2-1MiB",
+      "kind": "C2",
+      "lf_count": 8067,
+      "max_line_bytes": 131,
+      "mib": 1,
+      "missing_source_occurrences": 0,
+      "non_ascii_bytes": 16,
+      "path": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/inputs-final/C2-1MiB.txt",
+      "rare_source_occurrences": 1,
+      "seed": 295,
+      "sha256": "c9dc0f86d33fe14c5c081cd6376882c0a930d8bb7e8fa36bd37a8caaf7101c42",
+      "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C2-1MiB/corpus.qzt",
+      "qzt_sha256": "7c8b0cbab4e59e34f05a6a8baff5e387c4f0c9f16012711b4f2782ebe892e85e"
+    },
+    {
+      "bytes": 1048618,
+      "common": "qzt",
+      "common_source_occurrences": 13312,
+      "generation_command": [
+        "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/tools/resource-corpus",
+        "C4",
+        "1048576",
+        "295",
+        "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/inputs-final/C4-1MiB.txt"
+      ],
+      "id": "C4-1MiB",
+      "kind": "C4",
+      "lf_count": 39935,
+      "max_line_bytes": 44,
+      "mib": 1,
+      "missing_source_occurrences": 0,
+      "non_ascii_bytes": 16,
+      "path": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/inputs-final/C4-1MiB.txt",
+      "rare_source_occurrences": 1,
+      "seed": 295,
+      "sha256": "4a041f51379635cb0abf1cb2066b1aedea1e94566b6f822d56dd9a3bf28c91e0",
+      "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C4-1MiB/corpus.qzt",
+      "qzt_sha256": "27bd8c84be0b1d836ae6e7d0ff8055500ced58f25c4bd4d151c4f4070e82fe90"
+    },
+    {
+      "bytes": 10485802,
+      "common": "qzt",
+      "common_source_occurrences": 80659,
+      "generation_command": [
+        "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/tools/resource-corpus",
+        "C2",
+        "10485760",
+        "295",
+        "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/inputs-final/C2-10MiB.txt"
+      ],
+      "id": "C2-10MiB",
+      "kind": "C2",
+      "lf_count": 80659,
+      "max_line_bytes": 131,
+      "mib": 10,
+      "missing_source_occurrences": 0,
+      "non_ascii_bytes": 16,
+      "path": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/inputs-final/C2-10MiB.txt",
+      "rare_source_occurrences": 1,
+      "seed": 295,
+      "sha256": "39d1f5802a815985f60ccba883b4afafbe39cddc539ef0f41d34467f95cee4f6",
+      "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C2-10MiB/corpus.qzt",
+      "qzt_sha256": "e58ebd85d9b0d2b3f9628470dd76f5f3c8db6d2b83421d9d260d105d93e9e7fc"
+    },
+    {
+      "bytes": 10485802,
+      "common": "qzt",
+      "common_source_occurrences": 133109,
+      "generation_command": [
+        "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/tools/resource-corpus",
+        "C4",
+        "10485760",
+        "295",
+        "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/inputs-final/C4-10MiB.txt"
+      ],
+      "id": "C4-10MiB",
+      "kind": "C4",
+      "lf_count": 399326,
+      "max_line_bytes": 44,
+      "mib": 10,
+      "missing_source_occurrences": 0,
+      "non_ascii_bytes": 16,
+      "path": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/inputs-final/C4-10MiB.txt",
+      "rare_source_occurrences": 1,
+      "seed": 295,
+      "sha256": "0d2ff72028e350c0e5b578d58469ab783da86e1101db68a16f60f7687b976423",
+      "qzt": "/Volumes/Satechi/Developer/qzt-pre6-resources-20261010/docs/benchmarks/raw/2026-10-pre6-resources/run-3/C4-10MiB/corpus.qzt",
+      "qzt_sha256": "0a8426682b609ef4a36699d4f4005fd307c24dcfb43b810e415a56c5c83e4f9e"
+    }
+  ],
+  "not_performed": [
+    {
+      "fixture": "C2-10MiB",
+      "index": "ngram",
+      "phase": "after-default-search",
+      "reason": "prerequisite-product-refusal"
+    },
+    {
+      "fixture": "C4-10MiB",
+      "index": "ngram",
+      "phase": "after-default-search",
+      "reason": "prerequisite-product-refusal"
+    },
+    {
+      "fixture": "C2-100MiB",
+      "phase": "before100MiB",
+      "reason": "previous external-monitor stop; no need to repeat unknown completion"
+    },
+    {
+      "fixture": "C4-100MiB",
+      "phase": "before100MiB",
+      "reason": "previous external-monitor stop; no need to repeat unknown completion"
+    }
+  ]
+}

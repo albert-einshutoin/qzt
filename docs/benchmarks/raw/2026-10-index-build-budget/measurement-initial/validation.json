@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "qzi_bytes_equal": true,
+  "search_reports_equal_excluding_time": true,
+  "source_hits_verified": true,
+  "protected100MiB": true,
+  "attempts": 96
+}

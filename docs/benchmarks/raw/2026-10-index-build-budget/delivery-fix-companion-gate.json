@@ -1,0 +1,7 @@
+{
+  "status": 0,
+  "threadId": "01a12694-2ae1-7e13-8da3-3a522c8616f6",
+  "rawOutput": "ALLOW: 指定範囲のPR345修正に、直接の受入・回帰・security・provenance上のBLOCKはありません。\n\n- adapterはstdin 4096 bytes/4行、生成上限100MiB、`create_new`を維持。[index-build-budget-corpus.rs:13](/Volumes/Satechi/Developer/qzt-index-budget-delivery-20261011/scripts/index-build-budget-corpus.rs:13)\n- 5項目の明示予算を既存matrixへ伝播し、`ResourceLimitExceeded`のみ記録して継続、他エラーはpanic。[release_hardening.rs:110](/Volumes/Satechi/Developer/qzt-index-budget-delivery-20261011/tests/release_hardening.rs:110)\n- 空stdout期待値のClippy修正を確認。\n- 原本/派生digest、43原本・244 streams・96 local-onlyの境界を明示。[delivery-evidence.json:888](/Volumes/Satechi/Developer/qzt-index-budget-delivery-20261011/docs/benchmarks/2026-10-index-build-budget-delivery-evidence.json:888)\n- checkpoint記載の対象ファイルSHA256は現物と一致。製品5 sourceもcompletion receiptと一致。\n- `git diff --check`問題なし。コード実行・test・import・networkは未実施。\n\n制約として、最終HEAD CI/security、merge SHAのmain検証、Issue完了は未達のままです。100MiB完走、strict RSS/OOM防止、G3全体、第三者検証、production-ready、公開releaseも未達保持です。\n\n指定外の未追跡補助ファイルは内容判定対象外のため、commit時のstage対象を明示選別してください。",
+  "touchedFiles": [],
+  "reasoningSummary": []
+}

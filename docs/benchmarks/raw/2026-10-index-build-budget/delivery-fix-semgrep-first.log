@@ -1,0 +1,367 @@
+﻿2026-10-10T15:52:29.3881645Z Current runner version: '2.337.0'
+2026-10-10T15:52:29.3905498Z ##[group]Runner Image Provisioner
+2026-10-10T15:52:29.3906335Z Hosted Compute Agent
+2026-10-10T15:52:29.3907117Z Version: 20261002.596
+2026-10-10T15:52:29.3907797Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-10T15:52:29.3908572Z Build Date: 2026-10-02T22:28:27Z
+2026-10-10T15:52:29.3909267Z Worker ID: {a153dac9-a6bb-42b4-90b0-3d0b7333353d}
+2026-10-10T15:52:29.3909974Z Region: westcentralus
+2026-10-10T15:52:29.3910648Z Cloud: Azure
+2026-10-10T15:52:29.3911377Z ##[endgroup]
+2026-10-10T15:52:29.3912907Z ##[group]Operating System
+2026-10-10T15:52:29.3913575Z Ubuntu
+2026-10-10T15:52:29.3914096Z 24.04.5
+2026-10-10T15:52:29.3914949Z LTS
+2026-10-10T15:52:29.3915721Z ##[endgroup]
+2026-10-10T15:52:29.3916345Z ##[group]Runner Image
+2026-10-10T15:52:29.3916971Z Image: ubuntu-24.04
+2026-10-10T15:52:29.3917569Z Version: 20261004.327.1
+2026-10-10T15:52:29.3918920Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-10T15:52:29.3920543Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-10T15:52:29.3921761Z ##[endgroup]
+2026-10-10T15:52:29.3922853Z ##[group]GITHUB_TOKEN Permissions
+2026-10-10T15:52:29.3924829Z Contents: read
+2026-10-10T15:52:29.3925439Z Metadata: read
+2026-10-10T15:52:29.3926087Z ##[endgroup]
+2026-10-10T15:52:29.3928098Z Secret source: Actions
+2026-10-10T15:52:29.3929195Z Cache mode: write
+2026-10-10T15:52:29.3929938Z Prepare workflow directory
+2026-10-10T15:52:29.4353821Z Prepare all required actions
+2026-10-10T15:52:29.4401078Z Getting action download info
+2026-10-10T15:52:29.7113271Z Download action repository 'actions/checkout@v6' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-10-10T15:52:29.9388027Z Complete job name: semgrep
+2026-10-10T15:52:29.9909521Z ##[group]Checking docker version
+2026-10-10T15:52:29.9922731Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-10-10T15:52:30.0976258Z '1.48'
+2026-10-10T15:52:30.0988465Z Docker daemon API version: '1.48'
+2026-10-10T15:52:30.0989455Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-10-10T15:52:30.1158426Z '1.48'
+2026-10-10T15:52:30.1172144Z Docker client API version: '1.48'
+2026-10-10T15:52:30.1177714Z ##[endgroup]
+2026-10-10T15:52:30.1180616Z ##[group]Clean up resources from previous jobs
+2026-10-10T15:52:30.1186800Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=f7e610"
+2026-10-10T15:52:30.1337372Z ##[command]/usr/bin/docker network prune --force --filter "label=f7e610"
+2026-10-10T15:52:30.1473958Z ##[endgroup]
+2026-10-10T15:52:30.1474485Z ##[group]Create local container network
+2026-10-10T15:52:30.1484702Z ##[command]/usr/bin/docker network create --label f7e610 github_network_959f813d936e42c3ab9069bd823d769b
+2026-10-10T15:52:30.1984183Z 0b493bd1e6c7cd2f51154254c793f60bdce251ae55f76f0bff6772764d469587
+2026-10-10T15:52:30.2005141Z ##[endgroup]
+2026-10-10T15:52:30.2029168Z ##[group]Starting job container
+2026-10-10T15:52:30.2050970Z ##[command]/usr/bin/docker pull semgrep/semgrep:1.166.0
+2026-10-10T15:52:30.9190652Z 1.166.0: Pulling from semgrep/semgrep
+2026-10-10T15:52:31.1342575Z 6a0ac1617861: Pulling fs layer
+2026-10-10T15:52:31.1344620Z ab19170cb460: Pulling fs layer
+2026-10-10T15:52:31.1361385Z bd9ddc54bea9: Pulling fs layer
+2026-10-10T15:52:31.1362890Z 6f6def8347d2: Pulling fs layer
+2026-10-10T15:52:31.1364039Z 229fc6e6edb8: Pulling fs layer
+2026-10-10T15:52:31.1365099Z 627666100c55: Pulling fs layer
+2026-10-10T15:52:31.1366136Z 26405f0b7323: Pulling fs layer
+2026-10-10T15:52:31.1367156Z 556fdf4c5dfa: Pulling fs layer
+2026-10-10T15:52:31.1368129Z fd0585963c6a: Pulling fs layer
+2026-10-10T15:52:31.1369206Z ada1cd1cc30b: Pulling fs layer
+2026-10-10T15:52:31.1370226Z 50aa8a87e886: Pulling fs layer
+2026-10-10T15:52:31.1371418Z 106d8bfe6e98: Pulling fs layer
+2026-10-10T15:52:31.1372543Z 020938f46bff: Pulling fs layer
+2026-10-10T15:52:31.1373632Z 8d650f5eca6f: Pulling fs layer
+2026-10-10T15:52:31.1375200Z b681ae877d4e: Pulling fs layer
+2026-10-10T15:52:31.1376288Z 9efa827d9b86: Pulling fs layer
+2026-10-10T15:52:31.1377331Z a1d77ddb79df: Pulling fs layer
+2026-10-10T15:52:31.1378307Z ddb37138a5a3: Pulling fs layer
+2026-10-10T15:52:31.1379312Z 83f4788590ea: Pulling fs layer
+2026-10-10T15:52:31.1380408Z 9c94ff428cef: Pulling fs layer
+2026-10-10T15:52:31.1381858Z 0a07b3e69374: Pulling fs layer
+2026-10-10T15:52:31.1383043Z ada1cd1cc30b: Waiting
+2026-10-10T15:52:31.1384354Z 50aa8a87e886: Waiting
+2026-10-10T15:52:31.1385651Z 106d8bfe6e98: Waiting
+2026-10-10T15:52:31.1387015Z 020938f46bff: Waiting
+2026-10-10T15:52:31.1388396Z 8d650f5eca6f: Waiting
+2026-10-10T15:52:31.1389731Z b681ae877d4e: Waiting
+2026-10-10T15:52:31.1391040Z 9efa827d9b86: Waiting
+2026-10-10T15:52:31.1392675Z a1d77ddb79df: Waiting
+2026-10-10T15:52:31.1394082Z 6f6def8347d2: Waiting
+2026-10-10T15:52:31.1395449Z ddb37138a5a3: Waiting
+2026-10-10T15:52:31.1396864Z 229fc6e6edb8: Waiting
+2026-10-10T15:52:31.1398303Z 26405f0b7323: Waiting
+2026-10-10T15:52:31.1399682Z 83f4788590ea: Waiting
+2026-10-10T15:52:31.1401013Z 627666100c55: Waiting
+2026-10-10T15:52:31.1402638Z 556fdf4c5dfa: Waiting
+2026-10-10T15:52:31.1404020Z fd0585963c6a: Waiting
+2026-10-10T15:52:31.1405405Z 9c94ff428cef: Waiting
+2026-10-10T15:52:31.1406781Z 0a07b3e69374: Waiting
+2026-10-10T15:52:31.3771863Z bd9ddc54bea9: Download complete
+2026-10-10T15:52:31.5381607Z 6a0ac1617861: Verifying Checksum
+2026-10-10T15:52:31.5383210Z 6a0ac1617861: Download complete
+2026-10-10T15:52:31.6762960Z ab19170cb460: Verifying Checksum
+2026-10-10T15:52:31.6764168Z ab19170cb460: Download complete
+2026-10-10T15:52:31.6830239Z 6a0ac1617861: Pull complete
+2026-10-10T15:52:31.7334616Z 6f6def8347d2: Verifying Checksum
+2026-10-10T15:52:31.7347786Z 6f6def8347d2: Download complete
+2026-10-10T15:52:31.7416131Z 229fc6e6edb8: Verifying Checksum
+2026-10-10T15:52:31.7416805Z 229fc6e6edb8: Download complete
+2026-10-10T15:52:31.8658047Z 627666100c55: Download complete
+2026-10-10T15:52:32.0955543Z 556fdf4c5dfa: Verifying Checksum
+2026-10-10T15:52:32.0957247Z 556fdf4c5dfa: Download complete
+2026-10-10T15:52:32.1297988Z 26405f0b7323: Verifying Checksum
+2026-10-10T15:52:32.1304420Z 26405f0b7323: Download complete
+2026-10-10T15:52:32.3448858Z 50aa8a87e886: Verifying Checksum
+2026-10-10T15:52:32.3450358Z 50aa8a87e886: Download complete
+2026-10-10T15:52:32.5381845Z 106d8bfe6e98: Verifying Checksum
+2026-10-10T15:52:32.5383664Z 106d8bfe6e98: Download complete
+2026-10-10T15:52:32.5753543Z fd0585963c6a: Download complete
+2026-10-10T15:52:32.7087912Z ada1cd1cc30b: Verifying Checksum
+2026-10-10T15:52:32.7089768Z ada1cd1cc30b: Download complete
+2026-10-10T15:52:33.0243535Z ab19170cb460: Pull complete
+2026-10-10T15:52:33.1724792Z bd9ddc54bea9: Pull complete
+2026-10-10T15:52:33.2584898Z b681ae877d4e: Verifying Checksum
+2026-10-10T15:52:33.2588124Z b681ae877d4e: Download complete
+2026-10-10T15:52:33.2671929Z 6f6def8347d2: Pull complete
+2026-10-10T15:52:33.3250013Z 229fc6e6edb8: Pull complete
+2026-10-10T15:52:33.4116716Z 627666100c55: Pull complete
+2026-10-10T15:52:33.4570720Z 9efa827d9b86: Verifying Checksum
+2026-10-10T15:52:33.4576745Z 9efa827d9b86: Download complete
+2026-10-10T15:52:33.4939767Z 8d650f5eca6f: Verifying Checksum
+2026-10-10T15:52:33.4940947Z 8d650f5eca6f: Download complete
+2026-10-10T15:52:33.5368428Z 020938f46bff: Verifying Checksum
+2026-10-10T15:52:33.5369074Z 020938f46bff: Download complete
+2026-10-10T15:52:33.6234122Z 26405f0b7323: Pull complete
+2026-10-10T15:52:33.6560403Z a1d77ddb79df: Verifying Checksum
+2026-10-10T15:52:33.6561638Z a1d77ddb79df: Download complete
+2026-10-10T15:52:33.6737929Z 556fdf4c5dfa: Pull complete
+2026-10-10T15:52:33.6943249Z ddb37138a5a3: Verifying Checksum
+2026-10-10T15:52:33.6943576Z ddb37138a5a3: Download complete
+2026-10-10T15:52:33.7357990Z 83f4788590ea: Verifying Checksum
+2026-10-10T15:52:33.7358647Z 83f4788590ea: Download complete
+2026-10-10T15:52:33.8541582Z 9c94ff428cef: Verifying Checksum
+2026-10-10T15:52:33.8542362Z 9c94ff428cef: Download complete
+2026-10-10T15:52:33.8783768Z 0a07b3e69374: Verifying Checksum
+2026-10-10T15:52:33.8784775Z 0a07b3e69374: Download complete
+2026-10-10T15:52:35.8150196Z fd0585963c6a: Pull complete
+2026-10-10T15:52:37.4625149Z ada1cd1cc30b: Pull complete
+2026-10-10T15:52:37.4719855Z 50aa8a87e886: Pull complete
+2026-10-10T15:52:37.4867725Z 106d8bfe6e98: Pull complete
+2026-10-10T15:52:41.6264769Z 020938f46bff: Pull complete
+2026-10-10T15:52:43.7618188Z 8d650f5eca6f: Pull complete
+2026-10-10T15:52:43.8667081Z b681ae877d4e: Pull complete
+2026-10-10T15:52:43.8955670Z 9efa827d9b86: Pull complete
+2026-10-10T15:52:43.9046920Z a1d77ddb79df: Pull complete
+2026-10-10T15:52:43.9116709Z ddb37138a5a3: Pull complete
+2026-10-10T15:52:43.9238097Z 83f4788590ea: Pull complete
+2026-10-10T15:52:43.9314284Z 9c94ff428cef: Pull complete
+2026-10-10T15:52:43.9397831Z 0a07b3e69374: Pull complete
+2026-10-10T15:52:43.9439075Z Digest: sha256:c180f0c93a17b420c0af5006214a29d3c747c5459c732b740191adf657dd0068
+2026-10-10T15:52:43.9451579Z Status: Downloaded newer image for semgrep/semgrep:1.166.0
+2026-10-10T15:52:43.9461140Z docker.io/semgrep/semgrep:1.166.0
+2026-10-10T15:52:43.9539969Z ##[command]/usr/bin/docker create --name 84bb75abdce94a5cbc025ff647a43900_semgrepsemgrep11660_d8ec9d --label f7e610 --workdir /__w/qzt/qzt --network github_network_959f813d936e42c3ab9069bd823d769b  -e "HOME=/github/home" -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work":"/__w" -v "/home/runner/actions-runner/cached/2.337.0/externals":"/__e":ro -v "/home/runner/work/_temp":"/__w/_temp" -v "/home/runner/work/_actions":"/__w/_actions" -v "/opt/hostedtoolcache":"/__t" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" --entrypoint "tail" semgrep/semgrep:1.166.0 "-f" "/dev/null"
+2026-10-10T15:52:43.9799133Z 61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de
+2026-10-10T15:52:43.9822033Z ##[command]/usr/bin/docker start 61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de
+2026-10-10T15:52:44.1961078Z 61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de
+2026-10-10T15:52:44.1979861Z ##[command]/usr/bin/docker ps --all --filter id=61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-10-10T15:52:44.2104942Z 61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de Up Less than a second
+2026-10-10T15:52:44.2123802Z ##[command]/usr/bin/docker inspect --format "{{range .Config.Env}}{{println .}}{{end}}" 61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de
+2026-10-10T15:52:44.2244437Z HOME=/github/home
+2026-10-10T15:52:44.2245107Z GITHUB_ACTIONS=true
+2026-10-10T15:52:44.2245654Z CI=true
+2026-10-10T15:52:44.2246167Z PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+2026-10-10T15:52:44.2246551Z SEMGREP_IN_DOCKER=1
+2026-10-10T15:52:44.2246834Z SEMGREP_USER_AGENT_APPEND=Docker
+2026-10-10T15:52:44.2247093Z PYTHONIOENCODING=utf8
+2026-10-10T15:52:44.2247308Z PYTHONUNBUFFERED=1
+2026-10-10T15:52:44.2248189Z DOCKER_OTEL_RESOURCE_ATTRIBUTES=vcs.ref.head.name=release-1.166.0,vcs.ref.head.revision=d452dbc22196f03a98bdb53ed0dafd1bedc48f8e,vcs.repository.url.full=github.com/semgrep/semgrep-proprietary,docker.base_image=alpine:3.23
+2026-10-10T15:52:44.2249093Z DD_SERVICE=semgrep-core
+2026-10-10T15:52:44.2249343Z TSAN_OPTIONS=exitcode=0 report_signal_unsafe=0
+2026-10-10T15:52:44.2263474Z ##[endgroup]
+2026-10-10T15:52:44.2272728Z ##[group]Waiting for all services to be ready
+2026-10-10T15:52:44.2274391Z ##[endgroup]
+2026-10-10T15:52:44.2578362Z ##[group]Run actions/checkout@v6
+2026-10-10T15:52:44.2578927Z with:
+2026-10-10T15:52:44.2579151Z   repository: albert-einshutoin/qzt
+2026-10-10T15:52:44.2581806Z   token: ***
+2026-10-10T15:52:44.2582020Z   ssh-strict: true
+2026-10-10T15:52:44.2582226Z   ssh-user: git
+2026-10-10T15:52:44.2582433Z   persist-credentials: true
+2026-10-10T15:52:44.2582663Z   clean: true
+2026-10-10T15:52:44.2582869Z   sparse-checkout-cone-mode: true
+2026-10-10T15:52:44.2583351Z   fetch-depth: 1
+2026-10-10T15:52:44.2583549Z   fetch-tags: false
+2026-10-10T15:52:44.2583752Z   show-progress: true
+2026-10-10T15:52:44.2583951Z   lfs: false
+2026-10-10T15:52:44.2584164Z   submodules: false
+2026-10-10T15:52:44.2584405Z   set-safe-directory: true
+2026-10-10T15:52:44.2584644Z   allow-unsafe-pr-checkout: false
+2026-10-10T15:52:44.2585661Z ##[endgroup]
+2026-10-10T15:52:44.2647694Z ##[command]/usr/bin/docker exec  61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de sh -c "cat /etc/*release | grep ^ID"
+2026-10-10T15:52:44.4968212Z Syncing repository: albert-einshutoin/qzt
+2026-10-10T15:52:44.4969624Z ##[group]Getting Git version info
+2026-10-10T15:52:44.4970081Z Working directory is '/__w/qzt/qzt'
+2026-10-10T15:52:44.4970922Z [command]/usr/bin/git version
+2026-10-10T15:52:44.5031914Z git version 2.52.0
+2026-10-10T15:52:44.5127194Z ##[endgroup]
+2026-10-10T15:52:44.5156876Z Temporarily overriding HOME='/__w/_temp/59d0396a-43e2-4376-85ac-808eb0c54f16' before making global git config changes
+2026-10-10T15:52:44.5158521Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T15:52:44.5166590Z [command]/usr/bin/git config --global --add safe.directory /__w/qzt/qzt
+2026-10-10T15:52:44.5202457Z Deleting the contents of '/__w/qzt/qzt'
+2026-10-10T15:52:44.5209043Z ##[group]Determining repository object format
+2026-10-10T15:52:44.5215690Z ##[endgroup]
+2026-10-10T15:52:44.5216393Z ##[group]Initializing the repository
+2026-10-10T15:52:44.5221364Z [command]/usr/bin/git init /__w/qzt/qzt
+2026-10-10T15:52:44.5276835Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-10T15:52:44.5278052Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-10T15:52:44.5279027Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-10T15:52:44.5279816Z hint: call:
+2026-10-10T15:52:44.5280156Z hint:
+2026-10-10T15:52:44.5280638Z hint: 	git config --global init.defaultBranch <name>
+2026-10-10T15:52:44.5282300Z hint:
+2026-10-10T15:52:44.5282831Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-10T15:52:44.5283745Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-10T15:52:44.5284415Z hint:
+2026-10-10T15:52:44.5284758Z hint: 	git branch -m <name>
+2026-10-10T15:52:44.5285139Z hint:
+2026-10-10T15:52:44.5285678Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-10T15:52:44.5286490Z Initialized empty Git repository in /__w/qzt/qzt/.git/
+2026-10-10T15:52:44.5297220Z [command]/usr/bin/git remote add origin https://github.com/albert-einshutoin/qzt
+2026-10-10T15:52:44.5334438Z ##[endgroup]
+2026-10-10T15:52:44.5335070Z ##[group]Disabling automatic garbage collection
+2026-10-10T15:52:44.5340212Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-10T15:52:44.5372534Z ##[endgroup]
+2026-10-10T15:52:44.5373142Z ##[group]Setting up auth
+2026-10-10T15:52:44.5376465Z Removing SSH command configuration
+2026-10-10T15:52:44.5386709Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T15:52:44.5430686Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-10T15:52:44.5647180Z Removing HTTP extra header
+2026-10-10T15:52:44.5652868Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T15:52:44.5688503Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-10T15:52:44.5914341Z Removing includeIf entries pointing to credentials config files
+2026-10-10T15:52:44.5918994Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T15:52:44.5974727Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-10T15:52:44.6183668Z [command]/usr/bin/git config --file /__w/_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-10T15:52:44.6224354Z [command]/usr/bin/git config --local includeIf.gitdir:/__w/qzt/qzt/.git.path /__w/_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:44.6256797Z [command]/usr/bin/git config --local includeIf.gitdir:/__w/qzt/qzt/.git/worktrees/*.path /__w/_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:44.6290581Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:44.6326489Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:44.6355916Z ##[endgroup]
+2026-10-10T15:52:44.6356564Z ##[group]Fetching the repository
+2026-10-10T15:52:44.6370956Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +064712a74b68af83d963c4e5c5b2cbdf2ae482a6:refs/remotes/pull/345/merge
+2026-10-10T15:52:45.4990475Z From https://github.com/albert-einshutoin/qzt
+2026-10-10T15:52:45.4991608Z  * [new ref]         064712a74b68af83d963c4e5c5b2cbdf2ae482a6 -> pull/345/merge
+2026-10-10T15:52:45.5023053Z ##[endgroup]
+2026-10-10T15:52:45.5023530Z ##[group]Determining the checkout info
+2026-10-10T15:52:45.5026088Z ##[endgroup]
+2026-10-10T15:52:45.5034353Z [command]/usr/bin/git sparse-checkout disable
+2026-10-10T15:52:45.5093657Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-10T15:52:45.5121643Z ##[group]Checking out the ref
+2026-10-10T15:52:45.5127833Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/345/merge
+2026-10-10T15:52:45.5926310Z Note: switching to 'refs/remotes/pull/345/merge'.
+2026-10-10T15:52:45.5926700Z 
+2026-10-10T15:52:45.5926936Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-10T15:52:45.5927724Z changes and commit them, and you can discard any commits you make in this
+2026-10-10T15:52:45.5928623Z state without impacting any branches by switching back to a branch.
+2026-10-10T15:52:45.5929130Z 
+2026-10-10T15:52:45.5929743Z If you want to create a new branch to retain commits you create, you may
+2026-10-10T15:52:45.5930620Z do so (now or later) by using -c with the switch command. Example:
+2026-10-10T15:52:45.5931063Z 
+2026-10-10T15:52:45.5931538Z   git switch -c <new-branch-name>
+2026-10-10T15:52:45.5931835Z 
+2026-10-10T15:52:45.5932021Z Or undo this operation with:
+2026-10-10T15:52:45.5932300Z 
+2026-10-10T15:52:45.5932446Z   git switch -
+2026-10-10T15:52:45.5932749Z 
+2026-10-10T15:52:45.5933133Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-10T15:52:45.5933719Z 
+2026-10-10T15:52:45.5934350Z HEAD is now at 064712a Merge 31457cb94b3a234970d7c5d0b596b6e2b33967e7 into 9cf2c7c66a88c9f37a67567e5fa2247941b93dea
+2026-10-10T15:52:45.5936249Z ##[endgroup]
+2026-10-10T15:52:45.5977913Z [command]/usr/bin/git log -1 --format=%H
+2026-10-10T15:52:45.6002806Z 064712a74b68af83d963c4e5c5b2cbdf2ae482a6
+2026-10-10T15:52:45.6276258Z ##[group]Run semgrep scan --config p/rust --error --metrics=off .
+2026-10-10T15:52:45.6276797Z [36;1msemgrep scan --config p/rust --error --metrics=off .[0m
+2026-10-10T15:52:45.6280425Z shell: sh -e {0}
+2026-10-10T15:52:45.6280646Z env:
+2026-10-10T15:52:45.6280836Z   SEMGREP_SEND_METRICS: off
+2026-10-10T15:52:45.6281076Z ##[endgroup]
+2026-10-10T15:52:48.0004738Z                
+2026-10-10T15:52:48.0005208Z                
+2026-10-10T15:52:48.0006068Z ┌─────────────┐
+2026-10-10T15:52:48.0006579Z │ Scan Status │
+2026-10-10T15:52:48.0007019Z └─────────────┘
+2026-10-10T15:52:48.0012513Z   Scanning 556 files tracked by git with 11 Code rules:
+2026-10-10T15:52:48.0105332Z                                                                                                                         
+2026-10-10T15:52:48.0106607Z   Language   Rules   Files          Origin      Rules                                                                   
+2026-10-10T15:52:48.0107878Z  ──────────────────────────        ───────────────────                                                                  
+2026-10-10T15:52:48.0108604Z   rust          11     101          Community      11                                                                   
+2026-10-10T15:52:48.0109263Z   json           1      73                                                                                              
+2026-10-10T15:52:48.0109902Z   python         1      20                                                                                              
+2026-10-10T15:52:48.0110560Z   yaml           1      12                                                                                              
+2026-10-10T15:52:48.0111481Z   bash           1       6                                                                                              
+2026-10-10T15:52:48.0112253Z                                                                                                                         
+2026-10-10T15:52:49.4903407Z                   
+2026-10-10T15:52:49.4904253Z                   
+2026-10-10T15:52:49.4904992Z ┌────────────────┐
+2026-10-10T15:52:49.4905407Z │ 1 Code Finding │
+2026-10-10T15:52:49.4905811Z └────────────────┘
+2026-10-10T15:52:49.4906204Z                                         
+2026-10-10T15:52:49.4906917Z     scripts/index-build-budget-corpus.rs
+2026-10-10T15:52:49.4907636Z      ❱ rust.lang.security.args.args
+2026-10-10T15:52:49.4908170Z           ❰❰ Blocking ❱❱
+2026-10-10T15:52:49.4908696Z           args should not be used for security operations. From the docs: "The first element is traditionally
+2026-10-10T15:52:49.4909450Z           the path of the executable, but it can be set to arbitrary text, and might not even exist. This    
+2026-10-10T15:52:49.4910173Z           means this property should not be relied upon for security purposes."                              
+2026-10-10T15:52:49.4910858Z           Details: https://sg.run/RADN                                                                       
+2026-10-10T15:52:49.4911694Z                                                                                                              
+2026-10-10T15:52:49.4916311Z            11┆ let args: Vec<String> = std::env::args().collect();
+2026-10-10T15:52:49.4916612Z 
+2026-10-10T15:52:49.5364765Z                 
+2026-10-10T15:52:49.5365267Z                 
+2026-10-10T15:52:49.5365857Z ┌──────────────┐
+2026-10-10T15:52:49.5366406Z │ Scan Summary │
+2026-10-10T15:52:49.5366980Z └──────────────┘
+2026-10-10T15:52:49.5367477Z ✅ Scan completed successfully.
+2026-10-10T15:52:49.5368113Z  • Findings: 1 (1 blocking)
+2026-10-10T15:52:49.5368713Z  • Rules run: 11
+2026-10-10T15:52:49.5369202Z  • Targets scanned: 212
+2026-10-10T15:52:49.5369658Z  • Parsed lines: ~100.0%
+2026-10-10T15:52:49.5370065Z  • Scan skipped: 
+2026-10-10T15:52:49.5370511Z    ◦ Files larger than  files 1.0 MB: 2
+2026-10-10T15:52:49.5370882Z  • Scan was limited to files tracked by git
+2026-10-10T15:52:49.5372015Z  • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+2026-10-10T15:52:49.5372537Z Ran 11 rules on 212 files: 1 finding.
+2026-10-10T15:52:49.7320893Z ##[error]Process completed with exit code 1.
+2026-10-10T15:52:49.7468010Z Post job cleanup.
+2026-10-10T15:52:49.7475511Z ##[command]/usr/bin/docker exec  61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de sh -c "cat /etc/*release | grep ^ID"
+2026-10-10T15:52:49.9521349Z [command]/usr/bin/git version
+2026-10-10T15:52:49.9638776Z git version 2.52.0
+2026-10-10T15:52:49.9747494Z Copying '/github/home/.gitconfig' to '/__w/_temp/ba2fa1cf-2f5e-48dc-b5bf-2680c2a9510e/.gitconfig'
+2026-10-10T15:52:49.9771925Z Temporarily overriding HOME='/__w/_temp/ba2fa1cf-2f5e-48dc-b5bf-2680c2a9510e' before making global git config changes
+2026-10-10T15:52:49.9778904Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T15:52:49.9787560Z [command]/usr/bin/git config --global --add safe.directory /__w/qzt/qzt
+2026-10-10T15:52:49.9842266Z Removing SSH command configuration
+2026-10-10T15:52:49.9857199Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T15:52:49.9917218Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-10T15:52:50.0225741Z Removing HTTP extra header
+2026-10-10T15:52:50.0243434Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T15:52:50.0295864Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-10T15:52:50.0589674Z Removing includeIf entries pointing to credentials config files
+2026-10-10T15:52:50.0625133Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T15:52:50.0673445Z includeif.gitdir:/__w/qzt/qzt/.git.path
+2026-10-10T15:52:50.0674920Z includeif.gitdir:/__w/qzt/qzt/.git/worktrees/*.path
+2026-10-10T15:52:50.0676048Z includeif.gitdir:/github/workspace/.git.path
+2026-10-10T15:52:50.0676820Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-10T15:52:50.0704709Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/__w/qzt/qzt/.git.path
+2026-10-10T15:52:50.0745908Z /__w/_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:50.0780967Z [command]/usr/bin/git config --local --unset includeif.gitdir:/__w/qzt/qzt/.git.path /__w/_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:50.0842579Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/__w/qzt/qzt/.git/worktrees/*.path
+2026-10-10T15:52:50.0868485Z /__w/_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:50.0884929Z [command]/usr/bin/git config --local --unset includeif.gitdir:/__w/qzt/qzt/.git/worktrees/*.path /__w/_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:50.0935538Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-10T15:52:50.0961451Z /github/runner_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:50.0974484Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:50.1027293Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-10T15:52:50.1051736Z /github/runner_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:50.1067239Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config
+2026-10-10T15:52:50.1127197Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-10T15:52:50.1339929Z Removing credentials config '/__w/_temp/git-credentials-a40a78f4-8662-4380-81c9-a844f7d34298.config'
+2026-10-10T15:52:50.1563807Z Stop and remove container: 84bb75abdce94a5cbc025ff647a43900_semgrepsemgrep11660_d8ec9d
+2026-10-10T15:52:50.1568339Z ##[command]/usr/bin/docker rm --force 61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de
+2026-10-10T15:52:50.2708335Z 61b12dd2adc8ab9ebe6db8f5c95124d0c7f7265a8d137c63a1928df94ba9f9de
+2026-10-10T15:52:50.2737164Z Remove container network: github_network_959f813d936e42c3ab9069bd823d769b
+2026-10-10T15:52:50.2742038Z ##[command]/usr/bin/docker network rm github_network_959f813d936e42c3ab9069bd823d769b
+2026-10-10T15:52:50.3615891Z github_network_959f813d936e42c3ab9069bd823d769b
+2026-10-10T15:52:50.3691894Z Cleaning up orphan processes

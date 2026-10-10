@@ -1,0 +1,70 @@
+   Compiling libc v0.2.186
+   Compiling shlex v2.0.1
+   Compiling cfg-if v1.0.4
+   Compiling find-msvc-tools v0.1.9
+   Compiling pkg-config v0.3.33
+   Compiling getrandom v0.3.4
+   Compiling zstd-safe v7.2.4
+   Compiling zerocopy v0.8.50
+   Compiling rustix v1.1.4
+   Compiling getrandom v0.4.2
+   Compiling autocfg v1.5.1
+   Compiling bitflags v2.13.0
+   Compiling serde_core v1.0.228
+   Compiling arrayref v0.3.9
+   Compiling fastrand v2.4.1
+   Compiling num-traits v0.2.19
+   Compiling zmij v1.0.21
+   Compiling once_cell v1.21.4
+   Compiling constant_time_eq v0.4.2
+   Compiling arrayvec v0.7.6
+   Compiling quick-error v1.2.3
+   Compiling same-file v1.0.6
+   Compiling bit-vec v0.8.0
+   Compiling fnv v1.0.7
+   Compiling serde_json v1.0.150
+   Compiling itoa v1.0.18
+   Compiling regex-syntax v0.8.10
+   Compiling unarray v0.1.4
+   Compiling bit-set v0.8.0
+   Compiling memchr v2.8.1
+   Compiling jobserver v0.1.34
+   Compiling errno v0.3.14
+   Compiling wait-timeout v0.2.1
+   Compiling os_pipe v1.2.3
+   Compiling rand_core v0.9.5
+   Compiling cc v1.2.63
+   Compiling rand v0.9.4
+   Compiling rand_xorshift v0.4.0
+   Compiling tempfile v3.27.0
+   Compiling rusty-fork v0.3.1
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling blake3 v1.8.5
+   Compiling ppv-lite86 v0.2.21
+   Compiling rand_chacha v0.9.0
+   Compiling proptest v1.11.0
+   Compiling zstd v0.13.3
+   Compiling qzt v0.1.0-pre.6 (/Volumes/Satechi/Developer/qzt-index-budget-20261010)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.07s
+     Running tests/phase49_index_build_budgets.rs (target/debug/deps/phase49_index_build_budgets-a797e0584669a144)
+
+running 1 test
+test cli_build_refusal_preserves_source_and_existing_output ... FAILED
+
+failures:
+
+---- cli_build_refusal_preserves_source_and_existing_output stdout ----
+
+thread 'cli_build_refusal_preserves_source_and_existing_output' (104270765) panicked at tests/phase49_index_build_budgets.rs:18:9:
+assertion `left == right` failed
+  left: Some(2)
+ right: Some(1)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    cli_build_refusal_preserves_source_and_existing_output
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
+
+error: test failed, to rerun pass `--test phase49_index_build_budgets`

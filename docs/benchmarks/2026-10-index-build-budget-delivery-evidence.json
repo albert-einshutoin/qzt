@@ -1,0 +1,3106 @@
+{
+  "local_archive": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget",
+  "historical_manifest_sha256": "6bd31481bfe406ab94f632f8e09b209f7fcbec76fd3de0ef6c69e555a17d5628",
+  "included_original_files": [
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/companion-gate.json",
+      "sha256": "5a3f2102c2a502cb1309e56c790d741915ae1520680c49bebed6d50e57005c8f",
+      "bytes": 1495
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/completion-receipt.json",
+      "sha256": "c46202a18e1f14cefd3fba7b00ef6853e6503a139a86dd88b6752870ecefeda0",
+      "bytes": 1724
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/delivery-manifest.json",
+      "sha256": "6bd31481bfe406ab94f632f8e09b209f7fcbec76fd3de0ef6c69e555a17d5628",
+      "bytes": 84722
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/evidence-audit.json",
+      "sha256": "0953357e0a4a2dd5cf6c04f6593d7966594daf677df06420fb0fae8db311ba4d",
+      "bytes": 2038
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/manifest.json",
+      "sha256": "3d8f6889dd73eaee44311c8ac511123d4a56676f78179a85944f6a8f69f70f12",
+      "bytes": 1129
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/records.jsonl",
+      "sha256": "113bda7349ed4af08914208cea23f0159a653c44e69291fc77ff08afe4cb9334",
+      "bytes": 25822
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/validation.json",
+      "sha256": "343a1dca1eed0379db9f0cf2503dadb49fd3115a99e20b33778f977384eab4d5",
+      "bytes": 254
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/fixture-bindings.json",
+      "sha256": "4440f99a76e0fe91cdd464b2c49d3cb09e966dd0cdebe7fc1d9bda429f22dde0",
+      "bytes": 2372
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/golden-tests.log",
+      "sha256": "0e4a14cfb78d1f736da126062eb5564d0d0f9ce82c727ccc35ec9cb67d495d13",
+      "bytes": 1122
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/make-check-final.log",
+      "sha256": "49c73ea2280230cfa701084207ec1c00126d12d49158491f25631ea9abd7f689",
+      "bytes": 50555
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/make-check.log",
+      "sha256": "7d181d04fdd5fa954dfb074b1909d02fd3df98c96704cd28f93159ed8823e19a",
+      "bytes": 49679
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/artifact-summary.json",
+      "sha256": "50e3b622ee8b58784680c2189be6d72b22b2169945e63483e0fb38b8a22dbc33",
+      "bytes": 19700
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/manifest-final.json",
+      "sha256": "343e409546410f70eb310df25ef01aba783e3381b01f223566a5d5ae0ab4db33",
+      "bytes": 7030
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/records.jsonl",
+      "sha256": "00261481afb7f402a49db8e1e1aae523b6266ba8929df2fdb0c7448cef95e579",
+      "bytes": 94397
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/validation.json",
+      "sha256": "a5f32c40b80a882f5a512e291b6c8dd2e5870cd641338e36f5c4bc724f15f10a",
+      "bytes": 168
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/msrv-explicit-linker.log",
+      "sha256": "2e55856e68d3b283c99159bfa16a85f67ac7d3b9b804acacf75a706bac8c7627",
+      "bytes": 2848
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/msrv-final.log",
+      "sha256": "2189c3672132b8f391a79813c223fce4fd309a4a382481969541e4c2c0053193",
+      "bytes": 4588
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/msrv-sdk15.log",
+      "sha256": "cd2a8fe5595eba29f7b0832d10b14da32409e789aa0fb910a4e13a087e905f58",
+      "bytes": 609
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/overflow-final.log",
+      "sha256": "dc7753e4228966e3a7e8a50ad4d0b5bba0ce0451c4b6b729b1e8b1836ceb5fd9",
+      "bytes": 457
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/package-final.log",
+      "sha256": "fad188303fc2b25a852c049393530dbb106d7815758924447d0fe42c6e057a26",
+      "bytes": 562
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/0001.stderr",
+      "sha256": "4a8923b062c3babdf9b8bc77a7a51d1dc7cb8b37ce6b83aa694e6330c1062bdc",
+      "bytes": 777
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/0001.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/cpu.sample.txt",
+      "sha256": "c939de8a44e4d5086f929bf8d2c9fa847f8153b58dc73a26402727c24c8e551f",
+      "bytes": 35381
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/heap.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/heap.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/heap.stdout",
+      "sha256": "0ee56a9157506a198a71c369f3c39ad3d3ca8ee03a146b2240b0a7d8e2e2c1ae",
+      "bytes": 4646
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/sample.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/sample.stderr",
+      "sha256": "f4d42a67d7daa051ad07f2438d6f8447df8e509c1deed30f99d78c77e561529d",
+      "bytes": 387
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/sample.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/0002.stderr",
+      "sha256": "d3985a58355de3e209469d0e30d8b77151f663b759b162ef87862a583c3a5410",
+      "bytes": 777
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/0002.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/cpu.sample.txt",
+      "sha256": "9bb2a3a0df72435a36eb1ae43e18a7b70b1f236d918825ed4e5457d59d3820f0",
+      "bytes": 52306
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/heap.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/heap.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/heap.stdout",
+      "sha256": "46650e4103930a43fd0b08653a54369ee3873edb3709aa7f49995ab98aef2803",
+      "bytes": 4637
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/sample.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/sample.stderr",
+      "sha256": "3b9fba11dd7aa14c6f86a0c7c0a81c760cb1289735f8957ce169ee40c783469f",
+      "bytes": 300
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/sample.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-records.json",
+      "sha256": "f442ba4a2fb00a7307c2b2c6603a34f5f73fae535fa02fe9710abd7e7f458b54",
+      "bytes": 4481
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/red-test.log",
+      "sha256": "76eb9aaf0e925fc5c307eeaff16de20b9c3c018edf929fedc09d381ba673d1d8",
+      "bytes": 2331
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/release-final.log",
+      "sha256": "ee09a935dd0ebc0e7dec6c9904670d952ff892a2baf938b78f912c5e13c0791a",
+      "bytes": 147
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/specialist-review.md",
+      "sha256": "8acf9b53c1c3bfa7342a0375116de8ad09ec82808fb08b5e00dd6e0947aa24a0",
+      "bytes": 3149
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/toolchain.txt",
+      "sha256": "aea7c77c2b0d24444d07240e4d785e4ba73b6c9e786748af2ddc22bbf4c104bf",
+      "bytes": 192
+    }
+  ],
+  "omitted": [
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/after-build-initial.log",
+      "bytes": 147,
+      "sha256": "edec3c8d6bbcbbe7c126bb1013dffec0e3c32233506028f4ca2710eddac7efeb",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/after-build-initial.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/audit-evidence.py",
+      "bytes": 4678,
+      "sha256": "62a2473937b07b66534220cfdcecd3f243c1252b64ea25f307889a474a3e0ff5",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/audit-evidence.py",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/before-build.log",
+      "bytes": 599,
+      "sha256": "6c6c70b49582dd55f1cbbb417b626884d124179a6e8a07a12352e991ca4d3a0f",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/before-build.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/benchmark-fix-clippy.log",
+      "bytes": 157,
+      "sha256": "d6e54c4b6f0e1cbd53b5c9a089d2f2cc72aa8a04de0a92e6e259d5090ca59ed8",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/benchmark-fix-clippy.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/benchmark-fix-targeted.log",
+      "bytes": 1758,
+      "sha256": "ca9ca75bb7bb8bd244cd8275caa33cd1513852df7f57b463d0ffee8186ee4687",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/benchmark-fix-targeted.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/clippy-final-before-review.log",
+      "bytes": 157,
+      "sha256": "b6afe6b48564f1608be3516e4dc84564e573c442f0a63579bbc327e62e29de12",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/clippy-final-before-review.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/clippy-golden.log",
+      "bytes": 157,
+      "sha256": "17422c5c7e1655c86bb8b183583aeab13648c0bbac516013e2f4be4d8987eaf5",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/clippy-golden.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/clippy-targets.log",
+      "bytes": 2530,
+      "sha256": "c76d60e8346554b3684f0d1e888835b4ea94772bd12cb4b3f1148f6a71a9efc1",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/clippy-targets.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/clippy-v2.log",
+      "bytes": 1922,
+      "sha256": "51fe1acd85aa2128e65936a5a0f9e3b1d9134104a19ec4de99bebf9b91aaee24",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/clippy-v2.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/clippy-v3.log",
+      "bytes": 157,
+      "sha256": "9615ce5291da7eff5a96678561381f8fb8bf03bd4b2cbaa2d00ab9e270696543",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/clippy-v3.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/companion-gate.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/companion-gate.stderr",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/companion-prompt.txt",
+      "bytes": 6315,
+      "sha256": "7af4826f70ed7366034edee1f78a9f488769f36fe67fe8066ae573c58b9f63a7",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/companion-prompt.txt",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C2-10MiB-ngram-raised.qzi",
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C2-10MiB-ngram-raised.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C2-1MiB-ngram.qzi",
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C2-1MiB-ngram.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C2-1MiB-token.qzi",
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C2-1MiB-token.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C4-10MiB-ngram-raised.qzi",
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C4-10MiB-ngram-raised.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C4-1MiB-ngram.qzi",
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C4-1MiB-ngram.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C4-1MiB-token.qzi",
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/C4-1MiB-token.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-readback.log",
+      "bytes": 1486,
+      "sha256": "a2c1b5b210f34a83e3c24eeecae9c2f058e0ed439f9712491a454e2e0e02f146",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/final-readback.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/first-check.log",
+      "bytes": 827,
+      "sha256": "bd234f774d4b962fdfa7afde40fb62a276b98bc8fea2587cc173569d53b8fa12",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/first-check.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/fmt-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/fmt-final.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/fmt-pre-repair.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/fmt-pre-repair.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/generate-golden.py",
+      "bytes": 1557,
+      "sha256": "0ba3236f0125ae55ba7e659ba1c5590fa58b1e4bdb6176ff2c752e50a612da7d",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/generate-golden.py",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/golden-generate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-generate.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/golden-input.qzt",
+      "bytes": 2291,
+      "sha256": "c1fc6cd33f3b07ead8a4fd78d486bac6faa4cd645bd3dbe3ec4fc335e2dfc504",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-input.qzt",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/golden-input.txt",
+      "bytes": 39,
+      "sha256": "57f5eb17e965c30a1a7ebaa5653c92e5ee2fd8c1eae4c0c777cdc3211a8001e0",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-input.txt",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/golden-ngram.qzi",
+      "bytes": 1021,
+      "sha256": "77128b9f924356b735e719e1bbc06c658b4a9690686b06723664cf5d9fcf7d10",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-ngram.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/golden-token.qzi",
+      "bytes": 896,
+      "sha256": "c9f603218d34209711e145fe0ce7891a17c5ab1d073538bdedd347c5d097ecc4",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-token.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/implementation.patch",
+      "bytes": 116134,
+      "sha256": "65373192617841a89ecb10722350100d66321212ab33dd990d1c3fef87c9a780",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/implementation.patch",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/issues.json",
+      "bytes": 32513,
+      "sha256": "b2a9775a6c7e853296dc740e3af12c5fb2aa52476a48cba610e704a1c8a65fa8",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/issues.json",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measure-used-initial.py",
+      "bytes": 7469,
+      "sha256": "4e1e498fc1b96a4bf60686d4f57eb6b1f343f479b4ef80e553d59fcb13855f82",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measure-used-initial.py",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measure.py",
+      "bytes": 7613,
+      "sha256": "b7c2e017bd71dccbd1c74682d9468430f7916049a9fa7887561d53f22d2f6b52",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measure.py",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-100MiB-rejected.qzi",
+      "bytes": 25,
+      "sha256": "871ee0da6cdb72b724f300a13cd024c4d7071b33704f5c5216d557f3ff1f2946",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-100MiB-rejected.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-after-raised.qzi",
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-after-raised.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-before-0.qzi",
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-before-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-before-1.qzi",
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-before-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-before-2.qzi",
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-before-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-after-0.qzi",
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-after-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-after-1.qzi",
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-after-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-after-2.qzi",
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-after-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-before-0.qzi",
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-before-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-before-1.qzi",
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-before-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-before-2.qzi",
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-before-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-after-0.qzi",
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-after-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-after-1.qzi",
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-after-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-after-2.qzi",
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-after-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-before-0.qzi",
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-before-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-before-1.qzi",
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-before-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-before-2.qzi",
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-before-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-after-0.qzi",
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-after-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-after-1.qzi",
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-after-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-after-2.qzi",
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-after-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-before-0.qzi",
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-before-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-before-1.qzi",
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-before-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-before-2.qzi",
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-before-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-100MiB-rejected.qzi",
+      "bytes": 25,
+      "sha256": "871ee0da6cdb72b724f300a13cd024c4d7071b33704f5c5216d557f3ff1f2946",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-100MiB-rejected.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-after-raised.qzi",
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-after-raised.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-before-0.qzi",
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-before-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-before-1.qzi",
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-before-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-before-2.qzi",
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-before-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-after-0.qzi",
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-after-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-after-1.qzi",
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-after-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-after-2.qzi",
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-after-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-before-0.qzi",
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-before-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-before-1.qzi",
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-before-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-before-2.qzi",
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-before-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-after-0.qzi",
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-after-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-after-1.qzi",
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-after-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-after-2.qzi",
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-after-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-before-0.qzi",
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-before-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-before-1.qzi",
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-before-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-before-2.qzi",
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-before-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-after-0.qzi",
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-after-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-after-1.qzi",
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-after-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-after-2.qzi",
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-after-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-before-0.qzi",
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-before-0.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-before-1.qzi",
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-before-1.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-before-2.qzi",
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-before-2.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/manifest.json",
+      "bytes": 1832,
+      "sha256": "999ed4bc0cb4a0afefec7adf9236828dcb4addad5d10d4f43183409e4334a442",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/manifest.json",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial.log",
+      "bytes": 5440,
+      "sha256": "93c697f6860de8cbf75cbbbb36e160ed4150522584339f444ffa1b993ce10bde",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/original-worktree-status.txt",
+      "bytes": 45,
+      "sha256": "2d7a63b182ee5ff499ecc6971e30ec12159e525d6f10df589592a42eec78d154",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/original-worktree-status.txt",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/overflow-test.log",
+      "bytes": 457,
+      "sha256": "7b5aeb0f571e2d173f04845c9974b1dc313bf653f55b2c6f12e494e1fe6fca44",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/overflow-test.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/profile.qzi",
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/profile-C2/profile.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/profile.qzi",
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/profile-C4/profile.qzi",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile-before.py",
+      "bytes": 3145,
+      "sha256": "fdf5dfa4bd3b95d6542d6432f2103b090a48f0e1510065e1bcf75f1d3e42ffd4",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/profile-before.py",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/profile.log",
+      "bytes": 42,
+      "sha256": "b1f8b1d6e4228eb33906c955ae2881e6fd15d9c81ade47c070dc8c7301d025df",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/profile.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/qzt-after-final",
+      "bytes": 1706656,
+      "sha256": "0f3c589ffa081141b07d3419bbf8e856329eab002ac10b2ecc7fee8dab0a1304",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/qzt-after-final",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/qzt-after-initial",
+      "bytes": 1706624,
+      "sha256": "7c72a9138f72c7be2cdd733bdd2086925304d92227b7afd11d0e56a56d5b48e5",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/qzt-after-initial",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/qzt-before",
+      "bytes": 1690064,
+      "sha256": "c4b1eebd2dae7f4eb7c9fe80ab538c6ad2d15cb846e635f05ec3770dabbc3263",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/qzt-before",
+      "reason": "binary or generated corpus/index: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/refs-final.txt",
+      "bytes": 57,
+      "sha256": "41bb4b213e483630bfb5f9185904dd0a316627b46e336add316284a61ff5c369",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/refs-final.txt",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/source-diff-before-specialist.patch",
+      "bytes": 26155,
+      "sha256": "9dae5ea7b22fe3e8eddcdd51c10a510048605b9191aab2ca28718b1fe66b98fb",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/source-diff-before-specialist.patch",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/targeted-final-before-review.log",
+      "bytes": 6503,
+      "sha256": "c9c49ae514a20cc3df5d034e641277eff21210f5d755fe4d74bfbb33e262d8bc",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/targeted-final-before-review.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/targeted-initial.log",
+      "bytes": 5841,
+      "sha256": "59d7401a4a70fed7d144f80b87965fb8cc78c912f6f59c41e6d09a69fedb32c0",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/targeted-initial.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/targeted-v2.log",
+      "bytes": 5898,
+      "sha256": "72944589fd5b996fbdc59bf7a49fc479d1609e79abe4d89f73b54f21b94d2972",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/targeted-v2.log",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/verify-final-binary.py",
+      "bytes": 5090,
+      "sha256": "10132ab37e55274977bd40b4c86645845233ec7dbd5a690dbdb15fa0b8d1757b",
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/verify-final-binary.py",
+      "reason": "historical driver, duplicate snapshot or nonessential detail: local archive only"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/golden-provenance.json",
+      "sha256": "b0ce878a8785968284f0896c5dc793b074ad60e6c37f5b9a586ff8d6c56a74ce",
+      "bytes": 2100,
+      "location": "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/golden-provenance.json",
+      "reason": "original path-keyed fixture digest JSON is local-only; typed derived digest inventory is bundled to prevent credential misclassification"
+    }
+  ],
+  "boundary": "Copied originals are unchanged historical local records. Hashes/locations do not make omitted local files available on GitHub.",
+  "embedded_original_outputs": [
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0001.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0001.stderr",
+      "original_sha256": "8557e7fe1389414e39d840b730c7d19039650c30be490584ead6e3ea3a912a3f",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0002.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0002.stderr",
+      "original_sha256": "db2df9b0ada40adb2ba0c1315e96d02a7f5ac154f0bbb86cccebe2daf51eb578",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0003.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0003.stderr",
+      "original_sha256": "fc6706d8404cc710c5285448d808f8b82c4dce4acbe0530102773c8a13ab0c6a",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0004.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0004.stderr",
+      "original_sha256": "3b48dba7bc0f27dd9c394eaad071e1c4dd927ce6935f7fe30beed6d8c2263cf9",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0005.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0005.stderr",
+      "original_sha256": "c7ba6c3f35c3b14b1b6fab1ec178065abd3833eade93c8f34085f33e417122be",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0006.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0006.stderr",
+      "original_sha256": "e8485fd5524702761a05497d5fb002b7d09956198324cadf50119f463cb87774",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0007.stdout",
+      "original_sha256": "4518d9dd2615e18601387b3369f5ac0d8ef2a572a2d369fc10f4c646e03842c8",
+      "bytes": 645,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0007.stderr",
+      "original_sha256": "4435f8710bbf593bd1d7aca47664e19ea2f07de65f9ab873a3c2a5a4a7f15f41",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0008.stdout",
+      "original_sha256": "b5dd3cbed16097af0a7e2b91c917d6e65d23bea88e57c9358b9e621ab2ba3ea9",
+      "bytes": 645,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0008.stderr",
+      "original_sha256": "dfa03829d1b0911fe8f0576c5ab59cb62baa18bf64fc304195a6d8ebef7dc722",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0009.stdout",
+      "original_sha256": "26da640ee4defff7af9881e9ce69732577e65aa9ce9ca49cef72961e21f9ef66",
+      "bytes": 535,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0009.stderr",
+      "original_sha256": "9d9cfdcbb67eae659c198455542eb16a88aff7fa25525ad9c73a302c9bac4cfd",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0010.stdout",
+      "original_sha256": "78a0551255a0c6fdce71c7f83470cfcc46e7ee9d0a5152c80c0176431691e009",
+      "bytes": 522,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0010.stderr",
+      "original_sha256": "2b03ab3bf7d5e3fae8c38c49d510f030a78272d66d73cb09a756ff30287603ca",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0011.stdout",
+      "original_sha256": "84958ada2dde3068c0199331fd431f907433a86a23d9c72a410429747d2c2111",
+      "bytes": 1576,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0011.stderr",
+      "original_sha256": "eef4eeca28f68e56eabdba5f6640102b196b1da35d7dc8cec0c126b4a1fae9d5",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/before/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0012.stdout",
+      "original_sha256": "0709ee6c72524d36462553243e58aa33f6968f9bddc0c6ddc19af582f97530e9",
+      "bytes": 1585,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0012.stderr",
+      "original_sha256": "8cf6e7070e5eb3334a597789a5f5559af5986adbd8244339c1961e53155b952d",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/token/after/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0013.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0013.stderr",
+      "original_sha256": "fdf19d49cda7abc58112e670e6b53ba4a2ec0e26c6467f8ef99556b4274911b6",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0014.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0014.stderr",
+      "original_sha256": "26a3373585c6478b6dd05c853628925fd3e29ae3c60f1329c873ad07dbcbf188",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0015.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0015.stderr",
+      "original_sha256": "03d67620c2c6c339c3ab89020beab0b05c0c7e00377f173799eb3537eb25ca14",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0016.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0016.stderr",
+      "original_sha256": "720672771d139e14f3c82ab25edc568cf8fa211793040fd4abc9a1c4e55f4435",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0017.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0017.stderr",
+      "original_sha256": "d7c28b0744c422584abf25ba3e4098415ad517a7f5427f1f9048b6da1f216aa0",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0018.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0018.stderr",
+      "original_sha256": "006f241c91738d88bdd14839e8ff8f315645829453cef5409986aa2af557a164",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0019.stdout",
+      "original_sha256": "ce7e7438cb4200f6d462835d7a2c8bae0b2b9fa9cbd703594ebcb5904bfafc55",
+      "bytes": 649,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0019.stderr",
+      "original_sha256": "8cc6361a9bcfb0538099974e88bc5a97e723ed83c9b844f73fe81e3deb56027d",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0020.stdout",
+      "original_sha256": "f55e6d8e48b4274898475686f52ad511cb6c47a926e44e7cef6cc6a2296a8071",
+      "bytes": 638,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0020.stderr",
+      "original_sha256": "760dfe1be2c3e511da3c6dd0271de85470c904334e2168e3ae777a65fdf57ab8",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0021.stdout",
+      "original_sha256": "aa23f207c11d3b59dcc012b8707e145e8d83ecebe869f5b57d9dde609ca713de",
+      "bytes": 520,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0021.stderr",
+      "original_sha256": "4b694d9e289520acc321602c3f478488a34a035b391944548e21b72c5987fc9c",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0022.stdout",
+      "original_sha256": "5f2383f88d324ac7d5d51157ffd3a4cbf01cdc0e129f51b9dc7f7926f38b0b33",
+      "bytes": 523,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0022.stderr",
+      "original_sha256": "2ed542fe9b7a185f31509d0feacb3e0c8dd4a7295471f71a4b54845e1051a256",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0023.stdout",
+      "original_sha256": "18a244bc143abc28ddd89a7800f726eced8cc785ad126b113b5cb6f49dce1c01",
+      "bytes": 1576,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0023.stderr",
+      "original_sha256": "8580d1282a74ff927731363a1ecbd0f922098b2969d960ddcddd78ebc3c2200d",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/before/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0024.stdout",
+      "original_sha256": "0d79a00dc1461ee5202b5778712cfeae001b38b8219b9956e625d6a666dfa9e5",
+      "bytes": 1576,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0024.stderr",
+      "original_sha256": "829939cc2b1d2a02fd3cd706a02e4f8aa131391efcf8862ee47f8162dbd937ea",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-1MiB/ngram/after/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0025.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0025.stderr",
+      "original_sha256": "616ba604ca1949a641bb6607149fada119d75cac7dde87e23a6b45fe18ccb05c",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0026.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0026.stderr",
+      "original_sha256": "2899f0a91fed543ca0e500c15be0b013fb0745b17289939fdb8fee3ab0015aec",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0027.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0027.stderr",
+      "original_sha256": "0fe05e462537ffb2750ba98424a6df0c833370e15c6163dbcef1f90af91b3d5a",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0028.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0028.stderr",
+      "original_sha256": "1457d5141d3549d81cdbd86a1b405d441fcc142839e7e2c45a2447820e9e1b1b",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0029.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0029.stderr",
+      "original_sha256": "4634d1e0587e9b70e5ad7cbc553f02c726d585c12f3a62402b714be86331576e",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0030.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0030.stderr",
+      "original_sha256": "d7ba5a90191e82a89fca824317c379eca81e2ec84cc5ad1ef6c7d50fdc761ab8",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0031.stdout",
+      "original_sha256": "883cae0c346bd193c14e6dfe6886a783cfe068bf327a46cef0da97a940406048",
+      "bytes": 632,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0031.stderr",
+      "original_sha256": "2335d84d2e535328c73c40d585ca7d9f759f7ac178a393c5bd6440b71b4a96b3",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0032.stdout",
+      "original_sha256": "cac132fe7c73bc1471b7d78bb9ddbbf35e43487f32d6684ccd2c9676de991324",
+      "bytes": 631,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0032.stderr",
+      "original_sha256": "3c3cc93bf0df00ea5463d450b99e2ade87a89b168244fb950c4901b95c6c7c0f",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0033.stdout",
+      "original_sha256": "33d7f80b94a83987b47b559aea8f399dbaf60e3ca610b3369f4559737722ec35",
+      "bytes": 521,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0033.stderr",
+      "original_sha256": "ae3af8b0f6c24b92cf453db7083ddb3960eeffbe644131a9427eb15cc822e53c",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0034.stdout",
+      "original_sha256": "ce4101c54e1a2b162b20bb5686c99bdab7a9db6f643de24f67cfd5743e04a078",
+      "bytes": 521,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0034.stderr",
+      "original_sha256": "cfd2acde41ce5f8e66df1429e1655a9a0fe81857a380f0c9fd1b59bc615d4e54",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0035.stdout",
+      "original_sha256": "8c8ed7dbd1b7cf617635179cff7e0b69ab1c5e4e6697ddc9129f37f6347ebe35",
+      "bytes": 1574,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0035.stderr",
+      "original_sha256": "2f6b7c15b40e5935fb10b4b46f9674a2f5ac2c5d19a86118e304854d5d54f100",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/before/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0036.stdout",
+      "original_sha256": "42d153d92d685bb74a792f878ee5bdd0193b372845963fd60f9ff06440eda67f",
+      "bytes": 1574,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0036.stderr",
+      "original_sha256": "cdaebe80b6d90962fb7d0d97f674c24e7d53a8a305fa47aa36ae0c438af2a58f",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/token/after/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0037.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0037.stderr",
+      "original_sha256": "cb8c5e45d9ccd63ac90c919214da4dd58b30cbf77700156be0cc3e0663943359",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0038.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0038.stderr",
+      "original_sha256": "129c15e3a7250f48afe898ed70a8b68249dec15b9c29ce1fc1c80ed17c005207",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0039.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0039.stderr",
+      "original_sha256": "9cc489082dc18be784b341e8b2db71220d9fc4dbdf860c519b252947ca06d036",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0040.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0040.stderr",
+      "original_sha256": "94eb69f7cfd314fa812dd3a1ccd2008cb9f263bbd2cecc2d539c1d7cfe7c6376",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0041.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0041.stderr",
+      "original_sha256": "a956c1808cc445cfcad7719133f511166701ba6da5f414b0ea82df0c9d31e37e",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0042.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0042.stderr",
+      "original_sha256": "6f0786695e31848caabde9fa93e5de35fb65ae70abcaaf499c8e8d37635b7cd8",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0043.stdout",
+      "original_sha256": "257e3635a07eb4379b20a7f58e37341aaf0327103255acbf6aac839e1b86c9d1",
+      "bytes": 638,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0043.stderr",
+      "original_sha256": "41eedfd96b49918457c5bae1cc000d26c8d1944d89375076e330af409ee418d8",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0044.stdout",
+      "original_sha256": "8128164dfeffe997afd0c58d7aad42b85b5eb7472756b613bb1ed69d839c7c1f",
+      "bytes": 638,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0044.stderr",
+      "original_sha256": "faccb0e2ec9507091b78daec2218eb5cdfbe3ef3d65926b586ea957ba412487a",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0045.stdout",
+      "original_sha256": "0a916f063792fc30c91c3ad4f4ba18438d1a979199816dee6946fc180cd2a217",
+      "bytes": 523,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0045.stderr",
+      "original_sha256": "349092ff41cfa1cae1d8c4c50947846396edc2df18c56f24cc510c59a801a17d",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0046.stdout",
+      "original_sha256": "a0b2174a03d5fb9189b30095b1673973ce131153f6c95225d45cedabe1771386",
+      "bytes": 535,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0046.stderr",
+      "original_sha256": "65f58d9d9a711a344d934421b90f8f2ded2c9e5918802cd4e3d3c4a8c741d7c1",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0047.stdout",
+      "original_sha256": "efb0df57671a14272a960fb4dec3feb0e9599f13730a70930c1be39cfc88e6ea",
+      "bytes": 1575,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0047.stderr",
+      "original_sha256": "5b8ff3b2afe20b382facbfca21a1c2b1eabd53c66a4f42c6a50c8fe5953d5eb9",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/before/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0048.stdout",
+      "original_sha256": "9ca9d399f2a8281e2be7ad39bd264e220f9f730807ce160414da81c97b110f6c",
+      "bytes": 1574,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0048.stderr",
+      "original_sha256": "e4a230c7bfbb816529246aa00552ec8c73b32999c4389968311a235303814148",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-1MiB/ngram/after/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0049.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0049.stderr",
+      "original_sha256": "2f3f0315fd03516c8bf7c9a355e709dbea7a53a06bcd317a163e755535faced3",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0050.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0050.stderr",
+      "original_sha256": "21bf37ce097d6f29b293401093c5ade1a697d1b541ac90c076dcca20a810cb49",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0051.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0051.stderr",
+      "original_sha256": "a9a8d20d31d8ea9c5e35327302337fd52022f5bd568ddc2a1ad0b3c40cfbb2d5",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0052.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0052.stderr",
+      "original_sha256": "ab0200ebbb00c86a3ba87a4006a5e26336992990bfbe40959e6f006f4bf21b1f",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0053.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0053.stderr",
+      "original_sha256": "b62674387d24c63c780cb120fa26a6f71071827ccb3ff720bd02568e7a090df1",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0054.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0054.stderr",
+      "original_sha256": "250e2fdf385c21958c55b5bb8824844437ceaedab56c652829ff62482d256d8f",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0055.stdout",
+      "original_sha256": "ff8c7c0c22ad6f0a388565237fdd2d4de4a748d74bf88fa137ead12078f8f8e8",
+      "bytes": 639,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0055.stderr",
+      "original_sha256": "ab9ddbc8209c92321d09066d958eed23f816536e1463e781e984667471e74614",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0056.stdout",
+      "original_sha256": "6c95c45c16050c2b0d0f71a84c19aa6f93ce436501aaa2946c98869095416b5f",
+      "bytes": 639,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0056.stderr",
+      "original_sha256": "95e598ffa5723a7cf6484aa187105273c634d7959b34ece2efef3d8db7225a3b",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0057.stdout",
+      "original_sha256": "5db8d03e55ce1dbec7947c260143baa4b92119f3f326a63963aaa09e4a972d98",
+      "bytes": 537,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0057.stderr",
+      "original_sha256": "12e758831fce30444df8519ef66fd9b99f93ee5aad161f958044d1c545e2d568",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0058.stdout",
+      "original_sha256": "74b45c3f96e6b36a9a39aaf5f9a65dd4382d7be638bb39ff499ff329857dc806",
+      "bytes": 524,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0058.stderr",
+      "original_sha256": "682ac5114d931b037cfeb44de43110ec9e8170155bf6900562c7def8306b4400",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0059.stdout",
+      "original_sha256": "f85994011bfff22050b8c705cb57577338c7999a990b8b320d8fbf1bf6926183",
+      "bytes": 1582,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0059.stderr",
+      "original_sha256": "080bd8a6a18b3d796ad257b10d1fe7dbbde10293cf15b46d6c15c64d4b899128",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/before/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0060.stdout",
+      "original_sha256": "c9b5e271d0a1899dab15df94d7094f07a4d687953fb2dde7826c62b263be0ee0",
+      "bytes": 1582,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0060.stderr",
+      "original_sha256": "f17f5c596c827f6257cb69b292839cea56acecbccdd6c5b0606884cb148da40a",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/token/after/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0061.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0061.stderr",
+      "original_sha256": "611c77815da8f17ef94777635c15656beacd2bc4d88db56c1eed504dd667a992",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0062.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0062.stderr",
+      "original_sha256": "ee89c5d18092f5a96f7f4ab149631edcbba4cfd77376356595b1d0bab63a2f80",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0063.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0063.stderr",
+      "original_sha256": "bc67372647689122a1920c54e4264b7f1ff602b6a7555b27f66311991bc3c395",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0064.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0064.stderr",
+      "original_sha256": "b2b2447388458b1da85f5d7d689aae1ad00b79592a3e637f336fa1e4e509fee1",
+      "bytes": 828,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0065.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after-raised",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0065.stderr",
+      "original_sha256": "ccf70d3e470f17c9924ba9b2dd8d03e723403a276b6f73dd6388da36805ef95d",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after-raised",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0066.stdout",
+      "original_sha256": "75cba21269e5a48800afbc94bffe6903bd52666cb0ceb402be14978db5de7d50",
+      "bytes": 655,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0066.stderr",
+      "original_sha256": "c54756e6e53460890fba1dd8d622aceba42cd78f59d1aa6226bdec84ef5826bc",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0067.stdout",
+      "original_sha256": "5cec30f75dcbb9d399b8541c931e25f6741fdf074b4587a80d712a6a077bd49e",
+      "bytes": 645,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0067.stderr",
+      "original_sha256": "d0b72ccc8c1655ea5c40e499e1f038906990bb078c02057aa2c2f4797670226f",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0068.stdout",
+      "original_sha256": "89918c94683d2afd8e635aee7d050988067cade45e31eb3d7958a8b41298b343",
+      "bytes": 523,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0068.stderr",
+      "original_sha256": "13570ca4be8c3b380901141d1c1ceba33b7de8addc80f9f329b5903707d57e96",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0069.stdout",
+      "original_sha256": "9df3bfeba331e68b6f6671b83de9d47dac8b9a3e30812fd05b11ea356cf310d0",
+      "bytes": 537,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0069.stderr",
+      "original_sha256": "55afe07894f9a9d2e2600131edb36a7396d2a389cfdf7a3f276e4e7d05a93fed",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0070.stdout",
+      "original_sha256": "dbc645fa0606a8b6ffec1ade66b8ee51372bf380b57f6960f5fd2cd9b8c94240",
+      "bytes": 1582,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0070.stderr",
+      "original_sha256": "e2a9c236b7e01adcfa49728261e1332503f76d762c9401efa76cfd58e05a5012",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/before/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0071.stdout",
+      "original_sha256": "fb72b2a2f79cb7d47ab67005447c703aa2c9a5526f1cb84eee11f0301ed3f2e7",
+      "bytes": 1582,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0071.stderr",
+      "original_sha256": "5977c32158fcdc46dfa1decd28dff535e28bf5a147411c76e6e5e1db9c12d940",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-10MiB/ngram/after/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0072.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0072.stderr",
+      "original_sha256": "25da1c7662bf8f8e4161a4b9cfdf72cffae0282677d050dc544b5030468b6e66",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0073.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0073.stderr",
+      "original_sha256": "e2dcdd243c388f59dd8801209e3007f9192868f55086e36b1aec462e9038d35f",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0074.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0074.stderr",
+      "original_sha256": "43f530acdaa0b4f81f2b12b97577bb650e6a09e04ba9c0b1314613689addbd38",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0075.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0075.stderr",
+      "original_sha256": "382d200cb503e507140f44725fdc0eb53c01485b8aa843055b252eb7d1e10416",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0076.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0076.stderr",
+      "original_sha256": "febcaed22dfd5246ea9dfcf695d5e82cfcba6ffb654a6e4af1d82c6df11b8500",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0077.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0077.stderr",
+      "original_sha256": "9b50433b2cb7324d1b5ad785932148dcb93992ee3404e5ba6bcc1bf9ce8b4f24",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0078.stdout",
+      "original_sha256": "f80273481132cdbb563e5268074e4471930d87514ea5e604fc6ec01301037531",
+      "bytes": 638,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0078.stderr",
+      "original_sha256": "b30b61a1ec1fa21896642bdac86272fd9e079eb0940ad61f93f3137fcb8065fb",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0079.stdout",
+      "original_sha256": "459b5f2c9ff98aeecf7cac71f1b22423195bad2f05f9c39c813337b11ef491a9",
+      "bytes": 638,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0079.stderr",
+      "original_sha256": "6301c694212392d73c27c21ba496e8d6bad87f967f6e26e5087ce98dfa560e6a",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0080.stdout",
+      "original_sha256": "da194efd18ee9ba5ae534ad7f697d9cede4ba30b80cdba18e50f3986ad24715a",
+      "bytes": 524,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0080.stderr",
+      "original_sha256": "64b20fc09b223a3620124f40185d91c80d961942aa19fdfd5327d98f5c6d31cd",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0081.stdout",
+      "original_sha256": "ee433ed99cee410176de0e95245de8c76feaeab5822ba3f31e13167d6011b658",
+      "bytes": 537,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0081.stderr",
+      "original_sha256": "b0f2e26c36222e58ee206fa0561e043b8377b7f10904b17cd4ce1d5b7b525ff9",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0082.stdout",
+      "original_sha256": "c060a3f63a1b1140fc2ae8786ef8e8b7fd5b691e621f90a355d00ba1fffd4d91",
+      "bytes": 1581,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0082.stderr",
+      "original_sha256": "fc0a47022619e8d2e17756adeffc5259a57827019b43df1c441873984d175ba3",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/before/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0083.stdout",
+      "original_sha256": "3294eca92dcdf932160f6c34c5b48f286e1a2a04294889eecea08d0333c7d3ff",
+      "bytes": 1581,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0083.stderr",
+      "original_sha256": "022f0c4fbf0c4d3e96c82aaf1b8b876a0bf5d9bd219f79001eb9cc515ebed577",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/token/after/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0084.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0084.stderr",
+      "original_sha256": "1a6b16c66c12f9711bed9dbbda08f2d144d9e7aeccbddc2be05c29dc92c2f415",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0085.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/1",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0085.stderr",
+      "original_sha256": "f7fdd5a29ecae36256aedf2156b46c1313d754e3a1c51a7fc3f88de99c16ada8",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/1",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0086.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/2",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0086.stderr",
+      "original_sha256": "16aa6dbe0de3c7a5346c16a454d2a5e0246c62ecc3347903d352b4f9352d1045",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/2",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0087.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after/0",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0087.stderr",
+      "original_sha256": "d8567f619152fe5a7be8ad0866ad8c954e8ea60ad69fe0796c1a59310a54f95d",
+      "bytes": 828,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after/0",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0088.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after-raised",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0088.stderr",
+      "original_sha256": "50dbcd544bfbd14ca4aacb1e74a81721f4b0207138bc0eec59233d7e5ac5352f",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after-raised",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0089.stdout",
+      "original_sha256": "25141bcf28033e8b739e1f78ce315a7f1324046887bb1529875ec37157c35f29",
+      "bytes": 643,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0089.stderr",
+      "original_sha256": "950557397ff15d5442624b0bd85ad08874821ede74665bd7d465703178941763",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0090.stdout",
+      "original_sha256": "c37e3683ed26bdcb196b9b797bf80f8432c4a981cb3f4c3785249cec21f7e05a",
+      "bytes": 643,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0090.stderr",
+      "original_sha256": "1579e67e314bc8ac0bda4855520518dd97cae8f0fbd14af9deebe2e995e9d887",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0091.stdout",
+      "original_sha256": "c250ec8d3fa6b98b81a2cb783e170a1ab5dcd263c951df20f5a90f30f6ff6522",
+      "bytes": 523,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0091.stderr",
+      "original_sha256": "301c7d4c550f43bf98b0a909b471f8fa13f06079899a687b575ed86cb3df2754",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0092.stdout",
+      "original_sha256": "7636fb815204be4cf23ae28d8af5b273bcba6da820e64e4d534bdcea119d39d9",
+      "bytes": 536,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0092.stderr",
+      "original_sha256": "9da4458914d5e1158f19cee536fd9059aa6525008bf71899deb109398a0da886",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0093.stdout",
+      "original_sha256": "fedd83798656afbb93d98ca7187967e0458f09053aab0a1c1e5f4c37eeaca6fb",
+      "bytes": 1580,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0093.stderr",
+      "original_sha256": "7f4b82bc609637bad4911e9b809a9b63198c36aed001d285ec91dedf223b2803",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/before/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0094.stdout",
+      "original_sha256": "9f6869aae19745f5d0879f4189e97f4fadfc93b23287d97ca9d93f92b9550ab5",
+      "bytes": 1580,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0094.stderr",
+      "original_sha256": "b8bc19f2f28b6cd26dc8db37a0082677ed3f6a5eb1cbc473d6659085272f9441",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-10MiB/ngram/after/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0095.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-100MiB/ngram/after-default",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0095.stderr",
+      "original_sha256": "a859a93a2b8c75be1c21abca611ed0e32357fe68da2ba3f2167c00d5dcd0b494",
+      "bytes": 828,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C2-100MiB/ngram/after-default",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0096.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-100MiB/ngram/after-default",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/0096.stderr",
+      "original_sha256": "106e39066385464b6be62c8c6750298bc89ebff37ce7dcf2cdaa91fa4ce7102b",
+      "bytes": 828,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "measurement-initial",
+      "id": "C4-100MiB/ngram/after-default",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0001.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/token/default",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0001.stderr",
+      "original_sha256": "9ded2e7ca3314289f74cc38b6fce86a238e331bf3c724d339456f509fa3fc31a",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/token/default",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0002.stdout",
+      "original_sha256": "47213451e8b444c864ebaa385680477780ca54dd7ee71bd15722d7ffeafd7337",
+      "bytes": 645,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/token/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0002.stderr",
+      "original_sha256": "376c33163d3e21110943d894d0393729c329bbfbeed6b279883588ad8bcee78b",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/token/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0003.stdout",
+      "original_sha256": "6c83b0e0c22fd8700985aab512a4884944cd4712a3ad7caaf5fa8eb1d1a38f38",
+      "bytes": 522,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/token/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0003.stderr",
+      "original_sha256": "35a0ae43668faf9100566d40da429e11cbd362eedc511d4e8059851791bd00b5",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/token/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0004.stdout",
+      "original_sha256": "65d3fe681b403183d5ce788af03b9d8b6cb49fb7ca781f0d58e17fe047ff92ff",
+      "bytes": 1576,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/token/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0004.stderr",
+      "original_sha256": "50df98bece5f836d26f2294d8bf60e560540c6f9582aa5f642001164fd81b873",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/token/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0005.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/ngram/default",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0005.stderr",
+      "original_sha256": "502505ca27a697192c2e60460452ac34563d29d50d867ef7799ad8016c497651",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/ngram/default",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0006.stdout",
+      "original_sha256": "3b514ff883f3bcc780150f42ae48af5822703fa7112c61f0a55eaf9a3664a5e4",
+      "bytes": 638,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/ngram/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0006.stderr",
+      "original_sha256": "9482ecacbe8806477da63b9aa5d285f266a0ca6d9bf0700c73ed0e53377013fe",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/ngram/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0007.stdout",
+      "original_sha256": "f399e75a600431ea3f230d3cef84b61f2c3c0a99234a131ee1ffbefb12de91ba",
+      "bytes": 522,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/ngram/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0007.stderr",
+      "original_sha256": "92c44b2b77791dc3eae33dac9d7b45a34677612f4b46eefdb1037e0f55647b1a",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/ngram/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0008.stdout",
+      "original_sha256": "dd5ccfaf1f6ae42383ca30f4c215fbccb2c09aca0cb88ce3c01caf3d6952172b",
+      "bytes": 1576,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/ngram/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0008.stderr",
+      "original_sha256": "64911fe8aa3e6298ceb8b287143952ac0cd3111a7d1849905a30d942674c9154",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-1MiB/ngram/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0009.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/token/default",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0009.stderr",
+      "original_sha256": "11d1f067e5d0a0274d546611e7f4b1d25677109e10d30cbba2e8516d944f21cd",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/token/default",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0010.stdout",
+      "original_sha256": "f91532acb627e3502795402b7fdb7f1857e5333138395e47331a74ff7f5fffa2",
+      "bytes": 632,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/token/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0010.stderr",
+      "original_sha256": "ba6234c39fea80cdef9790995b787dcd37374984e3972dd276fd93e5b51a52f5",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/token/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0011.stdout",
+      "original_sha256": "ce4189c6276d0ba160082757565d21b5edf4378692e80d986e8904708461ca64",
+      "bytes": 521,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/token/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0011.stderr",
+      "original_sha256": "f92c1311d2b522b473017a2c34f1a46e3cf6b6088c7e01bb694e902ed22099e6",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/token/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0012.stdout",
+      "original_sha256": "47faf3332f99551fe00b0881d407616da5796dd4ac690ac77122d4bfa9b0f2cd",
+      "bytes": 1574,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/token/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0012.stderr",
+      "original_sha256": "f67c00e2d3b1fa3ff93912915b6bc9b84962e5d67595f4f1d368eb7fc5b1d491",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/token/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0013.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/ngram/default",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0013.stderr",
+      "original_sha256": "19cfaf91f60e0dfd4e7c7ef3e962d1d3746c634dc889453005f27773731f0324",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/ngram/default",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0014.stdout",
+      "original_sha256": "0bae34718e6559b1ea6a883cccca1a164e557740d4de6bd615136c8cb8ba7b0c",
+      "bytes": 638,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/ngram/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0014.stderr",
+      "original_sha256": "8aa052e2f88c32c9db366b99a4bb945c2961953f0398266d9dc5e1703171a349",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/ngram/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0015.stdout",
+      "original_sha256": "db774dd40ab55b403be6cbab992c7ba0771734b94abb133ebeb480e9f1b50943",
+      "bytes": 523,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/ngram/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0015.stderr",
+      "original_sha256": "850afca1d5d762e657b5ad41aedfb8dd56ffdb61e358fa197a462934e4670935",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/ngram/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0016.stdout",
+      "original_sha256": "5275485e3f6a85dea3abb64487d4c9ae4e2a937e71abff1eb8e87be39f0de7bd",
+      "bytes": 1575,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/ngram/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0016.stderr",
+      "original_sha256": "9cf71a2230ad5c5b447fee3f8806db2ada0ef4f06c92ce2c22a8d4cbee14f440",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-1MiB/ngram/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0017.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-10MiB/ngram/raised-posting-16M",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0017.stderr",
+      "original_sha256": "060c11333177246dd5e5eec74b0bd3531d7ec88249cc96418e44357fe3f7f004",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-10MiB/ngram/raised-posting-16M",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0018.stdout",
+      "original_sha256": "18f3765df3b69f218e24a37a78fd4dfa6ccee0ea8807472e5b78df69470fafcc",
+      "bytes": 645,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-10MiB/ngram/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0018.stderr",
+      "original_sha256": "057b0464f47bd9413291e634cabf1d3b52702aedeeb73de6942af55a51ee68d9",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-10MiB/ngram/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0019.stdout",
+      "original_sha256": "511041a1b9f0129ca1ae40aa925fda9b0530d730edbf22e7da09a84d1d8847b2",
+      "bytes": 525,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-10MiB/ngram/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0019.stderr",
+      "original_sha256": "5e11299bbcab31ccad5670ff3accf8963ea9a8d9bbdd6a781a6b691a37f7bac0",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-10MiB/ngram/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0020.stdout",
+      "original_sha256": "84dd6dc100bb5c2aa56de8979fe9d08afc62a96c253a19a778e5e81d8d8d3f8c",
+      "bytes": 1582,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-10MiB/ngram/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0020.stderr",
+      "original_sha256": "4158c29d74635c1616df2302ee4c3131232a607dcda547fcded1054179aa4e41",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-10MiB/ngram/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0021.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-100MiB/ngram/default-protected",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0021.stderr",
+      "original_sha256": "94b2878f422ccce71df189945f553b32a5f456da5d05ff336e54d47b808c4384",
+      "bytes": 828,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C2-100MiB/ngram/default-protected",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0022.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-10MiB/ngram/raised-posting-16M",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0022.stderr",
+      "original_sha256": "d6b98317920d730f5c58d21111018f2e8da9ad5224a8effc34bebe1f91e0767c",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-10MiB/ngram/raised-posting-16M",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0023.stdout",
+      "original_sha256": "8aadd1a03cfd44c60b194701fdab2315ba140ec190fc51f277b6559d7da0360c",
+      "bytes": 643,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-10MiB/ngram/search/qztpre6needleunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0023.stderr",
+      "original_sha256": "e1f73e99faadac68674aa928aaf896a7b9222b4acd4acfa4a5361bfe25d50cb4",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-10MiB/ngram/search/qztpre6needleunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0024.stdout",
+      "original_sha256": "3650f67932d428fc59ddc2437324ea37f40192b646a4f4bd06b57858358bfc11",
+      "bytes": 524,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-10MiB/ngram/search/qztpre6absentunique",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0024.stderr",
+      "original_sha256": "686c0f3e21491775fac2754a7f4e713a77674736168e11d786985bfd1f645506",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-10MiB/ngram/search/qztpre6absentunique",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0025.stdout",
+      "original_sha256": "8df37365b7b93dc2567749f60f76e4d79fea737907ce310f1a2294c946d8e375",
+      "bytes": 1589,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-10MiB/ngram/search/qzt",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0025.stderr",
+      "original_sha256": "1b6c5fddfc59c3ec4a8d3df208a1d4567d592241940140278a8ca68bbbdbc538",
+      "bytes": 777,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-10MiB/ngram/search/qzt",
+      "stream": "stderr"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0026.stdout",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-100MiB/ngram/default-protected",
+      "stream": "stdout"
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/final-binary-readback/0026.stderr",
+      "original_sha256": "99208c3aef256f1a9b1305cbdbb39e26823b200e31885592170f87941315f35b",
+      "bytes": 828,
+      "bundle": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+      "phase": "final-binary-readback",
+      "id": "C4-100MiB/ngram/default-protected",
+      "stream": "stderr"
+    }
+  ],
+  "derived_bundle": {
+    "path": "docs/benchmarks/raw/2026-10-index-build-budget/attempt-output.jsonl",
+    "sha256": "937f8b304257e06f2d6c4df306e5691160e58a6fdc6f3fa06258565638606729",
+    "records": 122,
+    "explanation": "Original output bytes embedded as UTF-8, identified by original hash; original records/metrics unchanged."
+  },
+  "derived_golden_provenance": {
+    "path": "docs/benchmarks/raw/2026-10-index-build-budget/golden-provenance.json",
+    "sha256": "b3e24dcb4c8b8a3baac2b772a2da685a0771edb54bb863d266c93185d5ebe8f1",
+    "original_sha256": "b0ce878a8785968284f0896c5dc793b074ad60e6c37f5b9a586ff8d6c56a74ce",
+    "original_local_only": true
+  }
+}

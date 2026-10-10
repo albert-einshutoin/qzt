@@ -1,0 +1,84 @@
+{
+  "record_kind": "2026-10-11 scoped PR345 CI/review fixes, before amended final HEAD",
+  "previous_head": "31457cb94b3a234970d7c5d0b596b6e2b33967e7",
+  "initial_ci": "https://github.com/albert-einshutoin/qzt/actions/runs/38065365996",
+  "initial_security": "https://github.com/albert-einshutoin/qzt/actions/runs/38065366327",
+  "product_source_matches_original_completion": true,
+  "historical_original_count": 43,
+  "historical_original_stream_count": 244,
+  "local_only_omitted_count": 96,
+  "checks": {
+    "phase49": "10 PASS",
+    "release_hardening": "4 PASS / 2 ignored",
+    "clippy": "success Rust1.99 all-features targeted consumers",
+    "portable": "C2/C4 1MiB success",
+    "corpus_input": "5 refusal and output protection checks success",
+    "gitleaks": "no-git compact evidence findings 0",
+    "specialist": "Sol medium Approve, scoped READ_ONLY",
+    "large_matrix": "not rerun"
+  },
+  "files": [
+    {
+      "path": "scripts/index-build-budget-corpus.rs",
+      "bytes": 1479,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "061cb4b21a3a3846cca806af6f4ab1d043ac9ad1b82a14b45f3263530771b7a2"
+      }
+    },
+    {
+      "path": "tests/phase49_index_build_budgets.rs",
+      "bytes": 14703,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "a48b386af9d301cef68d92eb5554e64dfbdb589bda82240f2eb71111bb85ed5f"
+      }
+    },
+    {
+      "path": "tests/release_hardening.rs",
+      "bytes": 11343,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "ddf40f9c475ca5a4ab79b371cac486984b801ab5aceafc49daf806d3f509c05c"
+      }
+    },
+    {
+      "path": "docs/benchmarks/2026-10-index-build-budget-reproduce.md",
+      "bytes": 8650,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "d1e6dccd2348540a65e9771086032240df06bcd9f099dd9d22186b659158f212"
+      }
+    },
+    {
+      "path": "docs/benchmarks/2026-10-index-build-budget-delivery.md",
+      "bytes": 7165,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "bc0c858f18c8e1a540857a97976f696f0e605c86b1ce342bc16fe881dcfc8270"
+      }
+    },
+    {
+      "path": "docs/benchmarks/2026-10-index-build-budget-delivery-evidence.json",
+      "bytes": 156273,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "d3cdb8f77c6bbb670996798c4d5632124d9c6f9a24dbf1d12e30349539d490a1"
+      }
+    },
+    {
+      "path": "docs/benchmarks/raw/2026-10-index-build-budget/golden-provenance.json",
+      "bytes": 2695,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "b3e24dcb4c8b8a3baac2b772a2da685a0771edb54bb863d266c93185d5ebe8f1"
+      }
+    }
+  ],
+  "pending": [
+    "fresh scoped Companion Gate",
+    "final PR HEAD CI/security",
+    "merge SHA main CI/security",
+    "Issue completion"
+  ]
+}

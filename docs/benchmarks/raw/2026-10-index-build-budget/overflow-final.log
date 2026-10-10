@@ -1,0 +1,9 @@
+   Compiling qzt v0.1.0-pre.6 (/Volumes/Satechi/Developer/qzt-index-budget-20261010)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.69s
+     Running unittests src/lib.rs (target/debug/deps/qzt-331bcce9866748a0)
+
+running 1 test
+test search::serialized_metrics_tests::build_counter_overflow_and_inclusive_limit_fail_before_increment ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 61 filtered out; finished in 0.00s
+

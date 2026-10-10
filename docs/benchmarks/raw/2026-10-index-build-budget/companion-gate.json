@@ -1,0 +1,7 @@
+{
+  "status": 0,
+  "threadId": "01a12660-530a-7712-b5f5-b9fa8a71b4e2",
+  "rawOutput": "ALLOW:\n\n対象Goalの直接変更に、受入・回帰・resource安全性・既存データ保護・provenance上の未修正BLOCK要因はありません。\n\n- 差分は実装あり（base `9cf2c7c...` 比569追加/119削除）。\n- `IndexBuildLimits` はchecked arithmeticで、granule/map/posting/encoding前に適用（`src/search.rs:89-96`, `1253-1273`, `1388-1396`, `1489-1495`）。\n- token/ngram、from_parts、sidecar、CLIへ共有伝播し、Reader再構築は既存`SidecarLimits`へ明示写像（`src/sidecar.rs:68-78`, `246-304`）。\n- CLI不正値・`--sidecar`併用はexit 2、実行時超過はexit 1。sidecarは構築成功後のみatomic outputへ入る（`src/main.rs:2035-2152`, `2270-2287`）。\n- 指定evidenceはsource/binary identity、10 PASS、overflow PASS、514 PASS/0 FAIL/3 ignored、package成功、専門review Approveを記録（`evidence-audit.json:2-75`）。\n- 最終readbackは24成功/2製品拒否、QZI bytes・入力・既存output保護を確認（`final-binary-readback/validation.json:2-10`）。\n\n100MiB完走、性能改善、strict RSS/OOM保証、G3、production-ready、第三者検証は未達・未主張のまま維持されています（`docs/benchmarks/2026-10-index-build-budget.md:126-177`）。今回のGateでは製品コードの実行・import・testは行っていません。",
+  "touchedFiles": [],
+  "reasoningSummary": []
+}

@@ -1,0 +1,76 @@
+{
+  "ok": true,
+  "source_and_binary_identity": true,
+  "before_golden_identity": true,
+  "current_qzt_fixture_identity": true,
+  "attempts": {
+    "measurement-initial": {
+      "success": 92,
+      "product_resource_refusal": 4,
+      "external_abort": 0,
+      "timeout": 0
+    },
+    "final-binary-readback": {
+      "success": 24,
+      "product_resource_refusal": 2,
+      "external_abort": 0,
+      "timeout": 0
+    }
+  },
+  "make_check": {
+    "passed": 514,
+    "failed": 0,
+    "ignored": 3
+  },
+  "package": "passed",
+  "msrv": "passed with explicit installed SDK15.2",
+  "failures_preserved": [
+    "red-test.log",
+    "targeted-initial.log",
+    "clippy-targets.log",
+    "clippy-v2.log",
+    "make-check.log",
+    "msrv-final.log",
+    "msrv-explicit-linker.log"
+  ],
+  "specialist": "Sol medium; no unresolved blocker; CI fix scope rechecked",
+  "completion_evidence": {
+    "pre_growth_inclusive_overflow": [
+      "src/search.rs",
+      "overflow-final.log",
+      "golden-tests.log"
+    ],
+    "all_entrances_and_reader_boundary": [
+      "src/main.rs",
+      "src/sidecar.rs",
+      "specialist-review.md"
+    ],
+    "data_protection_no_partial_output": [
+      "tests/phase49_index_build_budgets.rs",
+      "final-binary-readback/validation.json"
+    ],
+    "same_qzi_unicode_postings_source_search": [
+      "golden-provenance.json",
+      "golden-tests.log",
+      "measurement-initial/validation.json"
+    ],
+    "cli_usage_vs_runtime": [
+      "tests/phase49_index_build_budgets.rs",
+      "final-binary-readback/records.jsonl"
+    ],
+    "named_limits_not_rss_and_acceptance_reduction": [
+      "docs/QZT_v0.1_Memory_Guarantees.md",
+      "docs/benchmarks/2026-10-index-build-budget.md"
+    ],
+    "docs_migration_local_delivery": [
+      "CHANGELOG.md",
+      "docs/API_STABILITY.md",
+      "docs/benchmarks/2026-10-index-build-budget-reproduce.md",
+      "docs/benchmarks/2026-10-index-build-budget-issue-draft.md"
+    ]
+  },
+  "pending": [
+    "Companion Stop Review Gate",
+    "final delivery manifest"
+  ]
+}

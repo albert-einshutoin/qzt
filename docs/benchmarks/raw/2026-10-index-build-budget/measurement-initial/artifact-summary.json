@@ -1,0 +1,456 @@
+{
+  "ok": true,
+  "files": {
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-before-0.qzi": {
+      "present": true,
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-before-1.qzi": {
+      "present": true,
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-before-2.qzi": {
+      "present": true,
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-after-0.qzi": {
+      "present": true,
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-after-1.qzi": {
+      "present": true,
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-token-after-2.qzi": {
+      "present": true,
+      "bytes": 406712,
+      "sha256": "76cbeb6d39d9ac4adf8822d333d865ea6494322dec6064f7ca449cf19049a634"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-before-0.qzi": {
+      "present": true,
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-before-1.qzi": {
+      "present": true,
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-before-2.qzi": {
+      "present": true,
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-after-0.qzi": {
+      "present": true,
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-after-1.qzi": {
+      "present": true,
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-1MiB-ngram-after-2.qzi": {
+      "present": true,
+      "bytes": 1174409,
+      "sha256": "e863033d704e11276394f0cf0e93efc2e6e013ecf02c5bcbba133ea6c0514356"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-before-0.qzi": {
+      "present": true,
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-before-1.qzi": {
+      "present": true,
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-before-2.qzi": {
+      "present": true,
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-after-0.qzi": {
+      "present": true,
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-after-1.qzi": {
+      "present": true,
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-token-after-2.qzi": {
+      "present": true,
+      "bytes": 1132182,
+      "sha256": "3a15f65aef2fa20214b121a844f892f7f8610e9e52a0ec7fe5a7406e35dccf61"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-before-0.qzi": {
+      "present": true,
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-before-1.qzi": {
+      "present": true,
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-before-2.qzi": {
+      "present": true,
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-after-0.qzi": {
+      "present": true,
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-after-1.qzi": {
+      "present": true,
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-1MiB-ngram-after-2.qzi": {
+      "present": true,
+      "bytes": 1809415,
+      "sha256": "1ea48dc544bf5cad1b521700e35a8948ecaab38572a5896ab9a8917f8112f62b"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-before-0.qzi": {
+      "present": true,
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-before-1.qzi": {
+      "present": true,
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-before-2.qzi": {
+      "present": true,
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-after-0.qzi": {
+      "present": true,
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-after-1.qzi": {
+      "present": true,
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-token-after-2.qzi": {
+      "present": true,
+      "bytes": 4076883,
+      "sha256": "13b131b4a719d5d61da2349ff86d786e87da262d61cd3349203d769099eb6dbd"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-before-0.qzi": {
+      "present": true,
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-before-1.qzi": {
+      "present": true,
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-before-2.qzi": {
+      "present": true,
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-after-0.qzi": {
+      "present": false,
+      "bytes": null,
+      "sha256": null
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-10MiB-ngram-after-raised.qzi": {
+      "present": true,
+      "bytes": 11648757,
+      "sha256": "b7af8b31fba084c62b88232757f2d1f177e745767a4f132210ce162b4d1ed1ea"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-before-0.qzi": {
+      "present": true,
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-before-1.qzi": {
+      "present": true,
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-before-2.qzi": {
+      "present": true,
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-after-0.qzi": {
+      "present": true,
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-after-1.qzi": {
+      "present": true,
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-token-after-2.qzi": {
+      "present": true,
+      "bytes": 10185551,
+      "sha256": "33a261590518a5fda3ec2844670d56b2c554ffd51e76bbd0269c6e0c0bc9de29"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-before-0.qzi": {
+      "present": true,
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-before-1.qzi": {
+      "present": true,
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-before-2.qzi": {
+      "present": true,
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-after-0.qzi": {
+      "present": false,
+      "bytes": null,
+      "sha256": null
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-10MiB-ngram-after-raised.qzi": {
+      "present": true,
+      "bytes": 17998259,
+      "sha256": "216ccfc200f252070066dbdd93ce45bc0d646e17c07c129e3dc2ace0080842c3"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C2-100MiB-rejected.qzi": {
+      "present": true,
+      "bytes": 25,
+      "sha256": "871ee0da6cdb72b724f300a13cd024c4d7071b33704f5c5216d557f3ff1f2946"
+    },
+    "/Volumes/Satechi/Developer/qzt-index-budget-20261010/docs/benchmarks/raw/2026-10-index-build-budget/measurement-initial/C4-100MiB-rejected.qzi": {
+      "present": true,
+      "bytes": 25,
+      "sha256": "871ee0da6cdb72b724f300a13cd024c4d7071b33704f5c5216d557f3ff1f2946"
+    }
+  },
+  "groups": {
+    "C2-1MiB/token/before": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 36.91266698297113,
+      "peak_rss_bytes_median": 8880128,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C2-1MiB/token/after": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 37.614458007737994,
+      "peak_rss_bytes_median": 8962048,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C2-1MiB/ngram/before": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 139.65116592589766,
+      "peak_rss_bytes_median": 22265856,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C2-1MiB/ngram/after": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 122.52183293458074,
+      "peak_rss_bytes_median": 23085056,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C4-1MiB/token/before": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 47.5753330392763,
+      "peak_rss_bytes_median": 15056896,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C4-1MiB/token/after": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 45.46820791438222,
+      "peak_rss_bytes_median": 15155200,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C4-1MiB/ngram/before": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 129.36804199125618,
+      "peak_rss_bytes_median": 24281088,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C4-1MiB/ngram/after": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 112.44024999905378,
+      "peak_rss_bytes_median": 24854528,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C2-10MiB/token/before": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 180.17904099542648,
+      "peak_rss_bytes_median": 55312384,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C2-10MiB/token/after": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 156.94074996281415,
+      "peak_rss_bytes_median": 54493184,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C2-10MiB/ngram/before": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 1214.0185000607744,
+      "peak_rss_bytes_median": 156565504,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C2-10MiB/ngram/after": {
+      "attempts": 1,
+      "statuses": [
+        "product-resource-refusal"
+      ],
+      "wall_ms_median": 677.909915917553,
+      "peak_rss_bytes_median": 111017984,
+      "remaining_default_build_attempts_not_performed": 2
+    },
+    "C2-10MiB/ngram/after-raised": {
+      "attempts": 1,
+      "statuses": [
+        "success"
+      ],
+      "wall_ms_median": 1047.7799579966813,
+      "peak_rss_bytes_median": 157810688,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C4-10MiB/token/before": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 275.850041070953,
+      "peak_rss_bytes_median": 79757312,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C4-10MiB/token/after": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 239.80862507596612,
+      "peak_rss_bytes_median": 80461824,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C4-10MiB/ngram/before": {
+      "attempts": 3,
+      "statuses": [
+        "success",
+        "success",
+        "success"
+      ],
+      "wall_ms_median": 1141.6965840617195,
+      "peak_rss_bytes_median": 200114176,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C4-10MiB/ngram/after": {
+      "attempts": 1,
+      "statuses": [
+        "product-resource-refusal"
+      ],
+      "wall_ms_median": 626.0938750347123,
+      "peak_rss_bytes_median": 108167168,
+      "remaining_default_build_attempts_not_performed": 2
+    },
+    "C4-10MiB/ngram/after-raised": {
+      "attempts": 1,
+      "statuses": [
+        "success"
+      ],
+      "wall_ms_median": 955.8722079964355,
+      "peak_rss_bytes_median": 203407360,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C2-100MiB/ngram/after-default": {
+      "attempts": 1,
+      "statuses": [
+        "product-resource-refusal"
+      ],
+      "wall_ms_median": 678.4864590736106,
+      "peak_rss_bytes_median": 111312896,
+      "remaining_default_build_attempts_not_performed": 0
+    },
+    "C4-100MiB/ngram/after-default": {
+      "attempts": 1,
+      "statuses": [
+        "product-resource-refusal"
+      ],
+      "wall_ms_median": 586.7550000548363,
+      "peak_rss_bytes_median": 108150784,
+      "remaining_default_build_attempts_not_performed": 0
+    }
+  },
+  "reason_for_not_performed": "source build normal refusal; small raised-admission samples are independent explicit controls"
+}

@@ -56,12 +56,14 @@ pub use reader::{
 };
 pub use schema::{Checksum, DocumentEntry, DocumentIndex};
 pub use search::{
-    NgramIndexBuildOptions, PlannerDecision, RawNgramIndex, RawTokenIndex, SearchHit,
-    SearchIndexSource, SearchMetrics, SearchOptions, SearchReport, TokenIndexBuildOptions,
+    IndexBuildLimits, NgramIndexBuildOptions, PlannerDecision, RawNgramIndex, RawTokenIndex,
+    SearchHit, SearchIndexSource, SearchMetrics, SearchOptions, SearchReport,
+    TokenIndexBuildOptions,
 };
 pub use sidecar::{
-    QziFileSidecar, QziSidecar, SidecarIndexKind, SidecarLimits, build_search_sidecar,
-    build_search_sidecar_from_file, build_search_sidecar_from_file_with_line_limit,
+    QziFileSidecar, QziSidecar, SidecarBuildOptions, SidecarIndexKind, SidecarLimits,
+    build_search_sidecar, build_search_sidecar_from_file,
+    build_search_sidecar_from_file_with_options,
 };
 #[doc(hidden)]
 pub use skeleton::open_skeleton_details;

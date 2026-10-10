@@ -1,0 +1,36 @@
+warning: variants `C1Conversation`, `C3Prose`, and `C6Adversarial` are never constructed
+  --> scripts/../src/corpus.rs:8:5
+   |
+ 6 | pub enum CorpusKind {
+   |          ---------- variants in this enum
+ 7 |     /// C1 conversation transcripts.
+ 8 |     C1Conversation,
+   |     ^^^^^^^^^^^^^^
+...
+12 |     C3Prose,
+   |     ^^^^^^^
+...
+18 |     C6Adversarial,
+   |     ^^^^^^^^^^^^^
+   |
+   = note: `CorpusKind` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated items `all` and `id` are never used
+  --> scripts/../src/corpus.rs:24:18
+   |
+21 | impl CorpusKind {
+   | --------------- associated items in this implementation
+...
+24 |     pub const fn all() -> [Self; 6] {
+   |                  ^^^
+...
+37 |     pub const fn id(self) -> &'static str {
+   |                  ^^
+
+warning: 2 warnings emitted
+
+C2/C4 source size/hash/query oracle: OK
+    Finished `release` profile [optimized] target(s) in 0.18s
+admitted search bytes / product refusal / existing and new output protection: OK
+replay_dir=/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/tmp.W1oAotu2xs
