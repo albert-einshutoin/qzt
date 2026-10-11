@@ -1,0 +1,45 @@
+FFFF
+======================================================================
+FAIL: test_corrupt_missing_qzt_and_untrusted_search_states_fail (test_case.DecisionEvidenceChecks.test_corrupt_missing_qzt_and_untrusted_search_states_fail)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/examples/decision-evidence/test_case.py", line 31, in setUp
+    self.assertEqual(run.returncode, 0, run.stderr.decode())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/shutoide/.codex/worktrees/decision-evidence/qzt/examples/decision-evidence/produce.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_invalid_references_and_required_evidence_fail_without_success_output (test_case.DecisionEvidenceChecks.test_invalid_references_and_required_evidence_fail_without_success_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/examples/decision-evidence/test_case.py", line 31, in setUp
+    self.assertEqual(run.returncode, 0, run.stderr.decode())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/shutoide/.codex/worktrees/decision-evidence/qzt/examples/decision-evidence/produce.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_recipient_restores_fixed_evidence_without_plaintext_or_oracle (test_case.DecisionEvidenceChecks.test_recipient_restores_fixed_evidence_without_plaintext_or_oracle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/examples/decision-evidence/test_case.py", line 31, in setUp
+    self.assertEqual(run.returncode, 0, run.stderr.decode())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/shutoide/.codex/worktrees/decision-evidence/qzt/examples/decision-evidence/produce.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_summary_update_and_sidecar_rebuild_preserve_original_refs_and_outputs (test_case.DecisionEvidenceChecks.test_summary_update_and_sidecar_rebuild_preserve_original_refs_and_outputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/examples/decision-evidence/test_case.py", line 31, in setUp
+    self.assertEqual(run.returncode, 0, run.stderr.decode())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/shutoide/.codex/worktrees/decision-evidence/qzt/examples/decision-evidence/produce.py': [Errno 2] No such file or directory
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.083s
+
+FAILED (failures=4)

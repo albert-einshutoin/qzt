@@ -1,0 +1,36 @@
+{
+  "summary_update_command": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "recipient.py",
+    "--manifest-sha256",
+    "42871fe76637d482fcafadb0b0afcecf4ed418f9a593e1b41d547979e0b93ead",
+    "--output",
+    "report-updated.json",
+    "--log",
+    "commands-updated.json"
+  ],
+  "summary_update_exit": 0,
+  "original_qzt_manifest_and_previous_outputs_unchanged": true,
+  "protected_before": {
+    "evidence.qzt": "9f3776f312fa0d18ac0da376f7c7a42b29ede1f8d1d57cadd5ad4c82a0b4f1ae",
+    "manifest.json": "42871fe76637d482fcafadb0b0afcecf4ed418f9a593e1b41d547979e0b93ead",
+    "report.json": "403cac9483db7c65304ace5141a540cfe178885a7da33f44ab138a6af4d683b7",
+    "commands.json": "9faa0570978b720fa633ed41a120b67f9f6edbf057a3f89fe34fc6d7529cbe12"
+  },
+  "new_summary_sha256": "e49acf5469e355c4801563b459fdb3b06d85d4b4d480c6e205a125322b01e1fa",
+  "same_question_evidence_bytes": true,
+  "qzi_rebuilt_same_bytes": true,
+  "retry_command": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "recipient.py",
+    "--manifest-sha256",
+    "42871fe76637d482fcafadb0b0afcecf4ed418f9a593e1b41d547979e0b93ead",
+    "--output",
+    "report.json",
+    "--log",
+    "commands.json"
+  ],
+  "retry_exit": 1,
+  "retry_stderr": "Error: existing output/log protected\n",
+  "retry_all_existing_bytes_unchanged": true
+}

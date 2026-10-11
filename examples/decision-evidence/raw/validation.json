@@ -1,0 +1,104 @@
+{
+  "receipt_kind": "targeted checks; preserves failed historical invocations and records corrected/current scope",
+  "cwd": "/Users/shutoide/.codex/worktrees/decision-evidence/qzt",
+  "base_head": "3d092d1db64fdd3f0744377df98257038eddd32f",
+  "historical_source_digest_not_captured": "tests-red/missing-feature are historical output; no claim they bind current harness bytes",
+  "checks": [
+    {
+      "command": "QZT_DECISION_BINARY=\"$PWD/target/debug/qzt\" python3 -m unittest discover -s examples/decision-evidence -p test_case.py",
+      "exit_code": 1,
+      "log": "tests-red.log",
+      "scope": "historical unimplemented producer; 4 failures",
+      "log_digest": {
+        "algorithm": "sha256",
+        "value": "1c6d2b6a19d592f9abd3340c33ee046984afad167d728ac14afe5e9e8e684159"
+      },
+      "log_bytes": 3723
+    },
+    {
+      "command": "cargo test --locked --test phase60_decision_evidence --test phase21_evidence_retrieval",
+      "exit_code": 101,
+      "log": "targeted-missing-feature.log",
+      "scope": "historical invocation error: existing phase21 requires internal-testing",
+      "log_digest": {
+        "algorithm": "sha256",
+        "value": "78c12763ac552a279d8facd09befcc9110dee9a7d62430aef5921164e871490b"
+      },
+      "log_bytes": 4960
+    },
+    {
+      "command": "cargo test --locked --features internal-testing --test phase60_decision_evidence --test phase21_evidence_retrieval",
+      "exit_code": 0,
+      "log": "rust-targeted.log",
+      "scope": "corrected invocation: phase21 3PASS/new launcher1PASS, before added external-checksum case",
+      "log_digest": {
+        "algorithm": "sha256",
+        "value": "38ca2f64e0d7410b09e3aeae96608c943da0c111fb52f35771da2af83f505644"
+      },
+      "log_bytes": 860
+    },
+    {
+      "command": "cargo clippy --locked --test phase60_decision_evidence --all-features -- -D warnings",
+      "exit_code": 0,
+      "log": "clippy.log",
+      "scope": "Rust test launcher unchanged",
+      "log_digest": {
+        "algorithm": "sha256",
+        "value": "4a5c117cec67ad40366c7d275f189f9a1b2946447904c32c49606305a3e5db44"
+      },
+      "log_bytes": 1462
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log": "fmt.log",
+      "scope": "fresh Rust formatter; stdout/stderr empty",
+      "log_digest": {
+        "algorithm": "sha256",
+        "value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "log_bytes": 0
+    },
+    {
+      "command": "QZT_DECISION_BINARY=\"$PWD/target/debug/qzt\" QZT_DECISION_TEST_RECORD=\"$PWD/examples/decision-evidence/raw/test-attempts-checksum.jsonl\" python3 -m unittest discover -s examples/decision-evidence -p test_case.py",
+      "exit_code": 0,
+      "log": "python-checksum-regression.log",
+      "scope": "current source: 4PASS, 24 actual subprocess records: 7 success/17 expected Error exits +4 invalid search states",
+      "log_digest": {
+        "algorithm": "sha256",
+        "value": "e45810ed2d157dd5f576fa72f328657ce2b0dde0a51a8e5d89179bc2b6b494b2"
+      },
+      "log_bytes": 102
+    }
+  ],
+  "current_code_files": [
+    {
+      "path": "examples/decision-evidence/produce.py",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "bdb399cb7ab0d6931be4a3a7774ec1f7c5aa6509665e7af94fe6736f890af11d"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/recipient.py",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "797438ec636e83da0e2261a78284a7252ec1390103d7a94b7c2f082c4520bdeb"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/test_case.py",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "97d74bb6c9fe628bf186b2fbee98291cfc8a0953617dc8e8da2b73f7897be065"
+      }
+    },
+    {
+      "path": "tests/phase60_decision_evidence.rs",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "0ed320c554c558c42e6184e46cf186df6dffe4b51b0de09a63552ac396c3fc13"
+      }
+    }
+  ]
+}

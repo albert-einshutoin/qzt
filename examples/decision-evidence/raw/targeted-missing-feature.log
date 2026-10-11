@@ -1,0 +1,144 @@
+   Compiling libc v0.2.186
+   Compiling getrandom v0.3.4
+   Compiling rustix v1.1.4
+   Compiling zerocopy v0.8.50
+   Compiling getrandom v0.4.2
+   Compiling autocfg v1.5.1
+   Compiling bitflags v2.13.0
+   Compiling zmij v1.0.21
+   Compiling fastrand v2.4.1
+   Compiling once_cell v1.21.4
+   Compiling serde_core v1.0.228
+   Compiling fnv v1.0.7
+   Compiling quick-error v1.2.3
+   Compiling bit-vec v0.8.0
+   Compiling serde_json v1.0.150
+   Compiling num-traits v0.2.19
+   Compiling jobserver v0.1.34
+   Compiling errno v0.3.14
+   Compiling wait-timeout v0.2.1
+   Compiling bit-set v0.8.0
+   Compiling cc v1.2.63
+   Compiling regex-syntax v0.8.10
+   Compiling itoa v1.0.18
+   Compiling rand_core v0.9.5
+   Compiling rand v0.9.4
+   Compiling rand_xorshift v0.4.0
+   Compiling memchr v2.8.1
+   Compiling unarray v0.1.4
+   Compiling os_pipe v1.2.3
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling blake3 v1.8.5
+   Compiling tempfile v3.27.0
+   Compiling rusty-fork v0.3.1
+   Compiling ppv-lite86 v0.2.21
+   Compiling rand_chacha v0.9.0
+   Compiling proptest v1.11.0
+   Compiling zstd-safe v7.2.4
+   Compiling zstd v0.13.3
+   Compiling qzt v0.1.0-pre.6 (/Users/shutoide/.codex/worktrees/decision-evidence/qzt)
+error[E0603]: module `error` is private
+  --> tests/phase21_evidence_retrieval.rs:3:10
+   |
+ 3 | use qzt::error::QztError;
+   |          ^^^^^  -------- enum `QztError` is not publicly re-exported
+   |          |
+   |          private module
+   |
+note: the module `error` is defined here
+  --> src/lib.rs:19:9
+   |
+19 |         mod $name;
+   |         ^^^^^^^^^^
+...
+30 | internal_module!(error);
+   | ----------------------- in this macro invocation
+   = note: this error originates in the macro `internal_module` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0603]: module `reader` is private
+  --> tests/phase21_evidence_retrieval.rs:4:10
+   |
+ 4 | use qzt::reader::{QztFileReader, QztReader};
+   |          ^^^^^^ private module
+   |
+note: the module `reader` is defined here
+  --> src/lib.rs:19:9
+   |
+19 |         mod $name;
+   |         ^^^^^^^^^^
+...
+36 | internal_module!(reader);
+   | ------------------------ in this macro invocation
+   = note: this error originates in the macro `internal_module` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0603]: module `schema` is private
+  --> tests/phase21_evidence_retrieval.rs:5:10
+   |
+ 5 | use qzt::schema::{Checksum, DocumentIndex};
+   |          ^^^^^^ private module
+   |
+note: the module `schema` is defined here
+  --> src/lib.rs:19:9
+   |
+19 |         mod $name;
+   |         ^^^^^^^^^^
+...
+37 | internal_module!(schema);
+   | ------------------------ in this macro invocation
+   = note: this error originates in the macro `internal_module` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0603]: module `writer` is private
+  --> tests/phase21_evidence_retrieval.rs:6:10
+   |
+ 6 | use qzt::writer::WriterBuilder;
+   |          ^^^^^^ private module
+   |
+note: the module `writer` is defined here
+  --> src/lib.rs:19:9
+   |
+19 |         mod $name;
+   |         ^^^^^^^^^^
+...
+41 | internal_module!(writer);
+   | ------------------------ in this macro invocation
+   = note: this error originates in the macro `internal_module` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0603]: module `writer` is private
+  --> tests/phase21_evidence_retrieval.rs:20:26
+   |
+20 |     let container = qzt::writer::pack_bytes(input, writer_options(8, 8)).expect("pack");
+   |                          ^^^^^^  ---------- function `pack_bytes` is not publicly re-exported
+   |                          |
+   |                          private module
+   |
+note: the module `writer` is defined here
+  --> src/lib.rs:19:9
+   |
+19 |         mod $name;
+   |         ^^^^^^^^^^
+...
+41 | internal_module!(writer);
+   | ------------------------ in this macro invocation
+   = note: this error originates in the macro `internal_module` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0603]: module `writer` is private
+  --> tests/phase21_evidence_retrieval.rs:86:26
+   |
+86 |     let container = qzt::writer::pack_bytes(input, writer_options(8, 8)).expect("pack");
+   |                          ^^^^^^  ---------- function `pack_bytes` is not publicly re-exported
+   |                          |
+   |                          private module
+   |
+note: the module `writer` is defined here
+  --> src/lib.rs:19:9
+   |
+19 |         mod $name;
+   |         ^^^^^^^^^^
+...
+41 | internal_module!(writer);
+   | ------------------------ in this macro invocation
+   = note: this error originates in the macro `internal_module` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+For more information about this error, try `rustc --explain E0603`.
+error: could not compile `qzt` (test "phase21_evidence_retrieval") due to 6 previous errors
+warning: build failed, waiting for other jobs to finish...

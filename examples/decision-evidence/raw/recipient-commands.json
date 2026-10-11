@@ -1,0 +1,273 @@
+[
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "info",
+      "evidence.qzt",
+      "--format",
+      "json"
+    ],
+    "exit_code": 0,
+    "wall_ms": 63.585,
+    "stdout_utf8": "{\n  \"format\": \"qzt-0.1\",\n  \"container_id\": \"afae48e83c611d7f1789e84733f43e19\",\n  \"profile\": \"core\",\n  \"original_size\": 2288,\n  \"compressed_size\": 4774,\n  \"original_checksum\": {\"algorithm\": \"blake3\", \"value\": \"afae48e83c611d7f1789e84733f43e19900b2b98f57e998c0ad8371528b642a5\"},\n  \"newline_mode\": \"lf\",\n  \"chunk_count\": 1,\n  \"line_count\": 15,\n  \"zstd_level\": 0,\n  \"target_chunk_size\": 4194304,\n  \"max_chunk_size\": 16777216,\n  \"dense_line_index\": false,\n  \"document_index\": true,\n  \"document_count\": 7\n}\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "docs",
+      "evidence.qzt",
+      "--format",
+      "json"
+    ],
+    "exit_code": 0,
+    "wall_ms": 3.023,
+    "stdout_utf8": "{\"documents\":[{\"doc_id\":\"decision/01-proposal.txt\",\"logical_offset\":0,\"byte_length\":454,\"first_line\":1,\"line_count\":3,\"checksum\":{\"algorithm\":\"blake3\",\"value\":\"e6628c22c26390ac971aac99a92b3edf2754be9925ab5bdbce2b6e0587911b98\"}},{\"doc_id\":\"decision/02-hold.txt\",\"logical_offset\":454,\"byte_length\":233,\"first_line\":4,\"line_count\":2,\"checksum\":{\"algorithm\":\"blake3\",\"value\":\"dafc6ac8ee6a16df4fc47d248c8bb8268bd402e624146e5bd72cf133b1960f72\"}},{\"doc_id\":\"decision/03-objection.txt\",\"logical_offset\":687,\"byte_length\":263,\"first_line\":6,\"line_count\":2,\"checksum\":{\"algorithm\":\"blake3\",\"value\":\"6c6e9133df54e3dcf50fdc574e2503536d5db1aac78761d53436f916a4e444ee\"}},{\"doc_id\":\"decision/04-conditional.txt\",\"logical_offset\":950,\"byte_length\":377,\"first_line\":8,\"line_count\":2,\"checksum\":{\"algorithm\":\"blake3\",\"value\":\"779147677f74e9707527c6f29f7b494b0a2dc3aa62d928c6add4a3f32733bed7\"}},{\"doc_id\":\"decision/05-change.txt\",\"logical_offset\":1327,\"byte_length\":283,\"first_line\":10,\"line_count\":2,\"checksum\":{\"algorithm\":\"blake3\",\"value\":\"297d43e869644320728998dcafc6f1582406c40f8b92ce65add08828a4063ef6\"}},{\"doc_id\":\"decision/06-revision.txt\",\"logical_offset\":1610,\"byte_length\":352,\"first_line\":12,\"line_count\":2,\"checksum\":{\"algorithm\":\"blake3\",\"value\":\"7bec6425f2916eefae5dc5d916e7d399faf12ec9bb051e9b0a7e747c49a39ee6\"}},{\"doc_id\":\"decision/07-latest.txt\",\"logical_offset\":1962,\"byte_length\":326,\"first_line\":14,\"line_count\":2,\"checksum\":{\"algorithm\":\"blake3\",\"value\":\"c32cd6e7debdab63e91614964fd4d5e2e73859caf4778e0b7b5c8b49e3ee8d72\"}}]}\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "verify",
+      "evidence.qzt",
+      "--deep",
+      "--format",
+      "json"
+    ],
+    "exit_code": 0,
+    "wall_ms": 3.01,
+    "stdout_utf8": "{\"ok\":true,\"level\":\"deep\",\"checked_chunks\":1,\"compressed_checksum_chunks\":1,\"decoded_chunks\":1,\"decoded_bytes\":2288,\"original_checksum_verified\":true,\"container_checksum_status\":\"verified\",\"dense_line_index_status\":\"absent\",\"document_index_status\":\"source_checked\"}\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "doc",
+      "evidence.qzt",
+      "decision/01-proposal.txt"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.699,
+    "stdout_utf8": "2030-04-01 架空プロジェクト「灯台ノート」、架空担当者・青井の提案。\n案Aは常時接続の中央保存。既存の運用手順を使え、少人数で保守できるため第一候補とする。懸念は通信断の間に記録できないこと。\n案Bは端末の待機キューを後で同期する。通信断でも記録を続けられる利点があるが、復旧時の重複と順序を検証する負担がある。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "range",
+      "evidence.qzt",
+      "--bytes",
+      "0:454"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.664,
+    "stdout_utf8": "2030-04-01 架空プロジェクト「灯台ノート」、架空担当者・青井の提案。\n案Aは常時接続の中央保存。既存の運用手順を使え、少人数で保守できるため第一候補とする。懸念は通信断の間に記録できないこと。\n案Bは端末の待機キューを後で同期する。通信断でも記録を続けられる利点があるが、復旧時の重複と順序を検証する負担がある。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "doc",
+      "evidence.qzt",
+      "decision/02-hold.txt"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.881,
+    "stdout_utf8": "2030-04-02 架空担当者・白川の記録。\n案Bは保留とする。同期後の重複排除と復旧手順の試験記録がまだないため、現時点で採用を承認しない。試験結果が残れば再検討する。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "range",
+      "evidence.qzt",
+      "--bytes",
+      "454:687"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.757,
+    "stdout_utf8": "2030-04-02 架空担当者・白川の記録。\n案Bは保留とする。同期後の重複排除と復旧手順の試験記録がまだないため、現時点で採用を承認しない。試験結果が残れば再検討する。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "doc",
+      "evidence.qzt",
+      "decision/03-objection.txt"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.654,
+    "stdout_utf8": "2030-04-03 架空担当者・紫野の反対意見。\n案Aの無条件採用に反対する。現場の通信断が長引いた場合、後から書き直した記録を当日の記録と混同する懸念がある。反対の撤回はこの記録にはない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "range",
+      "evidence.qzt",
+      "--bytes",
+      "687:950"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.802,
+    "stdout_utf8": "2030-04-03 架空担当者・紫野の反対意見。\n案Aの無条件採用に反対する。現場の通信断が長引いた場合、後から書き直した記録を当日の記録と混同する懸念がある。反対の撤回はこの記録にはない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "doc",
+      "evidence.qzt",
+      "decision/04-conditional.txt"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.866,
+    "stdout_utf8": "2030-04-04 架空の検討会の記録。これは実在の承認ではなく、現在の実行許可にもならない。\n案Aを条件付きで試行する。条件は一日100件以下、通信断が短時間であること、運用担当が翌日までに欠落を確認すること。条件を外れたら判断をやり直す。全員の賛否は記録していない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "range",
+      "evidence.qzt",
+      "--bytes",
+      "950:1327"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.499,
+    "stdout_utf8": "2030-04-04 架空の検討会の記録。これは実在の承認ではなく、現在の実行許可にもならない。\n案Aを条件付きで試行する。条件は一日100件以下、通信断が短時間であること、運用担当が翌日までに欠落を確認すること。条件を外れたら判断をやり直す。全員の賛否は記録していない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "doc",
+      "evidence.qzt",
+      "decision/05-change.txt"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.51,
+    "stdout_utf8": "2030-04-05 架空担当者・青井の前提変更報告。\n前提変更：想定件数が一日300件となり、最大72時間の通信断を想定する必要が生じた。これは計画値であって測定した性能値ではない。案Aの試行条件を満たさない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "range",
+      "evidence.qzt",
+      "--bytes",
+      "1327:1610"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.557,
+    "stdout_utf8": "2030-04-05 架空担当者・青井の前提変更報告。\n前提変更：想定件数が一日300件となり、最大72時間の通信断を想定する必要が生じた。これは計画値であって測定した性能値ではない。案Aの試行条件を満たさない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "doc",
+      "evidence.qzt",
+      "decision/06-revision.txt"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.782,
+    "stdout_utf8": "2030-04-06 架空担当者・白川の更新記録。\n4月4日の案Aの条件付き試行を撤回する。4月5日の件数と通信断の前提変更、および架空の復旧試験で重複排除と順序保持を確認したという記録を根拠に、案Bを限定試行へ変更する。応答時間の測定値はこの記録にはない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "range",
+      "evidence.qzt",
+      "--bytes",
+      "1610:1962"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.623,
+    "stdout_utf8": "2030-04-06 架空担当者・白川の更新記録。\n4月4日の案Aの条件付き試行を撤回する。4月5日の件数と通信断の前提変更、および架空の復旧試験で重複排除と順序保持を確認したという記録を根拠に、案Bを限定試行へ変更する。応答時間の測定値はこの記録にはない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "doc",
+      "evidence.qzt",
+      "decision/07-latest.txt"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.496,
+    "stdout_utf8": "2030-04-07 架空プロジェクト「灯台ノート」の最終記録。\n記録上の最新判断は案Bの条件付き限定試行。復旧時に担当者がキューの整合を確認し、欠落があれば試行を止める。本採用は未決定。全員の合意を示す署名や賛否一覧は残っていない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "range",
+      "evidence.qzt",
+      "--bytes",
+      "1962:2288"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.405,
+    "stdout_utf8": "2030-04-07 架空プロジェクト「灯台ノート」の最終記録。\n記録上の最新判断は案Bの条件付き限定試行。復旧時に担当者がキューの整合を確認し、欠落があれば試行を止める。本採用は未決定。全員の合意を示す署名や賛否一覧は残っていない。\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "sidecar-rebuild",
+      "evidence.qzt",
+      "-o",
+      "evidence.qzi",
+      "--index",
+      "ngram",
+      "--ngram",
+      "3"
+    ],
+    "exit_code": 0,
+    "wall_ms": 11.933,
+    "stdout_utf8": "",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "search",
+      "evidence.qzt",
+      "前提変更：",
+      "--sidecar",
+      "evidence.qzi",
+      "--max-results",
+      "100",
+      "--format",
+      "json"
+    ],
+    "exit_code": 0,
+    "wall_ms": 3.969,
+    "stdout_utf8": "{\"hits\":[{\"logical_offset\":1387,\"byte_length\":15,\"chunk_start\":0,\"chunk_end\":1,\"source\":\"verified_original_bytes\"}],\"metrics\":{\"query\":\"前提変更：\",\"index_kind\":\"ngram\",\"posting_granularity\":\"line\",\"index_size_bytes\":8446,\"source_size_bytes\":2288,\"index_size_ratio\":3.6914335664335662,\"term_lookups\":3,\"posting_bytes_read\":7,\"candidate_granules\":1,\"candidate_chunks\":1,\"decoded_bytes\":223,\"physical_decoded_bytes\":2288,\"physical_decoded_chunks\":1,\"verified_matches\":1,\"query_time_ms\":0.130583},\"capped\":false,\"stop_reason\":null,\"index_complete_declared\":true,\"index_coverage_verified\":false,\"incomplete_reason\":null}\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "1387",
+      "--length",
+      "15",
+      "--before",
+      "2",
+      "--after",
+      "2",
+      "--format",
+      "json"
+    ],
+    "exit_code": 0,
+    "wall_ms": 2.496,
+    "stdout_utf8": "{\"hit\":{\"logical_offset\":1387,\"byte_length\":15,\"end\":1402},\"mapping_status\":\"unique\",\"scope\":{\"kind\":\"document\",\"logical_offset\":1327,\"end\":1610},\"document\":{\"id\":\"decision/05-change.txt\",\"logical_offset\":1327,\"byte_length\":283,\"local_offset\":60,\"local_end\":75},\"candidates\":[{\"id\":\"decision/05-change.txt\",\"logical_offset\":1327,\"end\":1610}],\"excerpt\":{\"logical_offset\":1327,\"byte_length\":283,\"bytes_hex\":\"323033302d30342d303520e69eb6e7a9bae68b85e5bd93e88085e383bbe99d92e4ba95e381aee5898de68f90e5a489e69bb4e5a0b1e5918ae380820ae5898de68f90e5a489e69bb4efbc9ae683b3e5ae9ae4bbb6e695b0e3818ce4b880e697a5333030e4bbb6e381a8e381aae3828ae38081e69c80e5a4a73732e69982e99693e381aee9809ae4bfa1e696ade38292e683b3e5ae9ae38199e3828be5bf85e8a681e3818ce7949fe38198e3819fe38082e38193e3828ce381afe8a888e794bbe580a4e381a7e38182e381a3e381a6e6b8ace5ae9ae38197e3819fe680a7e883bde580a4e381a7e381afe381aae38184e38082e6a18841e381aee8a9a6e8a18ce69da1e4bbb6e38292e6ba80e3819fe38195e381aae38184e380820a\",\"text_escaped\":\"2030-04-05 架空担当者・青井の前提変更報告。\\\\n前提変更：想定件数が一日300件となり、最大72時間の通信断を想定する必要が生じた。これは計画値であって測定した性能値ではない。案Aの試行条件を満たさない。\\\\n\",\"leading_fragment\":false,\"trailing_fragment\":false},\"before\":{\"requested\":2,\"returned\":1,\"stop\":\"scope_boundary\"},\"after\":{\"requested\":2,\"returned\":0,\"stop\":\"scope_boundary\"},\"verification\":{\"decoded_chunks_verified\":true,\"document_index_block_verified\":true,\"document_checksum_verified\":false,\"search_query_verified\":false,\"external_provenance_verified\":false}}\n",
+    "stderr_utf8": ""
+  }
+]

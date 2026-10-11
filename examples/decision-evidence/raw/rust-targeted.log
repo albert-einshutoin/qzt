@@ -1,0 +1,18 @@
+   Compiling qzt v0.1.0-pre.6 (/Users/shutoide/.codex/worktrees/decision-evidence/qzt)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.45s
+     Running tests/phase21_evidence_retrieval.rs (target/debug/deps/phase21_evidence_retrieval-f5c497960ef38709)
+
+running 3 tests
+test verified_range_read_returns_bytes_or_fails_closed ... ok
+test concurrent_file_backed_verified_reads_match_serial_reads ... ok
+test verified_document_read_resolves_document_index ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/phase60_decision_evidence.rs (target/debug/deps/phase60_decision_evidence-633f4dba0e0c6d7b)
+
+running 1 test
+test decision_evidence_handoff_and_failure_boundaries ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.63s
+

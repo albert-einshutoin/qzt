@@ -1,0 +1,195 @@
+{
+  "schema": "qzt-decision-evidence-v1",
+  "fictional": true,
+  "container_id": "afae48e83c611d7f1789e84733f43e19",
+  "documents": [
+    {
+      "doc_id": "decision/01-proposal.txt",
+      "logical_offset": 0,
+      "byte_length": 454,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "50488f9c21828eb21517abd1fb7d624d1306e1c73ac0ac10c002b7010b2e0f48"
+      }
+    },
+    {
+      "doc_id": "decision/02-hold.txt",
+      "logical_offset": 454,
+      "byte_length": 233,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "f9ce7b7b7d35b1e93c2a633b9abbcccaf17f5584e2350cfb7ece26bfc7b04040"
+      }
+    },
+    {
+      "doc_id": "decision/03-objection.txt",
+      "logical_offset": 687,
+      "byte_length": 263,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "e24635be6c65c2993c91eba8e8793a521b51bf94226c043441bb032859bd5af9"
+      }
+    },
+    {
+      "doc_id": "decision/04-conditional.txt",
+      "logical_offset": 950,
+      "byte_length": 377,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "22d3298cab6099027338194fa81487a153f5f0d5912bad5f32c6f2381a6e4d5d"
+      }
+    },
+    {
+      "doc_id": "decision/05-change.txt",
+      "logical_offset": 1327,
+      "byte_length": 283,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "ac65c2fde3694e165e5572181b3a20b3b98f5be7d3ad9416118146ff8e32d05d"
+      }
+    },
+    {
+      "doc_id": "decision/06-revision.txt",
+      "logical_offset": 1610,
+      "byte_length": 352,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "f7235e8e4c4282bd6b41a31f9604b89e8f34d2986d4549c1a03266755396b987"
+      }
+    },
+    {
+      "doc_id": "decision/07-latest.txt",
+      "logical_offset": 1962,
+      "byte_length": 326,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "f0d4ae73fb01463f6b19c1a8e61107e46456e43fd787b8f1175c429ef1e0935f"
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "question": "なぜ案Aを第一候補にしたか。案Bの利点と両案の懸念は何か。",
+      "kind": "evidence",
+      "references": [
+        {
+          "doc_id": "decision/01-proposal.txt",
+          "logical_offset": 0,
+          "byte_length": 454,
+          "checksum": {
+            "algorithm": "sha256",
+            "value": "50488f9c21828eb21517abd1fb7d624d1306e1c73ac0ac10c002b7010b2e0f48"
+          }
+        }
+      ]
+    },
+    {
+      "id": "q2",
+      "question": "案Bを保留した理由と再検討の条件は何か。",
+      "kind": "evidence",
+      "references": [
+        {
+          "doc_id": "decision/02-hold.txt",
+          "logical_offset": 454,
+          "byte_length": 233,
+          "checksum": {
+            "algorithm": "sha256",
+            "value": "f9ce7b7b7d35b1e93c2a633b9abbcccaf17f5584e2350cfb7ece26bfc7b04040"
+          }
+        }
+      ]
+    },
+    {
+      "id": "q3",
+      "question": "案Aの採用条件は何か。",
+      "kind": "evidence",
+      "references": [
+        {
+          "doc_id": "decision/04-conditional.txt",
+          "logical_offset": 950,
+          "byte_length": 377,
+          "checksum": {
+            "algorithm": "sha256",
+            "value": "22d3298cab6099027338194fa81487a153f5f0d5912bad5f32c6f2381a6e4d5d"
+          }
+        }
+      ]
+    },
+    {
+      "id": "q4",
+      "question": "どの反対意見があり、撤回されたと確認できるか。",
+      "kind": "evidence",
+      "references": [
+        {
+          "doc_id": "decision/03-objection.txt",
+          "logical_offset": 687,
+          "byte_length": 263,
+          "checksum": {
+            "algorithm": "sha256",
+            "value": "e24635be6c65c2993c91eba8e8793a521b51bf94226c043441bb032859bd5af9"
+          }
+        }
+      ]
+    },
+    {
+      "id": "q5",
+      "question": "どの前提変化と記録を根拠に判断を変更したか。",
+      "kind": "evidence",
+      "references": [
+        {
+          "doc_id": "decision/05-change.txt",
+          "logical_offset": 1327,
+          "byte_length": 283,
+          "checksum": {
+            "algorithm": "sha256",
+            "value": "ac65c2fde3694e165e5572181b3a20b3b98f5be7d3ad9416118146ff8e32d05d"
+          }
+        },
+        {
+          "doc_id": "decision/06-revision.txt",
+          "logical_offset": 1610,
+          "byte_length": 352,
+          "checksum": {
+            "algorithm": "sha256",
+            "value": "f7235e8e4c4282bd6b41a31f9604b89e8f34d2986d4549c1a03266755396b987"
+          }
+        }
+      ],
+      "search": {
+        "query": "前提変更：",
+        "doc_id": "decision/05-change.txt",
+        "logical_offset": 1387,
+        "byte_length": 15
+      }
+    },
+    {
+      "id": "q6",
+      "question": "この固定された7件の記録上の最新判断は何か。",
+      "kind": "evidence",
+      "references": [
+        {
+          "doc_id": "decision/07-latest.txt",
+          "logical_offset": 1962,
+          "byte_length": 326,
+          "checksum": {
+            "algorithm": "sha256",
+            "value": "f0d4ae73fb01463f6b19c1a8e61107e46456e43fd787b8f1175c429ef1e0935f"
+          }
+        }
+      ]
+    },
+    {
+      "id": "q7",
+      "question": "実際に全員が合意したと確認できるか。",
+      "kind": "unknown",
+      "references": []
+    },
+    {
+      "id": "q8",
+      "question": "未記録の応答時間の測定値を確認できるか。",
+      "kind": "unknown",
+      "references": []
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "base_source": "3d092d1db64fdd3f0744377df98257038eddd32f",
+  "public_pre6_source": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+  "public_binary_used": false,
+  "product_files_changed": false,
+  "python": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "rust": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+  "handoff_directory": "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance",
+  "handoff_initial_inventory": [
+    "evidence.qzt",
+    "manifest.json",
+    "qzt",
+    "recipient.py",
+    "summary.txt"
+  ],
+  "producer_command": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "examples/decision-evidence/produce.py",
+    "--binary",
+    "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/debug/qzt",
+    "--fixture",
+    "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/examples/decision-evidence/fixture",
+    "--output",
+    "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance"
+  ],
+  "producer_exit": 0,
+  "recipient_command": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "recipient.py",
+    "--manifest-sha256",
+    "42871fe76637d482fcafadb0b0afcecf4ed418f9a593e1b41d547979e0b93ead",
+    "--output",
+    "report.json",
+    "--log",
+    "commands.json"
+  ],
+  "recipient_cwd": "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance",
+  "recipient_exit": 0,
+  "manifest_trusted_expectation": "42871fe76637d482fcafadb0b0afcecf4ed418f9a593e1b41d547979e0b93ead",
+  "executables": [
+    {
+      "path": "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "1a9406931a21ead8bf0475c24be43c71d6f6e6fc484e3eff0f0a6e9fd70ec9f1"
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "examples/decision-evidence/fixture/oracle.json",
+      "bytes": 754,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "cf58d7f0309b051a99771812af2b05b5cfbb2daee1aa2617dbf1a7599b31c921"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/questions.json",
+      "bytes": 1439,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "d9be16ca89855e2c15b54acd909685ebcbb140b5d9c0bc10c18fda81a61770e3"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/01-proposal.txt",
+      "bytes": 454,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "50488f9c21828eb21517abd1fb7d624d1306e1c73ac0ac10c002b7010b2e0f48"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/02-hold.txt",
+      "bytes": 233,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "f9ce7b7b7d35b1e93c2a633b9abbcccaf17f5584e2350cfb7ece26bfc7b04040"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/03-objection.txt",
+      "bytes": 263,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "e24635be6c65c2993c91eba8e8793a521b51bf94226c043441bb032859bd5af9"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/04-conditional.txt",
+      "bytes": 377,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "22d3298cab6099027338194fa81487a153f5f0d5912bad5f32c6f2381a6e4d5d"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/05-change.txt",
+      "bytes": 283,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "ac65c2fde3694e165e5572181b3a20b3b98f5be7d3ad9416118146ff8e32d05d"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/06-revision.txt",
+      "bytes": 352,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "f7235e8e4c4282bd6b41a31f9604b89e8f34d2986d4549c1a03266755396b987"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/07-latest.txt",
+      "bytes": 326,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "f0d4ae73fb01463f6b19c1a8e61107e46456e43fd787b8f1175c429ef1e0935f"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/summary-updated.txt",
+      "bytes": 152,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "e49acf5469e355c4801563b459fdb3b06d85d4b4d480c6e205a125322b01e1fa"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/summary.txt",
+      "bytes": 105,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "6d064c4836f6d8681aeede6c2e71da656932c75f1b9643a225dc4aca361769c7"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/produce.py",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "bdb399cb7ab0d6931be4a3a7774ec1f7c5aa6509665e7af94fe6736f890af11d"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/recipient.py",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "797438ec636e83da0e2261a78284a7252ec1390103d7a94b7c2f082c4520bdeb"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/test_case.py",
+      "digest": {
+        "algorithm": "sha256",
+        "value": "b1ab94124541a3232828f43aeda4aafc3428453e32be72eb0217bf0fb9119b69"
+      }
+    }
+  ],
+  "outcomes": {
+    "q1": "verified_evidence",
+    "q2": "verified_evidence",
+    "q3": "verified_evidence",
+    "q4": "verified_evidence",
+    "q5": "verified_evidence",
+    "q6": "verified_evidence",
+    "q7": "unknown",
+    "q8": "unknown"
+  },
+  "query_context_doc": "decision/05-change.txt",
+  "coverage_verified": false,
+  "scope": "one small fictional fixture; no LLM/identity/actual agreement/general completeness/third-party/production-ready claim",
+  "binary_version_command": [
+    "/Users/shutoide/.codex/worktrees/decision-evidence/qzt/target/decision-evidence-acceptance/qzt",
+    "--version"
+  ],
+  "binary_version_exit": 0,
+  "binary_version_stdout": "qzt 0.1.0-pre.6\n"
+}
