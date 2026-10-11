@@ -1,0 +1,7 @@
+{
+  "status": 0,
+  "threadId": "01a12891-6f79-78c1-a85c-a9c9475e1553",
+  "rawOutput": "ALLOW: Issue346の最小意思決定利用例は、指定範囲のREAD_ONLY/STATIC_ONLYレビューで受入阻害となる直接指摘なし。\n\n- 7件・8問、q1–q6 verified evidence、q7–q8 unknownを維持。[README](examples/decision-evidence/README.ja.md:3)\n- pack前の原文SHA・座標・query期待位置、外部manifest SHA、Document Index/doc/range/deep verifyを確認。[produce.py](examples/decision-evidence/produce.py:31)、[recipient.py](examples/decision-evidence/recipient.py:122)\n- 不正ref、破損、根拠欠落、未知status、cap/partial/coverage不明を成功扱いしない。\n- 要約更新、QZI再構築、既存output/log再実行拒否とbyte保持を確認。[RESULT](examples/decision-evidence/RESULT.ja.md:30)\n- 歴史的RED 4件・exit101を保持し、現行Python 4PASS、Rust targeted exit0、Clippy/Fmt成功と分離。[validation.json](examples/decision-evidence/raw/validation.json:6)\n- 専門レビューはALLOW、provenance指摘も解消済み。[specialist-review.md](examples/decision-evidence/raw/specialist-review.md:3)\n\n未実施は未実施のまま保持：完全local `make check`/package、PR HEAD CI/security、merge SHAのmain検証、Issue完了。production-ready、第三者検証、実際の合意、署名・本人性・真実性・時刻・現在の実行許可は主張していない。[RESULT](examples/decision-evidence/RESULT.ja.md:40)\n\nレビュー中の編集・実行・import・test・network・全repo探索は行っていません。",
+  "touchedFiles": [],
+  "reasoningSummary": []
+}

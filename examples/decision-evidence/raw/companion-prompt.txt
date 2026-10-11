@@ -1,0 +1,36 @@
+Run a stop-gate review of the previous Claude turn.
+日本語、先頭ALLOW:またはBLOCK:。Issue346の最小意思決定利用例だけをREAD_ONLY/STATIC_ONLYレビュー。
+worktree=/Users/shutoide/.codex/worktrees/decision-evidence/qzt
+base/current git HEAD=3d092d1db64fdd3f0744377df98257038eddd32f、未commit新fileはexamples/decision-evidence/とtests/phase60_decision_evidence.rsだけ。
+ユーザーはこの1Issue/1PRのbranch/commit/push/normal hosted CI/review対応/main merge/Issue完了を許可。
+実装・直接指摘の修正は既に許可済み。tag/release/crates/他プロダクト接続は不可、Core/API/予算/CI/署名基盤も変更しない。
+編集、コード実行/import/test、network、DB/env/secrets、Subagent、全repo探索は禁止。指定filesのread/hash/diffだけ。
+
+指定対象: examples/decision-evidence/{produce.py,recipient.py,test_case.py,PLAN.ja.md,README.ja.md,RESULT.ja.md}
+fixture/{records/*.txt,questions.json,oracle.json,summary.txt,summary-updated.txt}
+tests/phase60_decision_evidence.rs
+raw/{validation.json,execution.json,manifest.json,producer.jsonl,recipient-report.json,recipient-report-updated.json,summary-update-and-retry.json,self-review.md,specialist-review.md,python-checksum-regression.log,test-attempts-checksum.jsonl,rust-targeted.log,tests-red.log,targeted-missing-feature.log,clippy.log,fmt.log}
+文書の契約が必要な場合のみdocs/CLI.ja.md48-79/287-340とCoreSpec日本語3章へ限定。
+
+Goal: 架空の日本語7件でA/B理由・懸念、保留/反対、条件付き採用、前提変化、撤回/更新と最新の記録上の判断を、短い要約から失われた原文として復元する固定利用例。
+8問と原文/oracleはpack前固定。producerは原文由来SHA/文書とglobal byte座標/query期待位置をpack前に保存。
+既存pack-docs(DocumentIndex)/info/Deep/doc(既存BLAKE3検証)/range/既存ngramsearch/contextを使い、外部期待SHAと復元bytesを比較する。
+recipientは5file(QZT/summary/unsignedmanifest/qzt/recipient.py)の新cwdで実行し、repofixture/oracleをimport/readしない。コードに原文/回答は埋め込まない。
+これは入力分離の実演でOSsandboxや独立第三者検証は主張しない。
+manifest SHAは信頼済み経路で別に与える。署名/本人性/内容真実性/時刻/実際合意/現在実行許可は証明しない。
+q1-q6は指定文書のverified evidence、q7実際の全員合意/q8未記録応答時間は事前に根拠不足のunknown。
+unknownを検索0/coverage unknown/capから推論しない。不正ref/破損/必要根拠欠落/未知statusはError。
+q5ngram hit→contextはdoc/local/global範囲とhexbytesを検証済み文書へ照合。coveragefalseはそのまま残す。cap/partial/incompleteを完全成功にしない。
+要約更新はQZT/manifest/既存refs/旧reportsを保持。QZIは不在時だけ再構築し、壊れたQZIを黙ってfallbackしない。
+同じoutput/log/producerdirectoryへの再実行は書込前に拒否し既存byte保持。
+
+対象検証: initialRED4failとfeature未指定compileexit101を過去失敗として保持、修正commandでphase21 3PASS/新Rustlauncher1PASS。
+現行Python4PASS、24actualsubprocess=7success/17Error（外部期待SHA不一致、container/doc/range/checksum、破損、missing必要根拠/必要file、再実行など）。4不正search-status拒否。
+Solmedium専門レビュー1件Approve、provenance直接指摘のreceipt追記と最終再読もApprove。
+validation.jsonにcommand/cwd/base/exit/loghash、歴史的runのsourcebyte未bindingの限界を記録。runtimeproducer/recipientのhashはexecution.jsonで固定。
+RustClippy/Fmt成功。最終完全localmakecheck/packageはGate後、最終PR HEAD CI/security/main merge SHA検証はさらに後でまだ未実施。
+全てのfail/unknown/未実施を維持。過去大規模benchmarkは再実行しない。
+
+直接の受入/実回帰/security/trust boundary/provenance、範囲と過大保証だけ確認し、好み/汎用framework/new設計へ広げない。
+新しい範囲の保証、一般的検索網羅性、LLM精度向上、第三者検証、実際の合意、production-readyを主張していないか。
+Gate後の変更は検証結果/verdict/link記録と許可済みGitHub納品のみ予定。

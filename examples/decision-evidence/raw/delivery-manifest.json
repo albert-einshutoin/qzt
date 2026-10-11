@@ -1,0 +1,401 @@
+{
+  "record_kind": "local final, before commit; current identities separated from historical runs",
+  "base_head": "3d092d1db64fdd3f0744377df98257038eddd32f",
+  "issue": "https://github.com/albert-einshutoin/qzt/issues/346",
+  "checks": [
+    {
+      "command": "make check",
+      "exit_code": 0,
+      "cwd": "/Users/shutoide/.codex/worktrees/decision-evidence/qzt",
+      "log": "raw/make-check.log",
+      "test_summary_totals": {
+        "passed": 516,
+        "failed": 0,
+        "ignored": 3
+      }
+    },
+    {
+      "command": "cargo package --allow-dirty --locked",
+      "exit_code": 0,
+      "cwd": "/Users/shutoide/.codex/worktrees/decision-evidence/qzt",
+      "log": "raw/package.log"
+    },
+    {
+      "command": "gitleaks detect --no-git --source examples/decision-evidence --redact",
+      "exit_code": 0,
+      "log": "raw/gitleaks.log"
+    }
+  ],
+  "expert_review": "Sol medium Approve, original direct provenance finding resolved by final scoped reread",
+  "companion": "ALLOW, touchedFiles=[]",
+  "binary_build_context": "targeted Cargo test --features internal-testing; debug Rust1.96 native macOS; copied binary preserved in execution.json handoff directory",
+  "historical_test_code_identity": "execution.json captured test_case.py before external checksum regression; current helper identity below/validation.json",
+  "pending": [
+    "final PR HEAD CI/security",
+    "normal main merge",
+    "merge SHA main CI/security",
+    "Issue completion"
+  ],
+  "files": [
+    {
+      "path": "examples/decision-evidence/PLAN.ja.md",
+      "bytes": 2022,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "99cbafdae11b7cfe9e0077e4c4a7a4b85e82c97307e123c9781797c6e7be46f3"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/README.ja.md",
+      "bytes": 6892,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "f1ec09d7e415fdd1c3a9d0f6a911952bc97e39f6e58a021facb831ac5f759e59"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/RESULT.ja.md",
+      "bytes": 4570,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "663531bf0a7619d2e16262e7c4c13c73f593a4b0ce9584dfdfd6cd3b7d3795b4"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/oracle.json",
+      "bytes": 754,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "cf58d7f0309b051a99771812af2b05b5cfbb2daee1aa2617dbf1a7599b31c921"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/questions.json",
+      "bytes": 1439,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "d9be16ca89855e2c15b54acd909685ebcbb140b5d9c0bc10c18fda81a61770e3"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/01-proposal.txt",
+      "bytes": 454,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "50488f9c21828eb21517abd1fb7d624d1306e1c73ac0ac10c002b7010b2e0f48"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/02-hold.txt",
+      "bytes": 233,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "f9ce7b7b7d35b1e93c2a633b9abbcccaf17f5584e2350cfb7ece26bfc7b04040"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/03-objection.txt",
+      "bytes": 263,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "e24635be6c65c2993c91eba8e8793a521b51bf94226c043441bb032859bd5af9"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/04-conditional.txt",
+      "bytes": 377,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "22d3298cab6099027338194fa81487a153f5f0d5912bad5f32c6f2381a6e4d5d"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/05-change.txt",
+      "bytes": 283,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "ac65c2fde3694e165e5572181b3a20b3b98f5be7d3ad9416118146ff8e32d05d"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/06-revision.txt",
+      "bytes": 352,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "f7235e8e4c4282bd6b41a31f9604b89e8f34d2986d4549c1a03266755396b987"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/records/07-latest.txt",
+      "bytes": 326,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "f0d4ae73fb01463f6b19c1a8e61107e46456e43fd787b8f1175c429ef1e0935f"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/summary-updated.txt",
+      "bytes": 152,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "e49acf5469e355c4801563b459fdb3b06d85d4b4d480c6e205a125322b01e1fa"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/fixture/summary.txt",
+      "bytes": 105,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "6d064c4836f6d8681aeede6c2e71da656932c75f1b9643a225dc4aca361769c7"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/produce.py",
+      "bytes": 5273,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "bdb399cb7ab0d6931be4a3a7774ec1f7c5aa6509665e7af94fe6736f890af11d"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/clippy.log",
+      "bytes": 1462,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "4a5c117cec67ad40366c7d275f189f9a1b2946447904c32c49606305a3e5db44"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/companion-gate.json",
+      "bytes": 1669,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "d1dca5a0f81c2abdabc7b76c06a524d93a83ce0f7b2be4d61fe927bdfef6eb07"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/companion-prompt.txt",
+      "bytes": 4366,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "c6cd122841e76030f2c3930b1625c1468d4993548aeab96a80d4430487b38a7f"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/companion-stderr.log",
+      "bytes": 0,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/execution.json",
+      "bytes": 5942,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "9e299232eb4f2021c952d8a1fb30bea53a9aa8a92df5220edff0ddcab54293d8"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/fmt.log",
+      "bytes": 0,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/gitleaks.log",
+      "bytes": 148,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "8126b6b802495a1875434e02244f37d033364462adc8213d2f3d3ca37fbb9eb6"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/make-check.log",
+      "bytes": 51052,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "e31b9e701d4f5ec5d0f9065fd4ec846f2346ffca71c41366684c6eb7b8753510"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/manifest.json",
+      "bytes": 5476,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "42871fe76637d482fcafadb0b0afcecf4ed418f9a593e1b41d547979e0b93ead"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/package.log",
+      "bytes": 446,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "bc604dc87c0909e8b009f9dbfeafc0d5deeece6905a873328911c3c236f76da4"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/producer.jsonl",
+      "bytes": 8888,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "da930ba6bdfd1df183218cb3b1a38c114f1519da160118fbac9c681e3d3e4ce0"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/python-checksum-regression.log",
+      "bytes": 102,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "e45810ed2d157dd5f576fa72f328657ce2b0dde0a51a8e5d89179bc2b6b494b2"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/python-targeted-final.log",
+      "bytes": 102,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "a7a0daf74514d58d95e99b94257e18eecf4c1b1d1d448a06be38ca096d54ae7a"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/python-targeted.log",
+      "bytes": 102,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "b2bc14b5a0a3fc85cbb0e19ae0e3d26a64a00104a9daad9946f181caf4aaefda"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/recipient-commands.json",
+      "bytes": 15747,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "9faa0570978b720fa633ed41a120b67f9f6edbf057a3f89fe34fc6d7529cbe12"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/recipient-report-updated.json",
+      "bytes": 10215,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "160b870c90ff45885181fdd18c231be3b16503d9115fdfe2256758eae81711aa"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/recipient-report.json",
+      "bytes": 10168,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "403cac9483db7c65304ace5141a540cfe178885a7da33f44ab138a6af4d683b7"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/rust-targeted.log",
+      "bytes": 860,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "38ca2f64e0d7410b09e3aeae96608c943da0c111fb52f35771da2af83f505644"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/self-review.md",
+      "bytes": 1138,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "103d56aee3fe7c7da32e0c6f9b7d8f4a0311ab257c1f3efb94db511acf00aea6"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/specialist-review.md",
+      "bytes": 884,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "f4c73b81802b53aebc9589a95da1320519391fe4da4112f9b0771fee64acb37a"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/summary-update-and-retry.json",
+      "bytes": 1318,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "4cb88d477319103ce323acaa8e73d072cc8c2f2ea2983a826be58f4b8ce33621"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/targeted-missing-feature.log",
+      "bytes": 4960,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "78c12763ac552a279d8facd09befcc9110dee9a7d62430aef5921164e871490b"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/test-attempts-checksum.jsonl",
+      "bytes": 15306,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "5a07b317c28beb23a0ff516feb1026ce6e50e2a6a95de0e518b22dcb3cdbb78f"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/test-attempts-final.jsonl",
+      "bytes": 14703,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "bbe4dec646f289da685ea8a5fa8792f37935344a6a019b8fa68cac278e17f0f4"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/test-attempts.jsonl",
+      "bytes": 14703,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "04421fdbc810830383f860ff7e1d8c4a2755688392901b4075128b3250267599"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/tests-red.log",
+      "bytes": 3723,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "1c6d2b6a19d592f9abd3340c33ee046984afad167d728ac14afe5e9e8e684159"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/raw/validation.json",
+      "bytes": 3968,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "06491ed5ec58d38f5f799d9a1387aea865fa79500a68ee38599cd8498c1a4066"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/recipient.py",
+      "bytes": 12376,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "797438ec636e83da0e2261a78284a7252ec1390103d7a94b7c2f082c4520bdeb"
+      }
+    },
+    {
+      "path": "examples/decision-evidence/test_case.py",
+      "bytes": 9886,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "97d74bb6c9fe628bf186b2fbee98291cfc8a0953617dc8e8da2b73f7897be065"
+      }
+    },
+    {
+      "path": "tests/phase60_decision_evidence.rs",
+      "bytes": 801,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "0ed320c554c558c42e6184e46cf186df6dffe4b51b0de09a63552ac396c3fc13"
+      }
+    }
+  ]
+}

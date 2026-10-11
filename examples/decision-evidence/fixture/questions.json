@@ -1,0 +1,67 @@
+[
+  {
+    "id": "q1",
+    "question": "なぜ案Aを第一候補にしたか。案Bの利点と両案の懸念は何か。",
+    "kind": "evidence",
+    "docs": [
+      "01-proposal.txt"
+    ]
+  },
+  {
+    "id": "q2",
+    "question": "案Bを保留した理由と再検討の条件は何か。",
+    "kind": "evidence",
+    "docs": [
+      "02-hold.txt"
+    ]
+  },
+  {
+    "id": "q3",
+    "question": "案Aの採用条件は何か。",
+    "kind": "evidence",
+    "docs": [
+      "04-conditional.txt"
+    ]
+  },
+  {
+    "id": "q4",
+    "question": "どの反対意見があり、撤回されたと確認できるか。",
+    "kind": "evidence",
+    "docs": [
+      "03-objection.txt"
+    ]
+  },
+  {
+    "id": "q5",
+    "question": "どの前提変化と記録を根拠に判断を変更したか。",
+    "kind": "evidence",
+    "docs": [
+      "05-change.txt",
+      "06-revision.txt"
+    ],
+    "search": {
+      "query": "前提変更：",
+      "doc": "05-change.txt"
+    }
+  },
+  {
+    "id": "q6",
+    "question": "この固定された7件の記録上の最新判断は何か。",
+    "kind": "evidence",
+    "docs": [
+      "07-latest.txt"
+    ]
+  },
+  {
+    "id": "q7",
+    "question": "実際に全員が合意したと確認できるか。",
+    "kind": "unknown",
+    "docs": []
+  },
+  {
+    "id": "q8",
+    "question": "未記録の応答時間の測定値を確認できるか。",
+    "kind": "unknown",
+    "docs": []
+  }
+]
