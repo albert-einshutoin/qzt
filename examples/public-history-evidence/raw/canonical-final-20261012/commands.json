@@ -1,0 +1,1091 @@
+[
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "verify",
+      "evidence.qzt",
+      "--deep",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 276.611,
+    "stdout_sha256": "0f70a26ba2d24035f051498659e83c9844ff7fea14d48cbfc1bf5f26076fc684",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "info",
+      "evidence.qzt",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 3.297,
+    "stdout_sha256": "3568364a8bb2effa1a978dc42d1ea38d678767b1bf25c4d14ee88fe852cdba78",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "docs",
+      "evidence.qzt",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 3.106,
+    "stdout_sha256": "5de0348acbf7645c7cbb56176b0aff1837b034672fc95f5f8f9d8bbb5196fe2c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "sidecar-rebuild",
+      "evidence.qzt",
+      "--index",
+      "ngram",
+      "--ngram",
+      "3",
+      "-o",
+      "evidence.qzi"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 63.873,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "inspect-sidecar",
+      "evidence.qzt",
+      "--sidecar",
+      "evidence.qzi",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzi": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+    },
+    "exit_code": 0,
+    "wall_ms": 20.207,
+    "stdout_sha256": "e14612abef2891b468f5d2789d18eac9c035c38da9533edf474686f575ae8ca6",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "search",
+      "evidence.qzt",
+      "共有資源予算",
+      "--sidecar",
+      "evidence.qzi",
+      "--max-results",
+      "100",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzi": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+    },
+    "exit_code": 0,
+    "wall_ms": 21.65,
+    "stdout_sha256": "7be4effdb8fad3af065bb3a95edc14880489ef60e13d3817556910b2122b30fe",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "22",
+      "--length",
+      "18",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.415,
+    "stdout_sha256": "b75203aaac2e618c3a7dc75d230a4104208e6aaf52309e5d24a320f73a5e8da7",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "doc",
+      "evidence.qzt",
+      "github/issue-344-body.txt"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.439,
+    "stdout_sha256": "e620ec6fbd8ec03e70a13d8dc47c0de3c7f757c3695746d326578d74d22f267f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "search",
+      "evidence.qzt",
+      "10 MiB/ngram",
+      "--sidecar",
+      "evidence.qzi",
+      "--max-results",
+      "100",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzi": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+    },
+    "exit_code": 0,
+    "wall_ms": 21.178,
+    "stdout_sha256": "213cd7d8d9b35fff5b3320e570818c38218735967e7fd1478bf4fd6486e430df",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "1262",
+      "--length",
+      "12",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.426,
+    "stdout_sha256": "72c84ca280654b93f22c76af93fd07eac6cbaf72a794f19ed96f48c20a9a60c5",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "4446",
+      "--length",
+      "12",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 5.424,
+    "stdout_sha256": "1ccd63ccbb97cfdbf49b0e47f2846833576431f10af51b519959dbb9b2227f22",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "7441",
+      "--length",
+      "12",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.696,
+    "stdout_sha256": "da2bfd3103b7d46744091976a07e2ae9a10323938cd7314955576237822faa11",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "doc",
+      "evidence.qzt",
+      "github/pr-345-body.txt"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.651,
+    "stdout_sha256": "75ba6c3edec3f0ca53d8cd8fb83c615df98f424656eeb8875e19db6abecc14f8",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "20125",
+      "--length",
+      "12",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.698,
+    "stdout_sha256": "235e950280a46af6bc0d5ad593d42a03697d90f7e1b8c709a206fc350ceb8535",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "doc",
+      "evidence.qzt",
+      "github/commit-2026-10-index-build-budget.md"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.883,
+    "stdout_sha256": "32d7a933d2fc5226416f9e558e28ead90ab48d7ed7506a2523d859c21bdaee62",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "31577",
+      "--length",
+      "12",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.789,
+    "stdout_sha256": "92c8fb8d743fbbeae4384f74c3ca8f331547529a680d07948b27a168d0e88abe",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "doc",
+      "evidence.qzt",
+      "github/commit-2026-10-index-build-budget-delivery.md"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.79,
+    "stdout_sha256": "8acfe067f53e18e9ffee492f47e7bbc9fb6c920915cb5476f44093b1195d077d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "search",
+      "evidence.qzt",
+      "posting16M",
+      "--sidecar",
+      "evidence.qzi",
+      "--max-results",
+      "100",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzi": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+    },
+    "exit_code": 0,
+    "wall_ms": 23.697,
+    "stdout_sha256": "0fc49542b0418f288833ee79158d64e1c1015d9e484cc19b94cfc65b2f7bd232",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "1307",
+      "--length",
+      "10",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.709,
+    "stdout_sha256": "e34bcb37225c49ff5f593d8a4fbd882b148fb97408192fdb47f3f51dbba4fa16",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "7489",
+      "--length",
+      "10",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 5.473,
+    "stdout_sha256": "58eb3b2130152d5e77aa1fd29aac9f03753b539346cabbe0dfe49548c43cf727",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "20274",
+      "--length",
+      "10",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.463,
+    "stdout_sha256": "4ab20449495397fd9639308ffdf4b815f08e126e929b56175cb9b7840fe3b290",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "23067",
+      "--length",
+      "10",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 5.13,
+    "stdout_sha256": "708b483969c10ab9bd428f16d79524b7972799720f3fa160d307f5e33d9e7e62",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "31619",
+      "--length",
+      "10",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 5.786,
+    "stdout_sha256": "ae8576b559ae8420031ba48c0d12d51693fa36e8e47c896bd32eb521768c8424",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "search",
+      "evidence.qzt",
+      "入力QZT",
+      "--sidecar",
+      "evidence.qzi",
+      "--max-results",
+      "100",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzi": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+    },
+    "exit_code": 0,
+    "wall_ms": 22.224,
+    "stdout_sha256": "47cda826f3c951a03999a24d56fbdf50e22a3a38379c5eeaa3616a1765aa4164",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "1173",
+      "--length",
+      "9",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 5.115,
+    "stdout_sha256": "fdc36b622459e55378ce9902214fa3c621b7f275ddca6d4af43ede4153f4c9a7",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "6791",
+      "--length",
+      "9",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 5.258,
+    "stdout_sha256": "7db8783af91792f7ddd9beec6c7bf131d51f73b6b09d95c1d9813954d53a47d1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "17676",
+      "--length",
+      "9",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.539,
+    "stdout_sha256": "97c0b7000ec72b2ebc62c576476ef4531ae9d26d08abf17143969ea7a60539a4",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "24902",
+      "--length",
+      "9",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.942,
+    "stdout_sha256": "40c7545d2f8e0d5f52c6635e91cd98e264b10ffeb422cb6dd07b66dade84d6bc",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "search",
+      "evidence.qzt",
+      "large benchmark matrix",
+      "--sidecar",
+      "evidence.qzi",
+      "--max-results",
+      "100",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzi": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+    },
+    "exit_code": 0,
+    "wall_ms": 43.962,
+    "stdout_sha256": "573ecd0ce5217da93513a1ba8417cd4667690ef34d05a59fcdd5d2d109a58a95",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "12158",
+      "--length",
+      "22",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 9.46,
+    "stdout_sha256": "c59b42ac6fadaf98c0e0fc7af08be5cb9faf6ab12adeac3877133c595b7bea5d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "doc",
+      "evidence.qzt",
+      "github/pr-345-comment-4238230444.txt"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 5.996,
+    "stdout_sha256": "91a3399e24701e74d8d1038f3d50cb4b711081539ea4f17f85ac42ee0b8e5309",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "search",
+      "evidence.qzt",
+      "明示env budget",
+      "--sidecar",
+      "evidence.qzi",
+      "--max-results",
+      "100",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzi": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+    },
+    "exit_code": 0,
+    "wall_ms": 23.569,
+    "stdout_sha256": "96c117dc194190e0dcc00c22b291e4578ad22a60821ab07faa5dae3afe0075a1",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "12921",
+      "--length",
+      "16",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 3.982,
+    "stdout_sha256": "0c88201c990f06bf8d20e612ce0103040db0c789ec56dad18b0e539514d7a219",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "doc",
+      "evidence.qzt",
+      "github/pr-345-comment-4238290457.txt"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.32,
+    "stdout_sha256": "64b338c5f4717c852615d07640b9a11bff56559e7784763f592f1e1265d04fe7",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "search",
+      "evidence.qzt",
+      "公開pre.6",
+      "--sidecar",
+      "evidence.qzi",
+      "--max-results",
+      "100",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzi": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+    },
+    "exit_code": 0,
+    "wall_ms": 21.75,
+    "stdout_sha256": "c3f950be6d11b3cb3e3915a800ec7b25789e2eabc1d5eadf7b3bf4f4baed598f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "111",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.07,
+    "stdout_sha256": "b70204cf420cdd4aed8e13af0648757beeb08a6bdffbdad060dfd439f4b0bec0",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "1771",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.273,
+    "stdout_sha256": "5cb5e7895dc5764d49aa0a83c4c22ff326e82964ff4eb81c131b72c7c6861760",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "4259",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.426,
+    "stdout_sha256": "6a5e61b72f2f40c4c9fe7c11522f1fbfda75027e584a425c6c7f89faab694ed8",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "4378",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.34,
+    "stdout_sha256": "42afed435a74ee851b1b25a36f965de20b404a583fd8c55c86bc5fc611939ba9",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "6226",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.703,
+    "stdout_sha256": "486c5943f0846c6b35ea4dcfe496d90ac268fac9d179ab3f509258a6703bbb20",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "doc",
+      "evidence.qzt",
+      "github/issue-344-comment-6099596001.txt"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.236,
+    "stdout_sha256": "8cba62e9c0658ad60f2775440cc5e69eadeab7120701d5b8d73a33fe8885c337",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "6311",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.569,
+    "stdout_sha256": "6f45ce6a2ad651104ecb29d17b9de4759cabdea4e9fe059db46ebe25abec5523",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "6588",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.328,
+    "stdout_sha256": "affc243f64c1d421c6bf5c1625d1bfb04b38d50e0f47def8187b43ac5a8db287",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "11905",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.071,
+    "stdout_sha256": "0d7c907bc5168c7e2a7ac9c5bb601273042d39840a72508cd6d4e224354ded20",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "16581",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.642,
+    "stdout_sha256": "5a92fc50bf49f1457b1573828639797082dc24858637dc2f8044049514ee6bff",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "20644",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.965,
+    "stdout_sha256": "de339f6835a294c93cd3d7c433b2c6c62a56e7adb084c2d79c3100dc3de62ee2",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "context",
+      "evidence.qzt",
+      "--offset",
+      "29606",
+      "--length",
+      "11",
+      "--before",
+      "12",
+      "--after",
+      "12",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+    },
+    "exit_code": 0,
+    "wall_ms": 4.263,
+    "stdout_sha256": "1e83c72200b80dd4d61579f26ae760ca3efc061009034aad53998096e182b935",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "command": [
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt",
+      "search",
+      "evidence.qzt",
+      "実際の合意",
+      "--sidecar",
+      "evidence.qzi",
+      "--max-results",
+      "100",
+      "--format",
+      "json"
+    ],
+    "input_sha256": {
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/qzt": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzt": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00",
+      "/private/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/evidence.qzi": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+    },
+    "exit_code": 0,
+    "wall_ms": 19.939,
+    "stdout_sha256": "59602cc9d8bb2c4f21edc7f32461f98ee8370a4be4b79a80881df0132711a713",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "schema": "qzt-public-history-acquisition-v1",
+  "urls": [
+    "https://api.github.com/repos/albert-einshutoin/qzt/issues/344",
+    "https://api.github.com/repos/albert-einshutoin/qzt/issues/344/comments?per_page=30",
+    "https://api.github.com/repos/albert-einshutoin/qzt/pulls/345",
+    "https://api.github.com/repos/albert-einshutoin/qzt/pulls/345/comments?per_page=30",
+    "https://api.github.com/repos/albert-einshutoin/qzt/pulls/345/reviews?per_page=30",
+    "https://api.github.com/repos/albert-einshutoin/qzt/issues/345/comments?per_page=30",
+    "https://api.github.com/repos/albert-einshutoin/qzt/commits/3d092d1db64fdd3f0744377df98257038eddd32f",
+    "https://raw.githubusercontent.com/albert-einshutoin/qzt/3d092d1db64fdd3f0744377df98257038eddd32f/docs/benchmarks/2026-10-index-build-budget.md",
+    "https://raw.githubusercontent.com/albert-einshutoin/qzt/3d092d1db64fdd3f0744377df98257038eddd32f/docs/benchmarks/2026-10-index-build-budget-delivery.md"
+  ],
+  "limits": {
+    "documents": 20,
+    "body_bytes": 1048576,
+    "response_bytes": 2097152,
+    "total_response_bytes": 10485760,
+    "collection_items": 30
+  },
+  "saved_before_get": "2026-10-12T11:20:05.830416Z",
+  "network": {
+    "method": "GET",
+    "credentials": false
+  }
+}

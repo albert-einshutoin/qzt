@@ -1,0 +1,143 @@
+{
+  "schema": "qzt-public-history-evaluation-report-v4",
+  "report_sha256": "b7fc3970f36ade313981e002df16208fd0368793bd27f1885d1c65a06d6e9758",
+  "manifest_sha256": "952855ba331a3a5c1fce35c45b4895e26cffbc1aeeef904b4a95af2245086f59",
+  "receipt_sha256": "28e9497f43ef05a59b5bf7c2888b48014e2425f3aac71617e6381ea1ee3fbf26",
+  "questions": [
+    {
+      "id": "q1",
+      "outcome": "acquired",
+      "required": [
+        {
+          "doc_id": "github/issue-344-body.txt",
+          "fragment": "共有資源予算",
+          "matched": true,
+          "hit_count": 1
+        },
+        {
+          "doc_id": "github/issue-344-body.txt",
+          "fragment": "外部メモリ監視で中止",
+          "matched": true,
+          "hit_count": 1
+        }
+      ],
+      "candidate_status": "hits_returned",
+      "diagnostics": [],
+      "coverage_verified": false
+    },
+    {
+      "id": "q2",
+      "outcome": "acquired",
+      "required": [
+        {
+          "doc_id": "github/pr-345-body.txt",
+          "fragment": "10 MiB/ngram",
+          "matched": true,
+          "hit_count": 1
+        },
+        {
+          "doc_id": "github/pr-345-body.txt",
+          "fragment": "100 MiB完走や性能改善率を受入条件にしていません",
+          "matched": true,
+          "hit_count": 1
+        }
+      ],
+      "candidate_status": "hits_returned",
+      "diagnostics": [],
+      "coverage_verified": false
+    },
+    {
+      "id": "q3",
+      "outcome": "acquired",
+      "required": [
+        {
+          "doc_id": "github/pr-345-body.txt",
+          "fragment": "posting16M",
+          "matched": true,
+          "hit_count": 1
+        },
+        {
+          "doc_id": "github/pr-345-body.txt",
+          "fragment": "before QZI bytes・検索結果が一致",
+          "matched": true,
+          "hit_count": 1
+        }
+      ],
+      "candidate_status": "hits_returned",
+      "diagnostics": [],
+      "coverage_verified": false
+    },
+    {
+      "id": "q4",
+      "outcome": "acquired",
+      "required": [
+        {
+          "doc_id": "github/issue-344-body.txt",
+          "fragment": "入力QZT",
+          "matched": true,
+          "hit_count": 1
+        },
+        {
+          "doc_id": "github/issue-344-body.txt",
+          "fragment": "部分index成功やraw-scan fallbackなし",
+          "matched": true,
+          "hit_count": 1
+        }
+      ],
+      "candidate_status": "hits_returned",
+      "diagnostics": [],
+      "coverage_verified": false
+    },
+    {
+      "id": "q5",
+      "outcome": "acquired",
+      "required": [
+        {
+          "doc_id": "github/pr-345-comment-4238230444.txt",
+          "fragment": "large benchmark matrix",
+          "matched": true,
+          "hit_count": 1
+        },
+        {
+          "doc_id": "github/pr-345-comment-4238290457.txt",
+          "fragment": "明示env budget",
+          "matched": true,
+          "hit_count": 1
+        }
+      ],
+      "candidate_status": "hits_returned",
+      "diagnostics": [],
+      "coverage_verified": false
+    },
+    {
+      "id": "q6",
+      "outcome": "acquired",
+      "required": [
+        {
+          "doc_id": "github/pr-345-body.txt",
+          "fragment": "公開pre.6",
+          "matched": true,
+          "hit_count": 2
+        },
+        {
+          "doc_id": "github/pr-345-body.txt",
+          "fragment": "現在公開中のpre.6は新optionを持ちません",
+          "matched": true,
+          "hit_count": 1
+        }
+      ],
+      "candidate_status": "hits_returned",
+      "diagnostics": [],
+      "coverage_verified": false
+    },
+    {
+      "id": "q7",
+      "outcome": "record_insufficient",
+      "required": [],
+      "candidate_status": "no_hit_record_insufficient",
+      "diagnostics": [],
+      "coverage_verified": false
+    }
+  ],
+  "note": "acquired proves only validated report bytes match the manifest SHA-256 and fixed fragment correspondence. Report/input SHA-256 values are optional external integrity expectations, not source authentication, authorship, meaning, or consent."
+}

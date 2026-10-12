@@ -1,0 +1,2009 @@
+{
+  "schema": "qzt-public-history-report-v1",
+  "container_id": "5b637a2d924dd1f5f3c995b9f05556e3",
+  "deep_verify_note": "deep verify reads the whole container; search/context precede hit-document restoration",
+  "questions": [
+    {
+      "id": "q1",
+      "question": "構築予算を追加した理由は何か。",
+      "queries": [
+        "共有資源予算"
+      ],
+      "hits": [
+        {
+          "query": "共有資源予算",
+          "hit": {
+            "logical_offset": 22,
+            "byte_length": 18,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 22,
+              "byte_length": 18,
+              "end": 40
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 0,
+              "end": 4986
+            },
+            "document": {
+              "id": "github/issue-344-body.txt",
+              "logical_offset": 0,
+              "byte_length": 4986,
+              "local_offset": 22,
+              "local_end": 40
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-body.txt",
+                "logical_offset": 0,
+                "end": 4986
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 0,
+              "byte_length": 110,
+              "bytes_hex": "2320e6a49ce7b4a2696e646578e6a78be7af89e381b8e585b1e69c89e8b387e6ba90e4ba88e7ae97e38292e5b08ee585a5e38197e38081e697a2e5ad98e38387e383bce382bfe38292e4bf9de8adb7e38199e3828b0a0a232320e8838ce699afe383bbe7b48de59381476f616c0a",
+              "text_escaped": "# 検索index構築へ共有資源予算を導入し、既存データを保護する\\n\\n## 背景・納品Goal\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 0,
+              "stop": "scope_boundary"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        }
+      ],
+      "candidate_status": "hits_returned"
+    },
+    {
+      "id": "q2",
+      "question": "新既定で10 MiB/ngramを拒否する制約は何か。",
+      "queries": [
+        "10 MiB/ngram"
+      ],
+      "hits": [
+        {
+          "query": "10 MiB/ngram",
+          "hit": {
+            "logical_offset": 1262,
+            "byte_length": 12,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 1262,
+              "byte_length": 12,
+              "end": 1274
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 0,
+              "end": 4986
+            },
+            "document": {
+              "id": "github/issue-344-body.txt",
+              "logical_offset": 0,
+              "byte_length": 4986,
+              "local_offset": 1262,
+              "local_end": 1274
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-body.txt",
+                "logical_offset": 0,
+                "end": 4986
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 1036,
+              "byte_length": 523,
+              "bytes_hex": "2d20e4b88de6ada3434c49e5bc95e695b0e381afe589afe4bd9ce794a8e5898d6578697432e38081e8b685e9818e2f6f766572666c6f77e381af5265736f757263654c696d697445786365656465642f6578697431e380820a2020e983a8e58886696e646578e68890e58a9fe382847261772d7363616e2066616c6c6261636be381aae38197e38082e585a5e58a9b515a54e381a8e697a2e5ad98515a49e38292e4bf9de68c81e38197e38081e696b0e8a68fe5ae8ce68890e59381e38292e6ae8be38195e381aae38184e380820a2d202a2ae4bb8ae59b9ee381ae43322f4334203130204d69422f6e6772616de381afe696b0e697a2e5ae9ae381a7e68b92e590a6e38199e3828be380822a2a20706f7374696e6731364de38292e6988ee7a4bae38197e3819fe99990e5ae9ae7a2bae8aa8de381a7e381af0a2020e5be93e69da5515a492062797465732fe6a49ce7b4a2e7b590e69e9ce3818ce4b880e887b4e38197e3819fe38082e697a2e5ae9ae58f97e79086e7af84e59bb2e381afe7b8aee5b08fe38199e3828be380820a2d20313030204d6942e381afe8a3bde59381e381aee588b6e99990e68b92e590a6e381a8e697a2e5ad98e38387e383bce382bfe4bf9de8adb7e38292e7a2bae8aa8de38082e5ae8ce8b5b0e38081e68890e58a9f7065616b20525353e38081e680a7e883bde694b9e59684e381afe69caae7a2bae8aa8de380820a",
+              "text_escaped": "- 不正CLI引数は副作用前exit2、超過/overflowはResourceLimitExceeded/exit1。\\n  部分index成功やraw-scan fallbackなし。入力QZTと既存QZIを保持し、新規完成品を残さない。\\n- **今回のC2/C4 10 MiB/ngramは新既定で拒否する。** posting16Mを明示した限定確認では\\n  従来QZI bytes/検索結果が一致した。既定受理範囲は縮小する。\\n- 100 MiBは製品の制限拒否と既存データ保護を確認。完走、成功peak RSS、性能改善は未確認。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "10 MiB/ngram",
+          "hit": {
+            "logical_offset": 4446,
+            "byte_length": 12,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 4446,
+              "byte_length": 12,
+              "end": 4458
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 0,
+              "end": 4986
+            },
+            "document": {
+              "id": "github/issue-344-body.txt",
+              "logical_offset": 0,
+              "byte_length": 4986,
+              "local_offset": 4446,
+              "local_end": 4458
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-body.txt",
+                "logical_offset": 0,
+                "end": 4986
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 4194,
+              "byte_length": 457,
+              "bytes_hex": "2d20e58583636865636b6f7574e381aee697a76272616e63682f2e6465766c6f6f70e5a489e69bb4e38081e7b484333032204d42e58e9f61726368697665e38081e585ace9968b7072652e36207461672f313420617373657473e38292e4bf9de8adb7e38082e585ace9968b70726f6475637420736f75726365e381afe5bc95e3818de7b69ae3818d603063383131306536623665303835313362346465663366363336623562373964303638653237356660e380820a0ae585ace9968b7072652e36e381abe381afe4bb8ae59b9ee381ae6f7074696f6ee381afe58f8ee98cb2e38195e3828ce381a6e38184e381aae38184e3808243322f4334203130204d69422f6e6772616de381aee697a2e5ae9ae68b92e590a6e38081313030204d6942e381aee8a3bde59381e68b92e590a62fe4bf9de8adb7e381a8e68890e58a9fe580a4756e6b6e6f776ee38081415049e7a7bbe8a18ce381a85253532f4f4f4de4bf9de8a8bce381aee99990e7958ce381afe5bc95e3818de7b69ae3818de6988ee7a4bae38199e3828be38082e38193e381ae4973737565e381aee7b48de59381476f616ce381a0e38191e38292e5ae8ce4ba86e38199e3828be380820a0a232320e5a283e7958c0a",
+              "text_escaped": "- 元checkoutの旧branch/.devloop変更、約302 MB原archive、公開pre.6 tag/14 assetsを保護。公開product sourceは引き続き`0c8110e6b6e08513b4def3f636b5b79d068e275f`。\\n\\n公開pre.6には今回のoptionは収録されていない。C2/C4 10 MiB/ngramの既定拒否、100 MiBの製品拒否/保護と成功値unknown、API移行とRSS/OOM保証の限界は引き続き明示する。このIssueの納品Goalだけを完了する。\\n\\n## 境界\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "10 MiB/ngram",
+          "hit": {
+            "logical_offset": 7441,
+            "byte_length": 12,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/pr-345-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 7441,
+              "byte_length": 12,
+              "end": 7453
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 6568,
+              "end": 12061
+            },
+            "document": {
+              "id": "github/pr-345-body.txt",
+              "logical_offset": 6568,
+              "byte_length": 5493,
+              "local_offset": 873,
+              "local_end": 885
+            },
+            "candidates": [
+              {
+                "id": "github/pr-345-body.txt",
+                "logical_offset": 6568,
+                "end": 12061
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 6950,
+              "byte_length": 1133,
+              "bytes_hex": "2d20746f6b656e2f6e6772616de585b1e9809a60496e6465784275696c644c696d697473603a206772616e756c6573312c3030302c303030e3808164697374696e6374206b6579733236322c313434e38081706f7374696e6720494473382c3030302c303030e3808164697374696e6374206b65793136204d6942e38081656e636f646564207068617365313238204d6942e380820a2d20526177206c696272617279206d656d6f72792f66696c652f66726f6d5f7061727473e38081515a492064656661756c742f637573746f6d206275696c646572e3808160736964656361722d72656275696c6460e3808173696465636172e381aae381976073656172636860e381b8e981a9e794a8e38082e5a297e58aa02f636f70792f696e736572742f707573682f656e636f64696e67e5898de381ab696e636c75736976652f6f766572666c6f77e588a4e5ae9ae38082e4b88de6ada3e5bc95e695b06578697432e38081e5ae9fe8a18ce8b685e9818e6578697431e380817061727469616ce68890e58a9f2f66616c6c6261636be381aae38197e38082e697a2e5ad9861746f6d6963206f7574707574e381afe585a8e6a78be7af89e68890e58a9fe5be8ce381a0e38191e5ae9fe8a18ce38197e381bee38199e380820a2d202a2ae4bb8ae59b9ee381ae43322f4334203130204d69422f6e6772616de381afe696b0e697a2e5ae9ae381a7e68b92e590a6e38197e381bee38199e380822a2a20706f7374696e6731364de38292e6988ee7a4bae38197e3819f3130204d6942e99990e5ae9ae7a2bae8aa8de381a7e381af6265666f726520515a49206279746573e383bbe6a49ce7b4a2e7b590e69e9ce3818ce4b880e887b4e38197e381a6e38184e381bee38199e38082313030204d6942e381a7e381afe8a3bde59381e381aee588b6e99990e68b92e590a6e381a8e697a2e5ad98e38387e383bce382bfe4bf9de8adb7e38292e7a2bae8aa8de38197e38081e5ae8ce8b5b0e383bbe68890e58a9f7065616be383bbe680a7e883bde694b9e59684e381afe7a2bae8aa8de38197e381a6e38184e381bee3819be38293e380820a2d2052757374206275696c64206f7074696f6e73e381b8e381ae6c696d697473e8bfbde58aa0e38081746f6b656e2066726f6d5f7061727473e5bc95e695b0e8bfbde58aa0e38081776974685f6c696e655f6c696d6974e28692776974685f6f7074696f6e732f536964656361724275696c644f7074696f6e73e381b8e381ae70726576696577e7a7bbe8a18ce38292e6988ee7a4bae380825265616465722f7175657279e588b6e99990e38081e68890e58a9f515a492f515a5420666f726d6174e381afe7b6ade68c81e38197e381bee38199e380820a2d20e78fbee59ca8e585ace9968be4b8ade381ae7072652e36e381afe696b06f7074696f6ee38292e68c81e381a1e381bee3819be38293e38082e5908ce3819876657273696f6ee69687e5ad97e58897e381ae736f75726365206275696c64e38282e585ace9968b62696e617279e381a8e381afe588a568617368e381a7e38199e380820a",
+              "text_escaped": "- token/ngram共通`IndexBuildLimits`: granules1,000,000、distinct keys262,144、posting IDs8,000,000、distinct key16 MiB、encoded phase128 MiB。\\n- Raw library memory/file/from_parts、QZI default/custom builder、`sidecar-rebuild`、sidecarなし`search`へ適用。増加/copy/insert/push/encoding前にinclusive/overflow判定。不正引数exit2、実行超過exit1、partial成功/fallbackなし。既存atomic outputは全構築成功後だけ実行します。\\n- **今回のC2/C4 10 MiB/ngramは新既定で拒否します。** posting16Mを明示した10 MiB限定確認ではbefore QZI bytes・検索結果が一致しています。100 MiBでは製品の制限拒否と既存データ保護を確認し、完走・成功peak・性能改善は確認していません。\\n- Rust build optionsへのlimits追加、token from_parts引数追加、with_line_limit→with_options/SidecarBuildOptionsへのpreview移行を明示。Reader/query制限、成功QZI/QZT formatは維持します。\\n- 現在公開中のpre.6は新optionを持ちません。同じversion文字列のsource buildも公開binaryとは別hashです。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "10 MiB/ngram",
+          "hit": {
+            "logical_offset": 20125,
+            "byte_length": 12,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget.md",
+          "context": {
+            "hit": {
+              "logical_offset": 20125,
+              "byte_length": 12,
+              "end": 20137
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 16115,
+              "end": 29211
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget.md",
+              "logical_offset": 16115,
+              "byte_length": 13096,
+              "local_offset": 4010,
+              "local_end": 4022
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget.md",
+                "logical_offset": 16115,
+                "end": 29211
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 19944,
+              "byte_length": 432,
+              "bytes_hex": "6772616e756c657331e799bee4b887e38081656e636f646564207068617365313238204d6942e38292e588a5e38085e381abe7aea1e79086e38199e3828be4bf9de5ae88e79a84e381aae6938de4bd9ce4ba88e7ae97e380820a736f75726365e382b5e382a4e382bae381aee68ea8e6b8ace5808de78e87e381a7e381afe381aae3818fe38081e585a85253532f4f4f4de998b2e6ada2e4bf9de8a8bce381a7e38282e381aae38184e380820a2a2a43322f4334203130204d69422f6e6772616de381af384d20706f7374696e67e381aee697a2e5ae9ae381a7e68b92e590a6e38195e3828ce3819fe380822a2a0ae5be93e69da5e58f97e79086e38197e3819fe585a5e58a9be38292e696b0e697a2e5ae9ae381a7e68b92e590a6e38199e3828be7b8aee5b08fe38292e99aa0e38195e381aae38184e380820ae5908ce381983130204d6942e38292706f7374696e6731364de381b8e6988ee7a4bae5a297e9a18de38197e3819fe5b08f636f6e74726f6ce381a7e381afe68890e58a9f62797465732fe6a49ce7b4a2e7b590e69e9ce3818ce5a489e69bb4e5898de381a8e4b880e887b4e38197e3819fe380820a",
+              "text_escaped": "granules1百万、encoded phase128 MiBを別々に管理する保守的な操作予算。\\nsourceサイズの推測倍率ではなく、全RSS/OOM防止保証でもない。\\n**C2/C4 10 MiB/ngramは8M postingの既定で拒否された。**\\n従来受理した入力を新既定で拒否する縮小を隠さない。\\n同じ10 MiBをposting16Mへ明示増額した小controlでは成功bytes/検索結果が変更前と一致した。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "10 MiB/ngram",
+          "hit": {
+            "logical_offset": 31577,
+            "byte_length": 12,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget-delivery.md",
+          "context": {
+            "hit": {
+              "logical_offset": 31577,
+              "byte_length": 12,
+              "end": 31589
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 29211,
+              "end": 36633
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget-delivery.md",
+              "logical_offset": 29211,
+              "byte_length": 7422,
+              "local_offset": 2366,
+              "local_end": 2378
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget-delivery.md",
+                "logical_offset": 29211,
+                "end": 36633
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 31373,
+              "byte_length": 492,
+              "bytes_hex": "2d20e585b1e9809ae4ba88e7ae97e381af6772616e756c6573312c3030302c303030e3808164697374696e6374206b6579733236322c313434e38081706f7374696e6720494473382c3030302c303030e380810a202064697374696e6374206b65793136204d6942e38081656e636f646564207068617365313238204d6942e380826c6962726172792f515a492f736964656361722d72656275696c642f7472616e7369656e7420736561726368e381b8e981a9e794a8e380820a2d20e4bb8ae59b9ee381ae43322f4334203130204d69422f6e6772616de381afe696b0e697a2e5ae9ae381a7e68b92e590a6e38199e3828be38082706f7374696e6731364de38292e6988ee7a4bae38197e3819fe99990e5ae9ae7a2bae8aa8de381a7e381af0a2020e5be93e69da5515a49206279746573e383bbe6a49ce7b4a2e7b590e69e9ce3818ce4b880e887b4e38197e3819fe38082e697a2e5ae9ae381aee58f97e79086e7af84e59bb2e381afe7b8aee5b08fe38199e3828be380820a2d20313030204d6942e381afe8a3bde59381e887aae8baabe381aee588b6e99990e68b92e590a6e381a8e585a5e58a9b2fe697a2e5ad98e587bae58a9be4bf9de8adb7e38292e7a2bae8aa8de38197e3819fe38082e5ae8ce8b5b0e38081e68890e58a9f7065616b20525353e380810a",
+              "text_escaped": "- 共通予算はgranules1,000,000、distinct keys262,144、posting IDs8,000,000、\\n  distinct key16 MiB、encoded phase128 MiB。library/QZI/sidecar-rebuild/transient searchへ適用。\\n- 今回のC2/C4 10 MiB/ngramは新既定で拒否する。posting16Mを明示した限定確認では\\n  従来QZI bytes・検索結果が一致した。既定の受理範囲は縮小する。\\n- 100 MiBは製品自身の制限拒否と入力/既存出力保護を確認した。完走、成功peak RSS、\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        }
+      ],
+      "candidate_status": "hits_returned"
+    },
+    {
+      "id": "q3",
+      "question": "posting16Mの明示確認で何が確認され、何が未確認か。",
+      "queries": [
+        "posting16M"
+      ],
+      "hits": [
+        {
+          "query": "posting16M",
+          "hit": {
+            "logical_offset": 1307,
+            "byte_length": 10,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 1307,
+              "byte_length": 10,
+              "end": 1317
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 0,
+              "end": 4986
+            },
+            "document": {
+              "id": "github/issue-344-body.txt",
+              "logical_offset": 0,
+              "byte_length": 4986,
+              "local_offset": 1307,
+              "local_end": 1317
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-body.txt",
+                "logical_offset": 0,
+                "end": 4986
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 1036,
+              "byte_length": 523,
+              "bytes_hex": "2d20e4b88de6ada3434c49e5bc95e695b0e381afe589afe4bd9ce794a8e5898d6578697432e38081e8b685e9818e2f6f766572666c6f77e381af5265736f757263654c696d697445786365656465642f6578697431e380820a2020e983a8e58886696e646578e68890e58a9fe382847261772d7363616e2066616c6c6261636be381aae38197e38082e585a5e58a9b515a54e381a8e697a2e5ad98515a49e38292e4bf9de68c81e38197e38081e696b0e8a68fe5ae8ce68890e59381e38292e6ae8be38195e381aae38184e380820a2d202a2ae4bb8ae59b9ee381ae43322f4334203130204d69422f6e6772616de381afe696b0e697a2e5ae9ae381a7e68b92e590a6e38199e3828be380822a2a20706f7374696e6731364de38292e6988ee7a4bae38197e3819fe99990e5ae9ae7a2bae8aa8de381a7e381af0a2020e5be93e69da5515a492062797465732fe6a49ce7b4a2e7b590e69e9ce3818ce4b880e887b4e38197e3819fe38082e697a2e5ae9ae58f97e79086e7af84e59bb2e381afe7b8aee5b08fe38199e3828be380820a2d20313030204d6942e381afe8a3bde59381e381aee588b6e99990e68b92e590a6e381a8e697a2e5ad98e38387e383bce382bfe4bf9de8adb7e38292e7a2bae8aa8de38082e5ae8ce8b5b0e38081e68890e58a9f7065616b20525353e38081e680a7e883bde694b9e59684e381afe69caae7a2bae8aa8de380820a",
+              "text_escaped": "- 不正CLI引数は副作用前exit2、超過/overflowはResourceLimitExceeded/exit1。\\n  部分index成功やraw-scan fallbackなし。入力QZTと既存QZIを保持し、新規完成品を残さない。\\n- **今回のC2/C4 10 MiB/ngramは新既定で拒否する。** posting16Mを明示した限定確認では\\n  従来QZI bytes/検索結果が一致した。既定受理範囲は縮小する。\\n- 100 MiBは製品の制限拒否と既存データ保護を確認。完走、成功peak RSS、性能改善は未確認。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "posting16M",
+          "hit": {
+            "logical_offset": 7489,
+            "byte_length": 10,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/pr-345-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 7489,
+              "byte_length": 10,
+              "end": 7499
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 6568,
+              "end": 12061
+            },
+            "document": {
+              "id": "github/pr-345-body.txt",
+              "logical_offset": 6568,
+              "byte_length": 5493,
+              "local_offset": 921,
+              "local_end": 931
+            },
+            "candidates": [
+              {
+                "id": "github/pr-345-body.txt",
+                "logical_offset": 6568,
+                "end": 12061
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 6950,
+              "byte_length": 1133,
+              "bytes_hex": "2d20746f6b656e2f6e6772616de585b1e9809a60496e6465784275696c644c696d697473603a206772616e756c6573312c3030302c303030e3808164697374696e6374206b6579733236322c313434e38081706f7374696e6720494473382c3030302c303030e3808164697374696e6374206b65793136204d6942e38081656e636f646564207068617365313238204d6942e380820a2d20526177206c696272617279206d656d6f72792f66696c652f66726f6d5f7061727473e38081515a492064656661756c742f637573746f6d206275696c646572e3808160736964656361722d72656275696c6460e3808173696465636172e381aae381976073656172636860e381b8e981a9e794a8e38082e5a297e58aa02f636f70792f696e736572742f707573682f656e636f64696e67e5898de381ab696e636c75736976652f6f766572666c6f77e588a4e5ae9ae38082e4b88de6ada3e5bc95e695b06578697432e38081e5ae9fe8a18ce8b685e9818e6578697431e380817061727469616ce68890e58a9f2f66616c6c6261636be381aae38197e38082e697a2e5ad9861746f6d6963206f7574707574e381afe585a8e6a78be7af89e68890e58a9fe5be8ce381a0e38191e5ae9fe8a18ce38197e381bee38199e380820a2d202a2ae4bb8ae59b9ee381ae43322f4334203130204d69422f6e6772616de381afe696b0e697a2e5ae9ae381a7e68b92e590a6e38197e381bee38199e380822a2a20706f7374696e6731364de38292e6988ee7a4bae38197e3819f3130204d6942e99990e5ae9ae7a2bae8aa8de381a7e381af6265666f726520515a49206279746573e383bbe6a49ce7b4a2e7b590e69e9ce3818ce4b880e887b4e38197e381a6e38184e381bee38199e38082313030204d6942e381a7e381afe8a3bde59381e381aee588b6e99990e68b92e590a6e381a8e697a2e5ad98e38387e383bce382bfe4bf9de8adb7e38292e7a2bae8aa8de38197e38081e5ae8ce8b5b0e383bbe68890e58a9f7065616be383bbe680a7e883bde694b9e59684e381afe7a2bae8aa8de38197e381a6e38184e381bee3819be38293e380820a2d2052757374206275696c64206f7074696f6e73e381b8e381ae6c696d697473e8bfbde58aa0e38081746f6b656e2066726f6d5f7061727473e5bc95e695b0e8bfbde58aa0e38081776974685f6c696e655f6c696d6974e28692776974685f6f7074696f6e732f536964656361724275696c644f7074696f6e73e381b8e381ae70726576696577e7a7bbe8a18ce38292e6988ee7a4bae380825265616465722f7175657279e588b6e99990e38081e68890e58a9f515a492f515a5420666f726d6174e381afe7b6ade68c81e38197e381bee38199e380820a2d20e78fbee59ca8e585ace9968be4b8ade381ae7072652e36e381afe696b06f7074696f6ee38292e68c81e381a1e381bee3819be38293e38082e5908ce3819876657273696f6ee69687e5ad97e58897e381ae736f75726365206275696c64e38282e585ace9968b62696e617279e381a8e381afe588a568617368e381a7e38199e380820a",
+              "text_escaped": "- token/ngram共通`IndexBuildLimits`: granules1,000,000、distinct keys262,144、posting IDs8,000,000、distinct key16 MiB、encoded phase128 MiB。\\n- Raw library memory/file/from_parts、QZI default/custom builder、`sidecar-rebuild`、sidecarなし`search`へ適用。増加/copy/insert/push/encoding前にinclusive/overflow判定。不正引数exit2、実行超過exit1、partial成功/fallbackなし。既存atomic outputは全構築成功後だけ実行します。\\n- **今回のC2/C4 10 MiB/ngramは新既定で拒否します。** posting16Mを明示した10 MiB限定確認ではbefore QZI bytes・検索結果が一致しています。100 MiBでは製品の制限拒否と既存データ保護を確認し、完走・成功peak・性能改善は確認していません。\\n- Rust build optionsへのlimits追加、token from_parts引数追加、with_line_limit→with_options/SidecarBuildOptionsへのpreview移行を明示。Reader/query制限、成功QZI/QZT formatは維持します。\\n- 現在公開中のpre.6は新optionを持ちません。同じversion文字列のsource buildも公開binaryとは別hashです。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "posting16M",
+          "hit": {
+            "logical_offset": 20274,
+            "byte_length": 10,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget.md",
+          "context": {
+            "hit": {
+              "logical_offset": 20274,
+              "byte_length": 10,
+              "end": 20284
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 16115,
+              "end": 29211
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget.md",
+              "logical_offset": 16115,
+              "byte_length": 13096,
+              "local_offset": 4159,
+              "local_end": 4169
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget.md",
+                "logical_offset": 16115,
+                "end": 29211
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 20117,
+              "byte_length": 325,
+              "bytes_hex": "2a2a43322f4334203130204d69422f6e6772616de381af384d20706f7374696e67e381aee697a2e5ae9ae381a7e68b92e590a6e38195e3828ce3819fe380822a2a0ae5be93e69da5e58f97e79086e38197e3819fe585a5e58a9be38292e696b0e697a2e5ae9ae381a7e68b92e590a6e38199e3828be7b8aee5b08fe38292e99aa0e38195e381aae38184e380820ae5908ce381983130204d6942e38292706f7374696e6731364de381b8e6988ee7a4bae5a297e9a18de38197e3819fe5b08f636f6e74726f6ce381a7e381afe68890e58a9f62797465732fe6a49ce7b4a2e7b590e69e9ce3818ce5a489e69bb4e5898de381a8e4b880e887b4e38197e3819fe380820a313030204d6942e381a7e4b88ae99990e38292e5bc95e3818de4b88ae38192e3828be5ae9fe9a893e381afe8a18ce381a3e381a6e38184e381aae38184e380820a0a",
+              "text_escaped": "**C2/C4 10 MiB/ngramは8M postingの既定で拒否された。**\\n従来受理した入力を新既定で拒否する縮小を隠さない。\\n同じ10 MiBをposting16Mへ明示増額した小controlでは成功bytes/検索結果が変更前と一致した。\\n100 MiBで上限を引き上げる実験は行っていない。\\n\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "posting16M",
+          "hit": {
+            "logical_offset": 23067,
+            "byte_length": 10,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget.md",
+          "context": {
+            "hit": {
+              "logical_offset": 23067,
+              "byte_length": 10,
+              "end": 23077
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 16115,
+              "end": 29211
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget.md",
+              "logical_offset": 16115,
+              "byte_length": 13096,
+              "local_offset": 6952,
+              "local_end": 6962
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget.md",
+                "logical_offset": 16115,
+                "end": 29211
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 22837,
+              "byte_length": 434,
+              "bytes_hex": "e5889de69c9fe6b8ace5ae9a3936e8a9a6e8a18ce381af3932e68890e58a9fe381a834e8a3bde59381e8b387e6ba90e68b92e590a6e38081e5a496e983a8e4b8ade6ada22f74696d656f757430e380820a7761726d757030e38081e9809ae5b8b8e68890e58a9f6275696c64e381af33e58f8de5bea9e38081e68b92e590a6e381afe69c80e5889de381ae31e58f8de5bea9e381a7e6ae8be3828a32e59b9ee38292e69caae5ae9fe696bde381abe38197e3819fe380820ae68b92e590a6e38197e3819f64656661756c74e5be8ce7b69a736561726368e38282e69caae5ae9fe696bde38082706f7374696e6731364de381aee6988ee7a4ba636f6e74726f6ce381afe5908431e8a9a6e8a18ce381a7e588a5e69da1e4bbb6e380820a6265666f7265313030204d6942e381a8e9818ee58ebb39e69da1e4bbb6e585a8e4bd93e381afe5868de5ae9fe8a18ce38197e381aae3818be381a3e3819fe380820ae59084e8a9a6e8a18ce383bbe5a4b1e69597e383bbe69caae5ae9fe696bde79086e794b1e381af726177e381abe6ae8be38197e380816f75746c696572e38292e5898ae999a4e38197e381aae38184e380820a",
+              "text_escaped": "初期測定96試行は92成功と4製品資源拒否、外部中止/timeout0。\\nwarmup0、通常成功buildは3反復、拒否は最初の1反復で残り2回を未実施にした。\\n拒否したdefault後続searchも未実施。posting16Mの明示controlは各1試行で別条件。\\nbefore100 MiBと過去9条件全体は再実行しなかった。\\n各試行・失敗・未実施理由はrawに残し、outlierを削除しない。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "posting16M",
+          "hit": {
+            "logical_offset": 31619,
+            "byte_length": 10,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget-delivery.md",
+          "context": {
+            "hit": {
+              "logical_offset": 31619,
+              "byte_length": 10,
+              "end": 31629
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 29211,
+              "end": 36633
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget-delivery.md",
+              "logical_offset": 29211,
+              "byte_length": 7422,
+              "local_offset": 2408,
+              "local_end": 2418
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget-delivery.md",
+                "logical_offset": 29211,
+                "end": 36633
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 31373,
+              "byte_length": 492,
+              "bytes_hex": "2d20e585b1e9809ae4ba88e7ae97e381af6772616e756c6573312c3030302c303030e3808164697374696e6374206b6579733236322c313434e38081706f7374696e6720494473382c3030302c303030e380810a202064697374696e6374206b65793136204d6942e38081656e636f646564207068617365313238204d6942e380826c6962726172792f515a492f736964656361722d72656275696c642f7472616e7369656e7420736561726368e381b8e981a9e794a8e380820a2d20e4bb8ae59b9ee381ae43322f4334203130204d69422f6e6772616de381afe696b0e697a2e5ae9ae381a7e68b92e590a6e38199e3828be38082706f7374696e6731364de38292e6988ee7a4bae38197e3819fe99990e5ae9ae7a2bae8aa8de381a7e381af0a2020e5be93e69da5515a49206279746573e383bbe6a49ce7b4a2e7b590e69e9ce3818ce4b880e887b4e38197e3819fe38082e697a2e5ae9ae381aee58f97e79086e7af84e59bb2e381afe7b8aee5b08fe38199e3828be380820a2d20313030204d6942e381afe8a3bde59381e887aae8baabe381aee588b6e99990e68b92e590a6e381a8e585a5e58a9b2fe697a2e5ad98e587bae58a9be4bf9de8adb7e38292e7a2bae8aa8de38197e3819fe38082e5ae8ce8b5b0e38081e68890e58a9f7065616b20525353e380810a",
+              "text_escaped": "- 共通予算はgranules1,000,000、distinct keys262,144、posting IDs8,000,000、\\n  distinct key16 MiB、encoded phase128 MiB。library/QZI/sidecar-rebuild/transient searchへ適用。\\n- 今回のC2/C4 10 MiB/ngramは新既定で拒否する。posting16Mを明示した限定確認では\\n  従来QZI bytes・検索結果が一致した。既定の受理範囲は縮小する。\\n- 100 MiBは製品自身の制限拒否と入力/既存出力保護を確認した。完走、成功peak RSS、\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        }
+      ],
+      "candidate_status": "hits_returned"
+    },
+    {
+      "id": "q4",
+      "question": "資源超過時に保護される入力と既存出力は何か。",
+      "queries": [
+        "入力QZT"
+      ],
+      "hits": [
+        {
+          "query": "入力QZT",
+          "hit": {
+            "logical_offset": 1173,
+            "byte_length": 9,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 1173,
+              "byte_length": 9,
+              "end": 1182
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 0,
+              "end": 4986
+            },
+            "document": {
+              "id": "github/issue-344-body.txt",
+              "logical_offset": 0,
+              "byte_length": 4986,
+              "local_offset": 1173,
+              "local_end": 1182
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-body.txt",
+                "logical_offset": 0,
+                "end": 4986
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 943,
+              "byte_length": 493,
+              "bytes_hex": "2d206e616d6564e6a78be980a02f7068617365e381ae6c6f676963616ce4ba88e7ae97e38082e58eb3e5af86e381aae585a870726f6365737320525353e4b88ae999902f4f4f4de998b2e6ada2e381a7e381afe381aae38184e380820a2d20e4b88de6ada3434c49e5bc95e695b0e381afe589afe4bd9ce794a8e5898d6578697432e38081e8b685e9818e2f6f766572666c6f77e381af5265736f757263654c696d697445786365656465642f6578697431e380820a2020e983a8e58886696e646578e68890e58a9fe382847261772d7363616e2066616c6c6261636be381aae38197e38082e585a5e58a9b515a54e381a8e697a2e5ad98515a49e38292e4bf9de68c81e38197e38081e696b0e8a68fe5ae8ce68890e59381e38292e6ae8be38195e381aae38184e380820a2d202a2ae4bb8ae59b9ee381ae43322f4334203130204d69422f6e6772616de381afe696b0e697a2e5ae9ae381a7e68b92e590a6e38199e3828be380822a2a20706f7374696e6731364de38292e6988ee7a4bae38197e3819fe99990e5ae9ae7a2bae8aa8de381a7e381af0a2020e5be93e69da5515a492062797465732fe6a49ce7b4a2e7b590e69e9ce3818ce4b880e887b4e38197e3819fe38082e697a2e5ae9ae58f97e79086e7af84e59bb2e381afe7b8aee5b08fe38199e3828be380820a",
+              "text_escaped": "- named構造/phaseのlogical予算。厳密な全process RSS上限/OOM防止ではない。\\n- 不正CLI引数は副作用前exit2、超過/overflowはResourceLimitExceeded/exit1。\\n  部分index成功やraw-scan fallbackなし。入力QZTと既存QZIを保持し、新規完成品を残さない。\\n- **今回のC2/C4 10 MiB/ngramは新既定で拒否する。** posting16Mを明示した限定確認では\\n  従来QZI bytes/検索結果が一致した。既定受理範囲は縮小する。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "入力QZT",
+          "hit": {
+            "logical_offset": 6791,
+            "byte_length": 9,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/pr-345-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 6791,
+              "byte_length": 9,
+              "end": 6800
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 6568,
+              "end": 12061
+            },
+            "document": {
+              "id": "github/pr-345-body.txt",
+              "logical_offset": 6568,
+              "byte_length": 5493,
+              "local_offset": 223,
+              "local_end": 232
+            },
+            "candidates": [
+              {
+                "id": "github/pr-345-body.txt",
+                "logical_offset": 6568,
+                "end": 12061
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 6568,
+              "byte_length": 370,
+              "bytes_hex": "232320e79baee79a84e381a8e7b590e69e9c0a0ae585ace9968b7072652e36e381ae43322f433420313030204d69422f6e6772616de6a78be7af89e381afe5a496e983a8e383a1e383a2e383aae79ba3e8a696e381a7e4b8ade6ada2e38197e381a6e3818ae3828ae38081e68890e58a9fe69982e381aee69982e996932f525353e381af756e6b6e6f776ee381a7e38197e3819fe38082e38193e381aee5a489e69bb4e381afe8a3bde59381e887aae8baabe3818ce6a78be7af89e4ba88e7ae97e38292e8b685e38188e3828be5898de381abe68b92e590a6e38197e38081e585a5e58a9b515a54e383bbe697a2e5ad98515a49e38292e4bf9de8adb7e38199e3828be5a591e7b484e38292e5b08ee585a5e38197e381bee38199e38082313030204d6942e5ae8ce8b5b0e38284e680a7e883bde694b9e59684e78e87e38292e58f97e585a5e69da1e4bbb6e381abe38197e381a6e38184e381bee3819be38293e380820a0a436c6f73657320233334340a",
+              "text_escaped": "## 目的と結果\\n\\n公開pre.6のC2/C4 100 MiB/ngram構築は外部メモリ監視で中止しており、成功時の時間/RSSはunknownでした。この変更は製品自身が構築予算を超える前に拒否し、入力QZT・既存QZIを保護する契約を導入します。100 MiB完走や性能改善率を受入条件にしていません。\\n\\nCloses #344\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "入力QZT",
+          "hit": {
+            "logical_offset": 17676,
+            "byte_length": 9,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget.md",
+          "context": {
+            "hit": {
+              "logical_offset": 17676,
+              "byte_length": 9,
+              "end": 17685
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 16115,
+              "end": 29211
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget.md",
+              "logical_offset": 16115,
+              "byte_length": 13096,
+              "local_offset": 1561,
+              "local_end": 1570
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget.md",
+                "logical_offset": 16115,
+                "end": 29211
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 17409,
+              "byte_length": 391,
+              "bytes_hex": "30e381afe3819de381aee58d98e4bd8de38292e8a8b1e38195e3819ae38081e8b685e9818ee381a8636865636b65642061726974686d65746963e381ae6f766572666c6f77e381af605265736f757263654c696d6974457863656564656460e380820a434c49e381afe4b88de6ada3e5bc95e695b06578697432e38081e5ae9fe8a18ce69982e8b685e9818e6578697431e38081e68890e58a9f7265706f72742fe983a8e58886696e646578e38292e8bf94e38195e381aae38184e380820a736964656361722d72656275696c64e381afe6a78be7af89e68890e58a9fe5be8ce381a0e38191e697a2e5ad9861746f6d6963206f7574707574e381b8e585a5e3828be3819fe38281e38081e585a5e58a9b515a54e38081e697a2e5ad98515a49e38292e4bf9de68c81e38197e380810ae696b0e8a68fe5ae8ce68890e59381e38292e6ae8be38195e381aae38184e38082726177207363616ee38284e697a7e7b58ce8b7afe381b8e381aee69a97e9bb9966616c6c6261636be381afe381aae38184e380820a0a",
+              "text_escaped": "0はその単位を許さず、超過とchecked arithmeticのoverflowは`ResourceLimitExceeded`。\\nCLIは不正引数exit2、実行時超過exit1、成功report/部分indexを返さない。\\nsidecar-rebuildは構築成功後だけ既存atomic outputへ入るため、入力QZT、既存QZIを保持し、\\n新規完成品を残さない。raw scanや旧経路への暗黙fallbackはない。\\n\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "入力QZT",
+          "hit": {
+            "logical_offset": 24902,
+            "byte_length": 9,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget.md",
+          "context": {
+            "hit": {
+              "logical_offset": 24902,
+              "byte_length": 9,
+              "end": 24911
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 16115,
+              "end": 29211
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget.md",
+              "logical_offset": 16115,
+              "byte_length": 13096,
+              "local_offset": 8787,
+              "local_end": 8796
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget.md",
+                "logical_offset": 16115,
+                "end": 29211
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 24775,
+              "byte_length": 253,
+              "bytes_hex": "0a66696e616ce381ae313030204d69422f6e6772616de697a2e5ae9ae381afe6aca1e381aee381a8e3818ae3828ae38082e697a2e5ad98e587bae58a9be381afe68890e58a9fe38197e3819fe69c89e58ab9515a49e38292e7bdaee3818de380810ae68b92e590a6e5be8ce381abe3819de381aee585a86279746573e381a8e585a5e58a9b515a542068617368e3818ce4b88de5a489e381a7e38182e3828be38193e381a8e38292e7a2bae8aa8de38197e3819fe380820a0a7c20636f72707573207c20737461747573202f2065786974207c2077616c6c206d73efbc886e3d31efbc89207c207065616b205253532062797465202f204d6942207c0a",
+              "text_escaped": "\\nfinalの100 MiB/ngram既定は次のとおり。既存出力は成功した有効QZIを置き、\\n拒否後にその全bytesと入力QZT hashが不変であることを確認した。\\n\\n| corpus | status / exit | wall ms（n=1） | peak RSS byte / MiB |\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        }
+      ],
+      "candidate_status": "hits_returned"
+    },
+    {
+      "id": "q5",
+      "question": "profile matrixの指摘後、後続対応はどう変更されたか。",
+      "queries": [
+        "profile matrix",
+        "明示env budget"
+      ],
+      "hits": [
+        {
+          "query": "profile matrix",
+          "hit": {
+            "logical_offset": 10435,
+            "byte_length": 14,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/pr-345-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 10435,
+              "byte_length": 14,
+              "end": 10449
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 6568,
+              "end": 12061
+            },
+            "document": {
+              "id": "github/pr-345-body.txt",
+              "logical_offset": 6568,
+              "byte_length": 5493,
+              "local_offset": 3867,
+              "local_end": 3881
+            },
+            "candidates": [
+              {
+                "id": "github/pr-345-body.txt",
+                "logical_offset": 6568,
+                "end": 12061
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 9818,
+              "byte_length": 1164,
+              "bytes_hex": "e5889de59b9e484541442060333134353763623934623361323334393730643763356430623539366236653262333339363765376020e381ae5b43495d2868747470733a2f2f6769746875622e636f6d2f616c626572742d65696e736875746f696e2f717a742f616374696f6e732f72756e732f3338303635333635393936292f5b73656375726974795d2868747470733a2f2f6769746875622e636f6d2f616c626572742d65696e736875746f696e2f717a742f616374696f6e732f72756e732f333830363533363633323729e5a4b1e69597e38292726177e383ade382b0e381a8e38197e381a6e4bf9de5ad98e38197e381bee38197e3819fe3808252757374312e3939e381aee8bfbde58aa0436c69707079206c696e74e381b8e5908ce38198e7a9ba7374646f7574e69c9fe5be85e580a4e38292e5afbee5bf9ce38197e38081e7949fe6889061646170746572e381af343039362062797465732f34e8a18ce381ae737464696ee381a86372656174655f6e6577e381b8e99990e5ae9ae38197e381bee38197e3819fe38082636865636b73756de381ae736563726574e8aaa4e6a49ce587bae381af66697874757265206279746573e381b8e785a7e59088e38197e38081e585834a534f4ee382926c6f63616c2d6f6e6c79e381a7e4bf9de68c81e38197e3819fe38186e38188e381a7e5908ce580a4e381ae74797065642064696765737420696e76656e746f7279e38292e5908ce6a2b1e38197e381bee38197e3819fe38082e38381e382a7e38383e382afe999a4e5a496e381afe8bfbde58aa0e38197e381a6e38184e381bee3819be38293e380820a0a5032e68c87e69198e381ae70726f66696c65206d6174726978e381af35e381a4e381aee6988ee7a4ba656e76e4ba88e7ae97e38292e4bc9de692ade38197e38081e69caae68c87e5ae9ae381afe8a3bde5938164656661756c74e38081e8b387e6ba90e68b92e590a6e381af606d656173757265645f737563636573733d66616c736560e381a8e38197e381a6e5be8ce7b69a63617365e381b8e980b2e381bfe38081e3819de381aee4bb96e381ae6572726f72e381afe5a4b1e69597e38197e381bee38199e38082e887aae58b95e5a297e9a18de383bbe585a86d6174726978e5ae8ce8b5b0e4bf9de8a8bce381afe38182e3828ae381bee3819be38293e380820a0ae4bfaee6ada3e5be8c3a20706861736534392031302050415353e3808172656c656173655f68617264656e696e67203420504153532f322069676e6f726564e38081436c69707079e68890e58a9fe3808143322f43342031204d694220706f727461626c65e68890e58a9fe3808161646170746572e68b92e590a62fe4bf9de8adb735e4bbb6e380816c6f63616c206769746c65616b732066696e64696e677330e38082536f6c206d656469756de5b082e99680726576696577e381af417070726f7665e38081e4bfaee6ada3e5be8ce381ae667265736820436f6d70616e696f6ee381af414c4c4f57e38082e8a3bde593813520736f75726365206279746573e381afe5858372656365697074e381a8e4b880e887b4e38197e381a6e38184e381bee38199e380820a",
+              "text_escaped": "初回HEAD `31457cb94b3a234970d7c5d0b596b6e2b33967e7` の[CI](https://github.com/albert-einshutoin/qzt/actions/runs/38065365996)/[security](https://github.com/albert-einshutoin/qzt/actions/runs/38065366327)失敗をrawログとして保存しました。Rust1.99の追加Clippy lintへ同じ空stdout期待値を対応し、生成adapterは4096 bytes/4行のstdinとcreate_newへ限定しました。checksumのsecret誤検出はfixture bytesへ照合し、元JSONをlocal-onlyで保持したうえで同値のtyped digest inventoryを同梱しました。チェック除外は追加していません。\\n\\nP2指摘のprofile matrixは5つの明示env予算を伝播し、未指定は製品default、資源拒否は`measured_success=false`として後続caseへ進み、その他のerrorは失敗します。自動増額・全matrix完走保証はありません。\\n\\n修正後: phase49 10 PASS、release_hardening 4 PASS/2 ignored、Clippy成功、C2/C4 1 MiB portable成功、adapter拒否/保護5件、local gitleaks findings0。Sol medium専門reviewはApprove、修正後のfresh CompanionはALLOW。製品5 source bytesは元receiptと一致しています。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "profile matrix",
+          "hit": {
+            "logical_offset": 13514,
+            "byte_length": 14,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/pr-345-comment-4238290457.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 13514,
+              "byte_length": 14,
+              "end": 13528
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 12839,
+              "end": 13673
+            },
+            "document": {
+              "id": "github/pr-345-comment-4238290457.txt",
+              "logical_offset": 12839,
+              "byte_length": 834,
+              "local_offset": 675,
+              "local_end": 689
+            },
+            "candidates": [
+              {
+                "id": "github/pr-345-comment-4238290457.txt",
+                "logical_offset": 12839,
+                "end": 13673
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 12839,
+              "byte_length": 834,
+              "bytes_hex": "606462333061623763333862636630363130613966323835313563336138333163386438303638613960e381a7e5afbee5bf9ce38197e381bee38197e3819fe380826d6174726978e381b835e381a4e381aee6988ee7a4ba656e7620627564676574e38292e697a2e5ad986f7074696f6e73e381a8e38197e381a6e4bc9de692ade38197e38081e69caae68c87e5ae9ae381afe8a3bde5938164656661756c74e38292e7b6ade68c81e38197e381bee38199e380825265736f757263654c696d69744578636565646564e381ae63617365e381af207374617475733d7265736f757263655f6c696d69745f6578636565646564202f206d656173757265645f737563636573733d66616c736520e38292e8a898e98cb2e38197e381a6e6aca163617365e381b8e980b2e381bfe38081e3819de381aee4bb96e381ae6572726f72e381af70616e6963e381a7e5a4b1e69597e38195e3819be381bee38199e38082e5a4a7e3818de3818463617365e381aee4ba88e7ae97e38292e887aae58b95e5a297e9a18de3819be3819ae38081e5ae9fe8a18ce88085e3818ce5bf85e8a681e381aae4ba88e7ae97e38292e6988ee7a4bae68c87e5ae9ae38199e3828be6898be9a086e38292e8bfbde58aa0e38197e381bee38197e3819fe380820a0ae5b08fe59b9ee5b8b0e381a7e382bce383ad6772616e756c65e381abe38288e3828be68b92e590a6e381a8e5be8ce7b69a63617365e68890e58a9fe38292e7a2bae8aa8de38197e38081e5afbee8b1a1e38386e382b9e38388313420504153532f322069676e6f726564e38081436c69707079e38081536f6c206d656469756de5b082e99680726576696577e38081667265736820436f6d70616e696f6e20414c4c4f57e38292e7a2bae8aa8de38197e381bee38197e3819fe38082313030204d42e381ae70726f66696c65206d6174726978e3819de381aee38282e381aee381afe5868de5ae9fe8a18ce38197e381a6e38184e381bee3819be38293e38082e38193e3828ce381afe68b92e590a6e8a898e98cb2e38292e68890e58a9fe8a888e6b8ace381a8e6b7b7e5908ce3819be3819ae38081e6ae8be3828a63617365e38292e6aca0e890bde38195e3819be381aae38184e4bfaee6ada3e381a7e38199e38082",
+              "text_escaped": "`db30ab7c38bcf0610a9f28515c3a831c8d8068a9`で対応しました。matrixへ5つの明示env budgetを既存optionsとして伝播し、未指定は製品defaultを維持します。ResourceLimitExceededのcaseは status=resource_limit_exceeded / measured_success=false を記録して次caseへ進み、その他のerrorはpanicで失敗させます。大きいcaseの予算を自動増額せず、実行者が必要な予算を明示指定する手順を追加しました。\\n\\n小回帰でゼロgranuleによる拒否と後続case成功を確認し、対象テスト14 PASS/2 ignored、Clippy、Sol medium専門review、fresh Companion ALLOWを確認しました。100 MBのprofile matrixそのものは再実行していません。これは拒否記録を成功計測と混同せず、残りcaseを欠落させない修正です。",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 0,
+              "stop": "scope_boundary"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "profile matrix",
+          "hit": {
+            "logical_offset": 35344,
+            "byte_length": 14,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget-delivery.md",
+          "context": {
+            "hit": {
+              "logical_offset": 35344,
+              "byte_length": 14,
+              "end": 35358
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 29211,
+              "end": 36633
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget-delivery.md",
+              "logical_offset": 29211,
+              "byte_length": 7422,
+              "local_offset": 6133,
+              "local_end": 6147
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget-delivery.md",
+                "logical_offset": 29211,
+                "end": 36633
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 35042,
+              "byte_length": 577,
+              "bytes_hex": "2020e68980e59ca82f68617368e4bb98e3818de381a7e4bf9de68c81e38197e38081e5908ce38198e580a4e38292e59e8be4bb98e3818d64696765737420696e76656e746f7279e381b8e6b4bee7949fe38197e3819fe38082e6a49ce587bae599a8e381aee999a4e5a496e8a8ade5ae9ae381afe8bfbde58aa0e38197e381aae38184e380820a2020e78fbee59ca8e381aee5908ce6a2b1e58e9fe69cace381af3433e38081e69caae5908ce6a2b13936e38081656d6265646465642073747265616d73323434e38082e58583e381ae34342f3935e381aee5889de59b9e72656365697074e381afe9818ee58ebbe78ab6e6858be381a8e38197e381a6e4bf9de68c81e38199e3828be380820a2d205052e381ae5032e68c87e69198e381abe5afbee38197e38081e697a2e5ad9870726f66696c65206d6174726978e381b835e381a4e381aee6988ee7a4bae4ba88e7ae97e38292e6b8a1e38199e585a5e58fa3e38292e8a8ade38191e3819fe380820a2020e8a3bde5938164656661756c74e381aee8b387e6ba90e68b92e590a6e38292e99d9ee68890e58a9fe381a8e38197e381a6e8a898e98cb2e38197e38081e5be8ce7b69a63617365e381b8e980b2e38280e38082e3819de381aee4bb96e381ae6572726f72e381afe5a4b1e69597e38195e3819be3828be380820a2020e887aae58b95e5a297e9a18de381afe3819be3819ae38081313030204d42e381ae6d6174726978e5ae8ce8b5b0e38292e4bb8ae59b9ee381aee68890e69e9ce381abe590abe38281e381aae38184e380820a",
+              "text_escaped": "  所在/hash付きで保持し、同じ値を型付きdigest inventoryへ派生した。検出器の除外設定は追加しない。\\n  現在の同梱原本は43、未同梱96、embedded streams244。元の44/95の初回receiptは過去状態として保持する。\\n- PRのP2指摘に対し、既存profile matrixへ5つの明示予算を渡す入口を設けた。\\n  製品defaultの資源拒否を非成功として記録し、後続caseへ進む。その他のerrorは失敗させる。\\n  自動増額はせず、100 MBのmatrix完走を今回の成果に含めない。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "明示env budget",
+          "hit": {
+            "logical_offset": 12921,
+            "byte_length": 16,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/pr-345-comment-4238290457.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 12921,
+              "byte_length": 16,
+              "end": 12937
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 12839,
+              "end": 13673
+            },
+            "document": {
+              "id": "github/pr-345-comment-4238290457.txt",
+              "logical_offset": 12839,
+              "byte_length": 834,
+              "local_offset": 82,
+              "local_end": 98
+            },
+            "candidates": [
+              {
+                "id": "github/pr-345-comment-4238290457.txt",
+                "logical_offset": 12839,
+                "end": 13673
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 12839,
+              "byte_length": 834,
+              "bytes_hex": "606462333061623763333862636630363130613966323835313563336138333163386438303638613960e381a7e5afbee5bf9ce38197e381bee38197e3819fe380826d6174726978e381b835e381a4e381aee6988ee7a4ba656e7620627564676574e38292e697a2e5ad986f7074696f6e73e381a8e38197e381a6e4bc9de692ade38197e38081e69caae68c87e5ae9ae381afe8a3bde5938164656661756c74e38292e7b6ade68c81e38197e381bee38199e380825265736f757263654c696d69744578636565646564e381ae63617365e381af207374617475733d7265736f757263655f6c696d69745f6578636565646564202f206d656173757265645f737563636573733d66616c736520e38292e8a898e98cb2e38197e381a6e6aca163617365e381b8e980b2e381bfe38081e3819de381aee4bb96e381ae6572726f72e381af70616e6963e381a7e5a4b1e69597e38195e3819be381bee38199e38082e5a4a7e3818de3818463617365e381aee4ba88e7ae97e38292e887aae58b95e5a297e9a18de3819be3819ae38081e5ae9fe8a18ce88085e3818ce5bf85e8a681e381aae4ba88e7ae97e38292e6988ee7a4bae68c87e5ae9ae38199e3828be6898be9a086e38292e8bfbde58aa0e38197e381bee38197e3819fe380820a0ae5b08fe59b9ee5b8b0e381a7e382bce383ad6772616e756c65e381abe38288e3828be68b92e590a6e381a8e5be8ce7b69a63617365e68890e58a9fe38292e7a2bae8aa8de38197e38081e5afbee8b1a1e38386e382b9e38388313420504153532f322069676e6f726564e38081436c69707079e38081536f6c206d656469756de5b082e99680726576696577e38081667265736820436f6d70616e696f6e20414c4c4f57e38292e7a2bae8aa8de38197e381bee38197e3819fe38082313030204d42e381ae70726f66696c65206d6174726978e3819de381aee38282e381aee381afe5868de5ae9fe8a18ce38197e381a6e38184e381bee3819be38293e38082e38193e3828ce381afe68b92e590a6e8a898e98cb2e38292e68890e58a9fe8a888e6b8ace381a8e6b7b7e5908ce3819be3819ae38081e6ae8be3828a63617365e38292e6aca0e890bde38195e3819be381aae38184e4bfaee6ada3e381a7e38199e38082",
+              "text_escaped": "`db30ab7c38bcf0610a9f28515c3a831c8d8068a9`で対応しました。matrixへ5つの明示env budgetを既存optionsとして伝播し、未指定は製品defaultを維持します。ResourceLimitExceededのcaseは status=resource_limit_exceeded / measured_success=false を記録して次caseへ進み、その他のerrorはpanicで失敗させます。大きいcaseの予算を自動増額せず、実行者が必要な予算を明示指定する手順を追加しました。\\n\\n小回帰でゼロgranuleによる拒否と後続case成功を確認し、対象テスト14 PASS/2 ignored、Clippy、Sol medium専門review、fresh Companion ALLOWを確認しました。100 MBのprofile matrixそのものは再実行していません。これは拒否記録を成功計測と混同せず、残りcaseを欠落させない修正です。",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 0,
+              "stop": "scope_boundary"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        }
+      ],
+      "candidate_status": "hits_returned"
+    },
+    {
+      "id": "q6",
+      "question": "mainへの反映と公開pre.6への収録は同じ状態か。",
+      "queries": [
+        "公開pre.6"
+      ],
+      "hits": [
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 111,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 111,
+              "byte_length": 11,
+              "end": 122
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 0,
+              "end": 4986
+            },
+            "document": {
+              "id": "github/issue-344-body.txt",
+              "logical_offset": 0,
+              "byte_length": 4986,
+              "local_offset": 111,
+              "local_end": 122
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-body.txt",
+                "logical_offset": 0,
+                "end": 4986
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 87,
+              "byte_length": 306,
+              "bytes_hex": "232320e8838ce699afe383bbe7b48de59381476f616c0a0ae585ace9968b7072652e36e381ae43322f433420313030204d69422f6e6772616de8a995e4bea1e381afe5a496e983a8e383a1e383a2e383aae79ba3e8a696e381a7e4b8ade6ada2e38197e3819fe380820a4f4f4d2fe8a3bde59381e4b88de585b7e59088e38284e68890e58a9fe699827065616b205253532fe69982e99693e381afe7a2bae5ae9ae38197e381a6e38184e381aae38184e380820ae383ade383bce382abe383abe381a7e5ae8ce68890e38197e3819fe6a78be7af89e4ba88e7ae97e38292e38081e8a3bde59381e383bbe59b9ee5b8b0e383bbe5a591e7b484e383bbe5bf85e8a681e381aae8a8bce68ba0e381ae31205052e381a8e38197e381a66d61696ee381b8e7b48de59381e38199e3828be380820a",
+              "text_escaped": "## 背景・納品Goal\\n\\n公開pre.6のC2/C4 100 MiB/ngram評価は外部メモリ監視で中止した。\\nOOM/製品不具合や成功時peak RSS/時間は確定していない。\\nローカルで完成した構築予算を、製品・回帰・契約・必要な証拠の1 PRとしてmainへ納品する。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 1771,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 1771,
+              "byte_length": 11,
+              "end": 1782
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 0,
+              "end": 4986
+            },
+            "document": {
+              "id": "github/issue-344-body.txt",
+              "logical_offset": 0,
+              "byte_length": 4986,
+              "local_offset": 1771,
+              "local_end": 1782
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-body.txt",
+                "logical_offset": 0,
+                "end": 4986
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 1629,
+              "byte_length": 279,
+              "bytes_hex": "2020776974685f6c696e655f6c696d6974e28692776974685f6f7074696f6e732f536964656361724275696c644f7074696f6e73e381ae7072657669657720736f75726365e7a7bbe8a18ce380820a20205265616465722f7175657279e588b6e99990e38081e68890e58a9f515a542f515a49e5bda2e5bc8fe381afe7b6ade68c81e38199e3828be380820a2d20e585ace9968b7072652e36e381abe381afe696b06f7074696f6ee3818ce381aae38184e38082e5908ce3819876657273696f6ee69687e5ad97e58897e381ae6c6f63616c20736f75726365206275696c64e38282e585ace9968b62696e617279e381a8e381afe588a56964656e74697479e380820a0a232320e8a8bce68ba0e381a8e58f97e585a50a",
+              "text_escaped": "  with_line_limit→with_options/SidecarBuildOptionsのpreview source移行。\\n  Reader/query制限、成功QZT/QZI形式は維持する。\\n- 公開pre.6には新optionがない。同じversion文字列のlocal source buildも公開binaryとは別identity。\\n\\n## 証拠と受入\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 4259,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 4259,
+              "byte_length": 11,
+              "end": 4270
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 0,
+              "end": 4986
+            },
+            "document": {
+              "id": "github/issue-344-body.txt",
+              "logical_offset": 0,
+              "byte_length": 4986,
+              "local_offset": 4259,
+              "local_end": 4270
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-body.txt",
+                "logical_offset": 0,
+                "end": 4986
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 3866,
+              "byte_length": 774,
+              "bytes_hex": "2d205032206d6174726978e68c87e69198e381afe6988ee7a4bae4ba88e7ae97e381a8e99d9ee68890e58a9fe381aee68b92e590a6e8a898e98cb22fe5be8ce7b69ae7b699e7b69ae381a7e8a7a3e6b688e38082e4bfaee6ada3e381aee5afbee8b1a1e38386e382b9e38388313420504153532f322069676e6f726564e38081536f6c206d656469756de5b082e9968072657669657720417070726f7665e38081667265736820436f6d70616e696f6e20414c4c4f57e380820a2d20e5889de59b9e484541442f4349e381aee5a4b1e69597e8a8bce68ba0e381afe4bf9de68c81e38082636865636b73756de58e9fe69cac6c6f63616c2d6f6e6c79e381a8e6b4bee7949f646967657374e38292e58cbae588a5e38197e38081e6a49ce587bae599a8e381aee999a4e5a496e381afe8bfbde58aa0e38197e381a6e38184e381aae38184e380820a2d20e58583636865636b6f7574e381aee697a76272616e63682f2e6465766c6f6f70e5a489e69bb4e38081e7b484333032204d42e58e9f61726368697665e38081e585ace9968b7072652e36207461672f313420617373657473e38292e4bf9de8adb7e38082e585ace9968b70726f6475637420736f75726365e381afe5bc95e3818de7b69ae3818d603063383131306536623665303835313362346465663366363336623562373964303638653237356660e380820a0ae585ace9968b7072652e36e381abe381afe4bb8ae59b9ee381ae6f7074696f6ee381afe58f8ee98cb2e38195e3828ce381a6e38184e381aae38184e3808243322f4334203130204d69422f6e6772616de381aee697a2e5ae9ae68b92e590a6e38081313030204d6942e381aee8a3bde59381e68b92e590a62fe4bf9de8adb7e381a8e68890e58a9fe580a4756e6b6e6f776ee38081415049e7a7bbe8a18ce381a85253532f4f4f4de4bf9de8a8bce381aee99990e7958ce381afe5bc95e3818de7b69ae3818de6988ee7a4bae38199e3828be38082e38193e381ae4973737565e381aee7b48de59381476f616ce381a0e38191e38292e5ae8ce4ba86e38199e3828be380820a",
+              "text_escaped": "- P2 matrix指摘は明示予算と非成功の拒否記録/後続継続で解消。修正の対象テスト14 PASS/2 ignored、Sol medium専門review Approve、fresh Companion ALLOW。\\n- 初回HEAD/CIの失敗証拠は保持。checksum原本local-onlyと派生digestを区別し、検出器の除外は追加していない。\\n- 元checkoutの旧branch/.devloop変更、約302 MB原archive、公開pre.6 tag/14 assetsを保護。公開product sourceは引き続き`0c8110e6b6e08513b4def3f636b5b79d068e275f`。\\n\\n公開pre.6には今回のoptionは収録されていない。C2/C4 10 MiB/ngramの既定拒否、100 MiBの製品拒否/保護と成功値unknown、API移行とRSS/OOM保証の限界は引き続き明示する。このIssueの納品Goalだけを完了する。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 4378,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 4378,
+              "byte_length": 11,
+              "end": 4389
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 0,
+              "end": 4986
+            },
+            "document": {
+              "id": "github/issue-344-body.txt",
+              "logical_offset": 0,
+              "byte_length": 4986,
+              "local_offset": 4378,
+              "local_end": 4389
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-body.txt",
+                "logical_offset": 0,
+                "end": 4986
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 4194,
+              "byte_length": 457,
+              "bytes_hex": "2d20e58583636865636b6f7574e381aee697a76272616e63682f2e6465766c6f6f70e5a489e69bb4e38081e7b484333032204d42e58e9f61726368697665e38081e585ace9968b7072652e36207461672f313420617373657473e38292e4bf9de8adb7e38082e585ace9968b70726f6475637420736f75726365e381afe5bc95e3818de7b69ae3818d603063383131306536623665303835313362346465663366363336623562373964303638653237356660e380820a0ae585ace9968b7072652e36e381abe381afe4bb8ae59b9ee381ae6f7074696f6ee381afe58f8ee98cb2e38195e3828ce381a6e38184e381aae38184e3808243322f4334203130204d69422f6e6772616de381aee697a2e5ae9ae68b92e590a6e38081313030204d6942e381aee8a3bde59381e68b92e590a62fe4bf9de8adb7e381a8e68890e58a9fe580a4756e6b6e6f776ee38081415049e7a7bbe8a18ce381a85253532f4f4f4de4bf9de8a8bce381aee99990e7958ce381afe5bc95e3818de7b69ae3818de6988ee7a4bae38199e3828be38082e38193e381ae4973737565e381aee7b48de59381476f616ce381a0e38191e38292e5ae8ce4ba86e38199e3828be380820a0a232320e5a283e7958c0a",
+              "text_escaped": "- 元checkoutの旧branch/.devloop変更、約302 MB原archive、公開pre.6 tag/14 assetsを保護。公開product sourceは引き続き`0c8110e6b6e08513b4def3f636b5b79d068e275f`。\\n\\n公開pre.6には今回のoptionは収録されていない。C2/C4 10 MiB/ngramの既定拒否、100 MiBの製品拒否/保護と成功値unknown、API移行とRSS/OOM保証の限界は引き続き明示する。このIssueの納品Goalだけを完了する。\\n\\n## 境界\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 6226,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-comment-6099596001.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 6226,
+              "byte_length": 11,
+              "end": 6237
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 4986,
+              "end": 6568
+            },
+            "document": {
+              "id": "github/issue-344-comment-6099596001.txt",
+              "logical_offset": 4986,
+              "byte_length": 1582,
+              "local_offset": 1240,
+              "local_end": 1251
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-comment-6099596001.txt",
+                "logical_offset": 4986,
+                "end": 6568
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 5653,
+              "byte_length": 915,
+              "bytes_hex": "e585a5e58a9b2fe697a2e5ad98e587bae58a9be4bf9de8adb7e38081e4ba88e7ae97e58685e381aee5be93e69da562797465732fe6a49ce7b4a2e7b590e69e9ce38081e8a3bde59381e381aee8b387e6ba90e68b92e590a6e3808164656661756c74e381aee58f97e79086e7af84e59bb2e7b8aee5b08fe380817072657669657720415049e7a7bbe8a18ce38292e69687e69bb8e381a8e59b9ee5b8b0e381a7e7b48de59381e38197e381bee38197e3819fe38082e5889de59b9e4349e5a4b1e69597e38292e4bf9de68c81e38197e381a6e4bfaee6ada3e38197e380815032206d6174726978e68c87e69198e381afe8a7a3e6b688e38081e7af84e59bb2e99990e5ae9a536f6ce5b082e99680726576696577e381a8667265736820436f6d70616e696f6e20414c4c4f57e38292e7a2bae8aa8de38197e381bee38197e3819fe38082e58583e381ae35313420504153532f332069676e6f726564e381aae381a9e381afe5afbee8b1a16279746573e4bb98e3818de381aee9818ee58ebbe8a898e98cb2e381a8e38197e381a6e58cbae588a5e38197e381a6e38184e381bee38199e380820a0ae7b484333032204d42e381ae6c6f63616c2d6f6e6c79e58e9fe69cace381a8e58583636865636b6f75742f2e6465766c6f6f70e38292e7b6ade68c81e38197e38081476974e381abe381afe5bf85e8a681e381aa636f6d70616374e8a898e98cb2e383bbe5b08f66697874757265e383bbe5868de78fbee6898be9a086e38292e590abe38281e381a6e38184e381bee38199e38082e585ace9968b7072652e36207461672f6173736574e3808172656c65617365e380816372617465732e696fe381afe5a489e69bb4e38197e381a6e38184e381bee3819be38293e38082e696b06f7074696f6ee381afe585ace9968b7072652e36e381abe381afe38182e3828ae381bee3819be38293e380820a0ae58eb3e5af86e381aa525353e4b88ae999902f4f4f4de998b2e6ada2e38081313030204d6942e5ae8ce8b5b02fe68890e58a9f7065616be38081e4b880e888ac636f766572616765e380814733e585a8e4bd93e383bbe7acace4b889e88085e6a49ce8a8bce383bb70726f64756374696f6e2d7265616479e381afe69caae98194e381aee381bee381bee381a7e38199e38082e38193e381ae4973737565e38292e5ae8ce4ba86e38197e38081e6aca149737375652f72656c65617365e381b8e887aae58b95e7b699e7b69ae38197e381bee3819be38293e380820a",
+              "text_escaped": "入力/既存出力保護、予算内の従来bytes/検索結果、製品の資源拒否、defaultの受理範囲縮小、preview API移行を文書と回帰で納品しました。初回CI失敗を保持して修正し、P2 matrix指摘は解消、範囲限定Sol専門reviewとfresh Companion ALLOWを確認しました。元の514 PASS/3 ignoredなどは対象bytes付きの過去記録として区別しています。\\n\\n約302 MBのlocal-only原本と元checkout/.devloopを維持し、Gitには必要なcompact記録・小fixture・再現手順を含めています。公開pre.6 tag/asset、release、crates.ioは変更していません。新optionは公開pre.6にはありません。\\n\\n厳密なRSS上限/OOM防止、100 MiB完走/成功peak、一般coverage、G3全体・第三者検証・production-readyは未達のままです。このIssueを完了し、次Issue/releaseへ自動継続しません。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 6311,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/issue-344-comment-6099596001.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 6311,
+              "byte_length": 11,
+              "end": 6322
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 4986,
+              "end": 6568
+            },
+            "document": {
+              "id": "github/issue-344-comment-6099596001.txt",
+              "logical_offset": 4986,
+              "byte_length": 1582,
+              "local_offset": 1325,
+              "local_end": 1336
+            },
+            "candidates": [
+              {
+                "id": "github/issue-344-comment-6099596001.txt",
+                "logical_offset": 4986,
+                "end": 6568
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 5653,
+              "byte_length": 915,
+              "bytes_hex": "e585a5e58a9b2fe697a2e5ad98e587bae58a9be4bf9de8adb7e38081e4ba88e7ae97e58685e381aee5be93e69da562797465732fe6a49ce7b4a2e7b590e69e9ce38081e8a3bde59381e381aee8b387e6ba90e68b92e590a6e3808164656661756c74e381aee58f97e79086e7af84e59bb2e7b8aee5b08fe380817072657669657720415049e7a7bbe8a18ce38292e69687e69bb8e381a8e59b9ee5b8b0e381a7e7b48de59381e38197e381bee38197e3819fe38082e5889de59b9e4349e5a4b1e69597e38292e4bf9de68c81e38197e381a6e4bfaee6ada3e38197e380815032206d6174726978e68c87e69198e381afe8a7a3e6b688e38081e7af84e59bb2e99990e5ae9a536f6ce5b082e99680726576696577e381a8667265736820436f6d70616e696f6e20414c4c4f57e38292e7a2bae8aa8de38197e381bee38197e3819fe38082e58583e381ae35313420504153532f332069676e6f726564e381aae381a9e381afe5afbee8b1a16279746573e4bb98e3818de381aee9818ee58ebbe8a898e98cb2e381a8e38197e381a6e58cbae588a5e38197e381a6e38184e381bee38199e380820a0ae7b484333032204d42e381ae6c6f63616c2d6f6e6c79e58e9fe69cace381a8e58583636865636b6f75742f2e6465766c6f6f70e38292e7b6ade68c81e38197e38081476974e381abe381afe5bf85e8a681e381aa636f6d70616374e8a898e98cb2e383bbe5b08f66697874757265e383bbe5868de78fbee6898be9a086e38292e590abe38281e381a6e38184e381bee38199e38082e585ace9968b7072652e36207461672f6173736574e3808172656c65617365e380816372617465732e696fe381afe5a489e69bb4e38197e381a6e38184e381bee3819be38293e38082e696b06f7074696f6ee381afe585ace9968b7072652e36e381abe381afe38182e3828ae381bee3819be38293e380820a0ae58eb3e5af86e381aa525353e4b88ae999902f4f4f4de998b2e6ada2e38081313030204d6942e5ae8ce8b5b02fe68890e58a9f7065616be38081e4b880e888ac636f766572616765e380814733e585a8e4bd93e383bbe7acace4b889e88085e6a49ce8a8bce383bb70726f64756374696f6e2d7265616479e381afe69caae98194e381aee381bee381bee381a7e38199e38082e38193e381ae4973737565e38292e5ae8ce4ba86e38197e38081e6aca149737375652f72656c65617365e381b8e887aae58b95e7b699e7b69ae38197e381bee3819be38293e380820a",
+              "text_escaped": "入力/既存出力保護、予算内の従来bytes/検索結果、製品の資源拒否、defaultの受理範囲縮小、preview API移行を文書と回帰で納品しました。初回CI失敗を保持して修正し、P2 matrix指摘は解消、範囲限定Sol専門reviewとfresh Companion ALLOWを確認しました。元の514 PASS/3 ignoredなどは対象bytes付きの過去記録として区別しています。\\n\\n約302 MBのlocal-only原本と元checkout/.devloopを維持し、Gitには必要なcompact記録・小fixture・再現手順を含めています。公開pre.6 tag/asset、release、crates.ioは変更していません。新optionは公開pre.6にはありません。\\n\\n厳密なRSS上限/OOM防止、100 MiB完走/成功peak、一般coverage、G3全体・第三者検証・production-readyは未達のままです。このIssueを完了し、次Issue/releaseへ自動継続しません。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 6588,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/pr-345-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 6588,
+              "byte_length": 11,
+              "end": 6599
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 6568,
+              "end": 12061
+            },
+            "document": {
+              "id": "github/pr-345-body.txt",
+              "logical_offset": 6568,
+              "byte_length": 5493,
+              "local_offset": 20,
+              "local_end": 31
+            },
+            "candidates": [
+              {
+                "id": "github/pr-345-body.txt",
+                "logical_offset": 6568,
+                "end": 12061
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 6568,
+              "byte_length": 370,
+              "bytes_hex": "232320e79baee79a84e381a8e7b590e69e9c0a0ae585ace9968b7072652e36e381ae43322f433420313030204d69422f6e6772616de6a78be7af89e381afe5a496e983a8e383a1e383a2e383aae79ba3e8a696e381a7e4b8ade6ada2e38197e381a6e3818ae3828ae38081e68890e58a9fe69982e381aee69982e996932f525353e381af756e6b6e6f776ee381a7e38197e3819fe38082e38193e381aee5a489e69bb4e381afe8a3bde59381e887aae8baabe3818ce6a78be7af89e4ba88e7ae97e38292e8b685e38188e3828be5898de381abe68b92e590a6e38197e38081e585a5e58a9b515a54e383bbe697a2e5ad98515a49e38292e4bf9de8adb7e38199e3828be5a591e7b484e38292e5b08ee585a5e38197e381bee38199e38082313030204d6942e5ae8ce8b5b0e38284e680a7e883bde694b9e59684e78e87e38292e58f97e585a5e69da1e4bbb6e381abe38197e381a6e38184e381bee3819be38293e380820a0a436c6f73657320233334340a",
+              "text_escaped": "## 目的と結果\\n\\n公開pre.6のC2/C4 100 MiB/ngram構築は外部メモリ監視で中止しており、成功時の時間/RSSはunknownでした。この変更は製品自身が構築予算を超える前に拒否し、入力QZT・既存QZIを保護する契約を導入します。100 MiB完走や性能改善率を受入条件にしていません。\\n\\nCloses #344\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 11905,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/pr-345-body.txt",
+          "context": {
+            "hit": {
+              "logical_offset": 11905,
+              "byte_length": 11,
+              "end": 11916
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 6568,
+              "end": 12061
+            },
+            "document": {
+              "id": "github/pr-345-body.txt",
+              "logical_offset": 6568,
+              "byte_length": 5493,
+              "local_offset": 5337,
+              "local_end": 5348
+            },
+            "candidates": [
+              {
+                "id": "github/pr-345-body.txt",
+                "logical_offset": 6568,
+                "end": 12061
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 11608,
+              "byte_length": 453,
+              "bytes_hex": "6d65726765205348412060336430393264316462363466646433663037343433373764663938323537303338656464643332666020e381ae5b6d61696e2043495d2868747470733a2f2f6769746875622e636f6d2f616c626572742d65696e736875746f696e2f717a742f616374696f6e732f72756e732f3338303636383831383537292f5b6d61696e2073656375726974795d2868747470733a2f2f6769746875622e636f6d2f616c626572742d65696e736875746f696e2f717a742f616374696f6e732f72756e732f3338303636383832333630292073756363657373e3808250522048454144e381a8e5908ce3819874726565e381a7e3808149737375652023333434e381aee58f97e585a5e38292e5ae8ce4ba86e38197e381bee38197e3819fe380820a0ae585ace9968b7072652e36e381ae7461672f313420617373657473e381a870726f6475637420736f75726365e381afe7b6ade68c81e3808272656c65617365e585ace9968be381afe8a18ce381a3e381a6e3818ae38289e3819ae3808147332fe7acace4b889e88085e6a49ce8a8bc2f70726f64756374696f6e2d7265616479e38282e69caae98194e381aee381bee381bee381a7e38199e380820a",
+              "text_escaped": "merge SHA `3d092d1db64fdd3f0744377df98257038eddd32f` の[main CI](https://github.com/albert-einshutoin/qzt/actions/runs/38066881857)/[main security](https://github.com/albert-einshutoin/qzt/actions/runs/38066882360) success。PR HEADと同じtreeで、Issue #344の受入を完了しました。\\n\\n公開pre.6のtag/14 assetsとproduct sourceは維持。release公開は行っておらず、G3/第三者検証/production-readyも未達のままです。\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 0,
+              "stop": "scope_boundary"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 16581,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget.md",
+          "context": {
+            "hit": {
+              "logical_offset": 16581,
+              "byte_length": 11,
+              "end": 16592
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 16115,
+              "end": 29211
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget.md",
+              "logical_offset": 16115,
+              "byte_length": 13096,
+              "local_offset": 466,
+              "local_end": 477
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget.md",
+                "logical_offset": 16115,
+                "end": 29211
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 16384,
+              "byte_length": 307,
+              "bytes_hex": "6e6772616de38081706f7374696e67e9a086e5ba8f2fe9878de8a487e68e92e999a4e38081736f757263652062696e64696e67e38081e6a49ce7b4a2e7b590e69e9ce38292e7b6ade68c81e38197e3819fe380820a43322f4334e381ae313030204d6942e381afe696b0e697a2e5ae9ae381a7e8a3bde59381e381abe38288e3828be588b6e99990e68b92e590a6e381a8e381aae3828ae38081e5ae8ce8b5b0e38284e680a7e883bde694b9e59684e381a8e381afe689b1e3828fe381aae38184e380820ae585ace9968b7072652e36e38081e5898d476f616ce68890e69e9ce789a9e38081e58583636865636b6f7574e381aee69caae382b3e3839fe38383e38388e5a489e69bb4e381afe4bf9de8adb7e38197e3819fe380820a0a232320e5ae9fe8a385e38197e3819fe5a591e7b4840a",
+              "text_escaped": "ngram、posting順序/重複排除、source binding、検索結果を維持した。\\nC2/C4の100 MiBは新既定で製品による制限拒否となり、完走や性能改善とは扱わない。\\n公開pre.6、前Goal成果物、元checkoutの未コミット変更は保護した。\\n\\n## 実装した契約\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 20644,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget.md",
+          "context": {
+            "hit": {
+              "logical_offset": 20644,
+              "byte_length": 11,
+              "end": 20655
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 16115,
+              "end": 29211
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget.md",
+              "logical_offset": 16115,
+              "byte_length": 13096,
+              "local_offset": 4529,
+              "local_end": 4540
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget.md",
+                "logical_offset": 16115,
+                "end": 29211
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 20480,
+              "byte_length": 287,
+              "bytes_hex": "626173652f6c6174657374206d61696ee381af20603963663263376336366138386339663337613637353637653566613232343739343162393364656160e380820ae696b0646574616368656420776f726b7472656520602f566f6c756d65732f536174656368692f446576656c6f7065722f717a742d696e6465782d6275646765742d323032363130313060e38081e7a9bae3818de7b48435373920476942e380820ae585ace9968b7072652e36e381aee8a3bde59381736f757263652060306338313130653662366530383531336234646566336636333662356237396430363865323735666020e381a8e381afe58cbae588a5e38199e3828be380820a0a7c2062696e617279207c205348412d323536207c20e689b1e38184207c0a",
+              "text_escaped": "base/latest mainは `9cf2c7c66a88c9f37a67567e5fa2247941b93dea`。\\n新detached worktree `/Volumes/Satechi/Developer/qzt-index-budget-20261010`、空き約579 GiB。\\n公開pre.6の製品source `0c8110e6b6e08513b4def3f636b5b79d068e275f` とは区別する。\\n\\n| binary | SHA-256 | 扱い |\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        },
+        {
+          "query": "公開pre.6",
+          "hit": {
+            "logical_offset": 29606,
+            "byte_length": 11,
+            "chunk_start": 0,
+            "chunk_end": 1,
+            "source": "verified_original_bytes"
+          },
+          "doc_id": "github/commit-2026-10-index-build-budget-delivery.md",
+          "context": {
+            "hit": {
+              "logical_offset": 29606,
+              "byte_length": 11,
+              "end": 29617
+            },
+            "mapping_status": "unique",
+            "scope": {
+              "kind": "document",
+              "logical_offset": 29211,
+              "end": 36633
+            },
+            "document": {
+              "id": "github/commit-2026-10-index-build-budget-delivery.md",
+              "logical_offset": 29211,
+              "byte_length": 7422,
+              "local_offset": 395,
+              "local_end": 406
+            },
+            "candidates": [
+              {
+                "id": "github/commit-2026-10-index-build-budget-delivery.md",
+                "logical_offset": 29211,
+                "end": 36633
+              }
+            ],
+            "excerpt": {
+              "logical_offset": 29344,
+              "byte_length": 334,
+              "bytes_hex": "e38193e381aee8b387e69699e381afe9818ee58ebbe381aee383ade383bce382abe383ab476f616ce381a8e4bb8ae59b9ee381ae49737375652f50522f6d61696ee7b48de59381e38292e58886e38191e3828be380820ae8a3bde59381e381ae3520736f757263652066696c65e38081e59b9ee5b8b0746573742f66697874757265e38081e5a591e7b484646f6373e381afe9818ee58ebbe381aee5ae8ce4ba866d616e6966657374e381b8e5868de785a7e59088e38197e381a6e3818be38289e58f96e3828ae8bebce38293e381a0e380820ae697a2e5ae9ae580a4e383bbe8a8ade8a888e38292e5868de8aabfe695b4e3819be3819ae380814349e59fbae79ba4e383bbe585ace9968b7072652e36207461672f6173736574e381afe5a489e69bb4e38197e381aae38184e380820a0a232320e5b7aee58886e381a8e8a8bce68ba0e381aee689b1e381840a",
+              "text_escaped": "この資料は過去のローカルGoalと今回のIssue/PR/main納品を分ける。\\n製品の5 source file、回帰test/fixture、契約docsは過去の完了manifestへ再照合してから取り込んだ。\\n既定値・設計を再調整せず、CI基盤・公開pre.6 tag/assetは変更しない。\\n\\n## 差分と証拠の扱い\\n",
+              "leading_fragment": false,
+              "trailing_fragment": false
+            },
+            "before": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "after": {
+              "requested": 2,
+              "returned": 2,
+              "stop": "complete"
+            },
+            "verification": {
+              "decoded_chunks_verified": true,
+              "document_index_block_verified": true,
+              "document_checksum_verified": false,
+              "search_query_verified": false,
+              "external_provenance_verified": false
+            }
+          },
+          "document_checksum_verified": true
+        }
+      ],
+      "candidate_status": "hits_returned"
+    },
+    {
+      "id": "q7",
+      "question": "実運用性能や実際の合意は記録だけで分かるか。",
+      "queries": [
+        "実際の合意"
+      ],
+      "hits": [],
+      "candidate_status": "no_hit_record_insufficient"
+    }
+  ],
+  "deep_verify": {
+    "ok": true,
+    "level": "deep",
+    "checked_chunks": 1,
+    "compressed_checksum_chunks": 1,
+    "decoded_chunks": 1,
+    "decoded_bytes": 36633,
+    "original_checksum_verified": true,
+    "container_checksum_status": "verified",
+    "dense_line_index_status": "absent",
+    "document_index_status": "source_checked"
+  }
+}

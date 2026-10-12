@@ -1,0 +1,56 @@
+{
+  "schema": "qzt-public-history-run-freeze-v1",
+  "stage": "before_pack",
+  "files": {
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/acquire.py": {
+      "size": 5859,
+      "sha256": "7e424b88072bde65657041088e9e058c55318b14c7f90c21579425b5cf9596fb"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/produce.py": {
+      "size": 16762,
+      "sha256": "d1041ea15d0acff0c5208255ca7d18a4b0a2b6a1e991896677b8e11cf501c108"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/recipient.py": {
+      "size": 26240,
+      "sha256": "43b49f452f9778987b8edd268135d93db8cd571f9ceef0b3596c22ba02a3951a"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/evaluate.py": {
+      "size": 6729,
+      "sha256": "777648e1569ebbe3dbed5c887d1d22383cdf491a245a3145a1822d4797cb2172"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/test_case.py": {
+      "size": 26137,
+      "sha256": "1d20f773453f560e08c9df451c0a87da4575197a4e7893b924e1cbc50b9e14ca"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/questions.json": {
+      "size": 983,
+      "sha256": "cca27c31ccc06ef46ebdf1c0d3101d9b296c1db1764705ceaa8fe83ab3ba4749"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/evaluation.json": {
+      "size": 2494,
+      "sha256": "e5e93346c63765f3f8ed9643259290f9d188c194ac4fd05bb3b4902a26cae195"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/snapshot/snapshot.json": {
+      "size": 20970,
+      "sha256": "a1c39fa3ee1404f6f372807956b2a401f37ed0c6bc352b81c7a6bbf4efaf19bd"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/snapshot/acquisition-policy.json": {
+      "size": 1260,
+      "sha256": "af712eea80ad8d591b08f473e4b0374454699d63255809cce1a209732e0da8ae"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/tests/phase61_public_history_evidence.rs": {
+      "size": 791,
+      "sha256": "851c705fb7f9acd56f2851ff5cd7be40d0e531b60427b8bd9ce2d5562a65d082"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/target/public-history-work/product-build/qzt": {
+      "size": 5188456,
+      "sha256": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a"
+    },
+    "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/raw/canonical-final-20261012/build-receipt.json": {
+      "size": 5888,
+      "sha256": "03e64772de71566914d8e2300fb271dc88f3ce95dc60c3d6bc25fc638e1b8833"
+    }
+  },
+  "product_source_sha": "c11b7eb9a025f75d84ea9d3029a0674a606c04c6",
+  "archive_commit_sha": "3d092d1db64fdd3f0744377df98257038eddd32f"
+}
