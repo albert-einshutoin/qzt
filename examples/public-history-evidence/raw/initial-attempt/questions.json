@@ -1,0 +1,12 @@
+{
+  "schema": "qzt-public-history-questions-v1",
+  "questions": [
+    {"id": "q1", "question": "構築予算を追加した理由は何か。", "queries": ["共有資源予算"]},
+    {"id": "q2", "question": "新既定で10 MiB/ngramを拒否する制約は何か。", "queries": ["10 MiB/ngram"]},
+    {"id": "q3", "question": "posting16Mの明示確認で何が確認され、何が未確認か。", "queries": ["posting16M"]},
+    {"id": "q4", "question": "資源超過時に保護される入力と既存出力は何か。", "queries": ["入力QZT"]},
+    {"id": "q5", "question": "profile matrixの指摘後、後続対応はどう変更されたか。", "queries": ["profile matrix", "明示env budget"]},
+    {"id": "q6", "question": "mainへの反映と公開pre.6への収録は同じ状態か。", "queries": ["公開pre.6"]},
+    {"id": "q7", "question": "実運用性能や実際の合意は記録だけで分かるか。", "queries": ["実際の合意"]}
+  ]
+}

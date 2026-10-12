@@ -1,0 +1,181 @@
+{
+  "product_source_sha": "c11b7eb9a025f75d84ea9d3029a0674a606c04c6",
+  "archive_commit_sha": "3d092d1db64fdd3f0744377df98257038eddd32f",
+  "commands": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt",
+      "exit_code": 0,
+      "stdout_utf8": "c11b7eb9a025f75d84ea9d3029a0674a606c04c6\n",
+      "stderr_utf8": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "c11b7eb9a025f75d84ea9d3029a0674a606c04c6",
+        "--",
+        "src",
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "cwd": "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt",
+      "exit_code": 0,
+      "stdout_utf8": "",
+      "stderr_utf8": ""
+    },
+    {
+      "command": [
+        "rustc",
+        "--version"
+      ],
+      "cwd": "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt",
+      "exit_code": 0,
+      "stdout_utf8": "rustc 1.96.0 (ac68faa20 2026-05-25)\n",
+      "stderr_utf8": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "--version"
+      ],
+      "cwd": "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt",
+      "exit_code": 0,
+      "stdout_utf8": "cargo 1.96.0 (30a34c682 2026-05-25)\n",
+      "stderr_utf8": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "qzt"
+      ],
+      "cwd": "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt",
+      "exit_code": 0,
+      "stdout_utf8": "",
+      "stderr_utf8": "   Compiling libc v0.2.186\n   Compiling jobserver v0.1.34\n   Compiling cc v1.2.63\n   Compiling zstd-sys v2.0.16+zstd.1.5.7\n   Compiling blake3 v1.8.5\n   Compiling zstd-safe v7.2.4\n   Compiling zstd v0.13.3\n   Compiling qzt v0.1.0-pre.6 (/Users/shutoide/.codex/worktrees/public-history-evidence/qzt)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.93s\n"
+    }
+  ],
+  "source_files": {
+    "Cargo.lock": {
+      "size": 19708,
+      "sha256": "367b5eb0dd7178f20b11d96a2aa48806fad6a37a892464159d37e87053269836"
+    },
+    "Cargo.toml": {
+      "size": 2055,
+      "sha256": "2d4f6b85006cd633c02a8491fe09078521546ad77fef6a20da697048daf62a0f"
+    },
+    "src/benchmark.rs": {
+      "size": 32276,
+      "sha256": "d9a47be5d491bf59b2bc6bf68af8272d7471a484375e400ab7066045db497111"
+    },
+    "src/cbor.rs": {
+      "size": 16950,
+      "sha256": "a6ef377b7ae1d6fd5783f425fc9d64bfbe83c0b30d42bd6ffe8e7c86756e4bad"
+    },
+    "src/chunk_table.rs": {
+      "size": 7249,
+      "sha256": "2f62ccc468b1d5b2782067659517428ae16a1608a9dc441f442dc077f59fc7c9"
+    },
+    "src/chunker.rs": {
+      "size": 7235,
+      "sha256": "86955ff0cc7a276c68192af83362adcf00f75f1b3208eebdcea1258b01b021aa"
+    },
+    "src/cli_attest.rs": {
+      "size": 4739,
+      "sha256": "73591f6a99ddf5ed2c374e1f184857ccd30a69955c189992e136245c94e385e5"
+    },
+    "src/cli_json.rs": {
+      "size": 1962,
+      "sha256": "af58af7e08491327f952493d8cc793ad730d5286eb53a8d17fb8fffc0c1c0e8e"
+    },
+    "src/cli_output_security.rs": {
+      "size": 7680,
+      "sha256": "37b6838d480519c38c1977a442f7a8c1dc64071c80df2a7a644ecc39c9b920c8"
+    },
+    "src/codec.rs": {
+      "size": 1675,
+      "sha256": "4d8c7d0e1f32b5b523bc96edc662e5d2250c918fbf99ac36db3cd928184a7835"
+    },
+    "src/context_cli.rs": {
+      "size": 20365,
+      "sha256": "c4dbd2a7f1ceadede2d41d68a3abf21c93fc1de1f9798bef3b83fb2e8d1e9913"
+    },
+    "src/corpus.rs": {
+      "size": 6324,
+      "sha256": "346201337e7a5b01539055f1ec40474c2190d51f343febcd0e099f8059c1ae46"
+    },
+    "src/dense_line_index.rs": {
+      "size": 10280,
+      "sha256": "5d9042a1aa3fdf8c31630de1be899750adef0935d0edddbd0cb232cc27161255"
+    },
+    "src/error.rs": {
+      "size": 8037,
+      "sha256": "96ea9e74efc1f456c2bda4d55ebffec47217c5ed71335d98f42351c07c5fd6f8"
+    },
+    "src/fixed.rs": {
+      "size": 6439,
+      "sha256": "92dc14ecdd862f8c6673dd75ca3ec8f94a7865bc69ae125d9862c4346db1d176"
+    },
+    "src/format.rs": {
+      "size": 437,
+      "sha256": "a9087ecac83fe63f100067dfcf3287ed2afa1d4c15c9005ff9fb8646e35f9640"
+    },
+    "src/io.rs": {
+      "size": 7663,
+      "sha256": "670a662f44b6c01e819459302fa9ee5f4df9603ffc20987a208ce76b6c757b0c"
+    },
+    "src/lib.rs": {
+      "size": 2828,
+      "sha256": "571c0767561b79a1427c0053b22954b83401d6d0b57481ae30cb2a3965b87282"
+    },
+    "src/limits.rs": {
+      "size": 3629,
+      "sha256": "b9e8f0e1f21f1684345be7c3dcad11e2bb0cce7c25be7f4707e24f6ae9a75019"
+    },
+    "src/main.rs": {
+      "size": 100443,
+      "sha256": "7c2cd4ef6b1186e5c9f214bf8de1b00da7c44f750b81cc32e0a0a36f506b8442"
+    },
+    "src/primitives.rs": {
+      "size": 2255,
+      "sha256": "ad479ea213327127b478747a78679fdf8659fd6638eca87d4a1f7a8e3b5145b5"
+    },
+    "src/reader.rs": {
+      "size": 53996,
+      "sha256": "c273bb1a9aceaade9e0084be1c803b19a9c0c1238e934472a76e98d888326367"
+    },
+    "src/schema.rs": {
+      "size": 57477,
+      "sha256": "c369dc823377f3c957614b15c6d072a685b625c7bf585323991ddc360ac4299f"
+    },
+    "src/search.rs": {
+      "size": 84959,
+      "sha256": "80f2e6bea09c84db133749f2423afb604aad4c45c32117af0de137381a3ad5ec"
+    },
+    "src/sidecar.rs": {
+      "size": 120198,
+      "sha256": "e5f25a140919bc15eb5e4664fa73111605e3352c8949b62bb50ddb137e7ced43"
+    },
+    "src/skeleton.rs": {
+      "size": 27820,
+      "sha256": "023f4500bfb3c77fd499a9658241448e244af93c1de50c7ec5fa561bb12eeb3b"
+    },
+    "src/writer.rs": {
+      "size": 47034,
+      "sha256": "7c0085abd134abb4559297de825d754e6c833975074d4e6e5f2d29c4044918a4"
+    }
+  },
+  "binary": {
+    "path": "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/target/public-history-work/product-build/qzt",
+    "size": 5188456,
+    "sha256": "a7696eb45b9d41a8714d83aac5b2d0f4a839908cd4d734801bf0055fb8be3d0a"
+  }
+}

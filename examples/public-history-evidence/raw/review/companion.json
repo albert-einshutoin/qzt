@@ -1,0 +1,7 @@
+{
+  "status": 0,
+  "threadId": "01a1301c-1f3c-7491-b886-d8e56ec780a9",
+  "rawOutput": "ALLOW: Issue348のREAD_ONLY/STATIC_ONLY Stop Gateを通過。\n\n- HEADは指定の`c11b7eb9...`、差分は53対象ファイル＋専門review記録に限定。\n- Core/API/QZT/QZI形式/CI基盤/他Issue変更なし。\n- safe-read、URL/byte/pointer/hash整合、manifest/report再検証、partial_unknown/Error、旧trial分離を確認。\n- `run-freeze`とcanonical indexの実ファイルSHA/sizeは一致。[run-freeze](</Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/raw/canonical-final-20261012/run-freeze.json:1)、[canonical-index](</Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/canonical-index.json:1)\n- 専門reviewは最終Approve。[specialist review](</Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/raw/review/specialist.ja.md:1)\n\n`git diff --check`の指摘は、lossless保持された原文のtrailing whitespace 2行のみです。\n\nこれは静的受入・回帰・security/provenance・task境界のALLOWであり、通常CI/security、merge、同merge SHAのmain検証、Issue完了、production/releaseの成功は主張しません。",
+  "touchedFiles": [],
+  "reasoningSummary": []
+}

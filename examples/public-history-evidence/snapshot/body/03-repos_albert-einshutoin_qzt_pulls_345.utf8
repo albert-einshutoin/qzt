@@ -1,0 +1,44 @@
+## 目的と結果
+
+公開pre.6のC2/C4 100 MiB/ngram構築は外部メモリ監視で中止しており、成功時の時間/RSSはunknownでした。この変更は製品自身が構築予算を超える前に拒否し、入力QZT・既存QZIを保護する契約を導入します。100 MiB完走や性能改善率を受入条件にしていません。
+
+Closes #344
+
+## 変更
+
+- token/ngram共通`IndexBuildLimits`: granules1,000,000、distinct keys262,144、posting IDs8,000,000、distinct key16 MiB、encoded phase128 MiB。
+- Raw library memory/file/from_parts、QZI default/custom builder、`sidecar-rebuild`、sidecarなし`search`へ適用。増加/copy/insert/push/encoding前にinclusive/overflow判定。不正引数exit2、実行超過exit1、partial成功/fallbackなし。既存atomic outputは全構築成功後だけ実行します。
+- **今回のC2/C4 10 MiB/ngramは新既定で拒否します。** posting16Mを明示した10 MiB限定確認ではbefore QZI bytes・検索結果が一致しています。100 MiBでは製品の制限拒否と既存データ保護を確認し、完走・成功peak・性能改善は確認していません。
+- Rust build optionsへのlimits追加、token from_parts引数追加、with_line_limit→with_options/SidecarBuildOptionsへのpreview移行を明示。Reader/query制限、成功QZI/QZT formatは維持します。
+- 現在公開中のpre.6は新optionを持ちません。同じversion文字列のsource buildも公開binaryとは別hashです。
+
+## 証拠と検証
+
+製品bytesはローカル完了receiptの5 source hashと同一です。元の専門review（Sol medium）、514 PASS/3 ignored、package、条件付きMSRVは対象bytesを照合して再利用します。これらは最終PR HEADのhosted CI証拠ではありません。
+
+Git同梱は製品/test/小hex fixture、契約/結果report、必要compact record/log/review、122試行のhash付きtext output、未同梱location/hash/reason、portable fixture生成/照合手順です。約302 MBの原archive、binary、生成QZI/corpus、重複snapshotは元のローカル場所に保持し、Gitへ追加していません。local-only原本をGitHubで第三者が確認できる証拠とは説明しません。拒否・失敗・未実施も記録しています。
+
+今回のportable手順はC2/C4 1 MiB生成hash、pack/token/ngram/rare原文hit、製品拒否、入力/既存出力保持、新規完成品不在を確認しました。今回の追加差分/証拠整理とCI修正それぞれのfresh Companion Stop Review GateはALLOWでした。最終HEADの通常CI/securityとmerge後の同一SHA検証を確認しました（末尾の記録を参照）。
+
+## 残る制約
+
+予算はnamed logical構造/encoded phaseの上限で、Vec capacity/BTree/allocator/decoded chunk/line carry/scratch/envelopeを含む厳密なprocess RSS上限・OOM防止ではありません。一般検索coverage、G3全体、第三者検証、production-ready、大規模完走、公開版への収録は未達です。
+
+CI基盤、format/spill/sort/容量最適化/依存/P2 refactorを変更していません。tag/Release/crates.io公開・公開artifact変更は含めません。
+
+## 初回CIとレビュー対応
+
+初回HEAD `31457cb94b3a234970d7c5d0b596b6e2b33967e7` の[CI](https://github.com/albert-einshutoin/qzt/actions/runs/38065365996)/[security](https://github.com/albert-einshutoin/qzt/actions/runs/38065366327)失敗をrawログとして保存しました。Rust1.99の追加Clippy lintへ同じ空stdout期待値を対応し、生成adapterは4096 bytes/4行のstdinとcreate_newへ限定しました。checksumのsecret誤検出はfixture bytesへ照合し、元JSONをlocal-onlyで保持したうえで同値のtyped digest inventoryを同梱しました。チェック除外は追加していません。
+
+P2指摘のprofile matrixは5つの明示env予算を伝播し、未指定は製品default、資源拒否は`measured_success=false`として後続caseへ進み、その他のerrorは失敗します。自動増額・全matrix完走保証はありません。
+
+修正後: phase49 10 PASS、release_hardening 4 PASS/2 ignored、Clippy成功、C2/C4 1 MiB portable成功、adapter拒否/保護5件、local gitleaks findings0。Sol medium専門reviewはApprove、修正後のfresh CompanionはALLOW。製品5 source bytesは元receiptと一致しています。
+
+最終PR HEAD候補: `db30ab7c38bcf0610a9f28515c3a831c8d8068a9`。通常のPR CI/securityが成功し、mainへmerge済みです。元の302 MB archiveと初回失敗・過去receiptは保護し、現在の証拠indexは43原本/244 embedded streams/96 local-only omittedと派生digest記録を区別しています。
+
+## 最終納品結果（2026-10-11）
+
+最終HEAD `db30ab7c38bcf0610a9f28515c3a831c8d8068a9` の[CI](https://github.com/albert-einshutoin/qzt/actions/runs/38066724160)/[security](https://github.com/albert-einshutoin/qzt/actions/runs/38066724442) success。GitGuardian success。P2 review thread解消。
+merge SHA `3d092d1db64fdd3f0744377df98257038eddd32f` の[main CI](https://github.com/albert-einshutoin/qzt/actions/runs/38066881857)/[main security](https://github.com/albert-einshutoin/qzt/actions/runs/38066882360) success。PR HEADと同じtreeで、Issue #344の受入を完了しました。
+
+公開pre.6のtag/14 assetsとproduct sourceは維持。release公開は行っておらず、G3/第三者検証/production-readyも未達のままです。

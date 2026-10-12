@@ -1,0 +1,64 @@
+{
+  "schema": "qzt-public-history-canonical-index-v1",
+  "status": "canonical_runtime_evidence",
+  "artifact_directory": "raw/canonical-final-20261012",
+  "external_workspace": "/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt",
+  "files": {
+    "build-receipt.json": {
+      "size": 5888,
+      "sha256": "03e64772de71566914d8e2300fb271dc88f3ce95dc60c3d6bc25fc638e1b8833"
+    },
+    "commands.json": {
+      "size": 47367,
+      "sha256": "36f379e154896bbf127469bad4ebac62d24f355f3002e80fc1fd8b7ec87a0a7b"
+    },
+    "evaluation-report.json": {
+      "size": 4048,
+      "sha256": "2ef2bf42f7c2c669c2f1071adf6a4b972d0c9fb63dd6d68dcd6b73660c0a24d6"
+    },
+    "handoff-producer.jsonl": {
+      "size": 5487,
+      "sha256": "854d03c8675c4a600c6ed40e9b0a899b2120d69e0d0f35624e2f88d80809ee4c"
+    },
+    "handoff-receipt.json": {
+      "size": 13042,
+      "sha256": "28e9497f43ef05a59b5bf7c2888b48014e2425f3aac71617e6381ea1ee3fbf26"
+    },
+    "manifest.json": {
+      "size": 12897,
+      "sha256": "952855ba331a3a5c1fce35c45b4895e26cffbc1aeeef904b4a95af2245086f59"
+    },
+    "orchestration.json": {
+      "size": 2508,
+      "sha256": "20f62d6d30f6a805ecca56a7f7722b5269fb17da5ee5e6f3c5087a280161e5ff"
+    },
+    "questions.json": {
+      "size": 983,
+      "sha256": "cca27c31ccc06ef46ebdf1c0d3101d9b296c1db1764705ceaa8fe83ab3ba4749"
+    },
+    "recipient.py": {
+      "size": 26240,
+      "sha256": "43b49f452f9778987b8edd268135d93db8cd571f9ceef0b3596c22ba02a3951a"
+    },
+    "report.json": {
+      "size": 291252,
+      "sha256": "b7fc3970f36ade313981e002df16208fd0368793bd27f1885d1c65a06d6e9758"
+    },
+    "run-freeze.json": {
+      "size": 3006,
+      "sha256": "a663f16b07236f340ee9337c0d06ef438e4abe80a71f32d8c85c600384bd41cc"
+    },
+    "summary.txt": {
+      "size": 105,
+      "sha256": "3dc3967ec93c3d50f1dda850bc403bec87121380320248b71696536095580309"
+    }
+  },
+  "inputs_frozen": true,
+  "manifest_sha256": "952855ba331a3a5c1fce35c45b4895e26cffbc1aeeef904b4a95af2245086f59",
+  "report_sha256": "b7fc3970f36ade313981e002df16208fd0368793bd27f1885d1c65a06d6e9758",
+  "all_orchestration_exit_codes": [
+    0,
+    0,
+    0
+  ]
+}

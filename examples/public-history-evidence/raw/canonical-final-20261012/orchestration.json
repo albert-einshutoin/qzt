@@ -1,0 +1,56 @@
+[
+  {
+    "command": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/produce.py",
+      "--binary",
+      "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/target/public-history-work/product-build/qzt",
+      "--snapshot",
+      "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/snapshot",
+      "--source-sha",
+      "c11b7eb9a025f75d84ea9d3029a0674a606c04c6",
+      "--output",
+      "/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff"
+    ],
+    "cwd": "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt",
+    "exit_code": 0,
+    "stdout_utf8": "952855ba331a3a5c1fce35c45b4895e26cffbc1aeeef904b4a95af2245086f59\n",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "recipient.py",
+      "--manifest-sha256",
+      "952855ba331a3a5c1fce35c45b4895e26cffbc1aeeef904b4a95af2245086f59"
+    ],
+    "cwd": "/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff",
+    "exit_code": 0,
+    "stdout_utf8": "",
+    "stderr_utf8": ""
+  },
+  {
+    "command": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/evaluate.py",
+      "--report",
+      "/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/report.json",
+      "--manifest",
+      "/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff/manifest.json",
+      "--evaluation",
+      "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt/examples/public-history-evidence/evaluation.json",
+      "--receipt",
+      "/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/handoff-receipt.json",
+      "--manifest-sha256",
+      "952855ba331a3a5c1fce35c45b4895e26cffbc1aeeef904b4a95af2245086f59",
+      "--report-sha256",
+      "b7fc3970f36ade313981e002df16208fd0368793bd27f1885d1c65a06d6e9758",
+      "--output",
+      "/var/folders/72/r_2g2yf93rs0b0t31vf79m3c0000gn/T/qzt-public-history-final-contract-76sv45kt/evaluation-report.json"
+    ],
+    "cwd": "/Users/shutoide/.codex/worktrees/public-history-evidence/qzt",
+    "exit_code": 0,
+    "stdout_utf8": "",
+    "stderr_utf8": ""
+  }
+]

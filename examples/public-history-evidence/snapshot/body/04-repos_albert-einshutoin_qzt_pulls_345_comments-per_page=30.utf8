@@ -1,0 +1,7 @@
+**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Give the large benchmark matrix an explicit build budget**
+
+With this default, the documented `make bench-profile-matrix` workflow still constructs its 1/10/100 MB cases using `..ReleaseBenchmarkOptions::default()` and then calls `.expect(...)`. The same test file now raises `max_posting_ids` to 16,000,000 specifically so the 10 MB ASCII case can run, which demonstrates that the matrix will instead fail at that case under the new 8,000,000 default and never measure the remaining profiles. Pass an appropriately enlarged explicit admission budget in `release_benchmark_profile_matrix` so this profiling command continues to produce the intended matrix.
+
+Useful? React with 👍 / 👎.`db30ab7c38bcf0610a9f28515c3a831c8d8068a9`で対応しました。matrixへ5つの明示env budgetを既存optionsとして伝播し、未指定は製品defaultを維持します。ResourceLimitExceededのcaseは status=resource_limit_exceeded / measured_success=false を記録して次caseへ進み、その他のerrorはpanicで失敗させます。大きいcaseの予算を自動増額せず、実行者が必要な予算を明示指定する手順を追加しました。
+
+小回帰でゼロgranuleによる拒否と後続case成功を確認し、対象テスト14 PASS/2 ignored、Clippy、Sol medium専門review、fresh Companion ALLOWを確認しました。100 MBのprofile matrixそのものは再実行していません。これは拒否記録を成功計測と混同せず、残りcaseを欠落させない修正です。

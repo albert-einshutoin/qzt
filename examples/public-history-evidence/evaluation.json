@@ -1,0 +1,12 @@
+{
+  "schema": "qzt-public-history-evaluation-v1",
+  "questions": {
+    "q1": {"expected": "共有構築予算を導入し、外部監視中止と成功RSS unknownを製品の拒否理由と混同せず、超過前に保護する", "required": [{"doc_id": "github/issue-344-body.txt", "fragment": "共有資源予算"}, {"doc_id": "github/issue-344-body.txt", "fragment": "外部メモリ監視で中止"}], "classification": "acquired"},
+    "q2": {"expected": "10 MiB/ngramの新既定拒否は、100 MiB完走や性能改善率を受入条件にしていない受理範囲縮小", "required": [{"doc_id": "github/pr-345-body.txt", "fragment": "10 MiB/ngram"}, {"doc_id": "github/pr-345-body.txt", "fragment": "100 MiB完走や性能改善率を受入条件にしていません"}], "classification": "acquired"},
+    "q3": {"expected": "posting16Mの限定確認ではbefore QZI bytesと検索結果が一致したが、100 MiBの完走・成功peak・性能改善は未確認", "required": [{"doc_id": "github/pr-345-body.txt", "fragment": "posting16M"}, {"doc_id": "github/pr-345-body.txt", "fragment": "before QZI bytes・検索結果が一致"}], "classification": "acquired"},
+    "q4": {"expected": "予算超過前に入力QZTと既存QZIを保護し、部分index成功やfallbackを作らない契約", "required": [{"doc_id": "github/issue-344-body.txt", "fragment": "入力QZT"}, {"doc_id": "github/issue-344-body.txt", "fragment": "部分index成功やraw-scan fallbackなし"}], "classification": "acquired"},
+    "q5": {"expected": "大きいbenchmark matrixへの明示予算という指摘に対し、明示env budgetを伝播しresource limitはmeasured_success=falseで後続caseへ進める", "required": [{"doc_id": "github/pr-345-comment-4238230444.txt", "fragment": "large benchmark matrix"}, {"doc_id": "github/pr-345-comment-4238290457.txt", "fragment": "明示env budget"}], "classification": "acquired"},
+    "q6": {"expected": "merge後mainへの納品記録と、現在公開中pre.6に新optionがないことを区別する", "required": [{"doc_id": "github/pr-345-body.txt", "fragment": "公開pre.6"}, {"doc_id": "github/pr-345-body.txt", "fragment": "現在公開中のpre.6は新optionを持ちません"}], "classification": "acquired"},
+    "q7": {"expected": "実運用性能や実際の合意はこの記録だけでは判定できず、0hitやcoverage falseも不存在を証明しない", "required": [], "classification": "record_insufficient"}
+  }
+}

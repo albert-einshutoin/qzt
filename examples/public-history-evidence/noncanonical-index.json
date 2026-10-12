@@ -1,0 +1,251 @@
+{
+  "schema": "qzt-public-history-noncanonical-index-v1",
+  "status": "local-only historical material; never an active input",
+  "initial_attempt": {
+    "reason": "q5 was missing; evaluation cannot be fully reconstructed and remains unknown",
+    "files": [
+      [
+        "commands.json",
+        141892,
+        "36c36433d51fb1ab0aa5e20f21c04e6b95530b0aefad67e5174bed7f9260bc20"
+      ],
+      [
+        "manifest.json",
+        13988,
+        "3a607e21b79abb3f6b4b61dc938e24cce1d398a2feefcfd7ac9618909767bd18"
+      ],
+      [
+        "producer.jsonl",
+        40188,
+        "df0d448b1091d048b7a35738bb66db589c090ef5b14a30317ce896280856b999"
+      ],
+      [
+        "questions.json",
+        975,
+        "813700d39bef06a08ccf3d4b26843ff7a714bc7d4e562ca5b26607d8a02ed4b2"
+      ],
+      [
+        "recipient.py",
+        10533,
+        "6ab6979759d997f2b83920b2dcd2c62bc0a354d33b12eb5f4c18e70e811fee2c"
+      ],
+      [
+        "report.json",
+        110590,
+        "353011ad1548007ee98ba6a78f85b4c72e32f5e48e2359cb1526d81ebc81cd0e"
+      ],
+      [
+        "summary.txt",
+        105,
+        "3dc3967ec93c3d50f1dda850bc403bec87121380320248b71696536095580309"
+      ],
+      [
+        "evidence.qzt",
+        19969,
+        "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+      ],
+      [
+        "evidence.qzi",
+        116353,
+        "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+      ],
+      [
+        "qzt",
+        5188632,
+        "d0e2a617467f67f3b8f063bd17ab6a13d16d5b53a0f4ae9322a72ec7df0c97d2"
+      ]
+    ]
+  },
+  "posthoc_trials": {
+    "handoff": {
+      "reason": "old v1; initial missing evaluation remains historical",
+      "files": [
+        {
+          "path": "handoff/evaluation-report.json",
+          "size": 2665,
+          "sha256": "abfa99f6c89195d653987e6ca38b3547a916c9bf5804cf35a32fa01dedaf48d0"
+        },
+        {
+          "path": "handoff/evidence.qzt",
+          "size": 19969,
+          "sha256": "6ba1fc3c922aeeb24382cf6b1e37fcf32856cf611f8c75b1e49524063b796a00"
+        },
+        {
+          "path": "handoff/manifest.json",
+          "size": 13988,
+          "sha256": "3a607e21b79abb3f6b4b61dc938e24cce1d398a2feefcfd7ac9618909767bd18"
+        },
+        {
+          "path": "handoff/questions.json",
+          "size": 983,
+          "sha256": "cca27c31ccc06ef46ebdf1c0d3101d9b296c1db1764705ceaa8fe83ab3ba4749"
+        },
+        {
+          "path": "handoff/qzt",
+          "size": 5188632,
+          "sha256": "d0e2a617467f67f3b8f063bd17ab6a13d16d5b53a0f4ae9322a72ec7df0c97d2"
+        },
+        {
+          "path": "handoff/recipient.py",
+          "size": 10533,
+          "sha256": "6ab6979759d997f2b83920b2dcd2c62bc0a354d33b12eb5f4c18e70e811fee2c"
+        },
+        {
+          "path": "handoff/summary.txt",
+          "size": 105,
+          "sha256": "3dc3967ec93c3d50f1dda850bc403bec87121380320248b71696536095580309"
+        }
+      ]
+    },
+    "raw/final": {
+      "reason": "query and oracle changed before authorization; not acceptance evidence",
+      "files": [
+        {
+          "path": "raw/final/commands.json",
+          "size": 134830,
+          "sha256": "1ed6fae66c6a5bcec829ff4a3b2a83b8bfdeda9939ca8e912df6611916d9010d"
+        },
+        {
+          "path": "raw/final/evaluation-report.json",
+          "size": 2686,
+          "sha256": "a28da1a282c4f95a77cd67479086b0197684cdc9821646c06ca6446a14216fa7"
+        },
+        {
+          "path": "raw/final/evidence.qzi",
+          "size": 116353,
+          "sha256": "45bd1dafc974146b2b3c0b39ee17adbc2782f2d4f8ed9556e59341aa7b56e72b"
+        },
+        {
+          "path": "raw/final/producer.jsonl",
+          "size": 40188,
+          "sha256": "760bf5cfeaef8df958b0f5613699e628d9fde7cd4d9a87e8788d8fcb4edc312a"
+        },
+        {
+          "path": "raw/final/report.json",
+          "size": 101130,
+          "sha256": "b78e7b5cf0bed23c69d89a869eccdc50eae20aa9146f163e1ec8572794f81f8e"
+        }
+      ]
+    },
+    "raw/fixed-20261012": {
+      "reason": "historical v2 after authorized correction; superseded by canonical v4",
+      "files": [
+        {
+          "path": "raw/fixed-20261012/commands.json",
+          "size": 24317,
+          "sha256": "adaecb69eedf53cc58b54ad532d3a9aae48abe0abe2bca6ec0c5b33e956b4f6a"
+        },
+        {
+          "path": "raw/fixed-20261012/evaluation-report.json",
+          "size": 3688,
+          "sha256": "11eecec89b34d2aed6cf5bc4b3105c20749653fd048f042a87aa59345e7cc7aa"
+        },
+        {
+          "path": "raw/fixed-20261012/handoff-producer.jsonl",
+          "size": 2508,
+          "sha256": "e027a7de14f623155a27cf46c63ab10ab10d3db80f92eb407a3be0acb0108ac5"
+        },
+        {
+          "path": "raw/fixed-20261012/handoff-receipt.json",
+          "size": 12704,
+          "sha256": "cc6e6f3101ab32f61318e0731c8b99f85bee59bf99433e3be6f2df9601002af5"
+        },
+        {
+          "path": "raw/fixed-20261012/manifest.json",
+          "size": 12477,
+          "sha256": "cc6aeb5e89788d4cf2383cd50fc8404b5bf0bc2010ca6b12edd17b13a371a37b"
+        },
+        {
+          "path": "raw/fixed-20261012/questions.json",
+          "size": 983,
+          "sha256": "cca27c31ccc06ef46ebdf1c0d3101d9b296c1db1764705ceaa8fe83ab3ba4749"
+        },
+        {
+          "path": "raw/fixed-20261012/recipient.py",
+          "size": 10679,
+          "sha256": "975e3c752b0fd911cca355f28764b1c5712433a52ad2bc0bdf6e8e494d92aa67"
+        },
+        {
+          "path": "raw/fixed-20261012/report.json",
+          "size": 206620,
+          "sha256": "1d68602090239317cb59fc53b028bf34febb57ce4f558453dcbebf91455868ea"
+        },
+        {
+          "path": "raw/fixed-20261012/run.json",
+          "size": 363,
+          "sha256": "5a0866bf699d5f7e03a1e2f70d8221bd944bd82bffb8545495b126c3932c8591"
+        },
+        {
+          "path": "raw/fixed-20261012/summary.txt",
+          "size": 105,
+          "sha256": "3dc3967ec93c3d50f1dda850bc403bec87121380320248b71696536095580309"
+        }
+      ]
+    },
+    "raw/canonical-20261012": {
+      "reason": "runtime evidence before acquisition contract fix; superseded, bytes preserved",
+      "files": [
+        {
+          "path": "raw/canonical-20261012/build-receipt.json",
+          "size": 5888,
+          "sha256": "03e64772de71566914d8e2300fb271dc88f3ce95dc60c3d6bc25fc638e1b8833"
+        },
+        {
+          "path": "raw/canonical-20261012/commands.json",
+          "size": 45992,
+          "sha256": "06b55794b0e9ab01b82695f780b8fb3669374d5383e946de54110437c621bd42"
+        },
+        {
+          "path": "raw/canonical-20261012/evaluation-report.json",
+          "size": 4048,
+          "sha256": "b4eda62450cdf4c8ad145ff46e5fb0536a193b29e56c0fe96a8ce46a039c8a1f"
+        },
+        {
+          "path": "raw/canonical-20261012/handoff-producer.jsonl",
+          "size": 5468,
+          "sha256": "1f37dbf5911fe131e4893b476f5d8fc2d86ea59bff9bdd56551097ce3b35fba5"
+        },
+        {
+          "path": "raw/canonical-20261012/handoff-receipt.json",
+          "size": 13042,
+          "sha256": "b207388fcc1bf56ff81f7fdbbeb82ab14d34fc0c26670d14e64b1445b882e729"
+        },
+        {
+          "path": "raw/canonical-20261012/manifest.json",
+          "size": 12897,
+          "sha256": "952855ba331a3a5c1fce35c45b4895e26cffbc1aeeef904b4a95af2245086f59"
+        },
+        {
+          "path": "raw/canonical-20261012/orchestration.json",
+          "size": 2454,
+          "sha256": "28f153d48c20fc9c8b5acf937dbb9afbdc2ce3de99cbac5348ca4f59b7bb8e46"
+        },
+        {
+          "path": "raw/canonical-20261012/questions.json",
+          "size": 983,
+          "sha256": "cca27c31ccc06ef46ebdf1c0d3101d9b296c1db1764705ceaa8fe83ab3ba4749"
+        },
+        {
+          "path": "raw/canonical-20261012/recipient.py",
+          "size": 26240,
+          "sha256": "43b49f452f9778987b8edd268135d93db8cd571f9ceef0b3596c22ba02a3951a"
+        },
+        {
+          "path": "raw/canonical-20261012/report.json",
+          "size": 291218,
+          "sha256": "1548759fc1b860ec15906c8021bf2116393e1cad802cd96919944af68996a46d"
+        },
+        {
+          "path": "raw/canonical-20261012/run-freeze.json",
+          "size": 3000,
+          "sha256": "b8f0c9e1219aff631e2706e545110de8bfb5413b0b8a40c16359a298b693d366"
+        },
+        {
+          "path": "raw/canonical-20261012/summary.txt",
+          "size": 105,
+          "sha256": "3dc3967ec93c3d50f1dda850bc403bec87121380320248b71696536095580309"
+        }
+      ]
+    }
+  }
+}

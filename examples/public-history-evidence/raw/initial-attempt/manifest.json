@@ -1,0 +1,323 @@
+{
+  "schema": "qzt-public-history-manifest-v1",
+  "container_id": "5b637a2d924dd1f5f3c995b9f05556e3",
+  "documents": [
+    {
+      "doc_id": "github/issue-344-body.txt",
+      "logical_offset": 0,
+      "byte_length": 4986,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "e620ec6fbd8ec03e70a13d8dc47c0de3c7f757c3695746d326578d74d22f267f"
+      },
+      "source": {
+        "url": "https://api.github.com/repos/albert-einshutoin/qzt/issues/344",
+        "object_id": 5792772506,
+        "node_id": "I_kwDOSzopF88AAAABWUaxmg",
+        "html_url": "https://github.com/albert-einshutoin/qzt/issues/344",
+        "updated_at": "2026-10-10T16:17:54Z",
+        "fetched_at": "2026-10-12T11:20:05.830989Z",
+        "raw": {
+          "path": "raw/01-repos_albert-einshutoin_qzt_issues_344.raw",
+          "size": 8585,
+          "sha256": "0066ac30c4d17637bcf583508ad28d9f0e495b27755b48a8f2a61b2c63f2a787"
+        },
+        "extracted_body": {
+          "path": "body/01-repos_albert-einshutoin_qzt_issues_344.utf8",
+          "size": 4986,
+          "sha256": "e620ec6fbd8ec03e70a13d8dc47c0de3c7f757c3695746d326578d74d22f267f",
+          "json_pointer": "/body"
+        },
+        "selection": "non-empty body retained"
+      }
+    },
+    {
+      "doc_id": "github/issue-344-comment-6099596001.txt",
+      "logical_offset": 4986,
+      "byte_length": 1582,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "8cba62e9c0658ad60f2775440cc5e69eadeab7120701d5b8d73a33fe8885c337"
+      },
+      "source": {
+        "url": "https://api.github.com/repos/albert-einshutoin/qzt/issues/344/comments?per_page=30",
+        "object_id": 6099596001,
+        "node_id": "IC_kwDOSzopF88AAAABa5By4Q",
+        "html_url": "https://github.com/albert-einshutoin/qzt/issues/344#issuecomment-6099596001",
+        "updated_at": "2026-10-10T16:17:54Z",
+        "fetched_at": "2026-10-12T11:20:06.133310Z",
+        "raw": {
+          "path": "raw/02-repos_albert-einshutoin_qzt_issues_344_comments-per_page=30.raw",
+          "size": 3326,
+          "sha256": "10807559e3bcbde8b9534bb322949f37aa436905c7bde548fd02cd1503e0d159"
+        },
+        "extracted_body": {
+          "path": "body/02-repos_albert-einshutoin_qzt_issues_344_comments-per_page=30.utf8",
+          "size": 1582,
+          "sha256": "8cba62e9c0658ad60f2775440cc5e69eadeab7120701d5b8d73a33fe8885c337",
+          "json_pointer": "/*/body"
+        },
+        "selection": "non-empty body retained"
+      }
+    },
+    {
+      "doc_id": "github/pr-345-body.txt",
+      "logical_offset": 6568,
+      "byte_length": 5493,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "75ba6c3edec3f0ca53d8cd8fb83c615df98f424656eeb8875e19db6abecc14f8"
+      },
+      "source": {
+        "url": "https://api.github.com/repos/albert-einshutoin/qzt/pulls/345",
+        "object_id": 4812484002,
+        "node_id": "PR_kwDOSzopF88AAAABHtitog",
+        "html_url": "https://github.com/albert-einshutoin/qzt/pull/345",
+        "updated_at": "2026-10-10T16:17:56Z",
+        "fetched_at": "2026-10-12T11:20:06.400670Z",
+        "raw": {
+          "path": "raw/03-repos_albert-einshutoin_qzt_pulls_345.raw",
+          "size": 23162,
+          "sha256": "522d26a5637dda55ee6e4affac2d42064856438787f71f0a737ea6391c96b6eb"
+        },
+        "extracted_body": {
+          "path": "body/03-repos_albert-einshutoin_qzt_pulls_345.utf8",
+          "size": 5493,
+          "sha256": "75ba6c3edec3f0ca53d8cd8fb83c615df98f424656eeb8875e19db6abecc14f8",
+          "json_pointer": "/body"
+        },
+        "selection": "non-empty body retained"
+      }
+    },
+    {
+      "doc_id": "github/pr-345-comment-4238230444.txt",
+      "logical_offset": 12061,
+      "byte_length": 778,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "91a3399e24701e74d8d1038f3d50cb4b711081539ea4f17f85ac42ee0b8e5309"
+      },
+      "source": {
+        "url": "https://api.github.com/repos/albert-einshutoin/qzt/pulls/345/comments?per_page=30",
+        "object_id": 4238230444,
+        "node_id": "PRRC_kwDOSzopF878nkOs",
+        "html_url": "https://github.com/albert-einshutoin/qzt/pull/345#discussion_r4238230444",
+        "updated_at": "2026-10-10T15:55:24Z",
+        "fetched_at": "2026-10-12T11:20:06.745860Z",
+        "raw": {
+          "path": "raw/04-repos_albert-einshutoin_qzt_pulls_345_comments-per_page=30.raw",
+          "size": 6920,
+          "sha256": "a04d666f41c873d8f52c7842e05103c190b2c38f9e8f014c235000ff0588a7b0"
+        },
+        "extracted_body": {
+          "path": "body/04-repos_albert-einshutoin_qzt_pulls_345_comments-per_page=30.utf8",
+          "size": 1612,
+          "sha256": "b81b1a559a970b2febb471eae5415e9c31a6e56344de6bf8cd6b9ee02f3ca607",
+          "json_pointer": "/*/body"
+        },
+        "selection": "non-empty body retained"
+      }
+    },
+    {
+      "doc_id": "github/pr-345-comment-4238290457.txt",
+      "logical_offset": 12839,
+      "byte_length": 834,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "64b338c5f4717c852615d07640b9a11bff56559e7784763f592f1e1265d04fe7"
+      },
+      "source": {
+        "url": "https://api.github.com/repos/albert-einshutoin/qzt/pulls/345/comments?per_page=30",
+        "object_id": 4238290457,
+        "node_id": "PRRC_kwDOSzopF878ny4Z",
+        "html_url": "https://github.com/albert-einshutoin/qzt/pull/345#discussion_r4238290457",
+        "updated_at": "2026-10-10T16:13:05Z",
+        "fetched_at": "2026-10-12T11:20:06.745860Z",
+        "raw": {
+          "path": "raw/04-repos_albert-einshutoin_qzt_pulls_345_comments-per_page=30.raw",
+          "size": 6920,
+          "sha256": "a04d666f41c873d8f52c7842e05103c190b2c38f9e8f014c235000ff0588a7b0"
+        },
+        "extracted_body": {
+          "path": "body/04-repos_albert-einshutoin_qzt_pulls_345_comments-per_page=30.utf8",
+          "size": 1612,
+          "sha256": "b81b1a559a970b2febb471eae5415e9c31a6e56344de6bf8cd6b9ee02f3ca607",
+          "json_pointer": "/*/body"
+        },
+        "selection": "non-empty body retained"
+      }
+    },
+    {
+      "doc_id": "github/pr-345-review-5479715626.txt",
+      "logical_offset": 13673,
+      "byte_length": 631,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "d4ca9a27c1a4d5107d995c7e0a72929862e8186a9c58cb8c9cf00c9d052da098"
+      },
+      "source": {
+        "url": "https://api.github.com/repos/albert-einshutoin/qzt/pulls/345/reviews?per_page=30",
+        "object_id": 5479715626,
+        "node_id": "PRR_kwDOSzopF88AAAABRp3TKg",
+        "html_url": "https://github.com/albert-einshutoin/qzt/pull/345#pullrequestreview-5479715626",
+        "updated_at": null,
+        "fetched_at": "2026-10-12T11:20:07.081974Z",
+        "raw": {
+          "path": "raw/05-repos_albert-einshutoin_qzt_pulls_345_reviews-per_page=30.raw",
+          "size": 4121,
+          "sha256": "5c69bdf8239b9574976aedce6ee90a96f5b09a216bce9519e4167107d4bf6c35"
+        },
+        "extracted_body": {
+          "path": "body/05-repos_albert-einshutoin_qzt_pulls_345_reviews-per_page=30.utf8",
+          "size": 631,
+          "sha256": "d4ca9a27c1a4d5107d995c7e0a72929862e8186a9c58cb8c9cf00c9d052da098",
+          "json_pointer": "/*/body"
+        },
+        "selection": "non-empty body retained"
+      }
+    },
+    {
+      "doc_id": "github/issue-345-comment-6099345852.txt",
+      "logical_offset": 14304,
+      "byte_length": 939,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "3c9044261ee411421fa534827851ca948edcf756b3889521cacd8124e381ff97"
+      },
+      "source": {
+        "url": "https://api.github.com/repos/albert-einshutoin/qzt/issues/345/comments?per_page=30",
+        "object_id": 6099345852,
+        "node_id": "IC_kwDOSzopF88AAAABa4yhvA",
+        "html_url": "https://github.com/albert-einshutoin/qzt/pull/345#issuecomment-6099345852",
+        "updated_at": "2026-10-10T16:12:43Z",
+        "fetched_at": "2026-10-12T11:20:07.532331Z",
+        "raw": {
+          "path": "raw/06-repos_albert-einshutoin_qzt_issues_345_comments-per_page=30.raw",
+          "size": 11762,
+          "sha256": "ae4c5a9a2bcb5986a6a946a2f1d2284125f6285b95c96c7c45386dd8aa1cf7bc"
+        },
+        "extracted_body": {
+          "path": "body/06-repos_albert-einshutoin_qzt_issues_345_comments-per_page=30.utf8",
+          "size": 1811,
+          "sha256": "c4c28c53edf75b6cae63a03f53b4081a8b2ae76590b7a10f810c6b6d5cee3e26",
+          "json_pointer": "/*/body"
+        },
+        "selection": "non-empty body retained"
+      }
+    },
+    {
+      "doc_id": "github/issue-345-comment-6099347175.txt",
+      "logical_offset": 15243,
+      "byte_length": 872,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "30b0f41c1249b9fadead93e5eed70c21876025516363ccc40b7aa315d53e3c60"
+      },
+      "source": {
+        "url": "https://api.github.com/repos/albert-einshutoin/qzt/issues/345/comments?per_page=30",
+        "object_id": 6099347175,
+        "node_id": "IC_kwDOSzopF88AAAABa4ym5w",
+        "html_url": "https://github.com/albert-einshutoin/qzt/pull/345#issuecomment-6099347175",
+        "updated_at": "2026-10-10T16:15:12Z",
+        "fetched_at": "2026-10-12T11:20:07.532331Z",
+        "raw": {
+          "path": "raw/06-repos_albert-einshutoin_qzt_issues_345_comments-per_page=30.raw",
+          "size": 11762,
+          "sha256": "ae4c5a9a2bcb5986a6a946a2f1d2284125f6285b95c96c7c45386dd8aa1cf7bc"
+        },
+        "extracted_body": {
+          "path": "body/06-repos_albert-einshutoin_qzt_issues_345_comments-per_page=30.utf8",
+          "size": 1811,
+          "sha256": "c4c28c53edf75b6cae63a03f53b4081a8b2ae76590b7a10f810c6b6d5cee3e26",
+          "json_pointer": "/*/body"
+        },
+        "selection": "non-empty body retained"
+      }
+    },
+    {
+      "doc_id": "github/commit-2026-10-index-build-budget.md",
+      "logical_offset": 16115,
+      "byte_length": 13096,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "32d7a933d2fc5226416f9e558e28ead90ab48d7ed7506a2523d859c21bdaee62"
+      },
+      "source": {
+        "url": "https://raw.githubusercontent.com/albert-einshutoin/qzt/3d092d1db64fdd3f0744377df98257038eddd32f/docs/benchmarks/2026-10-index-build-budget.md",
+        "object_id": "3d092d1db64fdd3f0744377df98257038eddd32f",
+        "node_id": "C_kwDOSzopF9oAKDNkMDkyZDFkYjY0ZmRkM2YwNzQ0Mzc3ZGY5ODI1NzAzOGVkZGQzMmY",
+        "html_url": "https://github.com/albert-einshutoin/qzt/blob/3d092d1db64fdd3f0744377df98257038eddd32f/docs/benchmarks/2026-10-index-build-budget.md",
+        "updated_at": "2026-10-10T16:14:52Z",
+        "fetched_at": "2026-10-12T11:20:08.309762Z",
+        "commit_sha": "3d092d1db64fdd3f0744377df98257038eddd32f",
+        "path": "docs/benchmarks/2026-10-index-build-budget.md",
+        "blob_sha": "694ad4141bfbc6617543cdedb5a71cf5cb961bfb",
+        "raw": {
+          "path": "raw/08-albert-einshutoin_qzt_3d092d1db64fdd3f0744377df98257038eddd32f_docs_benchmarks_2.raw",
+          "size": 13096,
+          "sha256": "32d7a933d2fc5226416f9e558e28ead90ab48d7ed7506a2523d859c21bdaee62"
+        },
+        "extracted_body": {
+          "path": "body/08-albert-einshutoin_qzt_3d092d1db64fdd3f0744377df98257038eddd32f_docs_benchmarks_2.utf8",
+          "size": 13096,
+          "sha256": "32d7a933d2fc5226416f9e558e28ead90ab48d7ed7506a2523d859c21bdaee62",
+          "json_pointer": null
+        },
+        "selection": "fixed commit/path file"
+      }
+    },
+    {
+      "doc_id": "github/commit-2026-10-index-build-budget-delivery.md",
+      "logical_offset": 29211,
+      "byte_length": 7422,
+      "checksum": {
+        "algorithm": "sha256",
+        "value": "8acfe067f53e18e9ffee492f47e7bbc9fb6c920915cb5476f44093b1195d077d"
+      },
+      "source": {
+        "url": "https://raw.githubusercontent.com/albert-einshutoin/qzt/3d092d1db64fdd3f0744377df98257038eddd32f/docs/benchmarks/2026-10-index-build-budget-delivery.md",
+        "object_id": "3d092d1db64fdd3f0744377df98257038eddd32f",
+        "node_id": "C_kwDOSzopF9oAKDNkMDkyZDFkYjY0ZmRkM2YwNzQ0Mzc3ZGY5ODI1NzAzOGVkZGQzMmY",
+        "html_url": "https://github.com/albert-einshutoin/qzt/blob/3d092d1db64fdd3f0744377df98257038eddd32f/docs/benchmarks/2026-10-index-build-budget-delivery.md",
+        "updated_at": "2026-10-10T16:14:52Z",
+        "fetched_at": "2026-10-12T11:20:08.640154Z",
+        "commit_sha": "3d092d1db64fdd3f0744377df98257038eddd32f",
+        "path": "docs/benchmarks/2026-10-index-build-budget-delivery.md",
+        "blob_sha": "7177aead8ee4cffd7a31db47a05ef1f3c1cc2bf7",
+        "raw": {
+          "path": "raw/09-albert-einshutoin_qzt_3d092d1db64fdd3f0744377df98257038eddd32f_docs_benchmarks_2.raw",
+          "size": 7422,
+          "sha256": "8acfe067f53e18e9ffee492f47e7bbc9fb6c920915cb5476f44093b1195d077d"
+        },
+        "extracted_body": {
+          "path": "body/09-albert-einshutoin_qzt_3d092d1db64fdd3f0744377df98257038eddd32f_docs_benchmarks_2.utf8",
+          "size": 7422,
+          "sha256": "8acfe067f53e18e9ffee492f47e7bbc9fb6c920915cb5476f44093b1195d077d",
+          "json_pointer": null
+        },
+        "selection": "fixed commit/path file"
+      }
+    }
+  ],
+  "selection": {
+    "rule": "retain every non-empty UTF-8 body from the approved API objects and both fixed raw commit/path files",
+    "excluded": [
+      {
+        "id": 5479806767,
+        "node_id": "PRR_kwDOSzopF88AAAABRp83Lw",
+        "reason": "empty body; metadata retained, no document"
+      }
+    ],
+    "metadata_only": {
+      "commit_sha": "3d092d1db64fdd3f0744377df98257038eddd32f",
+      "path": "commit response files are metadata only"
+    }
+  },
+  "source": {
+    "source_sha": "3d092d1db64fdd3f0744377df98257038eddd32f",
+    "snapshot_sha256": "a1c39fa3ee1404f6f372807956b2a401f37ed0c6bc352b81c7a6bbf4efaf19bd",
+    "policy_sha256": "af712eea80ad8d591b08f473e4b0374454699d63255809cce1a209732e0da8ae",
+    "snapshot_schema": "qzt-public-history-snapshot-v1"
+  },
+  "question_binding": "none; manifest inventory is not an answer oracle"
+}

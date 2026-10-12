@@ -1,0 +1,12 @@
+この納品Goalを完了しました。PR #345はmainへmerge済みです。
+
+- 最終PR HEAD: `db30ab7c38bcf0610a9f28515c3a831c8d8068a9`
+- merge SHA: `3d092d1db64fdd3f0744377df98257038eddd32f`（最終HEADと同じtree）
+- 最終HEAD: [CI success](https://github.com/albert-einshutoin/qzt/actions/runs/38066724160)、[security success](https://github.com/albert-einshutoin/qzt/actions/runs/38066724442)、GitGuardian success。
+- 同一merge SHA: [main CI success](https://github.com/albert-einshutoin/qzt/actions/runs/38066881857)、[main security success](https://github.com/albert-einshutoin/qzt/actions/runs/38066882360)。11 CI jobs/3 security jobs成功。
+
+入力/既存出力保護、予算内の従来bytes/検索結果、製品の資源拒否、defaultの受理範囲縮小、preview API移行を文書と回帰で納品しました。初回CI失敗を保持して修正し、P2 matrix指摘は解消、範囲限定Sol専門reviewとfresh Companion ALLOWを確認しました。元の514 PASS/3 ignoredなどは対象bytes付きの過去記録として区別しています。
+
+約302 MBのlocal-only原本と元checkout/.devloopを維持し、Gitには必要なcompact記録・小fixture・再現手順を含めています。公開pre.6 tag/asset、release、crates.ioは変更していません。新optionは公開pre.6にはありません。
+
+厳密なRSS上限/OOM防止、100 MiB完走/成功peak、一般coverage、G3全体・第三者検証・production-readyは未達のままです。このIssueを完了し、次Issue/releaseへ自動継続しません。

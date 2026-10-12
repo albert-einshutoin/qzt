@@ -1,0 +1,10 @@
+# Generated handoff payloads stay local; the source scripts and frozen JSON are reviewed instead.
+handoff/
+raw/final/
+raw/fixed-20261012/
+raw/canonical-20261012/
+raw/**/qzt
+raw/**/qzt.exe
+raw/**/*.qzt
+raw/**/*.qzi
+__pycache__/
