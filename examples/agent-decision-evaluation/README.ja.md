@@ -50,6 +50,23 @@ PY
 CLIのsandbox-execはmacOSで利用可能な場合だけ設定され、有効にした後の失敗を黙って迂回しない。
 Linux/Windowsで再実行した結果を、本評価のmacOS証拠と同一扱いしない。
 
+初回は、製品base、判断時main、閉じた未merge PR #286のheadをローカルGit objectとして取得する。
+通常のmain checkoutだけでは未mergeのPR objectは揃わず、shallow checkoutでは古いmainも不足し得る。
+保存済みsnapshotとは別に、prepare.pyが固定commitのbytesを`git show`で照合するための前提条件である。
+必要な公開refだけを取得し、固定SHAのcommitが読めることを確認する。PR refの現在のheadへ
+根拠を読み替えない。将来refが移動して固定objectを取得できなければ停止する。
+この初回取得にはネットワークが必要で、objectが揃った後の準備・検証は保存snapshotで実行できる。
+
+```sh
+git fetch origin \
+  4681072bd78f8a098f4583a86c765deaab5894c6 \
+  8aaec582259815189deb1844eb66c2b6bc2e1efd \
+  refs/pull/286/head
+git cat-file -e '4681072bd78f8a098f4583a86c765deaab5894c6^{commit}'
+git cat-file -e '8aaec582259815189deb1844eb66c2b6bc2e1efd^{commit}'
+git cat-file -e '16033d45bfc96b7b43011e597c302a650d026efc^{commit}'
+```
+
 ```sh
 cargo build --locked --bin qzt
 trial_parent=$(mktemp -d)

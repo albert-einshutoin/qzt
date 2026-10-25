@@ -1,0 +1,5 @@
+指摘範囲だけ最終Stop Gate。日本語、READ_ONLY/STATIC_ONLY、追加探索・編集・test/import/code実行・network・subagent禁止。開始ALLOW: touched=[] またはBLOCK: touched=[]。
+root /Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt、前回あなたの最終判定ALLOW後にcommit6e2220bでPR350を納品。最終HEADのci/securityはattempt1成功したが、自動review4371787206の直接P2「通常checkoutに未merge PR286のGit objectがなくprepare再現不可」がありmergeしていない。指摘はraw/review/pr-direct-comment.json。
+修正はREADMEの初回Git fetch(製品base4681072、判断時main8aaec58、refs/pull/286/head)と3固定SHA存在確認、RESULTの初回取得費用は既測定に含めないという補足。固定objectが無ければ停止し、現在のPR headやsnapshotだけへ暗黙fallbackしない。helper/Core/質問/規則/回答/採点は変更なし。
+使い捨て公開shallow checkoutで「main履歴も不足」caseと「base+historical main存在・PR pin16033d45だけ不足」caseを別々に確認。両caseとも準備失敗→明示fetch→固定pin確認→同じprepare成功。既存の保護済み実験binaryをcopyしたこの回帰を本評価の新試行や性能計測には混ぜない。実command/exit/stdout/stderrはraw/review/reproduction-prerequisite.json。事前fetch前の失敗も保持。
+新canonical-index期待SHA=a7597071263d932f213cdda17c63228c0cb4a038a1d263a49e5feea72196fc87。登録実fileのbytes/hashをread-only照合し、このP2のREADME契約/固定pin/実証記録/RESULTの限定と、前回ALLOWEDの他証拠不変だけ確認。新探索しない。原文引用69/要約36/105、unknownと不一致、過大保証限界はそのまま。回答input freezeは再照合成功。修正HEADのCI/securityはGate後に一回確認する予定で今は未実施。この予定自体はBLOCK根拠にしない。

@@ -140,6 +140,8 @@ manifestは5,258 bytesでB/C共通。初回Cの全inputはbinary等込み5,319,7
 binary単体は5,186,648 bytesで、インストール済みCLIを反復利用すれば毎回配布する費用とは限らない。
 今回の単回準備はpack約0.026秒、Deep verify約0.006秒、index約0.057秒（正確値は[準備記録](raw/preparation.json)）。
 debug buildは先行実行が6.75秒と報告。原文取得・設計・モデル作業全体の人間作業時間や実金額は測っていない。
+新しいcheckoutでは固定Git objectの初回取得も必要で、その取得費用は上の構築時間に含まない。
+本評価時は必要なobjectが既に存在した。通常のmain cloneだけで未merge PRの履歴が揃うとは限らない。
 反復時はQZIを再利用し、CのCLI合計は試行0.246〜0.459秒だったが、初回準備費用をゼロにはしない。
 Deep verify/index構築は全体を読み、gatewayの各C操作もbinary/QZT/QZIを再hashする。
 QZI検証や実際に展開するchunkの全体読取を含め、「一切全体を読まない」とは主張しない。
@@ -174,3 +176,8 @@ context節は「開発版source専用」と記す。公開source `0c8110e6…`�
 ローカルgateや静的レビューはPR/main CI/security、merge、releaseの成功を意味しない。
 納品工程の最終HEADとmerge SHAのhosted確認は各GitHub checkと外側の納品記録へ結び付ける。
 公開版はpre.6のまま、今回の成果は評価資料とharnessであり、製品Core・CI基盤・他プロダクトを変更していない。
+
+PR自動レビューの直接P2で、未merge PR objectがないcheckoutでは再現用prepareが停止すると確認された。
+READMEに必要な公開refの初回取得と3つの固定SHAの存在確認を追記し、履歴の不足した使い捨てcheckoutで
+失敗→取得→同じprepare成功を確認した。これは再現前提の是正で、評価入力・回答・採点・helperを変更しない。
+実command・初回失敗・解消後の結果はraw/review/reproduction-prerequisite.jsonに残す。

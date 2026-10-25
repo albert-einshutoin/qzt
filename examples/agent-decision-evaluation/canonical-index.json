@@ -1,6 +1,6 @@
 {
   "schema": "qzt-agent-canonical-v1",
-  "stage": "comparison/local gates and initial Companion BLOCK with report correction before final Companion/hosted delivery",
+  "stage": "comparison, local gates, previous Companion ALLOW and direct PR reproduction prerequisite fix",
   "files": [
     {
       "path": "examples/agent-decision-evaluation/PLAN.ja.md",
@@ -9,13 +9,13 @@
     },
     {
       "path": "examples/agent-decision-evaluation/README.ja.md",
-      "bytes": 6778,
-      "sha256": "b9f4e9dd3c0b4e2d9b089437b9dc6dfb65cf0fd7892d7de9921afe14cbfab270"
+      "bytes": 7863,
+      "sha256": "c67b6d4531bea903be511f1ed05515c888b3b2705deeef0ce7394bfa02f7fa73"
     },
     {
       "path": "examples/agent-decision-evaluation/RESULT.ja.md",
-      "bytes": 14967,
-      "sha256": "2fe091e3c104b1d85acea938c868ed341cbf4ba6802042dc400e871afa025f05"
+      "bytes": 15750,
+      "sha256": "18258be8ed725cd2019d567a44e164fe410647e79370459100786b1e75378125"
     },
     {
       "path": "examples/agent-decision-evaluation/access.py",
@@ -243,9 +243,24 @@
       "sha256": "43c507cd5b81c237f515c2a5d579ca31f9d1888332bf4e8ff0e9c423ad82a2ee"
     },
     {
+      "path": "examples/agent-decision-evaluation/raw/review/companion-direct-fix-prompt.txt",
+      "bytes": 859,
+      "sha256": "6f79247ea617f6e8963b4e527bd870a64afc76abbbc9bba696a8f7fdced70d88"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/review/companion-final.json",
+      "bytes": 921,
+      "sha256": "a7ea55042ee8a748c4ea6de0c927e4ac630d5e2cb0adb9f53197d5c5815b181c"
+    },
+    {
       "path": "examples/agent-decision-evaluation/raw/review/companion-initial-block.json",
       "bytes": 1458,
       "sha256": "c91d59a30c23881300fb4c57f3be5be6cb914b20a2cd676e9c218a465fbfc815"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/review/companion-initial-prompt.txt",
+      "bytes": 3136,
+      "sha256": "c56f19e107c4a86e7d59fae779e9f77156ffd8ac5c4d63bdaa025de09639be4c"
     },
     {
       "path": "examples/agent-decision-evaluation/raw/review/companion-runtime-error-2.json",
@@ -256,6 +271,16 @@
       "path": "examples/agent-decision-evaluation/raw/review/companion-runtime-models.json",
       "bytes": 358,
       "sha256": "3c55fafbe51a94246cf215b50622323d28804c3faee233a2dd86a56b4b89042a"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/review/pr-direct-comment.json",
+      "bytes": 1048,
+      "sha256": "39749150f9c2b1b95cef07d67ba2e9d7240bf9cb2d096dd1db3062bdae384fd1"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/review/reproduction-prerequisite.json",
+      "bytes": 14365,
+      "sha256": "81b63626b020c1d0cd1c8bb647ec9d5d4e99b4c0e528efc400d5f75642f6dec1"
     },
     {
       "path": "examples/agent-decision-evaluation/raw/review/self-review.ja.md",
@@ -1218,5 +1243,5 @@
       "sha256": "39ad9e4ea59490d58edecaa6ecae819b52a6b2cb86ff49ee7471fd5dc4992302"
     }
   ],
-  "excluded": "self; later final Companion result and final validation/hosted delivery receipts; generated binary/QZT/QZI; __pycache__"
+  "excluded": "self; later direct-fix Companion result and final delivery receipts; generated binary/QZT/QZI; __pycache__"
 }
