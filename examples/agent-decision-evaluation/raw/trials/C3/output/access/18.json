@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "旧PR run 29937773768 のtests job](https://github.com/albert-einshutoin/qzt/actions/runs/29937773768/job/88983655515) は `fallbackReason=full-test rule matched: .github/workflows/ci.yml`、`strategy=full` で `cargo test --locked --all-targets --all-features` を実行（test実行51.492秒、成功）。PR自体がCIを変更したためのfull fallbackで、選択実行の短縮効果や検出能力を示しません。coverage jobもskipでした。"
+  ],
+  "started_epoch": 1792949133.55309,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 3397,
+    "length": 458,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "旧PR run 29937773768 のtests job](https://github.com/albert-einshutoin/qzt/actions/runs/29937773768/job/88983655515) は `fallbackReason=full-test rule matched: .github/workflows/ci.yml`、`strategy=full` で `cargo test --locked --all-targets --all-features` を実行（test実行51.492秒、成功）。PR自体がCIを変更したためのfull fallbackで、選択実行の短縮効果や検出能力を示しません。coverage jobもskipでした。"
+  },
+  "returned_bytes": 601,
+  "ok": true,
+  "finished_epoch": 1792949133.55325
+}

@@ -1,0 +1,15 @@
+{
+  "source": "existing Companion app-server model/list, includeHidden=true",
+  "advertised": [
+    "gpt-reserve",
+    "gpt-5.6-sol",
+    "gpt-5.6-terra",
+    "gpt-5.6-luna",
+    "gpt-daybreak-blue-latest",
+    "codex-auto-review"
+  ],
+  "default": "gpt-5.6-sol",
+  "chosen": "gpt-5.6-sol",
+  "effort": "medium",
+  "new_key_or_configuration_changes": false
+}

@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "PRの `coverage` jobには `if: github.event_name != 'pull_request'` が追加され、PR時の90% line coverage floorが常にskipされます。main/release/scheduleのcoverageは残ります。これはmerge前の検出能力の変更です。"
+  ],
+  "started_epoch": 1792948936.770742,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 2477,
+    "length": 246,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "PRの `coverage` jobには `if: github.event_name != 'pull_request'` が追加され、PR時の90% line coverage floorが常にskipされます。main/release/scheduleのcoverageは残ります。これはmerge前の検出能力の変更です。"
+  },
+  "returned_bytes": 389,
+  "ok": true,
+  "finished_epoch": 1792948936.7708852
+}

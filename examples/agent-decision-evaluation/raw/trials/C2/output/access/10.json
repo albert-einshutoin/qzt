@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "plannerの誤判定は再現しましたが、`cargo test --test mod` 自体は実行していません。実際のCI失敗を今回観測したとは主張しません。"
+  ],
+  "started_epoch": 1792948922.3642838,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 1132,
+    "length": 171,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "plannerの誤判定は再現しましたが、`cargo test --test mod` 自体は実行していません。実際のCI失敗を今回観測したとは主張しません。"
+  },
+  "returned_bytes": 314,
+  "ok": true,
+  "finished_epoch": 1792948922.364577
+}

@@ -1,0 +1,152 @@
+[
+  {
+    "command": [
+      "gh",
+      "api",
+      "repos/albert-einshutoin/qzt/branches/main"
+    ],
+    "epoch": 1792948852.1604621,
+    "exit": 0,
+    "value": {
+      "name": "main",
+      "sha": "4681072bd78f8a098f4583a86c765deaab5894c6"
+    },
+    "stderr": ""
+  },
+  {
+    "command": [
+      "gh",
+      "api",
+      "repos/albert-einshutoin/qzt/releases/tags/v0.1.0-pre.6"
+    ],
+    "epoch": 1792948852.527935,
+    "exit": 0,
+    "value": {
+      "tag_name": "v0.1.0-pre.6",
+      "target_commitish": "0c8110e6b6e08513b4def3f636b5b79d068e275f",
+      "published_at": "2026-10-04T17:03:24Z",
+      "html_url": "https://github.com/albert-einshutoin/qzt/releases/tag/v0.1.0-pre.6"
+    },
+    "stderr": ""
+  },
+  {
+    "command": [
+      "gh",
+      "pr",
+      "view",
+      "345",
+      "--json",
+      "number,state,mergedAt,mergeCommit,headRefOid"
+    ],
+    "epoch": 1792948853.0838451,
+    "exit": 0,
+    "value": {
+      "headRefOid": "db30ab7c38bcf0610a9f28515c3a831c8d8068a9",
+      "mergeCommit": {
+        "oid": "3d092d1db64fdd3f0744377df98257038eddd32f"
+      },
+      "mergedAt": "2026-10-10T16:14:52Z",
+      "number": 345,
+      "state": "MERGED"
+    },
+    "stderr": ""
+  },
+  {
+    "command": [
+      "gh",
+      "pr",
+      "view",
+      "347",
+      "--json",
+      "number,state,mergedAt,mergeCommit,headRefOid"
+    ],
+    "epoch": 1792948853.538411,
+    "exit": 0,
+    "value": {
+      "headRefOid": "18e2b78ff8aabb4dad47c5aaa671bbda948b015d",
+      "mergeCommit": {
+        "oid": "c11b7eb9a025f75d84ea9d3029a0674a606c04c6"
+      },
+      "mergedAt": "2026-10-11T01:35:44Z",
+      "number": 347,
+      "state": "MERGED"
+    },
+    "stderr": ""
+  },
+  {
+    "command": [
+      "gh",
+      "pr",
+      "view",
+      "349",
+      "--json",
+      "number,state,mergedAt,mergeCommit,headRefOid"
+    ],
+    "epoch": 1792948853.927298,
+    "exit": 0,
+    "value": {
+      "headRefOid": "3c612e4452228385d30d6626ff4b902af37992eb",
+      "mergeCommit": {
+        "oid": "4681072bd78f8a098f4583a86c765deaab5894c6"
+      },
+      "mergedAt": "2026-10-12T12:42:16Z",
+      "number": 349,
+      "state": "MERGED"
+    },
+    "stderr": ""
+  },
+  {
+    "command": [
+      "gh",
+      "issue",
+      "view",
+      "344",
+      "--json",
+      "number,state,closedAt"
+    ],
+    "epoch": 1792948854.722327,
+    "exit": 0,
+    "value": {
+      "closedAt": "2026-10-10T16:14:53Z",
+      "number": 344,
+      "state": "CLOSED"
+    },
+    "stderr": ""
+  },
+  {
+    "command": [
+      "gh",
+      "issue",
+      "view",
+      "346",
+      "--json",
+      "number,state,closedAt"
+    ],
+    "epoch": 1792948855.529474,
+    "exit": 0,
+    "value": {
+      "closedAt": "2026-10-11T01:35:45Z",
+      "number": 346,
+      "state": "CLOSED"
+    },
+    "stderr": ""
+  },
+  {
+    "command": [
+      "gh",
+      "issue",
+      "view",
+      "348",
+      "--json",
+      "number,state,closedAt"
+    ],
+    "epoch": 1792948856.0515242,
+    "exit": 0,
+    "value": {
+      "closedAt": "2026-10-12T12:47:46Z",
+      "number": 348,
+      "state": "CLOSED"
+    },
+    "stderr": ""
+  }
+]

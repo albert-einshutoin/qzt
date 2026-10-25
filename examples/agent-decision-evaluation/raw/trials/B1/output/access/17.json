@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d04.txt",
+    "When a PR edits a shared test helper or nested module such as `tests/support/mod.rs` or `tests/phase35_docs_doc_cli/missing_errors.rs`, this filter accepts it because the adapter glob includes `tests/**/*.rs`, then `_target_name` turns it into `mod`/`missing_errors` and the runner executes `cargo test --test <name>`."
+  ],
+  "started_epoch": 1792948776.238067,
+  "cli": [],
+  "result": {
+    "doc_id": "d04.txt",
+    "start": 145,
+    "length": 318,
+    "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915",
+    "quote": "When a PR edits a shared test helper or nested module such as `tests/support/mod.rs` or `tests/phase35_docs_doc_cli/missing_errors.rs`, this filter accepts it because the adapter glob includes `tests/**/*.rs`, then `_target_name` turns it into `mod`/`missing_errors` and the runner executes `cargo test --test <name>`."
+  },
+  "returned_bytes": 460,
+  "ok": true,
+  "finished_epoch": 1792948776.238385
+}

@@ -1,0 +1,27 @@
+{
+  "supersedes": "judge-visibility-check-v1.json",
+  "v1_error": "content blocks were not JSON-decoded before escape normalization; false missing strings. No source, answer, rubric or scores changed. Same corrected check applied to all judges.",
+  "judges": [
+    {
+      "judge": "J1",
+      "missing_answer_texts": [],
+      "missing_citation_quotes": [],
+      "missing_grounds": [],
+      "method": "decode content blocks, then normalize JSON transport escaping; all 81 answers / 105 citation quotes / frozen grounds checked; does not prove attention or semantic correctness"
+    },
+    {
+      "judge": "J2",
+      "missing_answer_texts": [],
+      "missing_citation_quotes": [],
+      "missing_grounds": [],
+      "method": "decode content blocks, then normalize JSON transport escaping; all 81 answers / 105 citation quotes / frozen grounds checked; does not prove attention or semantic correctness"
+    },
+    {
+      "judge": "J3",
+      "missing_answer_texts": [],
+      "missing_citation_quotes": [],
+      "missing_grounds": [],
+      "method": "decode content blocks, then normalize JSON transport escaping; all 81 answers / 105 citation quotes / frozen grounds checked; does not prove attention or semantic correctness"
+    }
+  ]
+}

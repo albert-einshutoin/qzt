@@ -1,0 +1,1012 @@
+{
+  "schema": "qzt-agent-mechanical-audit-v1",
+  "freeze_sha256": "fa6e5a2b3a8770c79ce0881090320e5786c8fb30e2b7a3a8785af74baa68e553",
+  "trials": [
+    {
+      "trial": "B1",
+      "condition": "B",
+      "answer_sha256": "35c734c84079bdbe8cb698c7cb13e2838220b322e64ae99523e9471beeb815df",
+      "trial_status": "submitted",
+      "submission_failure": null,
+      "missing_questions": [],
+      "seconds_to_submission": 141.0393681526184,
+      "late": false,
+      "accesses": 17,
+      "failed_accesses": 0,
+      "denied_attempts": [],
+      "total_access_attempts": 17,
+      "searches": 0,
+      "cli_calls": 0,
+      "returned_bytes": 25106,
+      "cli_seconds": 0,
+      "citation_checks": [
+        {
+          "id": "q1",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        }
+      ],
+      "tool_scope_audit": "pending trace review; gateway log is not complete agent isolation"
+    },
+    {
+      "trial": "C1",
+      "condition": "C",
+      "answer_sha256": "62f4b726212253743ca316085e074eb9bf9b184df3b9767e075c5acbf64d970a",
+      "trial_status": "submitted",
+      "submission_failure": null,
+      "missing_questions": [],
+      "seconds_to_submission": 156.57871198654175,
+      "late": false,
+      "accesses": 22,
+      "failed_accesses": 0,
+      "denied_attempts": [],
+      "total_access_attempts": 22,
+      "searches": 2,
+      "cli_calls": 8,
+      "returned_bytes": 41058,
+      "cli_seconds": 0.24605787493055686,
+      "citation_checks": [
+        {
+          "id": "q1",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        }
+      ],
+      "tool_scope_audit": "pending trace review; gateway log is not complete agent isolation"
+    },
+    {
+      "trial": "A1",
+      "condition": "A",
+      "answer_sha256": "2da7bc9cf9f1812eb26b3d3ddbdb12225234568b07f6f812d3a5f7d20135edd0",
+      "trial_status": "submitted",
+      "submission_failure": null,
+      "missing_questions": [],
+      "seconds_to_submission": 49.823030948638916,
+      "late": false,
+      "accesses": 4,
+      "failed_accesses": 0,
+      "denied_attempts": [],
+      "total_access_attempts": 4,
+      "searches": 0,
+      "cli_calls": 0,
+      "returned_bytes": 4636,
+      "cli_seconds": 0,
+      "citation_checks": [
+        {
+          "id": "q1",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "citations": []
+        },
+        {
+          "id": "q4",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "citations": []
+        },
+        {
+          "id": "q6",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        }
+      ],
+      "tool_scope_audit": "pending trace review; gateway log is not complete agent isolation"
+    },
+    {
+      "trial": "C2",
+      "condition": "C",
+      "answer_sha256": "a9a6f55c196cacda57cb2ca309745b9a564ff5be50a167f8e4f8366919af56a0",
+      "trial_status": "submitted",
+      "submission_failure": null,
+      "missing_questions": [],
+      "seconds_to_submission": 138.1345920562744,
+      "late": false,
+      "accesses": 21,
+      "failed_accesses": 0,
+      "denied_attempts": [],
+      "total_access_attempts": 21,
+      "searches": 3,
+      "cli_calls": 9,
+      "returned_bytes": 40142,
+      "cli_seconds": 0.45907066494692117,
+      "citation_checks": [
+        {
+          "id": "q1",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        }
+      ],
+      "tool_scope_audit": "pending trace review; gateway log is not complete agent isolation"
+    },
+    {
+      "trial": "A2",
+      "condition": "A",
+      "answer_sha256": "b17e770f68ac3760bef5db4b94bd50797185cdfcf50979691755fa34d61c3eac",
+      "trial_status": "submitted",
+      "submission_failure": null,
+      "missing_questions": [],
+      "seconds_to_submission": 42.77123212814331,
+      "late": false,
+      "accesses": 3,
+      "failed_accesses": 0,
+      "denied_attempts": [],
+      "total_access_attempts": 3,
+      "searches": 0,
+      "cli_calls": 0,
+      "returned_bytes": 4494,
+      "cli_seconds": 0,
+      "citation_checks": [
+        {
+          "id": "q1",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "citations": []
+        },
+        {
+          "id": "q4",
+          "citations": []
+        },
+        {
+          "id": "q5",
+          "citations": []
+        },
+        {
+          "id": "q6",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        }
+      ],
+      "tool_scope_audit": "pending trace review; gateway log is not complete agent isolation"
+    },
+    {
+      "trial": "B2",
+      "condition": "B",
+      "answer_sha256": "c41ef207c33a20d6eea39a32af95b36736688d30d80e5e8965ae46d3c60ad33c",
+      "trial_status": "submitted",
+      "submission_failure": null,
+      "missing_questions": [],
+      "seconds_to_submission": 110.20917510986328,
+      "late": false,
+      "accesses": 13,
+      "failed_accesses": 0,
+      "denied_attempts": [],
+      "total_access_attempts": 13,
+      "searches": 0,
+      "cli_calls": 0,
+      "returned_bytes": 23261,
+      "cli_seconds": 0,
+      "citation_checks": [
+        {
+          "id": "q1",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        }
+      ],
+      "tool_scope_audit": "pending trace review; gateway log is not complete agent isolation"
+    },
+    {
+      "trial": "A3",
+      "condition": "A",
+      "answer_sha256": "12b283777ced284ec69bec52b57e6973a9ef4174260c5bdfdf6e11733c2c47e7",
+      "trial_status": "submitted",
+      "submission_failure": null,
+      "missing_questions": [],
+      "seconds_to_submission": 53.397555112838745,
+      "late": false,
+      "accesses": 4,
+      "failed_accesses": 0,
+      "denied_attempts": [],
+      "total_access_attempts": 4,
+      "searches": 0,
+      "cli_calls": 0,
+      "returned_bytes": 4636,
+      "cli_seconds": 0,
+      "citation_checks": [
+        {
+          "id": "q1",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "citations": []
+        },
+        {
+          "id": "q4",
+          "citations": []
+        },
+        {
+          "id": "q5",
+          "citations": []
+        },
+        {
+          "id": "q6",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "citations": [
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        }
+      ],
+      "tool_scope_audit": "pending trace review; gateway log is not complete agent isolation"
+    },
+    {
+      "trial": "B3",
+      "condition": "B",
+      "answer_sha256": "e290a23563781d2b465a71cfe697054822bd81d8c4eafc55435bbbafe54dbe4c",
+      "trial_status": "submitted",
+      "submission_failure": null,
+      "missing_questions": [],
+      "seconds_to_submission": 131.55834412574768,
+      "late": false,
+      "accesses": 17,
+      "failed_accesses": 0,
+      "denied_attempts": [],
+      "total_access_attempts": 17,
+      "searches": 0,
+      "cli_calls": 0,
+      "returned_bytes": 25926,
+      "cli_seconds": 0,
+      "citation_checks": [
+        {
+          "id": "q1",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        }
+      ],
+      "tool_scope_audit": "pending trace review; gateway log is not complete agent isolation"
+    },
+    {
+      "trial": "C3",
+      "condition": "C",
+      "answer_sha256": "6c51eb95ee57a309fcb2fb5b5a3fa821dba64ebb395f15698929ac3c5e3e54b1",
+      "trial_status": "submitted",
+      "submission_failure": null,
+      "missing_questions": [],
+      "seconds_to_submission": 136.08446598052979,
+      "late": false,
+      "accesses": 21,
+      "failed_accesses": 0,
+      "denied_attempts": [],
+      "total_access_attempts": 21,
+      "searches": 3,
+      "cli_calls": 9,
+      "returned_bytes": 39120,
+      "cli_seconds": 0.28134854102972895,
+      "citation_checks": [
+        {
+          "id": "q1",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "citations": [
+            {
+              "valid": true,
+              "source": "original"
+            },
+            {
+              "valid": true,
+              "source": "summary"
+            }
+          ]
+        }
+      ],
+      "tool_scope_audit": "pending trace review; gateway log is not complete agent isolation"
+    }
+  ]
+}

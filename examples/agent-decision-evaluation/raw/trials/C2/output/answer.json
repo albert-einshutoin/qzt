@@ -1,0 +1,151 @@
+{
+  "answers": [
+    {
+      "id": "q1",
+      "status": "answered",
+      "answer": "変更の影響が限定的でもPRごとにRust全試験を行い、coverageでも重複実行する時間・課金compute負担を減らす案。変更に応じた選択試験とsmokeを使い、影響解析が不確実な場合には故障検出能力を落とさず全試験へ戻す意図だった。これは意図であり、安全性が実証されたという意味ではない。",
+      "citations": [
+        {
+          "doc_id": "d01.txt",
+          "start": 8,
+          "length": 294,
+          "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d",
+          "quote": "PR CI currently runs the complete Rust suite on every change and repeats that work in coverage, even when a change has a bounded module or documentation impact. This increases elapsed time and billed compute. The optimization must not reduce failure detection when impact analysis is uncertain."
+        }
+      ]
+    },
+    {
+      "id": "q2",
+      "status": "answered",
+      "answer": "現行案の効果とmerge前の検出能力維持が実証されず、未解決P2も残るため、不採用・未mergeでclose。現行CIを維持しselector/workflow変更はmainへ入れず、ブランチ・履歴は残した。この公開過去記録は現在の実行許可ではないため、今の検証手順切替の根拠にはできない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 5464,
+          "length": 347,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "以上から、現行案の効果とmerge前の検出能力維持が実証されていないため、**現行CIを維持し、このPR案は採用しません**。未解決P2を修正済みとは扱わず、PRを未mergeでcloseします。したがってselectorやworkflow変更はmainへ入りません。ブランチ・履歴は残します。"
+        },
+        {
+          "doc_id": "summary",
+          "start": 613,
+          "length": 144,
+          "sha256": "e01af60e95b1bcf05b01fa8f949f1f70f942fa74c55ccf143e379c9ab48c2448",
+          "quote": "これは保存された公開記録の要約であり、現在の実行許可、実際の課金削減や利用者の合意を証明しない。"
+        }
+      ]
+    },
+    {
+      "id": "q3",
+      "status": "answered",
+      "answer": "元の指摘はtests/**/*.rsのstemを独立Cargo targetとし、共有・ネストmoduleをmod等として実行してしまう問題。後の確認ではmainとPRの仮想merge tree上でplannerだけを実行し、tests/support/mod.rs変更がselective、fallback=false、integrationTestTargets=[mod]、smoke=[phase0_smoke]となる誤選択を再現した。同treeのcargo metadataでmodがCargo test targetでないことを確認した。ただしcargo test --test modは実行せず、CI失敗そのものは観測していない。元の指摘にある別ネストファイルの実失敗まで再現したとはいえない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 710,
+          "length": 593,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "現mainとPRの通常mergeを `git merge-tree --write-tree` で作った仮想treeから、3つの使い捨て単一ファイル変更を作り、PRのplannerだけを実行しました。`tests/support/mod.rs` では `strategy=selective, fallback=false, integrationTestTargets=[mod], smokeTestTargets=[phase0_smoke]`。同treeの `cargo metadata --no-deps --offline` で `mod` はCargo test targetではありません。plannerの誤判定は再現しましたが、`cargo test --test mod` 自体は実行していません。実際のCI失敗を今回観測したとは主張しません。"
+        }
+      ]
+    },
+    {
+      "id": "q4",
+      "status": "answered",
+      "answer": "READMEだけの変更ではphase44_readme_product、phase46_tutorials、phase54_public_reference_gapsとsmokeが選ばれ、READMEをinclude_str!で読むphase47_oss_governanceが漏れた。src/main.rsだけの変更ではCARGO_BIN_EXE_qztでCLIをsubprocess実行するphase47_verify_reportが漏れた。このtargetは確認時のmainに存在した。Rust import解析では文書埋込み・バイナリ実行という依存を拾えず、manual mappingにもなかった。確認したのは選択漏れであり、漏れた試験が実際に失敗する変更の再現ではない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 1306,
+          "length": 696,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "READMEだけの変更では選択されたのは `phase44_readme_product`, `phase46_tutorials`, `phase54_public_reference_gaps` とsmokeで、READMEを `include_str!` で直接読む `phase47_oss_governance` は選択されません。`src/main.rs`だけの変更でも、CLIを `CARGO_BIN_EXE_qzt` でsubprocess実行する現在の `phase47_verify_report` は選択されません。後者は現在のmainでCargo targetとして存在します。どちらも選択漏れを確認した結果であり、対象テストが実際に失敗する変更を再現したものではありません。Rust import解析だけではこれらの依存を拾えず、manual mappingにもありません。"
+        }
+      ]
+    },
+    {
+      "id": "q5",
+      "status": "answered",
+      "answer": "採用するとstable/Rust 1.87両laneのmake checkがmake fmt clippy check-defaultに替わり、Rust実試験はstableの別選択jobへ移る。Rust 1.87での実試験とrustdocがなくなる。stableの独立docs jobは残るが、1.87での文書検証とは異なる。PR coverageは常にskipとなりmerge前の90% line coverage floorを失う一方、main/release/scheduleのcoverageは残る。後者の存在はmerge前検査や旧toolchain実試験の維持を意味しない。独立したsecurity・週次/manual fuzz・公開物verifier・候補/release workflowへの変更はなく、現mainに追加済みのsafe file output、dist workflow、dependency policy、Windows release build等も仮想merge treeに残る。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 2058,
+          "length": 416,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "現行CIのstableとRust 1.87 laneは両方 `make check` を実行し、全target/featureのRust testと警告をErrorにするrustdocを含みます。PR差分は両laneを `make fmt clippy check-default` に替え、Rust testをstableの別の選択jobへ移します。Rust 1.87での実テストはなくなります。rustdocは別のstable `docs` jobに残りますが、1.87 laneからはなくなります。"
+        },
+        {
+          "doc_id": "d03.txt",
+          "start": 2477,
+          "length": 246,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "PRの `coverage` jobには `if: github.event_name != 'pull_request'` が追加され、PR時の90% line coverage floorが常にskipされます。main/release/scheduleのcoverageは残ります。これはmerge前の検出能力の変更です。"
+        }
+      ]
+    },
+    {
+      "id": "q6",
+      "status": "answered",
+      "answer": "旧PR run 29937773768のtests成功は選択実行の効果を示さない。CI自身の変更がfull-test ruleに一致し、strategy=full、fallbackReason=full-test rule matched: .github/workflows/ci.ymlでcargo test --locked --all-targets --all-featuresを実行した記録（51.492秒）である。全試験fallbackが成功した範囲のみ分かり、選択の正しさ・検出能力・短縮効果は分からない。coverage jobもskipだった。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 3516,
+          "length": 339,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "は `fallbackReason=full-test rule matched: .github/workflows/ci.yml`、`strategy=full` で `cargo test --locked --all-targets --all-features` を実行（test実行51.492秒、成功）。PR自体がCIを変更したためのfull fallbackで、選択実行の短縮効果や検出能力を示しません。coverage jobもskipでした。"
+        }
+      ]
+    },
+    {
+      "id": "q7",
+      "status": "answered",
+      "answer": "直近3成功runではWindows release buildが最後に完了し、完了待ちを決めていた。PR coverageやstable/MSRV checkを短縮するだけでPR待ち時間が減るとは実証されていない。全job時間和はrunner占有の粗い指標で課金実額ではない。cache、image、競合条件を揃えた比較ではなく、7月と9月のrunを同条件before/afterには使えない。重複Rust試験削減の狙いはあるが、日次full CIとrelease branch push実行、約1.6k行とmapping保守が増えるため、総費用の増減と選択実行時の効果は未測定。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 4589,
+          "length": 873,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "時間はGitHub APIのrun作成時刻とjobのstarted/completed時刻から計算。全jobの和はrunner占有時間の粗い指標で、課金実額ではありません。待機時間とrunner使用量を分けており、cache hit/miss、runner image・競合条件を揃えた比較ではありません。この3 runではWindows release buildが完了待ちを決め、PR coverageやstable/MSRV checkだけを短縮してもPR待ち時間が減るとは実証できません。旧7月runと9月runを同条件のbefore/after比較には使いません。PR案は選択testでPRのRust test重複・runner時間を減らす狙いですが、代わりに日次full CI（既存security日次とは別）とrelease branch pushの実行、約1.6k行のplanner/adapter/test/docsとmapping保守を追加します。増減の実額・選択時の効果は未測定です。"
+        }
+      ]
+    },
+    {
+      "id": "q8",
+      "status": "answered",
+      "answer": "実開発頻度・CI履歴に基づく待ち時間またはrunner使用量の改善必要性、短縮対象の寄与、merge前の検出能力と必要platform/toolchain検証の維持策、小さく判定可能な変更範囲での選択の正しさと効果、mapping保守負担に見合う利益を確認する。それらが揃えば別途再検討する方針であり、今回の案の不採用はCI最適化全般の恒久的禁止ではない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 5813,
+          "length": 441,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "将来は、(1) 実際の開発頻度とCI履歴から待ち時間またはrunner使用量の改善必要性、(2) 短縮対象の寄与、(3) merge前の検出能力と必要なplatform/toolchain検証の維持策、(4) 小さく判定可能な変更範囲での選択正しさと効果、(5) mapping保守負担に見合う利益、が揃う場合に別途再検討します。CI最適化全般を否定する判断ではありません。"
+        }
+      ]
+    },
+    {
+      "id": "q9",
+      "status": "answered",
+      "answer": "どちらも確定できない。課金実額・選択時の効果は未測定で、job時間和から実際の月額削減額へ換算できない。実課金データ、開発頻度、追加laneを含む同条件の利用量・効果比較が未確認。運用利用者全員の範囲と各人の合意を示す証拠も本記録からは確認できない。不採用という開発判断が存在することと、全利用者の合意とは別であり、合意がないと断定するものでもない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 4589,
+          "length": 873,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "時間はGitHub APIのrun作成時刻とjobのstarted/completed時刻から計算。全jobの和はrunner占有時間の粗い指標で、課金実額ではありません。待機時間とrunner使用量を分けており、cache hit/miss、runner image・競合条件を揃えた比較ではありません。この3 runではWindows release buildが完了待ちを決め、PR coverageやstable/MSRV checkだけを短縮してもPR待ち時間が減るとは実証できません。旧7月runと9月runを同条件のbefore/after比較には使いません。PR案は選択testでPRのRust test重複・runner時間を減らす狙いですが、代わりに日次full CI（既存security日次とは別）とrelease branch pushの実行、約1.6k行のplanner/adapter/test/docsとmapping保守を追加します。増減の実額・選択時の効果は未測定です。"
+        },
+        {
+          "doc_id": "summary",
+          "start": 613,
+          "length": 144,
+          "sha256": "e01af60e95b1bcf05b01fa8f949f1f70f942fa74c55ccf143e379c9ab48c2448",
+          "quote": "これは保存された公開記録の要約であり、現在の実行許可、実際の課金削減や利用者の合意を証明しない。"
+        }
+      ]
+    }
+  ]
+}

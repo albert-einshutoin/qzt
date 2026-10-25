@@ -1,0 +1,7 @@
+warning[license-not-encountered]: license was not encountered
+   ┌─ /Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/deny.toml:13:6
+   │
+13 │     "NCSA",
+   │      ━━━━ unmatched license allowance
+
+bans ok, licenses ok, sources ok

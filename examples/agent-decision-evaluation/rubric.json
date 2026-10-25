@@ -1,0 +1,24 @@
+{
+  "schema":"qzt-agent-rubric-v1",
+  "dimensions": {
+    "fact":"0=主要事実の誤りまたは回答なし、1=部分的に正しいが必要点欠落、2=必要点と限界を正しく回答。unknown対象は未確定を正しく述べれば2。",
+    "false_assertions":"原文と矛盾する断定の件数。",
+    "unsupported_assertions":"原文にも公平な要約にも根拠のない断定の件数。要約由来の正しい一般事実は根拠なしと数えない。",
+    "citation":"0=引用なし/誤引用/主張を支えない、1=一部の主要主張のみ正しい原文引用、2=主要主張を原文引用が支える。要約引用だけは0。unknownは範囲付きで確定不能を明示し記録の限界を支える引用があれば2。",
+    "conditions":"0=条件/撤回/現在権限/未測定を取り違える、1=取り違えなしだが必要な区別が欠落、2=問いに必要な区別を明示。",
+    "unknown":"q9のみ0=不存在/合意/実額を断定、1=このsnapshotでは未確認として保持。他の問いはnull。",
+    "completion":"0=回答せず、1=問いの一部に回答、2=問われた全論点に回答。正確さとは別。"
+  },
+  "judging":"全9匿名回答を各採点者が独立採点。点数の高低は期待しない。引用の主張対応は意味判断、byte実在は別の機械照合。事実と許容解釈とunknownを区別。多数決で真実を定めない。",
+  "questions": [
+    {"id":"q1","expected":["毎PRで全Rust suiteとcoverageでの重複が時間/compute負担","影響不明なら失敗検出能力を減らさない意図"],"allowed":"狙いと実証済みの効果を分ける。","unknown":"実際の削減効果は未測定","grounds":[{"doc_id":"d01.txt","quote":"The optimization must not reduce failure detection when impact analysis is uncertain."}]},
+    {"id":"q2","expected":["現行CI維持、未mergeでclose、selector/workflow変更はmainに入らない","過去記録は現在の変更許可を与えない"],"allowed":"最新状態はこのsnapshotの範囲と限定して答える。","unknown":"現在の実行許可は別途必要","grounds":[{"doc_id":"d03.txt","quote":"現行CIを維持し、このPR案は採用しません"},{"doc_id":"d03.txt","quote":"したがってselectorやworkflow変更はmainへ入りません。"}]},
+    {"id":"q3","expected":["共有/ネストmoduleのstemをCargo独立target扱いするP2","後にplannerがmodを選びcargo metadataでtargetでないと確認","cargo test --test modや実CI失敗は後の確認で観測していない"],"allowed":"初期reviewの予想と後のplanner再現を区別。","unknown":"実際のCI失敗は未観測","grounds":[{"doc_id":"d04.txt","quote":"these nested module files are not standalone integration-test targets"},{"doc_id":"d03.txt","quote":"plannerの誤判定は再現しましたが、`cargo test --test mod` 自体は実行していません。"}]},
+    {"id":"q4","expected":["README変更でphase47_oss_governanceが漏れinclude_str!直接依存","src/main.rs変更でphase47_verify_reportが漏れCARGO_BIN_EXE_qzt subprocess依存","Rust import解析とmanual mappingで拾えず、実失敗を作った実験ではない"],"allowed":"固有test名がない場合も依存経路を正確に示せば部分点。","unknown":"漏れたtestが実際に失敗する変更は未再現","grounds":[{"doc_id":"d03.txt","quote":"READMEを `include_str!` で直接読む `phase47_oss_governance` は選択されません。"},{"doc_id":"d03.txt","quote":"CLIを `CARGO_BIN_EXE_qzt` でsubprocess実行する現在の `phase47_verify_report` は選択されません。"}]},
+    {"id":"q5","expected":["Rust1.87 laneから実testとrustdocがなくなる","rustdocはstable別docs jobに残る","PRの90%coverage floorをskip、main/release/scheduleは残る","独立security/fuzz等や後追加jobは仮想mergeで残る"],"allowed":"コメントの説明と固定main CI/Makefileから裏づけ。資料未収録のPR workflow差分そのものを直接検証したとは言わない。","unknown":"現行CIとPR案を混同しない","grounds":[{"doc_id":"d03.txt","quote":"Rust 1.87での実テストはなくなります。"},{"doc_id":"d03.txt","quote":"PR時の90% line coverage floorが常にskipされます。"},{"doc_id":"d06.txt","quote":"toolchain: [stable, \"1.87.0\"]"},{"doc_id":"d07.txt","quote":"check: fmt clippy check-default test doc"}]},
+    {"id":"q6","expected":["CI workflow変更によりstrategy=full/full-test fallback","全target/feature試験51.492秒成功、coverageはskip","選択実行の短縮や検出能力を示さない"],"allowed":"PR本文の21.9秒ローカル確認とhosted51.492秒を区別。","unknown":"選択実行時の効果は未測定","grounds":[{"doc_id":"d01.txt","quote":"This PR changes CI policy itself, so its own impact plan intentionally falls back to the full suite."},{"doc_id":"d03.txt","quote":"test実行51.492秒、成功"},{"doc_id":"d03.txt","quote":"選択実行の短縮効果や検出能力を示しません。"}]},
+    {"id":"q7","expected":["3成功runではWindows release buildがcritical path","wall待ちと全job和=粗いrunner占有指標を分け課金実額でない","cache等を揃えた比較ではなく、選択実行の効果/増減実額は未測定"],"allowed":"表の86/68/77秒と430/390/409秒を引用しても必須ではない。","unknown":"一般的な改善率と課金額は確定不可","grounds":[{"doc_id":"d03.txt","quote":"この3 runではWindows release buildが完了待ちを決め"},{"doc_id":"d03.txt","quote":"全jobの和はrunner占有時間の粗い指標で、課金実額ではありません。"},{"doc_id":"d03.txt","quote":"増減の実額・選択時の効果は未測定です。"}]},
+    {"id":"q8","expected":["必要性、短縮対象寄与、検出能力/platform/toolchain維持","限定範囲で選択正しさと効果、mapping保守に見合う利益","CI最適化全般の否定ではない"],"allowed":"5条件の言い換えを許す。","unknown":"将来の採用は未決定","grounds":[{"doc_id":"d03.txt","quote":"mapping保守負担に見合う利益"},{"doc_id":"d03.txt","quote":"CI最適化全般を否定する判断ではありません。"}]},
+    {"id":"q9","expected":["実際の月額削減額はこの記録から未確定","運用利用者全員の実際の合意は未確認","記録にない/検索0件を真の不存在としない"],"allowed":"unknownとし不足を説明。合意が無いと断定しない。","unknown":"実額と全員合意","grounds":[{"doc_id":"d03.txt","quote":"増減の実額・選択時の効果は未測定です。"}]}
+  ]
+}

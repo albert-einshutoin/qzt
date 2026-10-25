@@ -1,0 +1,484 @@
+{
+  "schema": "qzt-agent-freeze-v1",
+  "epoch": 1792948684.9262102,
+  "files": [
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/PLAN.ja.md",
+      "bytes": 4047,
+      "sha256": "060a694e0e41186a859f359045eb5d6ff455293ea88bbf5d18f222998c4fac34"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/access.py",
+      "bytes": 7512,
+      "sha256": "10b2160b25c41987e138a6c47f7dee8d433eddc669cfddfbac3e4b3ea6c8e5d6"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/acquire.py",
+      "bytes": 4669,
+      "sha256": "8c88e4f58491ce30ccf6ca9775a4d88f4d7b8b7286da895907260afdf8f55b7c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/audit.py",
+      "bytes": 4387,
+      "sha256": "dddf87a5ffb5e76148b06e71feb89a946b70cf4471c575ea24336bf26df9c337"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/harness.py",
+      "bytes": 8055,
+      "sha256": "d10d7737ddacccd2008f034f918efdc52e653a10fc29d3e0bcbddb05dde423ca"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/judge.py",
+      "bytes": 5302,
+      "sha256": "195809548cbd1dd467f82cb85a3848a2b716d9b97d693a71b33835b11ae624ec"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/prepare.py",
+      "bytes": 9354,
+      "sha256": "a6e478722e5151e20b4b3af70a1935d918cf764d94991f917f7db3ea5f910690"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/test_harness.py",
+      "bytes": 8468,
+      "sha256": "f8fcba9613b1b93f6ca89b6890578e9f21534f4078e3f7bee5548e45533f0d92"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/questions.json",
+      "bytes": 2580,
+      "sha256": "d706b0126e617ec45297ba95116f67c6ff4dc40d41a37593d1c05440df475aea"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/rubric.json",
+      "bytes": 6732,
+      "sha256": "43a298bebac70feb7bf77b1a0ad6049f42616199f2adda4aad76a0e452fc400d"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/body/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/body/d02.txt",
+      "bytes": 242,
+      "sha256": "430eb984e53f37efa1cf064d95ff2e861ee2219388d4bbb0c2d7a19440baedde"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/body/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/body/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/body/d05.txt",
+      "bytes": 631,
+      "sha256": "4d6356e61255dca8a504c4f47af268cf539cf0c89bd3497546f31556a21ad7b7"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/body/d06.txt",
+      "bytes": 4201,
+      "sha256": "559de35c8bd852fc97af553a7331c9dd6b56722e5b7dd28457f98d6e9fd7afcf"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/body/d07.txt",
+      "bytes": 2827,
+      "sha256": "9c6c5801bd745b4fe513c35e939d083f9e21b4e18d014e77806dcf1225804f10"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/body/d08.txt",
+      "bytes": 3860,
+      "sha256": "fea3fc982e37df75ec4679c44581a605419af36a60357e1c586897174152f11e"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/body/d09.txt",
+      "bytes": 19448,
+      "sha256": "e3489aaa0abf001d760b14ce0c2912cc33915c165aa5bc7f3fe0936251f795ab"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/manifest.json",
+      "bytes": 19515,
+      "sha256": "c371272206d395cd5e0c570c2d5e16beb509136e14d1424425c54910e32a9823"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/policy.json",
+      "bytes": 1170,
+      "sha256": "d08ca1872887d1ec2b0aacb5b71c573ca7988723a5167dbea897b9e89c337d8c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/raw/00.json",
+      "bytes": 19449,
+      "sha256": "f9307778b27058e95a6f53cdee00176f8fb134bc26e147c2ffa9f18d6e96dedb"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/raw/01.json",
+      "bytes": 12071,
+      "sha256": "ad52ed60ad846593499f5422bb7ac0874f948976f9f4ef131affbb7560f4e4e4"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/raw/02.json",
+      "bytes": 12824,
+      "sha256": "b05ec42055f143dc123c1e650a0f895e77d94883a67f12dab78738a54e60bf7b"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/raw/03.json",
+      "bytes": 2451,
+      "sha256": "8eda82e323886a947b7340084d46d3e788a905ba7c0239530771baa0ccec624c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/raw/04.txt",
+      "bytes": 4201,
+      "sha256": "559de35c8bd852fc97af553a7331c9dd6b56722e5b7dd28457f98d6e9fd7afcf"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/raw/05.txt",
+      "bytes": 2827,
+      "sha256": "9c6c5801bd745b4fe513c35e939d083f9e21b4e18d014e77806dcf1225804f10"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/raw/06.txt",
+      "bytes": 3860,
+      "sha256": "fea3fc982e37df75ec4679c44581a605419af36a60357e1c586897174152f11e"
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/snapshot/raw/07.txt",
+      "bytes": 19448,
+      "sha256": "e3489aaa0abf001d760b14ce0c2912cc33915c165aa5bc7f3fe0936251f795ab"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/preparation.json",
+      "bytes": 156597,
+      "sha256": "b07d70bef7ed08f2c6c71d49b0c47339766adfddfe5f62902e8513424b86fd28"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/run-plan.json",
+      "bytes": 3317,
+      "sha256": "d23589906f357cb6f1071727d8509c366d511b7d7b27bd2ed162edbdf22566be"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/ground-check.json",
+      "bytes": 4708,
+      "sha256": "c1b03f562cc8b0ba0381235c11e0ff82404bf182e76d1440db61bb01e5d77566"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/A1/input/config.json",
+      "bytes": 234,
+      "sha256": "9c50ef20e3ea4dffa3e60c8145eaf7afb0b3c382d101946de63d26e1a54591b2"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/A1/input/prompt.json",
+      "bytes": 3863,
+      "sha256": "b994a8d12e1f00ac7c7bb8533d961c73e994db9357a8f428b762f971f22c78db"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/A2/input/config.json",
+      "bytes": 234,
+      "sha256": "44f6d21ab79541551729a27166b0eff04dbded94d2fa1f2d030f88910ac6572e"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/A2/input/prompt.json",
+      "bytes": 3863,
+      "sha256": "c4404da866de20cab5a5125a075bdef3fee11550b2d7c66fe2a226f6ffe63a62"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/A3/input/config.json",
+      "bytes": 234,
+      "sha256": "e740dcdd0af179aad6a19c5e667fb009aa62568d7d4c2958ac644a2d0924f0d1"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/A3/input/prompt.json",
+      "bytes": 3863,
+      "sha256": "b3da467ddeb8de6f568f545be1d01c6b9f15f3b995114447092d746eda5f0990"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/body/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/body/d02.txt",
+      "bytes": 242,
+      "sha256": "430eb984e53f37efa1cf064d95ff2e861ee2219388d4bbb0c2d7a19440baedde"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/body/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/body/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/body/d05.txt",
+      "bytes": 631,
+      "sha256": "4d6356e61255dca8a504c4f47af268cf539cf0c89bd3497546f31556a21ad7b7"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/body/d06.txt",
+      "bytes": 4201,
+      "sha256": "559de35c8bd852fc97af553a7331c9dd6b56722e5b7dd28457f98d6e9fd7afcf"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/body/d07.txt",
+      "bytes": 2827,
+      "sha256": "9c6c5801bd745b4fe513c35e939d083f9e21b4e18d014e77806dcf1225804f10"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/body/d08.txt",
+      "bytes": 3860,
+      "sha256": "fea3fc982e37df75ec4679c44581a605419af36a60357e1c586897174152f11e"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/body/d09.txt",
+      "bytes": 19448,
+      "sha256": "e3489aaa0abf001d760b14ce0c2912cc33915c165aa5bc7f3fe0936251f795ab"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/config.json",
+      "bytes": 323,
+      "sha256": "5bde72cae8dfd67cd2bc6137043137e6ca43deec08bac927b56e13b0b0c3bc26"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/manifest.json",
+      "bytes": 5258,
+      "sha256": "a5fbac6d295b9ca03d108a7c0c50c191ca568b72d9327e838e9d890338d25f1c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B1/input/prompt.json",
+      "bytes": 9472,
+      "sha256": "e3b4c3b3ae8d4edb4607c24332abdb100410e9947d83287c81ec3bf85fe9e41c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/body/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/body/d02.txt",
+      "bytes": 242,
+      "sha256": "430eb984e53f37efa1cf064d95ff2e861ee2219388d4bbb0c2d7a19440baedde"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/body/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/body/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/body/d05.txt",
+      "bytes": 631,
+      "sha256": "4d6356e61255dca8a504c4f47af268cf539cf0c89bd3497546f31556a21ad7b7"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/body/d06.txt",
+      "bytes": 4201,
+      "sha256": "559de35c8bd852fc97af553a7331c9dd6b56722e5b7dd28457f98d6e9fd7afcf"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/body/d07.txt",
+      "bytes": 2827,
+      "sha256": "9c6c5801bd745b4fe513c35e939d083f9e21b4e18d014e77806dcf1225804f10"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/body/d08.txt",
+      "bytes": 3860,
+      "sha256": "fea3fc982e37df75ec4679c44581a605419af36a60357e1c586897174152f11e"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/body/d09.txt",
+      "bytes": 19448,
+      "sha256": "e3489aaa0abf001d760b14ce0c2912cc33915c165aa5bc7f3fe0936251f795ab"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/config.json",
+      "bytes": 323,
+      "sha256": "7195a0cd7e299d27b9bdd71e5b28fa8d268a715187b49f6972d24f0644c70bd5"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/manifest.json",
+      "bytes": 5258,
+      "sha256": "a5fbac6d295b9ca03d108a7c0c50c191ca568b72d9327e838e9d890338d25f1c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B2/input/prompt.json",
+      "bytes": 9472,
+      "sha256": "7b5b41b48541fedbcdc3a9b0bd2812f4b2dd0404d0290ed1afbffe8b6c7db498"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/body/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/body/d02.txt",
+      "bytes": 242,
+      "sha256": "430eb984e53f37efa1cf064d95ff2e861ee2219388d4bbb0c2d7a19440baedde"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/body/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/body/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/body/d05.txt",
+      "bytes": 631,
+      "sha256": "4d6356e61255dca8a504c4f47af268cf539cf0c89bd3497546f31556a21ad7b7"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/body/d06.txt",
+      "bytes": 4201,
+      "sha256": "559de35c8bd852fc97af553a7331c9dd6b56722e5b7dd28457f98d6e9fd7afcf"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/body/d07.txt",
+      "bytes": 2827,
+      "sha256": "9c6c5801bd745b4fe513c35e939d083f9e21b4e18d014e77806dcf1225804f10"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/body/d08.txt",
+      "bytes": 3860,
+      "sha256": "fea3fc982e37df75ec4679c44581a605419af36a60357e1c586897174152f11e"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/body/d09.txt",
+      "bytes": 19448,
+      "sha256": "e3489aaa0abf001d760b14ce0c2912cc33915c165aa5bc7f3fe0936251f795ab"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/config.json",
+      "bytes": 323,
+      "sha256": "fdcd297b1629435bb6482246d4490390e255c002986cadfc8c9b4283e64a6509"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/manifest.json",
+      "bytes": 5258,
+      "sha256": "a5fbac6d295b9ca03d108a7c0c50c191ca568b72d9327e838e9d890338d25f1c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/B3/input/prompt.json",
+      "bytes": 9472,
+      "sha256": "3db594076a03dd22e98b24e4d45db417c52f07deee93e72b5171399c8b25e21c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C1/input/config.json",
+      "bytes": 578,
+      "sha256": "7987f0199bdaeb8ded585027e1dc9e25e0cd2ff57a88bdbacdb004dd58ddcda5"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C1/input/evidence.qzi",
+      "bytes": 99093,
+      "sha256": "d5bc891188448e7d9c7b35e7deed8a54a6980274b7a6e24b2cef6026e0fa16fa"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C1/input/evidence.qzt",
+      "bytes": 18252,
+      "sha256": "90e542a176e37bdf177bc07feaea6e27d6c6673110f4a2cdee03b8010d860fff"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C1/input/manifest.json",
+      "bytes": 5258,
+      "sha256": "a5fbac6d295b9ca03d108a7c0c50c191ca568b72d9327e838e9d890338d25f1c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C1/input/prompt.json",
+      "bytes": 9898,
+      "sha256": "3a1d55872cb486f017def43be880add9bfd932ac510c684968c38faca8edf8a9"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C1/input/qzt",
+      "bytes": 5186648,
+      "sha256": "c2f61139cb65aa9c38b9342ff33b5e9b6d894382dd6f84b7ae0d99db22ba83e4"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C2/input/config.json",
+      "bytes": 578,
+      "sha256": "f95dd42e95efcc9b60977e4ef588b848149c6a492984a2fe1e58d12b21af8658"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C2/input/evidence.qzi",
+      "bytes": 99093,
+      "sha256": "d5bc891188448e7d9c7b35e7deed8a54a6980274b7a6e24b2cef6026e0fa16fa"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C2/input/evidence.qzt",
+      "bytes": 18252,
+      "sha256": "90e542a176e37bdf177bc07feaea6e27d6c6673110f4a2cdee03b8010d860fff"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C2/input/manifest.json",
+      "bytes": 5258,
+      "sha256": "a5fbac6d295b9ca03d108a7c0c50c191ca568b72d9327e838e9d890338d25f1c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C2/input/prompt.json",
+      "bytes": 9898,
+      "sha256": "9691cd091dce7e79ef8e9aaecbf97a98561fb1bb841cffecfa7a885d42c0cda7"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C2/input/qzt",
+      "bytes": 5186648,
+      "sha256": "c2f61139cb65aa9c38b9342ff33b5e9b6d894382dd6f84b7ae0d99db22ba83e4"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C3/input/config.json",
+      "bytes": 578,
+      "sha256": "60ee66380d283ac8066a1102be48de922035db45a44501e01acb2bf560794af5"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C3/input/evidence.qzi",
+      "bytes": 99093,
+      "sha256": "d5bc891188448e7d9c7b35e7deed8a54a6980274b7a6e24b2cef6026e0fa16fa"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C3/input/evidence.qzt",
+      "bytes": 18252,
+      "sha256": "90e542a176e37bdf177bc07feaea6e27d6c6673110f4a2cdee03b8010d860fff"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C3/input/manifest.json",
+      "bytes": 5258,
+      "sha256": "a5fbac6d295b9ca03d108a7c0c50c191ca568b72d9327e838e9d890338d25f1c"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C3/input/prompt.json",
+      "bytes": 9898,
+      "sha256": "60e55ef3d5a8c751593416d29bf19eb681d7930c7bbeea3e5adf52d60dc9c3aa"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C3/input/qzt",
+      "bytes": 5186648,
+      "sha256": "c2f61139cb65aa9c38b9342ff33b5e9b6d894382dd6f84b7ae0d99db22ba83e4"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/material/evidence.qzi",
+      "bytes": 99093,
+      "sha256": "d5bc891188448e7d9c7b35e7deed8a54a6980274b7a6e24b2cef6026e0fa16fa"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/material/evidence.qzt",
+      "bytes": 18252,
+      "sha256": "90e542a176e37bdf177bc07feaea6e27d6c6673110f4a2cdee03b8010d860fff"
+    },
+    {
+      "path": "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/material/manifest.json",
+      "bytes": 5258,
+      "sha256": "a5fbac6d295b9ca03d108a7c0c50c191ca568b72d9327e838e9d890338d25f1c"
+    }
+  ],
+  "model_requested": "gpt-6.1-sol",
+  "effort_requested": "medium",
+  "seed": 20261026
+}

@@ -1,0 +1,23 @@
+{
+  "urls": [
+    "https://api.github.com/repos/albert-einshutoin/qzt/pulls/286",
+    "https://api.github.com/repos/albert-einshutoin/qzt/issues/286/comments?per_page=30",
+    "https://api.github.com/repos/albert-einshutoin/qzt/pulls/286/comments?per_page=30",
+    "https://api.github.com/repos/albert-einshutoin/qzt/pulls/286/reviews?per_page=30",
+    "https://raw.githubusercontent.com/albert-einshutoin/qzt/8aaec582259815189deb1844eb66c2b6bc2e1efd/.github/workflows/ci.yml",
+    "https://raw.githubusercontent.com/albert-einshutoin/qzt/8aaec582259815189deb1844eb66c2b6bc2e1efd/Makefile",
+    "https://raw.githubusercontent.com/albert-einshutoin/qzt/8aaec582259815189deb1844eb66c2b6bc2e1efd/AGENTS.md",
+    "https://raw.githubusercontent.com/albert-einshutoin/qzt/16033d45bfc96b7b43011e597c302a650d026efc/ci/impact.py"
+  ],
+  "limits": {
+    "documents": 20,
+    "body_bytes": 1048576,
+    "response_bytes": 2097152,
+    "total_response_bytes": 10485760,
+    "collection_items": 30
+  },
+  "saved_before_get": "2026-10-25T17:04:25.404688+00:00",
+  "extraction": "all nonempty /body or /N/body; raw fixed files unchanged",
+  "credentials": false,
+  "redirects": false
+}

@@ -1,0 +1,172 @@
+{
+  "answers": [
+    {
+      "id": "q1",
+      "status": "answered",
+      "answer": "変更の影響が限定される場合にもPRごとにRust全試験を走らせ、coverageでも全試験を繰り返すことによる待ち時間・計算資源の重複負担を減らす案。影響解析が不確かなときに障害検出能力を落とさないことが安全条件で、選択時もsmokeを必須とし、不明ファイル・古いmapping・共有契約・依存/build/test/CI変更・解析エラー等はfullへ戻す意図だった。これは設計意図であり達成の証明ではない。",
+      "citations": [
+        {
+          "doc_id": "d01.txt",
+          "start": 8,
+          "length": 294,
+          "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d",
+          "quote": "PR CI currently runs the complete Rust suite on every change and repeats that work in coverage, even when a change has a bounded module or documentation impact. This increases elapsed time and billed compute. The optimization must not reduce failure detection when impact analysis is uncertain."
+        },
+        {
+          "doc_id": "d01.txt",
+          "start": 1201,
+          "length": 207,
+          "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d",
+          "quote": "Selected plans always add smoke tests. Missing revisions, malformed configuration, unknown files, stale mappings, shared contracts, dependency/build/test/CI changes, or analysis errors select the full suite."
+        }
+      ]
+    },
+    {
+      "id": "q2",
+      "status": "answered",
+      "answer": "効果とmerge前の検出能力維持が実証されず、未解決P2も残ったため、PRは未mergeでcloseし現行CIを維持した。selectorとworkflow変更はmainへ入らず、ブランチと履歴は残す判断。この過去記録は現在の実行許可ではなく、今の検証手順を切り替える根拠にはできない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 5464,
+          "length": 347,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "以上から、現行案の効果とmerge前の検出能力維持が実証されていないため、**現行CIを維持し、このPR案は採用しません**。未解決P2を修正済みとは扱わず、PRを未mergeでcloseします。したがってselectorやworkflow変更はmainへ入りません。ブランチ・履歴は残します。"
+        },
+        {
+          "doc_id": "summary",
+          "start": 613,
+          "length": 144,
+          "sha256": "e01af60e95b1bcf05b01fa8f949f1f70f942fa74c55ccf143e379c9ab48c2448",
+          "quote": "これは保存された公開記録の要約であり、現在の実行許可、実際の課金削減や利用者の合意を証明しない。"
+        }
+      ]
+    },
+    {
+      "id": "q3",
+      "status": "answered",
+      "answer": "当初はtests/**/*.rsのstemをCargo targetと見なすため、共有helperやネストmoduleの変更でmod/missing_errorsという独立targetを指定してしまう指摘だった。後の確認では現mainとPRの仮想merge treeでtests/support/mod.rsだけを変更し、plannerがselective・fallback=false・integrationTestTargets=[mod]を返す誤判定を再現し、cargo metadataでmodが実在targetでないことまで確認した。ただしcargo test --test modそのものは未実行で、今回実際のCI失敗を観測したわけではない。missing_errorsの実行失敗まで再現したとは言えない。",
+      "citations": [
+        {
+          "doc_id": "d04.txt",
+          "start": 145,
+          "length": 318,
+          "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915",
+          "quote": "When a PR edits a shared test helper or nested module such as `tests/support/mod.rs` or `tests/phase35_docs_doc_cli/missing_errors.rs`, this filter accepts it because the adapter glob includes `tests/**/*.rs`, then `_target_name` turns it into `mod`/`missing_errors` and the runner executes `cargo test --test <name>`."
+        },
+        {
+          "doc_id": "d03.txt",
+          "start": 710,
+          "length": 593,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "現mainとPRの通常mergeを `git merge-tree --write-tree` で作った仮想treeから、3つの使い捨て単一ファイル変更を作り、PRのplannerだけを実行しました。`tests/support/mod.rs` では `strategy=selective, fallback=false, integrationTestTargets=[mod], smokeTestTargets=[phase0_smoke]`。同treeの `cargo metadata --no-deps --offline` で `mod` はCargo test targetではありません。plannerの誤判定は再現しましたが、`cargo test --test mod` 自体は実行していません。実際のCI失敗を今回観測したとは主張しません。"
+        }
+      ]
+    },
+    {
+      "id": "q4",
+      "status": "answered",
+      "answer": "README単独変更ではphase44_readme_product、phase46_tutorials、phase54_public_reference_gapsとsmokeが選ばれたが、READMEをinclude_str!で読むphase47_oss_governanceが漏れた。src/main.rs単独変更ではCARGO_BIN_EXE_qztでCLIをsubprocess実行する実在target phase47_verify_reportが漏れた。Rust import解析は文書埋込や実行ファイルのsubprocess依存を拾えず、manual mappingもなかった。確認したのは選択漏れであり、漏れた試験が実際に失敗する変更の再現ではない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 1306,
+          "length": 696,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "READMEだけの変更では選択されたのは `phase44_readme_product`, `phase46_tutorials`, `phase54_public_reference_gaps` とsmokeで、READMEを `include_str!` で直接読む `phase47_oss_governance` は選択されません。`src/main.rs`だけの変更でも、CLIを `CARGO_BIN_EXE_qzt` でsubprocess実行する現在の `phase47_verify_report` は選択されません。後者は現在のmainでCargo targetとして存在します。どちらも選択漏れを確認した結果であり、対象テストが実際に失敗する変更を再現したものではありません。Rust import解析だけではこれらの依存を拾えず、manual mappingにもありません。"
+        }
+      ]
+    },
+    {
+      "id": "q5",
+      "status": "answered",
+      "answer": "現行のstableとMSRV Rust 1.87のmake check（全target/featureのRust testと警告をErrorにするrustdoc）を両方make fmt clippy check-defaultへ替え、Rust試験はstableの別の選択jobへ移す。そのため1.87での実テストとrustdocは失われる。stableの別docs jobにrustdocは残るが、旧言語環境での検証の代わりではない。PR時は90% line coverage floorが常時skipとなる一方、main/release/scheduleのcoverageは残るため、取り込む前の検出能力は変わる。security、週次/manual fuzz、公開物verifier、候補/release等の独立workflowは変更されず残るが、これも削られる事前検証と同一ではない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 2058,
+          "length": 416,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "現行CIのstableとRust 1.87 laneは両方 `make check` を実行し、全target/featureのRust testと警告をErrorにするrustdocを含みます。PR差分は両laneを `make fmt clippy check-default` に替え、Rust testをstableの別の選択jobへ移します。Rust 1.87での実テストはなくなります。rustdocは別のstable `docs` jobに残りますが、1.87 laneからはなくなります。"
+        },
+        {
+          "doc_id": "d03.txt",
+          "start": 2477,
+          "length": 246,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "PRの `coverage` jobには `if: github.event_name != 'pull_request'` が追加され、PR時の90% line coverage floorが常にskipされます。main/release/scheduleのcoverageは残ります。これはmerge前の検出能力の変更です。"
+        },
+        {
+          "doc_id": "d03.txt",
+          "start": 3196,
+          "length": 148,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "security、週次/manual fuzz、公開物verifier、候補/release workflowは独立したworkflowで、このPR差分に変更はありません。"
+        }
+      ]
+    },
+    {
+      "id": "q6",
+      "status": "answered",
+      "answer": "旧PR run 29937773768のtests job成功は選択実行の効果を示さない。CIファイル自体を変更したためfallbackReason=full-test rule matched: .github/workflows/ci.yml、strategy=fullとなり、cargo test --locked --all-targets --all-featuresが51.492秒で成功した記録である。coverageもskipで、選択時の短縮効果や検出能力維持を裏づける測定ではない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 3516,
+          "length": 339,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "は `fallbackReason=full-test rule matched: .github/workflows/ci.yml`、`strategy=full` で `cargo test --locked --all-targets --all-features` を実行（test実行51.492秒、成功）。PR自体がCIを変更したためのfull fallbackで、選択実行の短縮効果や検出能力を示しません。coverage jobもskipでした。"
+        }
+      ]
+    },
+    {
+      "id": "q7",
+      "status": "answered",
+      "answer": "直近3件の成功runではWindows release buildが最後の完了を決めた。したがってPR coverageやstable/MSRV checkだけを短くしても待ち時間が減るとは実証されていない。全job時間の和はrunner占有の粗い指標で、実際の課金額ではない。cache、runner image、競合条件を揃えた比較ではなく、7月と9月のrunも同条件before/afterに使えない。重複Rust試験の削減を狙う一方、別の日次full CI、release branch push、約1.6k行の実装・文書・試験とmapping保守が増えるため、正味の課金増減・選択時の効果は未測定。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 4589,
+          "length": 873,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "時間はGitHub APIのrun作成時刻とjobのstarted/completed時刻から計算。全jobの和はrunner占有時間の粗い指標で、課金実額ではありません。待機時間とrunner使用量を分けており、cache hit/miss、runner image・競合条件を揃えた比較ではありません。この3 runではWindows release buildが完了待ちを決め、PR coverageやstable/MSRV checkだけを短縮してもPR待ち時間が減るとは実証できません。旧7月runと9月runを同条件のbefore/after比較には使いません。PR案は選択testでPRのRust test重複・runner時間を減らす狙いですが、代わりに日次full CI（既存security日次とは別）とrelease branch pushの実行、約1.6k行のplanner/adapter/test/docsとmapping保守を追加します。増減の実額・選択時の効果は未測定です。"
+        }
+      ]
+    },
+    {
+      "id": "q8",
+      "status": "answered",
+      "answer": "実開発頻度とCI履歴から待ち時間/runner使用量の改善必要性、短縮対象の寄与、merge前の検出能力と必要platform/toolchain検証の維持策、小さく判定可能な範囲での選択の正しさと効果、mapping保守負担に見合う利益を確認する必要がある。条件が揃えば別途再検討する判断であり、CI最適化全般の恒久的禁止ではない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 5813,
+          "length": 441,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "将来は、(1) 実際の開発頻度とCI履歴から待ち時間またはrunner使用量の改善必要性、(2) 短縮対象の寄与、(3) merge前の検出能力と必要なplatform/toolchain検証の維持策、(4) 小さく判定可能な変更範囲での選択正しさと効果、(5) mapping保守負担に見合う利益、が揃う場合に別途再検討します。CI最適化全般を否定する判断ではありません。"
+        }
+      ]
+    },
+    {
+      "id": "q9",
+      "status": "answered",
+      "answer": "いずれも確定できない。実際の月額削減額には、実課金情報・利用量と頻度・追加される定期実行を含めた正味差の測定が未確認。保存記録の時間合計を料金に読み替えることはできず、実額と選択時の効果は未測定と明記されている。運用利用者全員の対象範囲や各人の明示的合意もこの記録では確認されておらず、公開記録の判断や成功runから全員合意を推定できない。",
+      "citations": [
+        {
+          "doc_id": "d03.txt",
+          "start": 4589,
+          "length": 873,
+          "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+          "quote": "時間はGitHub APIのrun作成時刻とjobのstarted/completed時刻から計算。全jobの和はrunner占有時間の粗い指標で、課金実額ではありません。待機時間とrunner使用量を分けており、cache hit/miss、runner image・競合条件を揃えた比較ではありません。この3 runではWindows release buildが完了待ちを決め、PR coverageやstable/MSRV checkだけを短縮してもPR待ち時間が減るとは実証できません。旧7月runと9月runを同条件のbefore/after比較には使いません。PR案は選択testでPRのRust test重複・runner時間を減らす狙いですが、代わりに日次full CI（既存security日次とは別）とrelease branch pushの実行、約1.6k行のplanner/adapter/test/docsとmapping保守を追加します。増減の実額・選択時の効果は未測定です。"
+        },
+        {
+          "doc_id": "summary",
+          "start": 613,
+          "length": 144,
+          "sha256": "e01af60e95b1bcf05b01fa8f949f1f70f942fa74c55ccf143e379c9ab48c2448",
+          "quote": "これは保存された公開記録の要約であり、現在の実行許可、実際の課金削減や利用者の合意を証明しない。"
+        }
+      ]
+    }
+  ]
+}

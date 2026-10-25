@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "以上から、現行案の効果とmerge前の検出能力維持が実証されていないため、**現行CIを維持し、このPR案は採用しません**。未解決P2を修正済みとは扱わず、PRを未mergeでcloseします。したがってselectorやworkflow変更はmainへ入りません。ブランチ・履歴は残します。"
+  ],
+  "started_epoch": 1792948721.869802,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 5464,
+    "length": 347,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "以上から、現行案の効果とmerge前の検出能力維持が実証されていないため、**現行CIを維持し、このPR案は採用しません**。未解決P2を修正済みとは扱わず、PRを未mergeでcloseします。したがってselectorやworkflow変更はmainへ入りません。ブランチ・履歴は残します。"
+  },
+  "returned_bytes": 490,
+  "ok": true,
+  "finished_epoch": 1792948721.870133
+}

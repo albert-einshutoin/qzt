@@ -1,0 +1,695 @@
+[
+  {
+    "trial": "A3",
+    "anonymous_id": "r01",
+    "question_id": "q3",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r01",
+        "question_id": "q3",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 0,
+        "reason": "原文d03のplannerがmodを選択しmetadataでtargetでないと確認した事実と、test未実行の区別に回答していない。引用なし。"
+      },
+      "J2": {
+        "anonymous_id": "r01",
+        "question_id": "q3",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約の不足を述べるだけで、d03のmod誤選択・metadataでの非target確認とcargo test未実行の区別を回答していない。原文引用なし。"
+      },
+      "J3": {
+        "anonymous_id": "r01",
+        "question_id": "q3",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約にないと限定して未知を保つが、原文d03のmod誤選択再現・metadata確認・実試験未実行を答えていない。原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A3",
+    "anonymous_id": "r01",
+    "question_id": "q4",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r01",
+        "question_id": "q4",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 0,
+        "reason": "原文d03のphase47_oss_governance/include_str!とphase47_verify_report/subprocessの漏れ、mapping不足を回答していない。原文引用なし。"
+      },
+      "J2": {
+        "anonymous_id": "r01",
+        "question_id": "q4",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約の不足を述べるだけで、d03のphase47_oss_governance/include_str!とphase47_verify_report/subprocessの漏れ・mapping欠落を回答していない。原文引用なし。"
+      },
+      "J3": {
+        "anonymous_id": "r01",
+        "question_id": "q4",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "原文d03にあるphase47_oss_governance/include_str!とphase47_verify_report/subprocessの漏れ、import解析とmappingの限界を未回答。原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A3",
+    "anonymous_id": "r01",
+    "question_id": "q5",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r01",
+        "question_id": "q5",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 0,
+        "reason": "原文d03の1.87実test/rustdoc削除、stable docs残存、PR90%floor skipと非PR coverage残存を回答していない。引用なし。"
+      },
+      "J2": {
+        "anonymous_id": "r01",
+        "question_id": "q5",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約の不足を述べるだけで、d03の1.87試験・rustdoc消失、stable docsと後段coverageの存続、PR floor skipを回答していない。原文引用なし。"
+      },
+      "J3": {
+        "anonymous_id": "r01",
+        "question_id": "q5",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "原文d03の1.87実試験・rustdoc消失、stable docs残存、PR90% floor skipと残る検証を未回答。原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A3",
+    "anonymous_id": "r01",
+    "question_id": "q8",
+    "varying": [
+      "fact",
+      "conditions"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r01",
+        "question_id": "q8",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 2,
+        "reason": "再検討の5項目と恒久禁止でない点は述べるが、d03のplatform/toolchain維持と小さく判定可能な変更範囲を省略。引用は要約のみ。"
+      },
+      "J2": {
+        "anonymous_id": "r01",
+        "question_id": "q8",
+        "fact": 2,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "再検討条件と最適化全般の否定ではない判断は要約の許容言い換え。引用は要約のみ。"
+      },
+      "J3": {
+        "anonymous_id": "r01",
+        "question_id": "q8",
+        "fact": 2,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "再検討の五条件と恒久禁止ではない点を正しく回答。引用は要約のみで原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "B1",
+    "anonymous_id": "r02",
+    "question_id": "q5",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r02",
+        "question_id": "q5",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 2,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "1.87・docs・coverageと独立security/fuzz等の残存は正確だが、d03の仮想mergeで後追加の3 OS出力試験・dist等も残る点を省略。"
+      },
+      "J2": {
+        "anonymous_id": "r02",
+        "question_id": "q5",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 2,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "1.87試験・rustdoc消失、stable docs、PR floor skipと後段coverageの違いは正しいが、d03の後追加jobの仮想mergeでの存続が欠落。"
+      },
+      "J3": {
+        "anonymous_id": "r02",
+        "question_id": "q5",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 2,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 1,
+        "reason": "1.87・docs・coverageと独立workflowの区別は正しいが、d03が確認した後追加の3 OS・dist・dependency policy・Windows jobの仮想merge残存が欠落。"
+      }
+    }
+  },
+  {
+    "trial": "A1",
+    "anonymous_id": "r03",
+    "question_id": "q3",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r03",
+        "question_id": "q3",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 0,
+        "reason": "原文d03のplannerがmodを選択しmetadataでtargetでないと確認した事実と、test未実行の区別に回答していない。引用なし。"
+      },
+      "J2": {
+        "anonymous_id": "r03",
+        "question_id": "q3",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約の不足を述べるだけで、d03のmod誤選択・metadataでの非target確認とcargo test未実行の区別を回答していない。原文引用なし。"
+      },
+      "J3": {
+        "anonymous_id": "r03",
+        "question_id": "q3",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約にないと限定して未知を保つが、原文d03のmod誤選択再現・metadata確認・実試験未実行を答えていない。原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A1",
+    "anonymous_id": "r03",
+    "question_id": "q4",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r03",
+        "question_id": "q4",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 0,
+        "reason": "原文d03のphase47_oss_governance/include_str!とphase47_verify_report/subprocessの漏れ、mapping不足を回答していない。原文引用なし。"
+      },
+      "J2": {
+        "anonymous_id": "r03",
+        "question_id": "q4",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約の不足を述べるだけで、d03のphase47_oss_governance/include_str!とphase47_verify_report/subprocessの漏れ・mapping欠落を回答していない。原文引用なし。"
+      },
+      "J3": {
+        "anonymous_id": "r03",
+        "question_id": "q4",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "原文d03にあるphase47_oss_governance/include_str!とphase47_verify_report/subprocessの漏れ、import解析とmappingの限界を未回答。原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A1",
+    "anonymous_id": "r03",
+    "question_id": "q5",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r03",
+        "question_id": "q5",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 0,
+        "reason": "原文d03の1.87実test/rustdoc削除、stable docs残存、PR90%floor skipと非PR coverage残存を回答していない。引用なし。"
+      },
+      "J2": {
+        "anonymous_id": "r03",
+        "question_id": "q5",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約の不足を述べるだけで、d03の1.87試験・rustdoc消失、stable docsと後段coverageの存続、PR floor skipを回答していない。原文引用なし。"
+      },
+      "J3": {
+        "anonymous_id": "r03",
+        "question_id": "q5",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "原文d03の1.87実試験・rustdoc消失、stable docs残存、PR90% floor skipと残る検証を未回答。原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A1",
+    "anonymous_id": "r03",
+    "question_id": "q8",
+    "varying": [
+      "fact",
+      "conditions"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r03",
+        "question_id": "q8",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 2,
+        "reason": "再検討の5項目と恒久禁止でない点は述べるが、d03のplatform/toolchain維持と小さく判定可能な変更範囲を省略。引用は要約のみ。"
+      },
+      "J2": {
+        "anonymous_id": "r03",
+        "question_id": "q8",
+        "fact": 2,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "再検討条件と最適化全般の否定ではない判断は要約の許容言い換え。引用は要約のみ。"
+      },
+      "J3": {
+        "anonymous_id": "r03",
+        "question_id": "q8",
+        "fact": 2,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "再検討の五条件と恒久禁止ではない点を正しく回答。引用は要約のみで原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A2",
+    "anonymous_id": "r04",
+    "question_id": "q3",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r04",
+        "question_id": "q3",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 0,
+        "reason": "原文d03のplannerがmodを選択しmetadataでtargetでないと確認した事実と、test未実行の区別に回答していない。引用なし。"
+      },
+      "J2": {
+        "anonymous_id": "r04",
+        "question_id": "q3",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約の不足を述べるだけで、d03のmod誤選択・metadataでの非target確認とcargo test未実行の区別を回答していない。原文引用なし。"
+      },
+      "J3": {
+        "anonymous_id": "r04",
+        "question_id": "q3",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約にないと限定して未知を保つが、原文d03のmod誤選択再現・metadata確認・実試験未実行を答えていない。原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A2",
+    "anonymous_id": "r04",
+    "question_id": "q4",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r04",
+        "question_id": "q4",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 0,
+        "reason": "原文d03のphase47_oss_governance/include_str!とphase47_verify_report/subprocessの漏れ、mapping不足を回答していない。原文引用なし。"
+      },
+      "J2": {
+        "anonymous_id": "r04",
+        "question_id": "q4",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約の不足を述べるだけで、d03のphase47_oss_governance/include_str!とphase47_verify_report/subprocessの漏れ・mapping欠落を回答していない。原文引用なし。"
+      },
+      "J3": {
+        "anonymous_id": "r04",
+        "question_id": "q4",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "原文d03にあるphase47_oss_governance/include_str!とphase47_verify_report/subprocessの漏れ、import解析とmappingの限界を未回答。原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A2",
+    "anonymous_id": "r04",
+    "question_id": "q5",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r04",
+        "question_id": "q5",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 0,
+        "reason": "原文d03の1.87実test/rustdoc削除、stable docs残存、PR90%floor skipと非PR coverage残存を回答していない。引用なし。"
+      },
+      "J2": {
+        "anonymous_id": "r04",
+        "question_id": "q5",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "要約の不足を述べるだけで、d03の1.87試験・rustdoc消失、stable docsと後段coverageの存続、PR floor skipを回答していない。原文引用なし。"
+      },
+      "J3": {
+        "anonymous_id": "r04",
+        "question_id": "q5",
+        "fact": 0,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 1,
+        "reason": "原文d03の1.87実試験・rustdoc消失、stable docs残存、PR90% floor skipと残る検証を未回答。原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "A2",
+    "anonymous_id": "r04",
+    "question_id": "q8",
+    "varying": [
+      "fact",
+      "conditions"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r04",
+        "question_id": "q8",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 1,
+        "unknown": null,
+        "completion": 2,
+        "reason": "再検討の5項目と恒久禁止でない点は述べるが、d03のplatform/toolchain維持と小さく判定可能な変更範囲を省略。引用は要約のみ。"
+      },
+      "J2": {
+        "anonymous_id": "r04",
+        "question_id": "q8",
+        "fact": 2,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "再検討条件と最適化全般の否定ではない判断は要約の許容言い換え。引用は要約のみ。"
+      },
+      "J3": {
+        "anonymous_id": "r04",
+        "question_id": "q8",
+        "fact": 2,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 0,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "再検討の五条件と恒久禁止ではない点を正しく回答。引用は要約のみで原文引用なし。"
+      }
+    }
+  },
+  {
+    "trial": "C3",
+    "anonymous_id": "r06",
+    "question_id": "q5",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r06",
+        "question_id": "q5",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 2,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "1.87実test/rustdoc、stable docs、PRと非PR coverageの区別は正確。d03の独立security/fuzz等と後追加jobの残存を欠く。"
+      },
+      "J2": {
+        "anonymous_id": "r06",
+        "question_id": "q5",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 2,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "1.87試験・rustdoc消失、stable docs、PR floor skipと後段coverageの違いは正しいが、d03の独立security/fuzz等と後追加jobの存続が欠落。"
+      },
+      "J3": {
+        "anonymous_id": "r06",
+        "question_id": "q5",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 2,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 1,
+        "reason": "1.87実試験・rustdocとPR coverage縮小、stable docs/後段coverage残存は正しいが、d03の独立security/fuzz等や後追加jobの残存を説明していない。"
+      }
+    }
+  },
+  {
+    "trial": "B2",
+    "anonymous_id": "r07",
+    "question_id": "q5",
+    "varying": [
+      "completion"
+    ],
+    "scores": {
+      "J1": {
+        "anonymous_id": "r07",
+        "question_id": "q5",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 2,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "1.87実test/rustdoc、stable docs、PRと非PR coverageの区別は正確。d03の独立security/fuzz等と後追加jobの残存を欠く。"
+      },
+      "J2": {
+        "anonymous_id": "r07",
+        "question_id": "q5",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 2,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 2,
+        "reason": "1.87試験・rustdoc消失、stable docs、PR floor skipと後段coverageの違いは正しいが、d03の独立security/fuzz等と後追加jobの存続が欠落。"
+      },
+      "J3": {
+        "anonymous_id": "r07",
+        "question_id": "q5",
+        "fact": 1,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "citation": 2,
+        "conditions": 2,
+        "unknown": null,
+        "completion": 1,
+        "reason": "1.87実試験・rustdocとPR coverage縮小、stable docs/後段coverage残存は正しいが、d03の独立security/fuzz等や後追加jobの残存を説明していない。"
+      }
+    }
+  }
+]

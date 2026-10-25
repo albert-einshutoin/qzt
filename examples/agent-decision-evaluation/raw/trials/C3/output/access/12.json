@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d01.txt",
+    "Selected plans always add smoke tests. Missing revisions, malformed configuration, unknown files, stale mappings, shared contracts, dependency/build/test/CI changes, or analysis errors select the full suite."
+  ],
+  "started_epoch": 1792949108.261385,
+  "cli": [],
+  "result": {
+    "doc_id": "d01.txt",
+    "start": 1201,
+    "length": 207,
+    "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d",
+    "quote": "Selected plans always add smoke tests. Missing revisions, malformed configuration, unknown files, stale mappings, shared contracts, dependency/build/test/CI changes, or analysis errors select the full suite."
+  },
+  "returned_bytes": 350,
+  "ok": true,
+  "finished_epoch": 1792949108.261645
+}

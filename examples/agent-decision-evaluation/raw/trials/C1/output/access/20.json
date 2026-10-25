@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "時間はGitHub APIのrun作成時刻とjobのstarted/completed時刻から計算。全jobの和はrunner占有時間の粗い指標で、課金実額ではありません。待機時間とrunner使用量を分けており、cache hit/miss、runner image・競合条件を揃えた比較ではありません。この3 runではWindows release buildが完了待ちを決め、PR coverageやstable/MSRV checkだけを短縮してもPR待ち時間が減るとは実証できません。旧7月runと9月runを同条件のbefore/after比較には使いません。PR案は選択testでPRのRust test重複・runner時間を減らす狙いですが、代わりに日次full CI（既存security日次とは別）とrelease branch pushの実行、約1.6k行のplanner/adapter/test/docsとmapping保守を追加します。増減の実額・選択時の効果は未測定です。"
+  ],
+  "started_epoch": 1792948795.280725,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 4589,
+    "length": 873,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "時間はGitHub APIのrun作成時刻とjobのstarted/completed時刻から計算。全jobの和はrunner占有時間の粗い指標で、課金実額ではありません。待機時間とrunner使用量を分けており、cache hit/miss、runner image・競合条件を揃えた比較ではありません。この3 runではWindows release buildが完了待ちを決め、PR coverageやstable/MSRV checkだけを短縮してもPR待ち時間が減るとは実証できません。旧7月runと9月runを同条件のbefore/after比較には使いません。PR案は選択testでPRのRust test重複・runner時間を減らす狙いですが、代わりに日次full CI（既存security日次とは別）とrelease branch pushの実行、約1.6k行のplanner/adapter/test/docsとmapping保守を追加します。増減の実額・選択時の効果は未測定です。"
+  },
+  "returned_bytes": 1016,
+  "ok": true,
+  "finished_epoch": 1792948795.280855
+}

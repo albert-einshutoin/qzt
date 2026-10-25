@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "security、週次/manual fuzz、公開物verifier、候補/release workflowは独立したworkflowで、このPR差分に変更はありません。"
+  ],
+  "started_epoch": 1792948763.392096,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 3196,
+    "length": 148,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "security、週次/manual fuzz、公開物verifier、候補/release workflowは独立したworkflowで、このPR差分に変更はありません。"
+  },
+  "returned_bytes": 291,
+  "ok": true,
+  "finished_epoch": 1792948763.3922281
+}

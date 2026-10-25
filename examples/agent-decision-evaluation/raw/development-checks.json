@@ -1,0 +1,36 @@
+[
+  {
+    "command": "python3 -m unittest discover -s examples/agent-decision-evaluation -p test_harness.py",
+    "result": "initial failure: harness.py not implemented; scaffold red only"
+  },
+  {
+    "command": "qzt index build --help",
+    "result": "usage exit 2; corrected to existing sidecar-rebuild; not a product defect"
+  },
+  {
+    "command": "gh api repos/albert-einshutoin/qzt/releases/latest",
+    "result": "404: prerelease excluded; explicit v0.1.0-pre.6 lookup succeeded"
+  },
+  {
+    "command": "python3 -m unittest discover -s scripts -p test_agent_decision_evaluation.py",
+    "result": "initial nested-discovery failure; corrected to loadTestsFromName; passed"
+  },
+  {
+    "command": "QZT_AGENT_RUNTIME=... python3 -m unittest discover -s scripts -p test_agent_decision_evaluation.py",
+    "result": "initial test NameError missing sys import; corrected; 8 passed"
+  },
+  {
+    "command": "QZT_PUBLIC_HISTORY_BINARY=$PWD/target/debug/qzt python3.13 -m unittest discover -s examples/public-history-evidence -p test_case.py",
+    "result": "10 passed; calibration only, excluded from main comparison"
+  },
+  {
+    "command": "node codex-companion.mjs task --help",
+    "result": "help flag was treated as task text; model_not_found for default gpt-6.1-sol; no review completed; retry with explicit gate prompt and existing reviewer model",
+    "thread_id": "01a17425-d3de-7ca0-a60e-91031151ff76"
+  },
+  {
+    "command": "Companion explicit gpt-5.3-codex-spark gate",
+    "result": "model_not_found; no review or model output; CLI runtime model/list then advertised gpt-5.6-sol as default (different from desktop cache)",
+    "thread_id": "01a17427-b4f4-76c3-9416-fbe9c1f1eca9"
+  }
+]

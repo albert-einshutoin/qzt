@@ -1,0 +1,7 @@
+{
+  "status": 0,
+  "threadId": "01a17429-d26a-7010-b618-de2ba2c33be4",
+  "rawOutput": "ALLOW: touched=[]\n\n直接P2は解消済みです。\n\n- canonical-index SHA256は期待値`a7597071…fc87`と一致。\n- 登録248 filesのbytes/SHAは全件一致。\n- READMEは3固定SHAの取得・存在確認・取得不能時の停止を明記し、暗黙fallbackなし。\n- 2種類のshallow checkoutで、取得前失敗→明示fetch→固定pin確認→同一prepare成功を記録。\n- RESULTは固定object取得費用を既測定時間に含めないと限定。\n- commit `6e2220b`以降、既存entryの変更はREADME/RESULTのみ。helper・Core/Cargo・質問・規則・回答・採点・freezeは不変。\n- 引用69/36・合計105・invalid 0、不一致15行・評価不能9行も不変。\n- 新規回帰は比較試行や性能測定として扱われていません。\n\nREAD_ONLY / STATIC_ONLYで確認し、編集・test・import・code実行・network・subagentは実施していません。修正HEADのCI/security未実施はBLOCK根拠としていません。",
+  "touchedFiles": [],
+  "reasoningSummary": []
+}
