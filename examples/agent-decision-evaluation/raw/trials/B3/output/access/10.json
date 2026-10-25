@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "現行CIのstableとRust 1.87 laneは両方 `make check` を実行し、全target/featureのRust testと警告をErrorにするrustdocを含みます。PR差分は両laneを `make fmt clippy check-default` に替え、Rust testをstableの別の選択jobへ移します。Rust 1.87での実テストはなくなります。rustdocは別のstable `docs` jobに残りますが、1.87 laneからはなくなります。"
+  ],
+  "started_epoch": 1792949095.740772,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 2058,
+    "length": 416,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "現行CIのstableとRust 1.87 laneは両方 `make check` を実行し、全target/featureのRust testと警告をErrorにするrustdocを含みます。PR差分は両laneを `make fmt clippy check-default` に替え、Rust testをstableの別の選択jobへ移します。Rust 1.87での実テストはなくなります。rustdocは別のstable `docs` jobに残りますが、1.87 laneからはなくなります。"
+  },
+  "returned_bytes": 559,
+  "ok": true,
+  "finished_epoch": 1792949095.74091
+}

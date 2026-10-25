@@ -1,0 +1,7 @@
+{
+  "status": 0,
+  "threadId": "01a17429-d26a-7010-b618-de2ba2c33be4",
+  "rawOutput": "BLOCK: touched=[]\n\n- [P2] [RESULT.ja.md](/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/RESULT.ja.md:103) の引用内訳「原文81・要約24」が保存証拠と不一致です。[mechanical-audit.json](/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/examples/agent-decision-evaluation/raw/mechanical-audit.json:1) の105件を`source`別に集計すると、原文69・要約36です。105件全体のbyte照合成功自体は崩れませんが、実測報告の具体値が誤っているため是正が必要です。\n\n確認範囲:\n\n- canonical index指定SHA一致、48,557 bytes。\n- 登録240 entriesの実bytes/SHAは再照合で全件一致。\n- 差分241ファイルは指定2パス内のみ（index自身＋登録240件）。\n- READ_ONLY / STATIC_ONLY。test・コード実行・network・subagent・編集なし。\n- 初回entry照合はzsh予約変数`path`でPATHを壊して無効化。変数名を修正して再照合し、`entries=240 mismatches=0`。\n- 既存のCLI文書にある「contextは開発版専用」と公開pre.6 dispatchの不整合は、報告済みの未修正制約として残ります。\n- hosted CI/security、PR、merge、release、production、Goal完了は未確認であり、このBLOCKとは別です。",
+  "touchedFiles": [],
+  "reasoningSummary": []
+}

@@ -1,0 +1,6 @@
+   Packaging qzt v0.1.0-pre.6 (/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt)
+    Updating crates.io index
+    Packaged 503 files, 8.5MiB (1.3MiB compressed)
+   Verifying qzt v0.1.0-pre.6 (/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt)
+   Compiling qzt v0.1.0-pre.6 (/Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt/target/package/qzt-0.1.0-pre.6)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.62s

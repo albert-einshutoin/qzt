@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "READMEだけの変更では選択されたのは `phase44_readme_product`, `phase46_tutorials`, `phase54_public_reference_gaps` とsmokeで、READMEを `include_str!` で直接読む `phase47_oss_governance` は選択されません。`src/main.rs`だけの変更でも、CLIを `CARGO_BIN_EXE_qzt` でsubprocess実行する現在の `phase47_verify_report` は選択されません。後者は現在のmainでCargo targetとして存在します。どちらも選択漏れを確認した結果であり、対象テストが実際に失敗する変更を再現したものではありません。Rust import解析だけではこれらの依存を拾えず、manual mappingにもありません。"
+  ],
+  "started_epoch": 1792948927.294433,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 1306,
+    "length": 696,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "READMEだけの変更では選択されたのは `phase44_readme_product`, `phase46_tutorials`, `phase54_public_reference_gaps` とsmokeで、READMEを `include_str!` で直接読む `phase47_oss_governance` は選択されません。`src/main.rs`だけの変更でも、CLIを `CARGO_BIN_EXE_qzt` でsubprocess実行する現在の `phase47_verify_report` は選択されません。後者は現在のmainでCargo targetとして存在します。どちらも選択漏れを確認した結果であり、対象テストが実際に失敗する変更を再現したものではありません。Rust import解析だけではこれらの依存を拾えず、manual mappingにもありません。"
+  },
+  "returned_bytes": 839,
+  "ok": true,
+  "finished_epoch": 1792948927.2946172
+}

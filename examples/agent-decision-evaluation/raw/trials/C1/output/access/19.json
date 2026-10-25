@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "| [PR 36319281797](https://github.com/albert-einshutoin/qzt/actions/runs/36319281797) | pull_request / `a59cb146…` | 86秒 | 430秒 | 264 / 142 / 24秒 | Windows release build 84秒 |\n| [main 36319464596](https://github.com/albert-einshutoin/qzt/actions/runs/36319464596) | push / `8aaec582…` | 68秒 | 390秒 | 239 / 123 / 28秒 | Windows release build 66秒 |\n| [main 36296378084](https://github.com/albert-einshutoin/qzt/actions/runs/36296378084) | push / `3bc7d256…` | 77秒 | 409秒 | 273 / 120 / 16秒 | Windows release build 74秒 |"
+  ],
+  "started_epoch": 1792948788.5046778,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 4042,
+    "length": 545,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "| [PR 36319281797](https://github.com/albert-einshutoin/qzt/actions/runs/36319281797) | pull_request / `a59cb146…` | 86秒 | 430秒 | 264 / 142 / 24秒 | Windows release build 84秒 |\n| [main 36319464596](https://github.com/albert-einshutoin/qzt/actions/runs/36319464596) | push / `8aaec582…` | 68秒 | 390秒 | 239 / 123 / 28秒 | Windows release build 66秒 |\n| [main 36296378084](https://github.com/albert-einshutoin/qzt/actions/runs/36296378084) | push / `3bc7d256…` | 77秒 | 409秒 | 273 / 120 / 16秒 | Windows release build 74秒 |"
+  },
+  "returned_bytes": 690,
+  "ok": true,
+  "finished_epoch": 1792948788.504816
+}

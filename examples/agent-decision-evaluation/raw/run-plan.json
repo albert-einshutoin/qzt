@@ -1,0 +1,185 @@
+{
+  "seed": 20261026,
+  "trials": [
+    {
+      "trial": "B1",
+      "batch": 1,
+      "launch_order": 1,
+      "condition": "B",
+      "question_order": [
+        "q7",
+        "q9",
+        "q2",
+        "q6",
+        "q1",
+        "q5",
+        "q4",
+        "q8",
+        "q3"
+      ],
+      "model_requested": "gpt-6.1-sol",
+      "effort_requested": "medium",
+      "fork_turns": "none"
+    },
+    {
+      "trial": "C1",
+      "batch": 1,
+      "launch_order": 2,
+      "condition": "C",
+      "question_order": [
+        "q7",
+        "q9",
+        "q2",
+        "q6",
+        "q1",
+        "q5",
+        "q4",
+        "q8",
+        "q3"
+      ],
+      "model_requested": "gpt-6.1-sol",
+      "effort_requested": "medium",
+      "fork_turns": "none"
+    },
+    {
+      "trial": "A1",
+      "batch": 1,
+      "launch_order": 3,
+      "condition": "A",
+      "question_order": [
+        "q7",
+        "q9",
+        "q2",
+        "q6",
+        "q1",
+        "q5",
+        "q4",
+        "q8",
+        "q3"
+      ],
+      "model_requested": "gpt-6.1-sol",
+      "effort_requested": "medium",
+      "fork_turns": "none"
+    },
+    {
+      "trial": "C2",
+      "batch": 2,
+      "launch_order": 4,
+      "condition": "C",
+      "question_order": [
+        "q1",
+        "q4",
+        "q7",
+        "q3",
+        "q5",
+        "q8",
+        "q2",
+        "q9",
+        "q6"
+      ],
+      "model_requested": "gpt-6.1-sol",
+      "effort_requested": "medium",
+      "fork_turns": "none"
+    },
+    {
+      "trial": "A2",
+      "batch": 2,
+      "launch_order": 5,
+      "condition": "A",
+      "question_order": [
+        "q1",
+        "q4",
+        "q7",
+        "q3",
+        "q5",
+        "q8",
+        "q2",
+        "q9",
+        "q6"
+      ],
+      "model_requested": "gpt-6.1-sol",
+      "effort_requested": "medium",
+      "fork_turns": "none"
+    },
+    {
+      "trial": "B2",
+      "batch": 2,
+      "launch_order": 6,
+      "condition": "B",
+      "question_order": [
+        "q1",
+        "q4",
+        "q7",
+        "q3",
+        "q5",
+        "q8",
+        "q2",
+        "q9",
+        "q6"
+      ],
+      "model_requested": "gpt-6.1-sol",
+      "effort_requested": "medium",
+      "fork_turns": "none"
+    },
+    {
+      "trial": "A3",
+      "batch": 3,
+      "launch_order": 7,
+      "condition": "A",
+      "question_order": [
+        "q9",
+        "q8",
+        "q5",
+        "q7",
+        "q4",
+        "q3",
+        "q2",
+        "q1",
+        "q6"
+      ],
+      "model_requested": "gpt-6.1-sol",
+      "effort_requested": "medium",
+      "fork_turns": "none"
+    },
+    {
+      "trial": "B3",
+      "batch": 3,
+      "launch_order": 8,
+      "condition": "B",
+      "question_order": [
+        "q9",
+        "q8",
+        "q5",
+        "q7",
+        "q4",
+        "q3",
+        "q2",
+        "q1",
+        "q6"
+      ],
+      "model_requested": "gpt-6.1-sol",
+      "effort_requested": "medium",
+      "fork_turns": "none"
+    },
+    {
+      "trial": "C3",
+      "batch": 3,
+      "launch_order": 9,
+      "condition": "C",
+      "question_order": [
+        "q9",
+        "q8",
+        "q5",
+        "q7",
+        "q4",
+        "q3",
+        "q2",
+        "q1",
+        "q6"
+      ],
+      "model_requested": "gpt-6.1-sol",
+      "effort_requested": "medium",
+      "fork_turns": "none"
+    }
+  ]
+}

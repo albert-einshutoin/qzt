@@ -1,0 +1,125 @@
+{
+  "operation": "search",
+  "args": [
+    "support"
+  ],
+  "started_epoch": 1792949095.691283,
+  "cli": [
+    {
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-p",
+        "(version 1)(allow default)(deny network*)(deny file-write*)",
+        "/Users/shutoide/.codex/artifacts/qzt-agent-evaluation-20261026-final/trials/C3/input/qzt",
+        "search",
+        "evidence.qzt",
+        "support",
+        "--sidecar",
+        "evidence.qzi",
+        "--max-results",
+        "30",
+        "--format",
+        "json"
+      ],
+      "exit": 0,
+      "timeout": false,
+      "seconds": 0.026040832977741957,
+      "stdout_hex": "7b2268697473223a5b7b226c6f676963616c5f6f6666736574223a333736312c22627974655f6c656e677468223a372c226368756e6b5f7374617274223a302c226368756e6b5f656e64223a312c22736f75726365223a2276657269666965645f6f726967696e616c5f6279746573227d2c7b226c6f676963616c5f6f6666736574223a343032392c22627974655f6c656e677468223a372c226368756e6b5f7374617274223a302c226368756e6b5f656e64223a312c22736f75726365223a2276657269666965645f6f726967696e616c5f6279746573227d2c7b226c6f676963616c5f6f6666736574223a393539332c22627974655f6c656e677468223a372c226368756e6b5f7374617274223a302c226368756e6b5f656e64223a312c22736f75726365223a2276657269666965645f6f726967696e616c5f6279746573227d2c7b226c6f676963616c5f6f6666736574223a32383834362c22627974655f6c656e677468223a372c226368756e6b5f7374617274223a302c226368756e6b5f656e64223a312c22736f75726365223a2276657269666965645f6f726967696e616c5f6279746573227d2c7b226c6f676963616c5f6f6666736574223a32383938342c22627974655f6c656e677468223a372c226368756e6b5f7374617274223a302c226368756e6b5f656e64223a312c22736f75726365223a2276657269666965645f6f726967696e616c5f6279746573227d2c7b226c6f676963616c5f6f6666736574223a32393037332c22627974655f6c656e677468223a372c226368756e6b5f7374617274223a302c226368756e6b5f656e64223a312c22736f75726365223a2276657269666965645f6f726967696e616c5f6279746573227d2c7b226c6f676963616c5f6f6666736574223a32393131322c22627974655f6c656e677468223a372c226368756e6b5f7374617274223a302c226368756e6b5f656e64223a312c22736f75726365223a2276657269666965645f6f726967696e616c5f6279746573227d2c7b226c6f676963616c5f6f6666736574223a32393330342c22627974655f6c656e677468223a372c226368756e6b5f7374617274223a302c226368756e6b5f656e64223a312c22736f75726365223a2276657269666965645f6f726967696e616c5f6279746573227d2c7b226c6f676963616c5f6f6666736574223a33353737352c22627974655f6c656e677468223a372c226368756e6b5f7374617274223a302c226368756e6b5f656e64223a312c22736f75726365223a2276657269666965645f6f726967696e616c5f6279746573227d5d2c226d657472696373223a7b227175657279223a22737570706f7274222c22696e6465785f6b696e64223a226e6772616d222c22706f7374696e675f6772616e756c6172697479223a226c696e65222c22696e6465785f73697a655f6279746573223a39383238302c22736f757263655f73697a655f6279746573223a34313039332c22696e6465785f73697a655f726174696f223a322e333931363438323132353930393532342c227465726d5f6c6f6f6b757073223a352c22706f7374696e675f62797465735f72656164223a3130362c2263616e6469646174655f6772616e756c6573223a392c2263616e6469646174655f6368756e6b73223a312c226465636f6465645f6279746573223a313739302c22706879736963616c5f6465636f6465645f6279746573223a34313039332c22706879736963616c5f6465636f6465645f6368756e6b73223a312c2276657269666965645f6d617463686573223a392c2271756572795f74696d655f6d73223a312e3937373837357d2c22636170706564223a66616c73652c2273746f705f726561736f6e223a6e756c6c2c22696e6465785f636f6d706c6574655f6465636c61726564223a747275652c22696e6465785f636f7665726167655f7665726966696564223a66616c73652c22696e636f6d706c6574655f726561736f6e223a6e756c6c7d0a",
+      "stderr_hex": "",
+      "stderr": ""
+    }
+  ],
+  "search_state": "coverage_unknown",
+  "result": {
+    "hits": [
+      {
+        "logical_offset": 3761,
+        "byte_length": 7,
+        "chunk_start": 0,
+        "chunk_end": 1,
+        "source": "verified_original_bytes"
+      },
+      {
+        "logical_offset": 4029,
+        "byte_length": 7,
+        "chunk_start": 0,
+        "chunk_end": 1,
+        "source": "verified_original_bytes"
+      },
+      {
+        "logical_offset": 9593,
+        "byte_length": 7,
+        "chunk_start": 0,
+        "chunk_end": 1,
+        "source": "verified_original_bytes"
+      },
+      {
+        "logical_offset": 28846,
+        "byte_length": 7,
+        "chunk_start": 0,
+        "chunk_end": 1,
+        "source": "verified_original_bytes"
+      },
+      {
+        "logical_offset": 28984,
+        "byte_length": 7,
+        "chunk_start": 0,
+        "chunk_end": 1,
+        "source": "verified_original_bytes"
+      },
+      {
+        "logical_offset": 29073,
+        "byte_length": 7,
+        "chunk_start": 0,
+        "chunk_end": 1,
+        "source": "verified_original_bytes"
+      },
+      {
+        "logical_offset": 29112,
+        "byte_length": 7,
+        "chunk_start": 0,
+        "chunk_end": 1,
+        "source": "verified_original_bytes"
+      },
+      {
+        "logical_offset": 29304,
+        "byte_length": 7,
+        "chunk_start": 0,
+        "chunk_end": 1,
+        "source": "verified_original_bytes"
+      },
+      {
+        "logical_offset": 35775,
+        "byte_length": 7,
+        "chunk_start": 0,
+        "chunk_end": 1,
+        "source": "verified_original_bytes"
+      }
+    ],
+    "metrics": {
+      "query": "support",
+      "index_kind": "ngram",
+      "posting_granularity": "line",
+      "index_size_bytes": 98280,
+      "source_size_bytes": 41093,
+      "index_size_ratio": 2.3916482125909524,
+      "term_lookups": 5,
+      "posting_bytes_read": 106,
+      "candidate_granules": 9,
+      "candidate_chunks": 1,
+      "decoded_bytes": 1790,
+      "physical_decoded_bytes": 41093,
+      "physical_decoded_chunks": 1,
+      "verified_matches": 9,
+      "query_time_ms": 1.977875
+    },
+    "capped": false,
+    "stop_reason": null,
+    "index_complete_declared": true,
+    "index_coverage_verified": false,
+    "incomplete_reason": null
+  },
+  "returned_bytes": 1596,
+  "ok": true,
+  "finished_epoch": 1792949095.720373
+}

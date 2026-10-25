@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "現mainとPRの通常mergeを `git merge-tree --write-tree` で作った仮想treeから、3つの使い捨て単一ファイル変更を作り、PRのplannerだけを実行しました。`tests/support/mod.rs` では `strategy=selective, fallback=false, integrationTestTargets=[mod], smokeTestTargets=[phase0_smoke]`。同treeの `cargo metadata --no-deps --offline` で `mod` はCargo test targetではありません。plannerの誤判定は再現しましたが、`cargo test --test mod` 自体は実行していません。実際のCI失敗を今回観測したとは主張しません。"
+  ],
+  "started_epoch": 1792948726.714456,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 710,
+    "length": 593,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "現mainとPRの通常mergeを `git merge-tree --write-tree` で作った仮想treeから、3つの使い捨て単一ファイル変更を作り、PRのplannerだけを実行しました。`tests/support/mod.rs` では `strategy=selective, fallback=false, integrationTestTargets=[mod], smokeTestTargets=[phase0_smoke]`。同treeの `cargo metadata --no-deps --offline` で `mod` はCargo test targetではありません。plannerの誤判定は再現しましたが、`cargo test --test mod` 自体は実行していません。実際のCI失敗を今回観測したとは主張しません。"
+  },
+  "returned_bytes": 735,
+  "ok": true,
+  "finished_epoch": 1792948726.7145731
+}

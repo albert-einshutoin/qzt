@@ -1,0 +1,299 @@
+[
+  {
+    "trial": "A3",
+    "anonymous_id": "r01",
+    "judges": {
+      "J1": {
+        "fact": 8,
+        "citation": 0,
+        "conditions": 12,
+        "completion": 10,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J2": {
+        "fact": 9,
+        "citation": 0,
+        "conditions": 13,
+        "completion": 13,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J3": {
+        "fact": 9,
+        "citation": 0,
+        "conditions": 13,
+        "completion": 13,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      }
+    }
+  },
+  {
+    "trial": "B1",
+    "anonymous_id": "r02",
+    "judges": {
+      "J1": {
+        "fact": 17,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J2": {
+        "fact": 17,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J3": {
+        "fact": 17,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 17,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      }
+    }
+  },
+  {
+    "trial": "A1",
+    "anonymous_id": "r03",
+    "judges": {
+      "J1": {
+        "fact": 8,
+        "citation": 0,
+        "conditions": 12,
+        "completion": 10,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J2": {
+        "fact": 9,
+        "citation": 0,
+        "conditions": 13,
+        "completion": 13,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J3": {
+        "fact": 9,
+        "citation": 0,
+        "conditions": 13,
+        "completion": 13,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      }
+    }
+  },
+  {
+    "trial": "A2",
+    "anonymous_id": "r04",
+    "judges": {
+      "J1": {
+        "fact": 8,
+        "citation": 0,
+        "conditions": 12,
+        "completion": 10,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J2": {
+        "fact": 9,
+        "citation": 0,
+        "conditions": 13,
+        "completion": 13,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J3": {
+        "fact": 9,
+        "citation": 0,
+        "conditions": 13,
+        "completion": 13,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      }
+    }
+  },
+  {
+    "trial": "B3",
+    "anonymous_id": "r05",
+    "judges": {
+      "J1": {
+        "fact": 18,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J2": {
+        "fact": 18,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J3": {
+        "fact": 18,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      }
+    }
+  },
+  {
+    "trial": "C3",
+    "anonymous_id": "r06",
+    "judges": {
+      "J1": {
+        "fact": 17,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J2": {
+        "fact": 17,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J3": {
+        "fact": 17,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 17,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      }
+    }
+  },
+  {
+    "trial": "B2",
+    "anonymous_id": "r07",
+    "judges": {
+      "J1": {
+        "fact": 17,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J2": {
+        "fact": 17,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J3": {
+        "fact": 17,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 17,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      }
+    }
+  },
+  {
+    "trial": "C2",
+    "anonymous_id": "r08",
+    "judges": {
+      "J1": {
+        "fact": 18,
+        "citation": 17,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J2": {
+        "fact": 18,
+        "citation": 17,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J3": {
+        "fact": 18,
+        "citation": 17,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      }
+    }
+  },
+  {
+    "trial": "C1",
+    "anonymous_id": "r09",
+    "judges": {
+      "J1": {
+        "fact": 18,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J2": {
+        "fact": 18,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      },
+      "J3": {
+        "fact": 18,
+        "citation": 18,
+        "conditions": 18,
+        "completion": 18,
+        "false_assertions": 0,
+        "unsupported_assertions": 0,
+        "unknown": 1
+      }
+    }
+  }
+]

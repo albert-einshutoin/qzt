@@ -1,0 +1,170 @@
+[
+  {
+    "trial": "A3",
+    "question_id": "q3",
+    "decision": {
+      "completion": null
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03には求める具体的事実がある一方、回答は要約からの確定不能を明示した。規則の「回答せず」0と「一部回答」1がこのunknown説明をどう扱うか事前定義せず、原文照合だけでは点数を確定できない。評価不能を保持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A3",
+    "question_id": "q4",
+    "decision": {
+      "completion": null
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03には求める具体的事実がある一方、回答は要約からの確定不能を明示した。規則の「回答せず」0と「一部回答」1がこのunknown説明をどう扱うか事前定義せず、原文照合だけでは点数を確定できない。評価不能を保持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A3",
+    "question_id": "q5",
+    "decision": {
+      "completion": null
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03には求める具体的事実がある一方、回答は要約からの確定不能を明示した。規則の「回答せず」0と「一部回答」1がこのunknown説明をどう扱うか事前定義せず、原文照合だけでは点数を確定できない。評価不能を保持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A3",
+    "question_id": "q8",
+    "decision": {
+      "fact": 2,
+      "conditions": 2
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03末尾の五条件と最適化全般を否定しない点に対応する。固定rubricの「5条件の言い換えを許す」に照らし、検出能力維持等の要約表現を許容する。別途platform/toolchainや小範囲の明示を必須に昇格しない。原文引用点は0のまま。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "B1",
+    "question_id": "q5",
+    "decision": {
+      "completion": 1
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03の「仮想merge treeでは、現mainに後から追加された3 OS…残ります」と回答を照合。B1は独立workflowを述べるが後追加jobを欠き、B2/C3はその両方を欠く。固定rubric q5の残る検証の説明が部分的なので1。事実点1という独立採点は維持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A1",
+    "question_id": "q3",
+    "decision": {
+      "completion": null
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03には求める具体的事実がある一方、回答は要約からの確定不能を明示した。規則の「回答せず」0と「一部回答」1がこのunknown説明をどう扱うか事前定義せず、原文照合だけでは点数を確定できない。評価不能を保持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A1",
+    "question_id": "q4",
+    "decision": {
+      "completion": null
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03には求める具体的事実がある一方、回答は要約からの確定不能を明示した。規則の「回答せず」0と「一部回答」1がこのunknown説明をどう扱うか事前定義せず、原文照合だけでは点数を確定できない。評価不能を保持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A1",
+    "question_id": "q5",
+    "decision": {
+      "completion": null
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03には求める具体的事実がある一方、回答は要約からの確定不能を明示した。規則の「回答せず」0と「一部回答」1がこのunknown説明をどう扱うか事前定義せず、原文照合だけでは点数を確定できない。評価不能を保持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A1",
+    "question_id": "q8",
+    "decision": {
+      "fact": 2,
+      "conditions": 2
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03末尾の五条件と最適化全般を否定しない点に対応する。固定rubricの「5条件の言い換えを許す」に照らし、検出能力維持等の要約表現を許容する。別途platform/toolchainや小範囲の明示を必須に昇格しない。原文引用点は0のまま。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A2",
+    "question_id": "q3",
+    "decision": {
+      "completion": null
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03には求める具体的事実がある一方、回答は要約からの確定不能を明示した。規則の「回答せず」0と「一部回答」1がこのunknown説明をどう扱うか事前定義せず、原文照合だけでは点数を確定できない。評価不能を保持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A2",
+    "question_id": "q4",
+    "decision": {
+      "completion": null
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03には求める具体的事実がある一方、回答は要約からの確定不能を明示した。規則の「回答せず」0と「一部回答」1がこのunknown説明をどう扱うか事前定義せず、原文照合だけでは点数を確定できない。評価不能を保持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A2",
+    "question_id": "q5",
+    "decision": {
+      "completion": null
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03には求める具体的事実がある一方、回答は要約からの確定不能を明示した。規則の「回答せず」0と「一部回答」1がこのunknown説明をどう扱うか事前定義せず、原文照合だけでは点数を確定できない。評価不能を保持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "A2",
+    "question_id": "q8",
+    "decision": {
+      "fact": 2,
+      "conditions": 2
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03末尾の五条件と最適化全般を否定しない点に対応する。固定rubricの「5条件の言い換えを許す」に照らし、検出能力維持等の要約表現を許容する。別途platform/toolchainや小範囲の明示を必須に昇格しない。原文引用点は0のまま。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "C3",
+    "question_id": "q5",
+    "decision": {
+      "completion": 1
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03の「仮想merge treeでは、現mainに後から追加された3 OS…残ります」と回答を照合。B1は独立workflowを述べるが後追加jobを欠き、B2/C3はその両方を欠く。固定rubric q5の残る検証の説明が部分的なので1。事実点1という独立採点は維持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  },
+  {
+    "trial": "B2",
+    "question_id": "q5",
+    "decision": {
+      "completion": 1
+    },
+    "source_doc": "d03.txt",
+    "source_sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "reason": "原文d03の「仮想merge treeでは、現mainに後から追加された3 OS…残ります」と回答を照合。B1は独立workflowを述べるが後追加jobを欠き、B2/C3はその両方を欠く。固定rubric q5の残る検証の説明が部分的なので1。事実点1という独立採点は維持する。",
+    "method": "fixed source and pre-frozen rubric, not majority vote"
+  }
+]

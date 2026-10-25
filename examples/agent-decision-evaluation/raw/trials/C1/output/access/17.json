@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d03.txt",
+    "PRの実差分は既存 `ci.yml` のcheck/coverageを変更し、tests jobと日次schedule・release branch pushを追加します。仮想merge treeでは、現mainに後から追加された3 OSのsafe file outputと故障注入、Python公開物verifier/manifest回帰と `make dist-check` の `dist workflow`、dependency policy、Windows release buildは残ります。旧PRファイルにこれらがないだけで削除されるとは判断していません。security、週次/manual fuzz、公開物verifier、候補/release workflowは独立したworkflowで、このPR差分に変更はありません。"
+  ],
+  "started_epoch": 1792948779.591533,
+  "cli": [],
+  "result": {
+    "doc_id": "d03.txt",
+    "start": 2726,
+    "length": 618,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "PRの実差分は既存 `ci.yml` のcheck/coverageを変更し、tests jobと日次schedule・release branch pushを追加します。仮想merge treeでは、現mainに後から追加された3 OSのsafe file outputと故障注入、Python公開物verifier/manifest回帰と `make dist-check` の `dist workflow`、dependency policy、Windows release buildは残ります。旧PRファイルにこれらがないだけで削除されるとは判断していません。security、週次/manual fuzz、公開物verifier、候補/release workflowは独立したworkflowで、このPR差分に変更はありません。"
+  },
+  "returned_bytes": 761,
+  "ok": true,
+  "finished_epoch": 1792948779.591685
+}

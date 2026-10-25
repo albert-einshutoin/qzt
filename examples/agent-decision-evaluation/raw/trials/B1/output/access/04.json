@@ -1,0 +1,16 @@
+{
+  "operation": "doc",
+  "args": [
+    "d04.txt"
+  ],
+  "started_epoch": 1792948710.946677,
+  "cli": [],
+  "result": {
+    "doc_id": "d04.txt",
+    "text": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Avoid deriving Cargo targets from nested test modules**\n\nWhen a PR edits a shared test helper or nested module such as `tests/support/mod.rs` or `tests/phase35_docs_doc_cli/missing_errors.rs`, this filter accepts it because the adapter glob includes `tests/**/*.rs`, then `_target_name` turns it into `mod`/`missing_errors` and the runner executes `cargo test --test <name>`. I checked `cargo test --help`: `--test <NAME>` selects a Cargo test target, and these nested module files are not standalone integration-test targets, so CI fails instead of falling back or running the owning tests whenever shared test code changes.\n\nUseful? React with 👍 / 👎.",
+    "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+  },
+  "returned_bytes": 863,
+  "ok": true,
+  "finished_epoch": 1792948710.9471319
+}

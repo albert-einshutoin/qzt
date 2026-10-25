@@ -1,0 +1,142 @@
+[
+  {
+    "doc_id": "d01.txt",
+    "start": 217,
+    "length": 85,
+    "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d",
+    "quote": "The optimization must not reduce failure detection when impact analysis is uncertain."
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 5567,
+    "length": 55,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "現行CIを維持し、このPR案は採用しません"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 5704,
+    "length": 68,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "したがってselectorやworkflow変更はmainへ入りません。"
+  },
+  {
+    "doc_id": "d04.txt",
+    "start": 544,
+    "length": 69,
+    "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915",
+    "quote": "these nested module files are not standalone integration-test targets"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 1132,
+    "length": 106,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "plannerの誤判定は再現しましたが、`cargo test --test mod` 自体は実行していません。"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 1448,
+    "length": 93,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "READMEを `include_str!` で直接読む `phase47_oss_governance` は選択されません。"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 1578,
+    "length": 113,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "CLIを `CARGO_BIN_EXE_qzt` でsubprocess実行する現在の `phase47_verify_report` は選択されません。"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 2330,
+    "length": 51,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "Rust 1.87での実テストはなくなります。"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 2564,
+    "length": 59,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "PR時の90% line coverage floorが常にskipされます。"
+  },
+  {
+    "doc_id": "d06.txt",
+    "start": 224,
+    "length": 29,
+    "sha256": "559de35c8bd852fc97af553a7331c9dd6b56722e5b7dd28457f98d6e9fd7afcf",
+    "quote": "toolchain: [stable, \"1.87.0\"]"
+  },
+  {
+    "doc_id": "d07.txt",
+    "start": 796,
+    "length": 40,
+    "sha256": "9c6c5801bd745b4fe513c35e939d083f9e21b4e18d014e77806dcf1225804f10",
+    "quote": "check: fmt clippy check-default test doc"
+  },
+  {
+    "doc_id": "d01.txt",
+    "start": 2231,
+    "length": 100,
+    "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d",
+    "quote": "This PR changes CI policy itself, so its own impact plan intentionally falls back to the full suite."
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 3671,
+    "length": 28,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "test実行51.492秒、成功"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 3761,
+    "length": 63,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "選択実行の短縮効果や検出能力を示しません。"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 4900,
+    "length": 62,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "この3 runではWindows release buildが完了待ちを決め"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 4673,
+    "length": 90,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "全jobの和はrunner占有時間の粗い指標で、課金実額ではありません。"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 5405,
+    "length": 57,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "増減の実額・選択時の効果は未測定です。"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 6107,
+    "length": 37,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "mapping保守負担に見合う利益"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 6192,
+    "length": 62,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "CI最適化全般を否定する判断ではありません。"
+  },
+  {
+    "doc_id": "d03.txt",
+    "start": 5405,
+    "length": 57,
+    "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67",
+    "quote": "増減の実額・選択時の効果は未測定です。"
+  }
+]

@@ -1,0 +1,2 @@
+前回の引用内訳P2だけ、指摘範囲の最終確認。日本語、READ_ONLY/STATIC_ONLY、編集/test/import/network/subagentなし。追加探索なし。開始ALLOW: touched=[] またはBLOCK: touched=[]。
+root /Users/shutoide/.codex/worktrees/qzt-agent-evaluation/qzt。RESULT.ja.mdを原文69・要約36へ訂正。mechanical-audit.jsonの105件source別再集計はoriginal69/summary36。合計105、全件byte一致、回答/規則/採点/製品/入力freezeは変更なし。旧RESULT/旧canonical-index/初回BLOCKをraw/reviewに保存。現在canonical-indexの外部期待SHA=8a28d9a3118a4577692b9b0661229ed4947f74e705b5ccce9a96e61b08dd601b。登録全fileのbytes/SHAを読み取りで照合し、REPORT訂正と旧失敗保持、前回判定の範囲だけ確認。hosted CI/mergeはGate後で、未実施自体はBLOCK根拠でない。

@@ -1,0 +1,49 @@
+[
+  {
+    "judge": "J3",
+    "answer_texts": 81,
+    "citations": 105,
+    "missing_answer_texts": [],
+    "missing_quotes": [
+      [
+        "r09",
+        "q7",
+        "d03.txt"
+      ]
+    ],
+    "missing_ground_texts": [],
+    "note": "exact strings checked in saved visible tool outputs after JSON transport escape normalization; does not prove attention or semantic correctness"
+  },
+  {
+    "judge": "J2",
+    "answer_texts": 81,
+    "citations": 105,
+    "missing_answer_texts": [],
+    "missing_quotes": [
+      [
+        "r09",
+        "q7",
+        "d03.txt"
+      ]
+    ],
+    "missing_ground_texts": [],
+    "note": "exact strings checked in saved visible tool outputs after JSON transport escape normalization; does not prove attention or semantic correctness"
+  },
+  {
+    "judge": "J1",
+    "answer_texts": 81,
+    "citations": 105,
+    "missing_answer_texts": [],
+    "missing_quotes": [
+      [
+        "r09",
+        "q7",
+        "d03.txt"
+      ]
+    ],
+    "missing_ground_texts": [
+      "q5"
+    ],
+    "note": "exact strings checked in saved visible tool outputs after JSON transport escape normalization; does not prove attention or semantic correctness"
+  }
+]

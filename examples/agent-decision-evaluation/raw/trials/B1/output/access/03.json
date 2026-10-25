@@ -1,0 +1,16 @@
+{
+  "operation": "doc",
+  "args": [
+    "d01.txt"
+  ],
+  "started_epoch": 1792948707.8211,
+  "cli": [],
+  "result": {
+    "doc_id": "d01.txt",
+    "text": "## Why\n\nPR CI currently runs the complete Rust suite on every change and repeats that work in coverage, even when a change has a bounded module or documentation impact. This increases elapsed time and billed compute. The optimization must not reduce failure detection when impact analysis is uncertain.\n\n## Before\n\n- Both stable and MSRV `check` lanes ran `make check`, including the full test suite.\n- PR coverage ran the complete suite again.\n- There was no machine-readable explanation of which tests were relevant or why full validation was required.\n- Main was the only post-merge CI branch and there was no daily/manual full validation lane in `ci.yml`.\n\n## After\n\n- PRs always run formatting, Clippy, all-target compilation, docs, package, dependency policy, Windows release checks, public-example smoke, and security workflows.\n- A CI-service-neutral planner reads rename/copy/delete-aware Git diffs, applies centralized dangerous-file rules, traverses reverse Rust module dependencies, recognizes public re-exports, and supplements them with explicit module/path mappings.\n- Rust-specific analysis and commands live in `ci/adapters/`; the common planner contains no Rust dependency parser.\n- Selected plans always add smoke tests. Missing revisions, malformed configuration, unknown files, stale mappings, shared contracts, dependency/build/test/CI changes, or analysis errors select the full suite.\n- Main/release pushes, daily schedules, and manual dispatches force full validation. Full coverage remains on those lanes and is removed only from PRs to avoid executing all tests twice.\n- Plans and execution summaries are uploaded for 14 days with revisions, changed/deleted files, affected modules, targets, fallback reason, target results, and duration.\n\n## Key decisions\n\n- Selected Cargo targets run sequentially in one job because parallel hosted jobs would duplicate compilation and can increase total compute cost for this single-crate repository.\n- Adapter commands are argv arrays and selected target names are allowlisted, so changed filenames are never interpreted by a shell.\n- Adapter corruption fails CI because no trustworthy full command can be recovered; impact-policy corruption produces a full plan.\n- This PR changes CI policy itself, so its own impact plan intentionally falls back to the full suite.\n\n## Verification\n\n- `make check`\n- `python3 -m unittest discover -s ci/tests -v` — 18 passed\n- planner + adapter runner against `origin/main...HEAD` — full fallback, 0 failed, 21.9s\n- `gitleaks detect --source . --no-git --redact --exit-code 1` — no leaks\n- `cargo deny check bans licenses sources` — all checks passed; existing unmatched NCSA allowance warning only\n- `git diff --check`\n\n## Documentation\n\n- Added English and Japanese selective-CI architecture and maintenance guides.\n- Linked the new contract from both contributor guides.\n",
+    "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+  },
+  "returned_bytes": 3034,
+  "ok": true,
+  "finished_epoch": 1792948707.821738
+}

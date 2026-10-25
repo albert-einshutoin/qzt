@@ -1,0 +1,31 @@
+## 判断: 現行案は不採用（未mergeでclose）
+
+比較基点は現在のmain `8aaec582259815189deb1844eb66c2b6bc2e1efd`、PR HEAD `16033d45bfc96b7b43011e597c302a650d026efc`、merge base `3a75bb22cc2126656174f485ad29f8589edd676e`。PR HEADは2026-07-22以降更新されていません。公開pre.5の製品source `3bc7d2561c58b59cd166fed75bfbd45f2f4c0ebe`とは別です。
+
+### 選択対象の確認
+
+- [未解決P2](https://github.com/albert-einshutoin/qzt/pull/286#discussion_r3631977786) は現在も未解決。`ci/impact.py` は `tests/**/*.rs` に一致した変更ファイルのstemを独立Cargo targetにし、`tests/support/mod.rs` 等の共有・ネストmoduleを除外しません。
+- 現mainとPRの通常mergeを `git merge-tree --write-tree` で作った仮想treeから、3つの使い捨て単一ファイル変更を作り、PRのplannerだけを実行しました。`tests/support/mod.rs` では `strategy=selective, fallback=false, integrationTestTargets=[mod], smokeTestTargets=[phase0_smoke]`。同treeの `cargo metadata --no-deps --offline` で `mod` はCargo test targetではありません。plannerの誤判定は再現しましたが、`cargo test --test mod` 自体は実行していません。実際のCI失敗を今回観測したとは主張しません。
+- READMEだけの変更では選択されたのは `phase44_readme_product`, `phase46_tutorials`, `phase54_public_reference_gaps` とsmokeで、READMEを `include_str!` で直接読む `phase47_oss_governance` は選択されません。`src/main.rs`だけの変更でも、CLIを `CARGO_BIN_EXE_qzt` でsubprocess実行する現在の `phase47_verify_report` は選択されません。後者は現在のmainでCargo targetとして存在します。どちらも選択漏れを確認した結果であり、対象テストが実際に失敗する変更を再現したものではありません。Rust import解析だけではこれらの依存を拾えず、manual mappingにもありません。
+
+### 現行mainへ適用した場合の検証範囲
+
+- 現行CIのstableとRust 1.87 laneは両方 `make check` を実行し、全target/featureのRust testと警告をErrorにするrustdocを含みます。PR差分は両laneを `make fmt clippy check-default` に替え、Rust testをstableの別の選択jobへ移します。Rust 1.87での実テストはなくなります。rustdocは別のstable `docs` jobに残りますが、1.87 laneからはなくなります。
+- PRの `coverage` jobには `if: github.event_name != 'pull_request'` が追加され、PR時の90% line coverage floorが常にskipされます。main/release/scheduleのcoverageは残ります。これはmerge前の検出能力の変更です。
+- PRの実差分は既存 `ci.yml` のcheck/coverageを変更し、tests jobと日次schedule・release branch pushを追加します。仮想merge treeでは、現mainに後から追加された3 OSのsafe file outputと故障注入、Python公開物verifier/manifest回帰と `make dist-check` の `dist workflow`、dependency policy、Windows release buildは残ります。旧PRファイルにこれらがないだけで削除されるとは判断していません。security、週次/manual fuzz、公開物verifier、候補/release workflowは独立したworkflowで、このPR差分に変更はありません。
+
+### 成功runが示す範囲と現在の費用
+
+- [旧PR run 29937773768 のtests job](https://github.com/albert-einshutoin/qzt/actions/runs/29937773768/job/88983655515) は `fallbackReason=full-test rule matched: .github/workflows/ci.yml`、`strategy=full` で `cargo test --locked --all-targets --all-features` を実行（test実行51.492秒、成功）。PR自体がCIを変更したためのfull fallbackで、選択実行の短縮効果や検出能力を示しません。coverage jobもskipでした。
+
+| 最近の成功run | event / commit | 完了までの時間 | 全job実行時間の和 | Linux / Windows / macOS | 最後に完了したjob |
+| --- | --- | ---: | ---: | ---: | --- |
+| [PR 36319281797](https://github.com/albert-einshutoin/qzt/actions/runs/36319281797) | pull_request / `a59cb146…` | 86秒 | 430秒 | 264 / 142 / 24秒 | Windows release build 84秒 |
+| [main 36319464596](https://github.com/albert-einshutoin/qzt/actions/runs/36319464596) | push / `8aaec582…` | 68秒 | 390秒 | 239 / 123 / 28秒 | Windows release build 66秒 |
+| [main 36296378084](https://github.com/albert-einshutoin/qzt/actions/runs/36296378084) | push / `3bc7d256…` | 77秒 | 409秒 | 273 / 120 / 16秒 | Windows release build 74秒 |
+
+時間はGitHub APIのrun作成時刻とjobのstarted/completed時刻から計算。全jobの和はrunner占有時間の粗い指標で、課金実額ではありません。待機時間とrunner使用量を分けており、cache hit/miss、runner image・競合条件を揃えた比較ではありません。この3 runではWindows release buildが完了待ちを決め、PR coverageやstable/MSRV checkだけを短縮してもPR待ち時間が減るとは実証できません。旧7月runと9月runを同条件のbefore/after比較には使いません。PR案は選択testでPRのRust test重複・runner時間を減らす狙いですが、代わりに日次full CI（既存security日次とは別）とrelease branch pushの実行、約1.6k行のplanner/adapter/test/docsとmapping保守を追加します。増減の実額・選択時の効果は未測定です。
+
+以上から、現行案の効果とmerge前の検出能力維持が実証されていないため、**現行CIを維持し、このPR案は採用しません**。未解決P2を修正済みとは扱わず、PRを未mergeでcloseします。したがってselectorやworkflow変更はmainへ入りません。ブランチ・履歴は残します。
+
+将来は、(1) 実際の開発頻度とCI履歴から待ち時間またはrunner使用量の改善必要性、(2) 短縮対象の寄与、(3) merge前の検出能力と必要なplatform/toolchain検証の維持策、(4) 小さく判定可能な変更範囲での選択正しさと効果、(5) mapping保守負担に見合う利益、が揃う場合に別途再検討します。CI最適化全般を否定する判断ではありません。

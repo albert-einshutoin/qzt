@@ -1,0 +1,1207 @@
+{
+  "schema": "qzt-agent-canonical-v1",
+  "stage": "comparison and local gates before successful Companion/hosted delivery",
+  "files": [
+    {
+      "path": "examples/agent-decision-evaluation/PLAN.ja.md",
+      "bytes": 4047,
+      "sha256": "060a694e0e41186a859f359045eb5d6ff455293ea88bbf5d18f222998c4fac34"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/README.ja.md",
+      "bytes": 6778,
+      "sha256": "b9f4e9dd3c0b4e2d9b089437b9dc6dfb65cf0fd7892d7de9921afe14cbfab270"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/RESULT.ja.md",
+      "bytes": 14731,
+      "sha256": "e5d3cf2f38f61780e9436328b8157c9ac3db05fbd5ae182394f72edd0266736f"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/access.py",
+      "bytes": 7512,
+      "sha256": "10b2160b25c41987e138a6c47f7dee8d433eddc669cfddfbac3e4b3ea6c8e5d6"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/acquire.py",
+      "bytes": 4669,
+      "sha256": "8c88e4f58491ce30ccf6ca9775a4d88f4d7b8b7286da895907260afdf8f55b7c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/audit.py",
+      "bytes": 4387,
+      "sha256": "dddf87a5ffb5e76148b06e71feb89a946b70cf4471c575ea24336bf26df9c337"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/harness.py",
+      "bytes": 8055,
+      "sha256": "d10d7737ddacccd2008f034f918efdc52e653a10fc29d3e0bcbddb05dde423ca"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/judge.py",
+      "bytes": 5302,
+      "sha256": "195809548cbd1dd467f82cb85a3848a2b716d9b97d693a71b33835b11ae624ec"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/prepare.py",
+      "bytes": 9354,
+      "sha256": "a6e478722e5151e20b4b3af70a1935d918cf764d94991f917f7db3ea5f910690"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/questions.json",
+      "bytes": 2580,
+      "sha256": "d706b0126e617ec45297ba95116f67c6ff4dc40d41a37593d1c05440df475aea"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/adjudication.json",
+      "bytes": 9317,
+      "sha256": "011dd1ae2fc57b690787739f8e5e885980b2cf36f898c7940e23827b6cebdb17"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/anonymous-input.json",
+      "bytes": 176855,
+      "sha256": "4ae1738709314d1547ca5045db5c319cd35584f895dc05b26b084917ff7e8444"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/anonymous-map.json",
+      "bytes": 1290,
+      "sha256": "229b18a95ce5ebdb63472c8c2cd9c6139c9641673201a7f98ddf558f758e49dc"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/cargo-deny.log",
+      "bytes": 258,
+      "sha256": "3fc040a6d7333d08d5898057d702cfbcab94065725df1dfdfe3868ce0613554b"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/descriptive-statistics.json",
+      "bytes": 3008,
+      "sha256": "b0a2d6e3d87e6c6b4d54b200931da5a9c515813352b7fd808bce8917b825e660"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/development-checks.json",
+      "bytes": 1702,
+      "sha256": "870ae5f5ae9a1d304180a8d0c01d57293809de81f44c072140c7c952dc1e253c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/disagreements.json",
+      "bytes": 22187,
+      "sha256": "637da9bc4bb1bdd425d2e35c8a02352802d3ca613a52be0ce5ba7636ff8c478c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/execution-registry.json",
+      "bytes": 367077,
+      "sha256": "7eca030204596a1d1096139d37533efaad558b2a5c81a48ca4824a070206b08a"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/freeze.json",
+      "bytes": 22500,
+      "sha256": "fa6e5a2b3a8770c79ce0881090320e5786c8fb30e2b7a3a8785af74baa68e553"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/gitleaks.log",
+      "bytes": 146,
+      "sha256": "a73b67f59f473c017b3807d5d8273bac95066d2fd8c05ca5b6e47e3302155dc8"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/ground-check.json",
+      "bytes": 4708,
+      "sha256": "c1b03f562cc8b0ba0381235c11e0ff82404bf182e76d1440db61bb01e5d77566"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/host-load.jsonl",
+      "bytes": 696,
+      "sha256": "d0e035807637d27e545ae888e3d7e317cbb42349339d7163bbac998f6f905936"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judge-freeze.json",
+      "bytes": 1605,
+      "sha256": "4182755cef8abee30e3284018204294c6f3ca355bec4e63f13586e07149934e2"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judge-visibility-check-v1.json",
+      "bytes": 1188,
+      "sha256": "c5c1a95532154eb43757944772ea04e4db397dbf28eb242a2919af66969b3d3e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judge-visibility-check-v2.json",
+      "bytes": 1246,
+      "sha256": "ab75c1615edb8042f03eb63801914885c1e5618f639dab5158d67348c87cb428"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J1/output/activation.json",
+      "bytes": 150,
+      "sha256": "850434130b8757c1f29781485471afab4812dc236446e8f55443620f6add9f38"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J1/output/read.json",
+      "bytes": 132,
+      "sha256": "534b1fc0cd039fd0a1f6312fdf27fca388b4b4809ac6a0d17d90de1fc7a21edc"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J1/output/scores.json",
+      "bytes": 31387,
+      "sha256": "24321ece09a08406dd5dfef338b42804c9ee79285a5989f709cec732a051d2ee"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J1/output/submission.json",
+      "bytes": 131,
+      "sha256": "0a12e4970e719660ce3300b2721c4f96e5d150f1573e2c859804e8754f0eef1c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J1/tool-outputs.json",
+      "bytes": 229151,
+      "sha256": "1f8d4eadfe4ece0632a5d1c75b4b04ae8face94811a653f549062a4edb8c8606"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J2/output/activation.json",
+      "bytes": 154,
+      "sha256": "cbe31cd023fd8387d14177d297e5072bef65011d01d9da886e48cebaf3d3863d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J2/output/read.json",
+      "bytes": 133,
+      "sha256": "8cd1f35642070c877a6d76d01ecfaf31dd121a1e77985ed0e103a05d7beb9ca7"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J2/output/scores.json",
+      "bytes": 31366,
+      "sha256": "ce733d214ff4fb1d66ba22f13323d1e779188193c7c94c4e6230c51d6e3ea96e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J2/output/submission.json",
+      "bytes": 131,
+      "sha256": "d61a6d5da094be93ffd118ac49e5b48788df3a2132f376b8b2a7f619d659c842"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J2/tool-outputs.json",
+      "bytes": 201788,
+      "sha256": "bf30f30dba9b1658e8fd8d1f790d077276b157808489f2caf5d668471eae4c0e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J3/output/activation.json",
+      "bytes": 156,
+      "sha256": "69aad6d324ac5752c7f85093fc85153f71b8bd99f5a794e6d466166b6fbca479"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J3/output/read.json",
+      "bytes": 132,
+      "sha256": "0be6bbf80f7a169cde51b34cb6e1df434c9fab091b94f28789f61b7707e5154c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J3/output/scores.json",
+      "bytes": 31659,
+      "sha256": "fae2e0ac168131a4d63091b667c799cefbaf1502dee960afb604f748522127c7"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J3/output/submission.json",
+      "bytes": 130,
+      "sha256": "34de1670f06a94985620c26ab15150faedfeefcec23d03b95b2f679c16b129ae"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/judges/J3/tool-outputs.json",
+      "bytes": 199269,
+      "sha256": "c20b989bfeb521feb60ab7ac884fbf835ab1edf7ad50403a62675555d1807f7d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/make-check.log",
+      "bytes": 53742,
+      "sha256": "b898f57dcfa91b945f287dd075179983e5c7e337d2faba1229fd1e881daf0843"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/mechanical-audit.json",
+      "bytes": 22201,
+      "sha256": "835dbaa1841c000c189a3196f6c5ddc95caf430edfa7a37e5ce4e317566082ae"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/package.log",
+      "bytes": 453,
+      "sha256": "0250577db03f7043dfb4a508e1b8114e6215e565b45d2075c81309e387b901a1"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/preflight.json",
+      "bytes": 3079,
+      "sha256": "4c0cef286c112f28a4c3dffdbe664febe0c6a85d9d123d25799bceb03a520879"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/preparation.json",
+      "bytes": 156597,
+      "sha256": "b07d70bef7ed08f2c6c71d49b0c47339766adfddfe5f62902e8513424b86fd28"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/python-check.log",
+      "bytes": 140,
+      "sha256": "0a33e64c2a78d32e2b0acd03a623906edcccc10d55f549c61a47d0769557e0df"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/review/companion-runtime-error-2.json",
+      "bytes": 139,
+      "sha256": "441cff9e6811fb66096ce9bec3228c8e3a17d018d8470ca611312451fd13b8c7"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/review/companion-runtime-models.json",
+      "bytes": 358,
+      "sha256": "3c55fafbe51a94246cf215b50622323d28804c3faee233a2dd86a56b4b89042a"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/review/self-review.ja.md",
+      "bytes": 1145,
+      "sha256": "0614795c16310ed4e78f78178cce9d26a7dd7ef210b385b0670ddcf6ed6aea97"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/review/specialist.ja.md",
+      "bytes": 1285,
+      "sha256": "31b687540b1b39d4bf0c447dd72eeac59edf9ca981ea82e7c8dc128a4abd846f"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/run-plan.json",
+      "bytes": 3317,
+      "sha256": "d23589906f357cb6f1071727d8509c366d511b7d7b27bd2ed162edbdf22566be"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/score-summary.json",
+      "bytes": 6284,
+      "sha256": "832bc9da360a229d7f85e6a8315f57918f18ecb97d9654c0768522b68917975e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A1/output/access/01.json",
+      "bytes": 4179,
+      "sha256": "fdd67637fd3579cda051a9dba71a1c1f38d1f32496e74d50c2fd662e4680769d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A1/output/access/02.json",
+      "bytes": 1068,
+      "sha256": "bb15000b3642920dc0d19f658f48547af06cccaaf2d6a7fe50022a44cbe6f588"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A1/output/access/03.json",
+      "bytes": 857,
+      "sha256": "7a995a5a483cc1849152be49a167cca68f0e208032d572135db5337ac94a43cd"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A1/output/access/04.json",
+      "bytes": 661,
+      "sha256": "4be0329f649336a888c76bc8e6867b9e1a8c9f203bc866b6fb8e658095111a2c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A1/output/activation.json",
+      "bytes": 107,
+      "sha256": "13c76e7af0c4cce0293ca810ea38463719f2799c4b2faf2552b93c5e35c216c9"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A1/output/answer.json",
+      "bytes": 8160,
+      "sha256": "2da7bc9cf9f1812eb26b3d3ddbdb12225234568b07f6f812d3a5f7d20135edd0"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A1/output/submission.json",
+      "bytes": 137,
+      "sha256": "3e89c0a32bdb97360b1cdd5882976131e57fb168c0b564f96018bdb4f45b4c52"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A2/output/access/01.json",
+      "bytes": 4178,
+      "sha256": "d2d2cf05333d472d2ad1e7cc35f3e5f2f0a4e96ade3f7f3912f8d3990c395f2d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A2/output/access/02.json",
+      "bytes": 1069,
+      "sha256": "6d7688325c0a9ce9f31e2bcd267efad8af16ee1ad3ddd8dcb39bf4d17006cc19"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A2/output/access/03.json",
+      "bytes": 1145,
+      "sha256": "f81d8f7eb388bf784f099b554fefee8e77dc1362f38fcffd6ee892e06aa6624d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A2/output/activation.json",
+      "bytes": 108,
+      "sha256": "9a8fd431981c0b674dd6d9dd4220d5d7b5b175411664454b08257336d0111cf6"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A2/output/answer.json",
+      "bytes": 8125,
+      "sha256": "b17e770f68ac3760bef5db4b94bd50797185cdfcf50979691755fa34d61c3eac"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A2/output/submission.json",
+      "bytes": 137,
+      "sha256": "a7030d4b769ff9ff846b0ce3d65d88519307344a5e0a4e53d139e8863015eb8e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A3/output/access/01.json",
+      "bytes": 4180,
+      "sha256": "6289d62ce6e4eaf2eaa88955e4fe59410352a94ca851ff5a58bb7f6ffa0aed28"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A3/output/access/02.json",
+      "bytes": 1068,
+      "sha256": "958d569854845bf37049c0c65a47ce60205f1688ab94f1725c9b79b973a29891"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A3/output/access/03.json",
+      "bytes": 858,
+      "sha256": "38a8041c765db76763c9dc438d726e44e4bc69584dde7692f7a0c1e7852678c5"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A3/output/access/04.json",
+      "bytes": 660,
+      "sha256": "6965867c8855597999ee4f601dd395f3ddde942e0ee4c3c8908855521f6971a0"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A3/output/activation.json",
+      "bytes": 172,
+      "sha256": "28240def6c36143b6e533493ca4f05c6d79c7e36c5b1c38e1fd02f3482cd9867"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A3/output/answer.json",
+      "bytes": 6853,
+      "sha256": "12b283777ced284ec69bec52b57e6973a9ef4174260c5bdfdf6e11733c2c47e7"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/A3/output/submission.json",
+      "bytes": 138,
+      "sha256": "54ea5e56cb4b60efa7b1592d6ec19c449f487de723d59fd6b582c6b09e8aa0bd"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/01.json",
+      "bytes": 10067,
+      "sha256": "5a26a64a5cd74eb7440201d7beefecefaba879bfc9c7256c7301b145782e6536"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/02.json",
+      "bytes": 6614,
+      "sha256": "a409200cd4cdc983b3f80bedeb1510d271d4b67f5c7b822166d4fb3a3d16c0e3"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/03.json",
+      "bytes": 3247,
+      "sha256": "8f7a869116a71183d58daabbc59d4894bc6b805bf464e0a6110ab31600f47015"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/04.json",
+      "bytes": 1078,
+      "sha256": "3582122e75e540d84d64f503dbc91dbeba497b5cc088c1cdc478397b4ba0be8e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/05.json",
+      "bytes": 959,
+      "sha256": "dffe6bf21784bea24a949084e759b549b171a78fa3eae3087485dd9977379962"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/06.json",
+      "bytes": 1068,
+      "sha256": "0ef025247a16ea6f8f9e83139513b8f49c39c407b12dff545c107cdb216fff56"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/07.json",
+      "bytes": 1560,
+      "sha256": "760c4b40675778a91ab4379c56cddcd7973655c23e9cc4b49890a00a21468e0f"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/08.json",
+      "bytes": 1766,
+      "sha256": "0914f2f6dac214d2cb41ab6fd8d7836ee2ff9f3973a571942e7b0e1671059825"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/09.json",
+      "bytes": 1206,
+      "sha256": "ac0a2b27f6c1a70cf0ca91873721006a0f7de9ff497d27dcf6e7b74de4dc7fc9"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/10.json",
+      "bytes": 866,
+      "sha256": "12f0a909037823a84c6c9be1ab82de32454f3b36e8a5bb6515dc30ede31127b7"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/11.json",
+      "bytes": 1052,
+      "sha256": "d3f7a09d21d6ad00a79d4c87495fcc905c35730a89beda9457c5cb9c74338965"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/12.json",
+      "bytes": 2121,
+      "sha256": "98d5c82694e180dfe853f8d7a93726c3cb58da597793a50bd9b7408d73ec49a3"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/13.json",
+      "bytes": 1257,
+      "sha256": "81994b453c910a646667ecb38756aa50867c2d10006b4789a8527b4bc65b15f0"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/14.json",
+      "bytes": 661,
+      "sha256": "d8c9a4a02620bdf7101aa220894e16ff3a4fc9de52942ff5fb3487e26c3b1945"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/15.json",
+      "bytes": 789,
+      "sha256": "33811e94fc6096abf140a6eb2b0013ee7762cf703fe47ff922d57d281412e9fe"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/16.json",
+      "bytes": 671,
+      "sha256": "1448cfb6bc24f81e0500f4c7bdb6ca180a61099b5a85267afe5814ef4f55cbba"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/access/17.json",
+      "bytes": 1009,
+      "sha256": "904e0541cbfdc8cdbd421e9980fcec7216b6f8e65a143c617bc8936e2c151b0c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/activation.json",
+      "bytes": 107,
+      "sha256": "2d0cd33b2a0264a94e2ffafcc177e7befe01bbd7520918023cfef4e657d8ee21"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/answer.json",
+      "bytes": 14969,
+      "sha256": "35c734c84079bdbe8cb698c7cb13e2838220b322e64ae99523e9471beeb815df"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/documents/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/documents/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/documents/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B1/output/submission.json",
+      "bytes": 137,
+      "sha256": "befa0ac9cc2e0e8ab3d7d703be7f52f673cf6e89f3adc7205ea4adb2a4ad4036"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/01.json",
+      "bytes": 10069,
+      "sha256": "aaa5d42dd0c37984684619818ba99afce9be955cd788a8b433063546892ecaf6"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/02.json",
+      "bytes": 6614,
+      "sha256": "54a873bd605a81e894b312e05ad6748970ca91458224627a4fc38ac2b9491280"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/03.json",
+      "bytes": 3249,
+      "sha256": "802a0f8cf5525868effb126425df076a6ac2a560048d8f7c81a21b90f3e32630"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/04.json",
+      "bytes": 961,
+      "sha256": "9d3bba75a8010c69fe5f4f67dbd412b08da8c213c84af5f1d1fb89cac20d2eb4"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/05.json",
+      "bytes": 1767,
+      "sha256": "75a16713e979bda25e871f3870e2c613735a274dfcdea3e23ec0bd74f8724aed"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/06.json",
+      "bytes": 1559,
+      "sha256": "043527ba33b1079fac6ae52f50ade0b08531d123859c45b0ee335162a5794222"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/07.json",
+      "bytes": 1207,
+      "sha256": "bed7571dc36992954020045452416f22663758a177218abbd574b7baeb654829"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/08.json",
+      "bytes": 867,
+      "sha256": "96f360751d64002870c3b72043e9d2dd360b7849126afbc1a40a9443ce6866a6"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/09.json",
+      "bytes": 1290,
+      "sha256": "72c79530c1c5f5f8a0641f8d326e94cd907db7369a3282203abbf4fe2965ac8e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/10.json",
+      "bytes": 2122,
+      "sha256": "881aece6b965af422972eaefb4c50316804de8367a32f5326321ce87cfee6343"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/11.json",
+      "bytes": 1068,
+      "sha256": "089b9aefdb089991514ac7e6f09134c4d2da7a09dca09231519ed57991c8d303"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/12.json",
+      "bytes": 1256,
+      "sha256": "a3cf1b622b193d1a93c90e031f38b3448b185d8ebe1dd71f0c46652105e25f5e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/access/13.json",
+      "bytes": 663,
+      "sha256": "cbcd26d5137f2aabcf8f6890627706cd7d927e39a2add17e5996e9069bf43745"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/activation.json",
+      "bytes": 107,
+      "sha256": "3b0f1bc46212a386f9003cd0696086435c7db8fc89e8d11bfe5a77869c324abf"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/answer.json",
+      "bytes": 13135,
+      "sha256": "c41ef207c33a20d6eea39a32af95b36736688d30d80e5e8965ae46d3c60ad33c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/documents/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/documents/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B2/output/submission.json",
+      "bytes": 137,
+      "sha256": "9cfddc30e2634b4439c8c7fd82cd6fe2cf5848a23ce75c0242c719416ca21a48"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/01.json",
+      "bytes": 10068,
+      "sha256": "f300502c73abd17dbc1f61941340b013d036f307c47f4756ee4d343646b922c3"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/02.json",
+      "bytes": 6613,
+      "sha256": "06c32f4a2bdda6ab8078910e5bb4f32457ccf36bbb99f41ddd0ef4faa2f52c88"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/03.json",
+      "bytes": 3250,
+      "sha256": "d57bcfb7d3a29db51dd620892f1a9bd0b0ae8618422d47a7adfe1fe671814cd0"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/04.json",
+      "bytes": 1077,
+      "sha256": "c28eb3e904a002ab4e92ca61d56f4305848484e8ec28f444377c05fe4bbfdabb"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/05.json",
+      "bytes": 960,
+      "sha256": "7ff61b3372e1214fed278736592e043b0c391c149974850f17be8be25d2111a8"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/06.json",
+      "bytes": 788,
+      "sha256": "b38e0c72f96e6da308e03c9d3bfa9694021c7355ec8ce3a9ac446533f6d0afb2"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/07.json",
+      "bytes": 1069,
+      "sha256": "25c77d19752f06c7aefb65100523a4c366b1f87108b839aaccddbee3d8b3aec2"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/08.json",
+      "bytes": 1559,
+      "sha256": "aae5829300c17e8013437030dcb2df05a301f0b12617b728d4b60c0a9d6a0ae7"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/09.json",
+      "bytes": 1765,
+      "sha256": "f0f8e6a1b668db795398d93daab30499139deb40973ce42948c58374b9c8295e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/10.json",
+      "bytes": 1205,
+      "sha256": "24d672ee4a31589c639fd3ec37683c3851fc099b484f6ae8a4e2819e3db4fd79"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/11.json",
+      "bytes": 866,
+      "sha256": "b57b9e8a5942e66a39ccb1548da7795e6b17f4979edf3f45dd69809160cc53e3"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/12.json",
+      "bytes": 1612,
+      "sha256": "ff85b3657f3a83617a3095c5ed93facfad5d6fbd963faaba3b31efe02e4bf28d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/13.json",
+      "bytes": 1292,
+      "sha256": "d7a137637b1b62a5962bf5aa953db726ae63d8025df872775c2dafe020ce620a"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/14.json",
+      "bytes": 2121,
+      "sha256": "65212de1a1646b1c92104d0cc23f40e8708a89e7ee6b0d6ce27db6ebcd22aa51"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/15.json",
+      "bytes": 1255,
+      "sha256": "f9179ee5fcdc8ec59c7c0bbdb74c8a53f2aef30e775364ecc76e64e9bcfc6645"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/16.json",
+      "bytes": 661,
+      "sha256": "d40ebe85e67726907bdfb7897ce05584692d164eda57a28d125ab4b9a569a720"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/access/17.json",
+      "bytes": 1469,
+      "sha256": "3bde60c635082e862ae4062786276c1096858e17a0c667b69380fcb514636358"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/activation.json",
+      "bytes": 173,
+      "sha256": "8391329f23d2616230371913f23a091fd378eb6c9dc858d47dcfd5b6b727e4d9"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/answer.json",
+      "bytes": 15225,
+      "sha256": "e290a23563781d2b465a71cfe697054822bd81d8c4eafc55435bbbafe54dbe4c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/documents/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/documents/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/documents/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/B3/output/submission.json",
+      "bytes": 137,
+      "sha256": "7041ac2acdea2fbc32855f8482348e7d1eaa8bb5ebd065b72305f50c8e3d7f81"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/01.json",
+      "bytes": 10495,
+      "sha256": "03ae5e5c9589f5c0b4c550bfdccd0cd4623dc2f072e45acc9613d34d3b29dfcb"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/02.json",
+      "bytes": 2816,
+      "sha256": "84c3b4e46894dcbd528fd992901e779df357c28842312f16a6788cc20cf2f983"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/03.json",
+      "bytes": 13942,
+      "sha256": "970e5caf288fb4571bf7b49febb5ce98a884060132f9d65ceded508e1e67365b"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/04.json",
+      "bytes": 18089,
+      "sha256": "bc763c8e471f23be2dbd2b7beb770718f01988e424eb236800bdcee905865367"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/05.json",
+      "bytes": 19585,
+      "sha256": "ed6e7c538d720bf40316a97404e47b0ee87d45bdb77b58241c298adb635b1926"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/06.json",
+      "bytes": 5739,
+      "sha256": "7387dd57e8cca1b78757eb8b126b42596313857021b849ec659a217f58676beb"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/07.json",
+      "bytes": 9475,
+      "sha256": "d9e2db9779b5ad8b56deb43b20539168ee379e47dc56750b42394a4e3ea90366"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/08.json",
+      "bytes": 9951,
+      "sha256": "437d2c61f0d0a126f3886fd67c22c6149aeaa7497bdd9caa7a930a0b8e3c3e73"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/09.json",
+      "bytes": 3033,
+      "sha256": "3a6ba676c814c2de1541c553a88ab5f0ae8810036f04c9b928f0c59036a90ed2"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/10.json",
+      "bytes": 959,
+      "sha256": "07fc299535f0a57f154a7930611b67d766ee4fcc43af1f2b5d8e918d1aece90d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/11.json",
+      "bytes": 789,
+      "sha256": "e62675f4465d02cf1ded6d04c396107fcf729a8dbed965ed3db38d0a218c0ba1"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/12.json",
+      "bytes": 1068,
+      "sha256": "3b9ac5f6b6fa37f2f08179bef858d88f92ae41007daefad5e5a882ceba625560"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/13.json",
+      "bytes": 1559,
+      "sha256": "ccd69c1bec377bf7df26dc85de4c453c3d3691d3b290a3d048e391758729144c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/14.json",
+      "bytes": 1768,
+      "sha256": "cf280dda36dac992bbdcf6fd5a7a7b0b69b123b53a5a5f09ea21f4b359b20058"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/15.json",
+      "bytes": 1207,
+      "sha256": "334f8e5a7c30319341c95dfb1ddc37ab14cef0aa5300484102f95cb44d0328e5"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/16.json",
+      "bytes": 866,
+      "sha256": "f6d7a2692c94380fea80856e8215cc9a71950053a3c0c5df76baf91905778163"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/17.json",
+      "bytes": 1610,
+      "sha256": "16ea341c1856785f202ec889fda255fc4057fd72d55d0d671ee8b3894705c826"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/18.json",
+      "bytes": 1052,
+      "sha256": "17b954d17ac9106f814d81cc5f3d5299ed5ce91c8c3bac600bcd1233057c8718"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/19.json",
+      "bytes": 1469,
+      "sha256": "96adbfdc3bea53d5ea0789c35b6e03f5539ad6e52072c7a903e6d57ae99ed90a"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/20.json",
+      "bytes": 2121,
+      "sha256": "84b0c0eb19f8c3b9055ca58f8274c5ffcf585eec03b3c4d6716a6fac9c002067"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/21.json",
+      "bytes": 1256,
+      "sha256": "c628c62c0db4c01e6ef9634408c6a707890670da3bd89ee18a13f25b8f5e8e48"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/access/22.json",
+      "bytes": 661,
+      "sha256": "4000212d79de32f67df09fd0856e0d4f25aac036652e77e65ab8a9d01fee2ed5"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/activation.json",
+      "bytes": 107,
+      "sha256": "f7b6d184ce77a75ca71e8c009bd40263dfc9d85f75361e20a0fa4fc9e082cd7f"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/answer.json",
+      "bytes": 15993,
+      "sha256": "62f4b726212253743ca316085e074eb9bf9b184df3b9767e075c5acbf64d970a"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/documents/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/documents/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/documents/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C1/output/submission.json",
+      "bytes": 137,
+      "sha256": "04e6b12d63cb0d8de7a5606da8ce04fd4935c7affe15c2c9e1ebe54c8e7ff6db"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/01.json",
+      "bytes": 10495,
+      "sha256": "d9b5f7ca973c03273618b350774cb6e0da86f02eb9a12b8e5fc9e7ac7343312e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/02.json",
+      "bytes": 2783,
+      "sha256": "960e83f795d747446146dd57731cd3dd126a0570a4464980574bcfbd44a981da"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/03.json",
+      "bytes": 2841,
+      "sha256": "901cedca2c63ebeb62f82669ff63c31cad30858ce27c3c5921195675b75a6394"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/04.json",
+      "bytes": 13940,
+      "sha256": "a726f38d69c74decd88e2c07ec469205994998397db0fe558c7122384f56ddff"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/05.json",
+      "bytes": 5737,
+      "sha256": "2b6d91dbbf0762d6a75a88d118c12f85f94ebccd92daea5224a72cde21cbd67b"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/06.json",
+      "bytes": 9476,
+      "sha256": "6020d626ba482930397eaa284624038f97af72e54c7284add3408c5d32bbfcf0"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/07.json",
+      "bytes": 18090,
+      "sha256": "aac01c34dae5c5f5e4522dbf4d121cfb810e447adebe04e576711664027b1304"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/08.json",
+      "bytes": 19585,
+      "sha256": "44e790420b9d1890f3e0a4738b40cfd38489841f018f6629e790cbb8b016bf68"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/09.json",
+      "bytes": 959,
+      "sha256": "8c2b1da01298280fada95a99b7032a84b0ddcbb8f8b30a4f8665d5ec7b3edddf"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/10.json",
+      "bytes": 717,
+      "sha256": "007a888d6f769041af0e7714b2121073700d8f3b45c59ecb410db64d1487ffaa"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/11.json",
+      "bytes": 1767,
+      "sha256": "6824e3079500258db6dac0361e75d27ffe87128c043b7ccff949c18b04b43c62"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/12.json",
+      "bytes": 1206,
+      "sha256": "fc607676e5199e303c97f74cd1d353f49e3efe65e54bfde1ab00433fa33ddb95"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/13.json",
+      "bytes": 865,
+      "sha256": "ae4cdd0e4531ad401fd36d1bdda81893682d613fddd16e6ebb6c00ddab8371de"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/14.json",
+      "bytes": 1053,
+      "sha256": "8ba9c08fc1ab5d116b31a508610efb1310f46720a2a77a293010b56da9adfa06"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/15.json",
+      "bytes": 2122,
+      "sha256": "5ac0c5c65ffa1ce0431eb8386e64b3684422e53b08dd172f7ccff91581388c3c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/16.json",
+      "bytes": 1068,
+      "sha256": "480e9cc1c8ea852e473291d34faf9750bc0b0dfe29b0af5601b928de019cb426"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/17.json",
+      "bytes": 1257,
+      "sha256": "a21b6361a52b4173758575d3e4cbbe5728d0347b4058f8aa108dc1ffe34b9a08"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/18.json",
+      "bytes": 661,
+      "sha256": "09780f54d2bca403cd278ce7ce2870be8f81f93c74a9e55f5a6e591e5482c173"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/19.json",
+      "bytes": 9950,
+      "sha256": "1ac4312ad941298f6183ea10e2e1818a19976651d0750f4b36f367b4c0c975f3"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/20.json",
+      "bytes": 3033,
+      "sha256": "dd44731d07d62dc1f49a224a3ae17f31ca2ccd0a09b37887ff832a37031f46ad"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/access/21.json",
+      "bytes": 1559,
+      "sha256": "a4f4ef0f03f3086a4cbfabc2fd64b00dda9dd3328f7639d949f6f691052c79c4"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/activation.json",
+      "bytes": 108,
+      "sha256": "600bd4811ed66460058bc3adf1e863c2528dc55cbf33b653a65440edd97b690f"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/answer.json",
+      "bytes": 13669,
+      "sha256": "a9a6f55c196cacda57cb2ca309745b9a564ff5be50a167f8e4f8366919af56a0"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/documents/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/documents/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/documents/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C2/output/submission.json",
+      "bytes": 137,
+      "sha256": "c4d0a27ea0de6acc0772ba31c7daabe6197be0f511597c8fe65d1386f974c330"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/01.json",
+      "bytes": 10496,
+      "sha256": "1b5994cd4e471202acd981501991d8d6e80ad379c84e7ae7abca4fa85a427e27"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/02.json",
+      "bytes": 2916,
+      "sha256": "9b13f4a9b6f4f1c777e39d954e451f6eb7cbd0245d09692056c017b59add8b66"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/03.json",
+      "bytes": 10648,
+      "sha256": "6eb1a5c5ab1f94a96fe410698ee5f51d72bcbc2d9ee2e9687faa48ee4578ccb1"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/04.json",
+      "bytes": 19586,
+      "sha256": "14188ef727a42a1f8cbbb7d44eb8f868892af000a43c8551ae1ee2c441c62ca1"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/05.json",
+      "bytes": 10940,
+      "sha256": "3e45c3aa91b9922968641e9fa03512e3b19bb28e2f8c993b9c633cbacf857e62"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/06.json",
+      "bytes": 8760,
+      "sha256": "9cb11d0364b2e3012baf3f218cc5c73ba4043f0cabc6caffb58188204a5eb8e1"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/07.json",
+      "bytes": 9476,
+      "sha256": "36c9981e12aa0a401b4c0b23dbfde50d270dad9e3cc03a7acc7066fd49a39784"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/08.json",
+      "bytes": 5971,
+      "sha256": "bf0a4db170cf7e11890cb2936072bfb16af50834a466f7d0a1392cdd80b52d13"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/09.json",
+      "bytes": 10236,
+      "sha256": "d5230f03339a34699de9165faf2019580e655182e68b7516de65d0ef88eddc46"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/10.json",
+      "bytes": 3033,
+      "sha256": "15406e58f538aff8940ce0f62e45dbb53d209d05427f4663f27adcf51011bf56"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/11.json",
+      "bytes": 959,
+      "sha256": "3b9d3734928214d4d66e279278a79193c08ed3b4b0e6a684f5e3075a63d53e6b"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/12.json",
+      "bytes": 788,
+      "sha256": "943966716747afe85eee8f6163ea0003cd06fc3989710cd80d20d4552d5bd4f1"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/13.json",
+      "bytes": 1070,
+      "sha256": "bd27fc3cdb779c6ac7a6cc672abcff2b917a29fa7ec5f00bfa1d22c99ea08fa4"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/14.json",
+      "bytes": 1559,
+      "sha256": "09b81036258271d6e5dc40261bca53c68dd776bdbf5d82bef41494eeb60a9220"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/15.json",
+      "bytes": 1766,
+      "sha256": "51ac22660ae8ccbb91a44aad2a9ad9ced59fe183674c0103ca8c53a0cb90f45f"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/16.json",
+      "bytes": 1205,
+      "sha256": "5c8c2cba82a67a7d3b1af62717287682f46f448b570fedfec4c4a1a4d6dda62d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/17.json",
+      "bytes": 866,
+      "sha256": "0e488144e7e607ffcaff7f47ebc3fd26d0a52dcc44b8cd1e2259bcedbe757338"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/18.json",
+      "bytes": 1288,
+      "sha256": "fd6e407bbed6bbbc0e1f16c9d35382b36beb811cb1538e0d64dc0b61a7c2904a"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/19.json",
+      "bytes": 2122,
+      "sha256": "2ca555d713ad6abbcd7d4fa16834073d082001b728e30fb0a96b03ef11b20523"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/20.json",
+      "bytes": 1256,
+      "sha256": "5b6bb8bc3ebcb012fd82e6f549f42520d0f18353ce67ef024531d2b274d080ec"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/access/21.json",
+      "bytes": 662,
+      "sha256": "7d5091128ac270ddce5b37f0ddad6ae737e68e49e9a80e01c10ed058bc1577f0"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/activation.json",
+      "bytes": 166,
+      "sha256": "56feeae02e7af84c046d350d2d0123f4ba537ccb7f6b7e9f9c2dc3b00b3a5df9"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/answer.json",
+      "bytes": 14019,
+      "sha256": "6c51eb95ee57a309fcb2fb5b5a3fa821dba64ebb395f15698929ac3c5e3e54b1"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/documents/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/documents/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/documents/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/raw/trials/C3/output/submission.json",
+      "bytes": 137,
+      "sha256": "ac90593956f55aba54fde31761d4b5d825b64ba4db070eadfcc0b1ec11c9e795"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/rubric.json",
+      "bytes": 6732,
+      "sha256": "43a298bebac70feb7bf77b1a0ad6049f42616199f2adda4aad76a0e452fc400d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/body/d01.txt",
+      "bytes": 2882,
+      "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/body/d02.txt",
+      "bytes": 242,
+      "sha256": "430eb984e53f37efa1cf064d95ff2e861ee2219388d4bbb0c2d7a19440baedde"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/body/d03.txt",
+      "bytes": 6255,
+      "sha256": "0f2c3fec31677fd5e68174d68602435354834b3714bc27b91855acd6b4124e67"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/body/d04.txt",
+      "bytes": 747,
+      "sha256": "9b2e7f69bc2d4ba21796458e4de4154b87374b380628c14bd89caf658cd22915"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/body/d05.txt",
+      "bytes": 631,
+      "sha256": "4d6356e61255dca8a504c4f47af268cf539cf0c89bd3497546f31556a21ad7b7"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/body/d06.txt",
+      "bytes": 4201,
+      "sha256": "559de35c8bd852fc97af553a7331c9dd6b56722e5b7dd28457f98d6e9fd7afcf"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/body/d07.txt",
+      "bytes": 2827,
+      "sha256": "9c6c5801bd745b4fe513c35e939d083f9e21b4e18d014e77806dcf1225804f10"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/body/d08.txt",
+      "bytes": 3860,
+      "sha256": "fea3fc982e37df75ec4679c44581a605419af36a60357e1c586897174152f11e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/body/d09.txt",
+      "bytes": 19448,
+      "sha256": "e3489aaa0abf001d760b14ce0c2912cc33915c165aa5bc7f3fe0936251f795ab"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/manifest.json",
+      "bytes": 19515,
+      "sha256": "c371272206d395cd5e0c570c2d5e16beb509136e14d1424425c54910e32a9823"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/policy.json",
+      "bytes": 1170,
+      "sha256": "d08ca1872887d1ec2b0aacb5b71c573ca7988723a5167dbea897b9e89c337d8c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/raw/00.json",
+      "bytes": 19449,
+      "sha256": "f9307778b27058e95a6f53cdee00176f8fb134bc26e147c2ffa9f18d6e96dedb"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/raw/01.json",
+      "bytes": 12071,
+      "sha256": "ad52ed60ad846593499f5422bb7ac0874f948976f9f4ef131affbb7560f4e4e4"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/raw/02.json",
+      "bytes": 12824,
+      "sha256": "b05ec42055f143dc123c1e650a0f895e77d94883a67f12dab78738a54e60bf7b"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/raw/03.json",
+      "bytes": 2451,
+      "sha256": "8eda82e323886a947b7340084d46d3e788a905ba7c0239530771baa0ccec624c"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/raw/04.txt",
+      "bytes": 4201,
+      "sha256": "559de35c8bd852fc97af553a7331c9dd6b56722e5b7dd28457f98d6e9fd7afcf"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/raw/05.txt",
+      "bytes": 2827,
+      "sha256": "9c6c5801bd745b4fe513c35e939d083f9e21b4e18d014e77806dcf1225804f10"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/raw/06.txt",
+      "bytes": 3860,
+      "sha256": "fea3fc982e37df75ec4679c44581a605419af36a60357e1c586897174152f11e"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/snapshot/raw/07.txt",
+      "bytes": 19448,
+      "sha256": "e3489aaa0abf001d760b14ce0c2912cc33915c165aa5bc7f3fe0936251f795ab"
+    },
+    {
+      "path": "examples/agent-decision-evaluation/test_harness.py",
+      "bytes": 8468,
+      "sha256": "f8fcba9613b1b93f6ca89b6890578e9f21534f4078e3f7bee5548e45533f0d92"
+    },
+    {
+      "path": "scripts/test_agent_decision_evaluation.py",
+      "bytes": 348,
+      "sha256": "39ad9e4ea59490d58edecaa6ecae819b52a6b2cb86ff49ee7471fd5dc4992302"
+    }
+  ],
+  "excluded": "self; later successful Companion result and hosted delivery receipts; generated binary/QZT/QZI; __pycache__"
+}

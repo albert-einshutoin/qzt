@@ -1,0 +1,19 @@
+{
+  "operation": "cite",
+  "args": [
+    "d01.txt",
+    "PR CI currently runs the complete Rust suite on every change and repeats that work in coverage, even when a change has a bounded module or documentation impact. This increases elapsed time and billed compute. The optimization must not reduce failure detection when impact analysis is uncertain."
+  ],
+  "started_epoch": 1792948718.037825,
+  "cli": [],
+  "result": {
+    "doc_id": "d01.txt",
+    "start": 8,
+    "length": 294,
+    "sha256": "8339b2d57ef3c451bd8dd50aa2539557c39ddbeb11b3d94f9459cae39f21e53d",
+    "quote": "PR CI currently runs the complete Rust suite on every change and repeats that work in coverage, even when a change has a bounded module or documentation impact. This increases elapsed time and billed compute. The optimization must not reduce failure detection when impact analysis is uncertain."
+  },
+  "returned_bytes": 434,
+  "ok": true,
+  "finished_epoch": 1792948718.038094
+}

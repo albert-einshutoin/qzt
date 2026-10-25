@@ -1,0 +1,7 @@
+{
+  "status": 0,
+  "threadId": "01a17429-d26a-7010-b618-de2ba2c33be4",
+  "rawOutput": "ALLOW: touched=[]\n\n前回P2は解消済みです。\n\n- RESULTを原文69・要約36へ正しく訂正。\n- mechanical-auditはoriginal 69、summary 36、合計105、invalid 0。\n- 旧RESULT、旧canonical-index、初回BLOCKを`raw/review`に保持。\n- current canonical-index SHA256は指定値`8a28d9...601b`と一致。\n- 登録243 filesのbytes/SHAは全件一致。\n- 旧indexとの共通entryで変わったのはRESULTだけ。追加は旧証拠3件だけで、削除なし。\n- 回答・規則・採点・mechanical audit・入力freezeを含む他239 entriesは不変。\n\nREAD_ONLY / STATIC_ONLYで確認し、編集・test・import・network・subagentは実施していません。hosted CI/mergeの未実施は本判定のBLOCK根拠としていません。",
+  "touchedFiles": [],
+  "reasoningSummary": []
+}
