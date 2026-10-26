@@ -1,0 +1,107 @@
+[
+  {
+    "question": "q1",
+    "doc_id": "p0000000902.txt",
+    "start": 15108,
+    "length": 1001,
+    "sha256": "4561e0ce4ff9e2cd649a4348d8fc341ef1d4d6c5f8d4cbb57f114f086be1e8c2"
+  },
+  {
+    "question": "q1",
+    "doc_id": "p0000000902.txt",
+    "start": 13047,
+    "length": 140,
+    "sha256": "4561e0ce4ff9e2cd649a4348d8fc341ef1d4d6c5f8d4cbb57f114f086be1e8c2"
+  },
+  {
+    "question": "q2",
+    "doc_id": "p0000025202.txt",
+    "start": 6610,
+    "length": 803,
+    "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4"
+  },
+  {
+    "question": "q2",
+    "doc_id": "p0000025202.txt",
+    "start": 19717,
+    "length": 800,
+    "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4"
+  },
+  {
+    "question": "q3",
+    "doc_id": "p0000026962.txt",
+    "start": 1372,
+    "length": 650,
+    "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17"
+  },
+  {
+    "question": "q3",
+    "doc_id": "p0000012024.txt",
+    "start": 1619,
+    "length": 600,
+    "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10"
+  },
+  {
+    "question": "q4",
+    "doc_id": "p0000004650.txt",
+    "start": 116728,
+    "length": 500,
+    "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284"
+  },
+  {
+    "question": "q5",
+    "doc_id": "p0000007955.txt",
+    "start": 3294,
+    "length": 650,
+    "sha256": "7c8fb2e63015d26953a9e90548d4c5cecb03a9c95da5e8166f098b616539377c"
+  },
+  {
+    "question": "q5",
+    "doc_id": "p0000007955.txt",
+    "start": 21151,
+    "length": 650,
+    "sha256": "7c8fb2e63015d26953a9e90548d4c5cecb03a9c95da5e8166f098b616539377c"
+  },
+  {
+    "question": "q6",
+    "doc_id": "p0000009236.txt",
+    "start": 1109,
+    "length": 650,
+    "sha256": "d11199cb75c9e6b5084e066e9a77194cee11bd32e17537dcb88c814c055fff3f"
+  },
+  {
+    "question": "q6",
+    "doc_id": "p0000009236.txt",
+    "start": 3627,
+    "length": 702,
+    "sha256": "d11199cb75c9e6b5084e066e9a77194cee11bd32e17537dcb88c814c055fff3f"
+  },
+  {
+    "question": "q7",
+    "doc_id": "p0000029952.txt",
+    "start": 4498,
+    "length": 620,
+    "sha256": "a6d7f24055863f817dfb9d1127b3c062abe406c599445106dc14ffd8563e0637"
+  },
+  {
+    "question": "q7",
+    "doc_id": "p0000004650.txt",
+    "start": 152178,
+    "length": 250,
+    "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284"
+  },
+  {
+    "question": "q8",
+    "doc_id": "p0000001208.txt",
+    "start": 19104,
+    "length": 1200,
+    "sha256": "c5f9e3df0fa42cd748ac346fcdee27adc73665cc28d45a8317157757231dab4e"
+  },
+  {
+    "question": "q9",
+    "doc_id": "p0000046740.txt",
+    "start": 2066,
+    "length": 1302,
+    "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319"
+  }
+]

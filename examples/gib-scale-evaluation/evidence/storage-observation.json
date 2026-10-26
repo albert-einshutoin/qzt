@@ -1,0 +1,21 @@
+{
+  "logical_file_bytes_by_directory": {
+    "benchmark": 5169861,
+    "shards": 868765188,
+    "corpus-complete": 1899710060,
+    "trials": 6655058,
+    "calibration": 200811995,
+    "aborted-setup-permissions": 319666,
+    "corpus": 1611964643,
+    "judges": 1477750,
+    "shard-inputs": 1181167547,
+    "measurements": 1500363,
+    "material": 2760192681
+  },
+  "root_metadata_bytes": 15015685,
+  "total_logical_file_bytes": 8552750497,
+  "free_bytes": 414922678272,
+  "epoch": 1792988201.136627,
+  "not_physical_allocated_or_os_io": true,
+  "lab_storage_not_minimum_operational_storage": true
+}

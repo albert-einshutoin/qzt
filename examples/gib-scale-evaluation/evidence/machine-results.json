@@ -1,0 +1,757 @@
+{
+  "records": [
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 0,
+      "query": "Rutherford",
+      "seconds": 10.723302958,
+      "calls": 13,
+      "returned_bytes": 12940,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 0,
+      "query": "Rutherford",
+      "seconds": 5.453140500000002,
+      "calls": 154,
+      "returned_bytes": 13471,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 47,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 493015,
+        "physical_decoded_bytes": 812505670,
+        "physical_decoded_chunks": 195,
+        "posting_bytes_read": 1454,
+        "query_time_ms": 1418.5383680000002
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 0,
+      "query": "entropy",
+      "seconds": 10.193291166999998,
+      "calls": 13,
+      "returned_bytes": 12929,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 0,
+      "query": "entropy",
+      "seconds": 5.069543125000003,
+      "calls": 154,
+      "returned_bytes": 13507,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 47,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 362597,
+        "physical_decoded_bytes": 650305295,
+        "physical_decoded_chunks": 156,
+        "posting_bytes_read": 1475,
+        "query_time_ms": 1129.6110789999996
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 0,
+      "query": "adenine",
+      "seconds": 9.862721208,
+      "calls": 13,
+      "returned_bytes": 12914,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 0,
+      "query": "adenine",
+      "seconds": 4.385839000000004,
+      "calls": 154,
+      "returned_bytes": 13445,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 10,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 170787,
+        "physical_decoded_bytes": 240902177,
+        "physical_decoded_chunks": 58,
+        "posting_bytes_read": 334,
+        "query_time_ms": 425.0616689999999
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 0,
+      "query": "Turing",
+      "seconds": 9.915493458,
+      "calls": 13,
+      "returned_bytes": 12904,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 0,
+      "query": "Turing",
+      "seconds": 5.056524917000004,
+      "calls": 154,
+      "returned_bytes": 13446,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 56,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 393230,
+        "physical_decoded_bytes": 624431143,
+        "physical_decoded_chunks": 150,
+        "posting_bytes_read": 1930,
+        "query_time_ms": 1090.0244919999998
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 0,
+      "query": "identity",
+      "seconds": 9.794485665999993,
+      "calls": 13,
+      "returned_bytes": 12911,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 0,
+      "query": "identity",
+      "seconds": 4.957142082999994,
+      "calls": 154,
+      "returned_bytes": 13444,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 142,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 1317128,
+        "physical_decoded_bytes": 599685304,
+        "physical_decoded_chunks": 143,
+        "posting_bytes_read": 13453,
+        "query_time_ms": 1030.0830370000006
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 1,
+      "query": "Rutherford",
+      "seconds": 4.1167660829999875,
+      "calls": 154,
+      "returned_bytes": 13471,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 47,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 493015,
+        "physical_decoded_bytes": 812505670,
+        "physical_decoded_chunks": 195,
+        "posting_bytes_read": 1454,
+        "query_time_ms": 1205.5080419999995
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 1,
+      "query": "Rutherford",
+      "seconds": 10.075489375000004,
+      "calls": 13,
+      "returned_bytes": 12940,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 1,
+      "query": "entropy",
+      "seconds": 5.186514874999986,
+      "calls": 154,
+      "returned_bytes": 13507,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 47,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 362597,
+        "physical_decoded_bytes": 650305295,
+        "physical_decoded_chunks": 156,
+        "posting_bytes_read": 1475,
+        "query_time_ms": 1147.5498359999997
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 1,
+      "query": "entropy",
+      "seconds": 9.931171250000006,
+      "calls": 13,
+      "returned_bytes": 12929,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 1,
+      "query": "adenine",
+      "seconds": 4.385587125000001,
+      "calls": 154,
+      "returned_bytes": 13445,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 10,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 170787,
+        "physical_decoded_bytes": 240902177,
+        "physical_decoded_chunks": 58,
+        "posting_bytes_read": 334,
+        "query_time_ms": 426.9444999999999
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 1,
+      "query": "adenine",
+      "seconds": 10.027339957999999,
+      "calls": 13,
+      "returned_bytes": 12914,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 1,
+      "query": "Turing",
+      "seconds": 5.0684365830000075,
+      "calls": 154,
+      "returned_bytes": 13439,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 56,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 393230,
+        "physical_decoded_bytes": 624431143,
+        "physical_decoded_chunks": 150,
+        "posting_bytes_read": 1930,
+        "query_time_ms": 1094.781749
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 1,
+      "query": "Turing",
+      "seconds": 10.100038334000018,
+      "calls": 13,
+      "returned_bytes": 12904,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 1,
+      "query": "identity",
+      "seconds": 5.114950000000022,
+      "calls": 154,
+      "returned_bytes": 13444,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 142,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 1317128,
+        "physical_decoded_bytes": 599685304,
+        "physical_decoded_chunks": 143,
+        "posting_bytes_read": 13453,
+        "query_time_ms": 1074.6088779999995
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 1,
+      "query": "identity",
+      "seconds": 9.82021095799999,
+      "calls": 13,
+      "returned_bytes": 12911,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 2,
+      "query": "Rutherford",
+      "seconds": 1.5501930419999894,
+      "calls": 13,
+      "returned_bytes": 12940,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 2,
+      "query": "Rutherford",
+      "seconds": 6.040439333000023,
+      "calls": 154,
+      "returned_bytes": 13471,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 47,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 493015,
+        "physical_decoded_bytes": 812505670,
+        "physical_decoded_chunks": 195,
+        "posting_bytes_read": 1454,
+        "query_time_ms": 1626.0807990000008
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 2,
+      "query": "entropy",
+      "seconds": 0.6219493330000034,
+      "calls": 13,
+      "returned_bytes": 12929,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 2,
+      "query": "entropy",
+      "seconds": 3.900675332999981,
+      "calls": 154,
+      "returned_bytes": 13506,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 47,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 362597,
+        "physical_decoded_bytes": 650305295,
+        "physical_decoded_chunks": 156,
+        "posting_bytes_read": 1475,
+        "query_time_ms": 919.5807529999998
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 2,
+      "query": "adenine",
+      "seconds": 0.5635255829999721,
+      "calls": 13,
+      "returned_bytes": 12914,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 2,
+      "query": "adenine",
+      "seconds": 3.3181462919999944,
+      "calls": 154,
+      "returned_bytes": 13446,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 10,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 170787,
+        "physical_decoded_bytes": 240902177,
+        "physical_decoded_chunks": 58,
+        "posting_bytes_read": 334,
+        "query_time_ms": 339.63275099999987
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 2,
+      "query": "Turing",
+      "seconds": 0.5511669579999818,
+      "calls": 13,
+      "returned_bytes": 12904,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 2,
+      "query": "Turing",
+      "seconds": 3.8281562500000064,
+      "calls": 154,
+      "returned_bytes": 13445,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 56,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 393230,
+        "physical_decoded_bytes": 624431143,
+        "physical_decoded_chunks": 150,
+        "posting_bytes_read": 1930,
+        "query_time_ms": 864.4592900000002
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "B",
+      "repetition": 2,
+      "query": "identity",
+      "seconds": 0.6000089159999789,
+      "calls": 13,
+      "returned_bytes": 12911,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 0,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 0,
+        "physical_decoded_bytes": 0,
+        "physical_decoded_chunks": 0,
+        "posting_bytes_read": 0,
+        "query_time_ms": 0
+      }
+    },
+    {
+      "kind": "search",
+      "condition": "C",
+      "repetition": 2,
+      "query": "identity",
+      "seconds": 3.907126040999998,
+      "calls": 154,
+      "returned_bytes": 13443,
+      "hits": 12,
+      "capped": true,
+      "partial_shards": 142,
+      "coverage_verified": false,
+      "native_metrics_sum": {
+        "decoded_bytes": 1317128,
+        "physical_decoded_bytes": 599685304,
+        "physical_decoded_chunks": 143,
+        "posting_bytes_read": 13453,
+        "query_time_ms": 818.0689539999998
+      }
+    },
+    {
+      "kind": "same_point",
+      "condition": "B",
+      "accesses": 1,
+      "seconds": 5.554200001256504e-05,
+      "calls": 0,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "same_point",
+      "condition": "C",
+      "accesses": 1,
+      "seconds": 0.011410166000018762,
+      "calls": 1,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "same_point",
+      "condition": "B",
+      "accesses": 10,
+      "seconds": 0.00023441700000148558,
+      "calls": 0,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "same_point",
+      "condition": "C",
+      "accesses": 10,
+      "seconds": 0.11169012499999553,
+      "calls": 10,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "same_point",
+      "condition": "B",
+      "accesses": 100,
+      "seconds": 0.0020192919999999503,
+      "calls": 0,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "same_point",
+      "condition": "C",
+      "accesses": 100,
+      "seconds": 1.139436791999998,
+      "calls": 100,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "distributed",
+      "condition": "B",
+      "accesses": 1,
+      "seconds": 3.7207999980637396e-05,
+      "calls": 0,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "distributed",
+      "condition": "C",
+      "accesses": 1,
+      "seconds": 0.011508957999978975,
+      "calls": 1,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "distributed",
+      "condition": "B",
+      "accesses": 10,
+      "seconds": 0.0003315840000084336,
+      "calls": 0,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "distributed",
+      "condition": "C",
+      "accesses": 10,
+      "seconds": 0.11601758399999085,
+      "calls": 10,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "distributed",
+      "condition": "B",
+      "accesses": 100,
+      "seconds": 0.0030602090000115822,
+      "calls": 0,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "distributed",
+      "condition": "C",
+      "accesses": 100,
+      "seconds": 1.137136292000008,
+      "calls": 100,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "same_point",
+      "condition": "C_single_without_index",
+      "accesses": 1,
+      "seconds": 0.014390082999995002,
+      "calls": 1,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "same_point",
+      "condition": "C_single_without_index",
+      "accesses": 10,
+      "seconds": 0.11155087500000604,
+      "calls": 10,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "same_point",
+      "condition": "C_single_without_index",
+      "accesses": 100,
+      "seconds": 1.1258325829999762,
+      "calls": 100,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "distributed",
+      "condition": "C_single_without_index",
+      "accesses": 1,
+      "seconds": 0.011494042000009586,
+      "calls": 1,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "distributed",
+      "condition": "C_single_without_index",
+      "accesses": 10,
+      "seconds": 0.13087145800000144,
+      "calls": 10,
+      "all_bytes_match": true
+    },
+    {
+      "kind": "distributed",
+      "condition": "C_single_without_index",
+      "accesses": 100,
+      "seconds": 1.288583917000011,
+      "calls": 100,
+      "all_bytes_match": true
+    }
+  ],
+  "cache": "warm/unknown",
+  "sequential": true,
+  "concurrent_agent_work": false,
+  "inventory_load_seconds": {
+    "B": 0.130371209,
+    "C": 0.071456292
+  },
+  "actual_os_io_bytes": "unknown; only exposed native decoded/posting counters are measured",
+  "raw_machine_results_sha256": "5251b8965706a37b450266ac8f19a3b6fefc17fc5583e80d8ad8669fa045d252"
+}

@@ -1,0 +1,80 @@
+{
+  "initial_gate": "BLOCK: touched=[]; 2 P2",
+  "companion_thread": "01a1766e-da64-7690-9f1f-53045cf3542c",
+  "initial_result_sha256": "cb588817d7ae9d8b587fd7afacbe194f5c05beea95d6d96b4d93fb384b31e3cb",
+  "measured_source_snapshot_sha256": "47fd7fb160fbccfabe965df8d761324d8372228e05e7690668fae9c21631c339",
+  "observed_data_rechecked": {
+    "binary_matches_frozen_configuration": true,
+    "whole_index_exit": 1,
+    "whole_index_first_stderr_line": "qzt sidecar-rebuild: a resource limit was exceeded",
+    "whole_qzi_absent": true,
+    "construction_or_scale_refusal_rerun": false
+  },
+  "corrections": [
+    "prepare checks declared binary SHA before native execution and before success save; assets before seal and against actual sealed entry",
+    "only fixed exit 1 plus exact first resource-limit diagnostic may continue to registered shards; other outcomes stop"
+  ],
+  "current_files": [
+    {
+      "path": "examples/gib-scale-evaluation/experiment.py",
+      "bytes": 9639,
+      "sha256": "53394557ea9fcd6344dbeae4ce2e1fedc399aa33b148d8bc269971a4d5f39596"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/freeze.py",
+      "bytes": 5689,
+      "sha256": "0a09be0f9298119d34640aaf18017c093fead64a417f5bd31ba55509767867d3"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/test_scale.py",
+      "bytes": 13997,
+      "sha256": "5ce724dcb0019d9bb068bdb2969e5f68d8dafb56d8b2cdd28481d7bd0c37bd3e"
+    }
+  ],
+  "tests": {
+    "native_harness": {
+      "total": 17,
+      "passed": 17
+    },
+    "python_gate": {
+      "total": 58,
+      "passed": 57,
+      "skipped": 1,
+      "skip": "pre-existing QZT_AGENT_RUNTIME E2E"
+    }
+  },
+  "logs": [
+    {
+      "path": "gate-p2-regression-red.log",
+      "bytes": 9777,
+      "sha256": "61486cde1cff771b0d7533032e9fb393982c88b6c760b1516cdb06a852faf216"
+    },
+    {
+      "path": "gate-p2-regression-red-fixture-corrected.log",
+      "bytes": 9295,
+      "sha256": "35a154f16b7105978d8581cacf53621a20d6a37d38e75485ed20f2437ad33a49"
+    },
+    {
+      "path": "gate-p2-extra-conditions-green.log",
+      "bytes": 150,
+      "sha256": "80b70d2789f637d6a4b943510d5b603afca8624805fe0f44e31f956c26eca0ae"
+    },
+    {
+      "path": "gate-p2-empty-stderr-red.log",
+      "bytes": 1022,
+      "sha256": "e4bc60aa6d5c18ed92864943219be8127b123b0c899432ff1edc9312ec92469d"
+    },
+    {
+      "path": "gate-p2-regression-final-green.log",
+      "bytes": 150,
+      "sha256": "ec7db10987ea13831e543483bc579301bdc6a70adea0ca0bcb970feb33a9f547"
+    },
+    {
+      "path": "python-gate-after-p2.log",
+      "bytes": 203,
+      "sha256": "48e631ff6115acc8fe3a03324dd8b9645f7df7d8794f8102da76e807bfbf70a9"
+    }
+  ],
+  "first_red_limit": "initial binary-change fixture lacked inventory; corrected fixture then all seven boundary regressions failed before implementation",
+  "measured_freeze_and_answers": "unchanged; original 8 measured script bodies retained; current hardened code is not attributed as measured code"
+}

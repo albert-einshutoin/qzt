@@ -1,0 +1,2068 @@
+{
+  "method": "parent source adjudication under frozen rubric, not majority vote; original four score sets preserved",
+  "rubric_sha256": "19ed608d5541d585e6bf13918f984a26652941f624e19b9463d9b9d8104d1ddc",
+  "judges": [
+    {
+      "judge": "J1",
+      "condition": "B",
+      "fact": 79,
+      "citation": 75,
+      "conditions": 80,
+      "unknown": 4,
+      "completion": 79,
+      "investigated": 40,
+      "false_assertions": 0,
+      "unsupported_assertions": 6
+    },
+    {
+      "judge": "J1",
+      "condition": "C",
+      "fact": 79,
+      "citation": 73,
+      "conditions": 80,
+      "unknown": 4,
+      "completion": 79,
+      "investigated": 40,
+      "false_assertions": 0,
+      "unsupported_assertions": 4
+    },
+    {
+      "judge": "J2",
+      "condition": "B",
+      "fact": 75,
+      "citation": 79,
+      "conditions": 80,
+      "unknown": 4,
+      "completion": 75,
+      "investigated": 40,
+      "false_assertions": 0,
+      "unsupported_assertions": 6
+    },
+    {
+      "judge": "J2",
+      "condition": "C",
+      "fact": 76,
+      "citation": 79,
+      "conditions": 80,
+      "unknown": 4,
+      "completion": 76,
+      "investigated": 40,
+      "false_assertions": 0,
+      "unsupported_assertions": 5
+    },
+    {
+      "judge": "J3",
+      "condition": "B",
+      "fact": 79,
+      "citation": 79,
+      "conditions": 80,
+      "unknown": 4,
+      "completion": 79,
+      "investigated": 40,
+      "false_assertions": 0,
+      "unsupported_assertions": 6
+    },
+    {
+      "judge": "J3",
+      "condition": "C",
+      "fact": 80,
+      "citation": 79,
+      "conditions": 80,
+      "unknown": 4,
+      "completion": 80,
+      "investigated": 40,
+      "false_assertions": 0,
+      "unsupported_assertions": 5
+    },
+    {
+      "judge": "J4",
+      "condition": "B",
+      "fact": 78,
+      "citation": 73,
+      "conditions": 80,
+      "unknown": 4,
+      "completion": 78,
+      "investigated": 40,
+      "false_assertions": 0,
+      "unsupported_assertions": 6
+    },
+    {
+      "judge": "J4",
+      "condition": "C",
+      "fact": 75,
+      "citation": 70,
+      "conditions": 80,
+      "unknown": 4,
+      "completion": 75,
+      "investigated": 40,
+      "false_assertions": 0,
+      "unsupported_assertions": 5
+    }
+  ],
+  "exact_row_agreement": 61,
+  "disagreeing_rows": 19,
+  "disagreements": [
+    {
+      "trial": "C4",
+      "question": "q1",
+      "dimensions": [
+        "fact",
+        "citation",
+        "completion"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "C4",
+      "question": "q9",
+      "dimensions": [
+        "citation"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "C3",
+      "question": "q1",
+      "dimensions": [
+        "fact",
+        "completion"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "C3",
+      "question": "q7",
+      "dimensions": [
+        "fact",
+        "citation",
+        "completion"
+      ],
+      "observations": [
+        {
+          "fact": 1,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "C3",
+      "question": "q9",
+      "dimensions": [
+        "citation"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "B4",
+      "question": "q1",
+      "dimensions": [
+        "fact",
+        "citation",
+        "completion"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "B4",
+      "question": "q9",
+      "dimensions": [
+        "citation"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "C1",
+      "question": "q1",
+      "dimensions": [
+        "fact",
+        "citation",
+        "completion"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "C1",
+      "question": "q7",
+      "dimensions": [
+        "unsupported_assertions"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 1
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 1
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 1
+        }
+      ]
+    },
+    {
+      "trial": "C1",
+      "question": "q9",
+      "dimensions": [
+        "citation"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "C2",
+      "question": "q1",
+      "dimensions": [
+        "fact",
+        "citation",
+        "completion"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "C2",
+      "question": "q7",
+      "dimensions": [
+        "citation"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "C2",
+      "question": "q9",
+      "dimensions": [
+        "citation"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "B2",
+      "question": "q1",
+      "dimensions": [
+        "fact",
+        "citation",
+        "completion"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "B2",
+      "question": "q7",
+      "dimensions": [
+        "citation"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "B2",
+      "question": "q9",
+      "dimensions": [
+        "citation"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "B1",
+      "question": "q1",
+      "dimensions": [
+        "fact",
+        "completion"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "B1",
+      "question": "q9",
+      "dimensions": [
+        "citation"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 1,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    },
+    {
+      "trial": "B3",
+      "question": "q1",
+      "dimensions": [
+        "fact",
+        "completion"
+      ],
+      "observations": [
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 1,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 1,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        },
+        {
+          "fact": 2,
+          "citation": 2,
+          "conditions": 2,
+          "unknown": null,
+          "completion": 2,
+          "investigated": 1,
+          "false_assertions": 0,
+          "unsupported_assertions": 0
+        }
+      ]
+    }
+  ],
+  "parent_rows": [
+    {
+      "trial": "C4",
+      "question": "q1",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": null,
+      "citation_unresolved": true,
+      "reason": "all eight omit explicit diffuse-charge/field-strength reason in frozen expected points; retain partial despite large/backward-angle variants"
+    },
+    {
+      "trial": "C4",
+      "question": "q2",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C4",
+      "question": "q3",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C4",
+      "question": "q4",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C4",
+      "question": "q5",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C4",
+      "question": "q6",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C4",
+      "question": "q7",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C4",
+      "question": "q8",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C4",
+      "question": "q9",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C4",
+      "question": "q10",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": 1,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C3",
+      "question": "q1",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": null,
+      "citation_unresolved": true,
+      "reason": "all eight omit explicit diffuse-charge/field-strength reason in frozen expected points; retain partial despite large/backward-angle variants"
+    },
+    {
+      "trial": "C3",
+      "question": "q2",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C3",
+      "question": "q3",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C3",
+      "question": "q4",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C3",
+      "question": "q5",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C3",
+      "question": "q6",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C3",
+      "question": "q7",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "useful work is only said to be related; role in limiting/quantifying extractable work is omitted"
+    },
+    {
+      "trial": "C3",
+      "question": "q8",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C3",
+      "question": "q9",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C3",
+      "question": "q10",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": 1,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B4",
+      "question": "q1",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": null,
+      "citation_unresolved": true,
+      "reason": "all eight omit explicit diffuse-charge/field-strength reason in frozen expected points; retain partial despite large/backward-angle variants"
+    },
+    {
+      "trial": "B4",
+      "question": "q2",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "Born rule is named but amplitude-to-probability relation is omitted"
+    },
+    {
+      "trial": "B4",
+      "question": "q3",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B4",
+      "question": "q4",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B4",
+      "question": "q5",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B4",
+      "question": "q6",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B4",
+      "question": "q7",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B4",
+      "question": "q8",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B4",
+      "question": "q9",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B4",
+      "question": "q10",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": 1,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C1",
+      "question": "q1",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": null,
+      "citation_unresolved": true,
+      "reason": "all eight omit explicit diffuse-charge/field-strength reason in frozen expected points; retain partial despite large/backward-angle variants"
+    },
+    {
+      "trial": "C1",
+      "question": "q2",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C1",
+      "question": "q3",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C1",
+      "question": "q4",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C1",
+      "question": "q5",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C1",
+      "question": "q6",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C1",
+      "question": "q7",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C1",
+      "question": "q8",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C1",
+      "question": "q9",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C1",
+      "question": "q10",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": 1,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C2",
+      "question": "q1",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": null,
+      "citation_unresolved": true,
+      "reason": "all eight omit explicit diffuse-charge/field-strength reason in frozen expected points; retain partial despite large/backward-angle variants"
+    },
+    {
+      "trial": "C2",
+      "question": "q2",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C2",
+      "question": "q3",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C2",
+      "question": "q4",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C2",
+      "question": "q5",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C2",
+      "question": "q6",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C2",
+      "question": "q7",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C2",
+      "question": "q8",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C2",
+      "question": "q9",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "C2",
+      "question": "q10",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": 1,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B2",
+      "question": "q1",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": null,
+      "citation_unresolved": true,
+      "reason": "all eight omit explicit diffuse-charge/field-strength reason in frozen expected points; retain partial despite large/backward-angle variants"
+    },
+    {
+      "trial": "B2",
+      "question": "q2",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B2",
+      "question": "q3",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B2",
+      "question": "q4",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B2",
+      "question": "q5",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B2",
+      "question": "q6",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B2",
+      "question": "q7",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B2",
+      "question": "q8",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B2",
+      "question": "q9",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B2",
+      "question": "q10",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": 1,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B1",
+      "question": "q1",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": null,
+      "citation_unresolved": true,
+      "reason": "all eight omit explicit diffuse-charge/field-strength reason in frozen expected points; retain partial despite large/backward-angle variants"
+    },
+    {
+      "trial": "B1",
+      "question": "q2",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B1",
+      "question": "q3",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B1",
+      "question": "q4",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B1",
+      "question": "q5",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B1",
+      "question": "q6",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B1",
+      "question": "q7",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B1",
+      "question": "q8",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B1",
+      "question": "q9",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 1,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B1",
+      "question": "q10",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": 1,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B3",
+      "question": "q1",
+      "fact": 1,
+      "completion": 1,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": null,
+      "citation_unresolved": true,
+      "reason": "all eight omit explicit diffuse-charge/field-strength reason in frozen expected points; retain partial despite large/backward-angle variants"
+    },
+    {
+      "trial": "B3",
+      "question": "q2",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B3",
+      "question": "q3",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B3",
+      "question": "q4",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B3",
+      "question": "q5",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B3",
+      "question": "q6",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B3",
+      "question": "q7",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B3",
+      "question": "q8",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B3",
+      "question": "q9",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": null,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    },
+    {
+      "trial": "B3",
+      "question": "q10",
+      "fact": 2,
+      "completion": 2,
+      "conditions": 2,
+      "investigated": 1,
+      "unknown": 1,
+      "citation": 2,
+      "citation_unresolved": false,
+      "reason": "fixed-source primary points recovered; physical/theoretical conditions retained"
+    }
+  ],
+  "parent_totals": {
+    "B": {
+      "fact": 75,
+      "completion": 75,
+      "conditions": 80,
+      "investigated": 40,
+      "unknown": 4
+    },
+    "C": {
+      "fact": 75,
+      "completion": 75,
+      "conditions": 80,
+      "investigated": 40,
+      "unknown": 4
+    }
+  },
+  "unresolved_citation_rows": [
+    {
+      "trial": "C4",
+      "question": "q1"
+    },
+    {
+      "trial": "C3",
+      "question": "q1"
+    },
+    {
+      "trial": "B4",
+      "question": "q1"
+    },
+    {
+      "trial": "C1",
+      "question": "q1"
+    },
+    {
+      "trial": "C2",
+      "question": "q1"
+    },
+    {
+      "trial": "B2",
+      "question": "q1"
+    },
+    {
+      "trial": "B1",
+      "question": "q1"
+    },
+    {
+      "trial": "B3",
+      "question": "q1"
+    }
+  ],
+  "additional_claims": "11 challenged assertions across four source propositions are present in original and each actor returned fragment; see adjudication-source-grounds; judge excerpt absence is preserved as a bundle limitation",
+  "common_provenance_limit": "all eight q10 responses inherit misleading 2026-10-01 publication wording from common brief; treat as dump job identifier, not verified publication or revision date; not used as evidence of current agreement",
+  "quality_scope": "source-relative scientific facts; no human or global research truth validation; unresolved citation meaning stays unknown",
+  "citation_decisions": "q1: selected deictic/diagram citations make exact support interpretation unresolved for all eight; do not transfer judge agreement to truth. q9: all except B3 omit selected ranges defining natural-log base/circle ratio, citation 1. q7 B2/C2/C3 omit selected work-support range, citation 1. No parent total citation score is computed."
+}

@@ -1,0 +1,12 @@
+{
+  "queries": [
+    "Rutherford",
+    "entropy",
+    "adenine",
+    "Turing",
+    "identity"
+  ],
+  "repetitions": 3,
+  "order": "B,C then C,B alternation by repetition; same host sequential",
+  "cache": "warm/unknown; no cache purge"
+}

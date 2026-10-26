@@ -1,0 +1,64 @@
+{
+  "harness_native": {
+    "total": 12,
+    "passed": 12,
+    "skipped": 0
+  },
+  "python_gate": {
+    "python": "3.14.8",
+    "total": 53,
+    "passed": 52,
+    "skipped": 1,
+    "skip": "pre-existing QZT_AGENT_RUNTIME prepared E2E"
+  },
+  "make_check": "exit 0; fmt clippy default build all-target all-feature tests doc",
+  "cargo_package": "exit 0; package verification only, no publish",
+  "logs": [
+    {
+      "path": "specialist-regression-red.log",
+      "bytes": 2260,
+      "sha256": "5f84773f989c5ca82a010b2d82f2332d097c456492a656e60e828fb006ae866f"
+    },
+    {
+      "path": "specialist-regression-green.log",
+      "bytes": 110,
+      "sha256": "5c8786e0635c11e8e20348f64993022162964d49f415a8e3caf5760cfebb9e38"
+    },
+    {
+      "path": "permission-regression-red.log",
+      "bytes": 1418,
+      "sha256": "2987adda1d52555aabc9448b5cf8054e6907bd8e1d42531a7663c305c43bebe4"
+    },
+    {
+      "path": "permission-regression-green.log",
+      "bytes": 111,
+      "sha256": "1eb7464fdb886702af5169376662820cc271b628719b2bad037fa9eb42b1b486"
+    },
+    {
+      "path": "python-gate.log",
+      "bytes": 164,
+      "sha256": "dc39327e5a9e0a6c57c591025d37fc453b61952c0f11fc05dd094a4b8c89f6be"
+    },
+    {
+      "path": "make-check.log",
+      "bytes": 54060,
+      "sha256": "4faa9304ded8839223cc254493dc9ed370b3547a858b5a9f119e3e72e62653d1"
+    },
+    {
+      "path": "package.log",
+      "bytes": 572,
+      "sha256": "33b9e335fcf88f23051008475c9610ba1fd5b6e31ea8b39b6b1aa24503d1075d"
+    },
+    {
+      "path": "gitleaks-example.log",
+      "bytes": 83,
+      "sha256": "010d9ab29b277728fcbb3ccb3483fe05befebb84dd43f5eb162f6590de69f082"
+    },
+    {
+      "path": "gitleaks-loader.log",
+      "bytes": 80,
+      "sha256": "527280382ba58a4b3b69e25f2976da9d2666f9cfd0445a713ca634a62fce8a47"
+    }
+  ],
+  "core_cargo_workflow_diff_from_base": "empty; git diff --exit-code 1562940cf9a93e885d32faf0f838a5b288d96497 -- src Cargo.toml Cargo.lock .github"
+}

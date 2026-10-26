@@ -1,0 +1,1448 @@
+{
+  "epoch": 1792986208.3213382,
+  "main_freeze_sha256": "ded25a09bd94c7c013a15c84a363093ab3c6f661aeae01640b72c705049e19c4",
+  "files": [
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/material/qzt",
+      "bytes": 1706656,
+      "sha256": "53778d7b266dd69e2e93101ca6abd4944cac30236fca347fa2c095881117ef4f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/material/whole.qzt",
+      "bytes": 396150931,
+      "sha256": "e656b930750db18f7988767c0a3dccaac750d7082ad5048d33f5f10b5fc80ec7"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/inventory.jsonl",
+      "bytes": 11319137,
+      "sha256": "a50c44d801c7371f7b3bc9bc46d4871db7bc8cbcaea66f4759e2d174c108283c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/configuration.json",
+      "bytes": 29048,
+      "sha256": "387b82324a93fcfa1ca2712f5fda4e1e310230f81b1c38d182b737b52d29c91d"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0000.qzi",
+      "bytes": 3189228,
+      "sha256": "c4e0ce42095bc63a619ea36e700cdc837716eaec67fc0aa385f47ce3f96c6d40"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0000.qzt",
+      "bytes": 2779085,
+      "sha256": "4eb6adba660b036b1d777c5dcc6cf6a19ec719ec34e67c7460c549a802b36b62"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0001.qzi",
+      "bytes": 3319153,
+      "sha256": "982ab896b3aec57dcc33aa26c57cc6bdc0453b885919243f4c694dec8fd1b16e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0001.qzt",
+      "bytes": 2840054,
+      "sha256": "8e543701832fb8c9e5211ce5ef19918fb062606272ee41a8286305334ea9682f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0002.qzi",
+      "bytes": 3411662,
+      "sha256": "bad55d33d542ac9fc1589d8bf851daaf9fb4cd0b181cafbd9d604e0659da8f9b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0002.qzt",
+      "bytes": 2815008,
+      "sha256": "8f5ebb4caa3bce392f092519eafa926d121e4ba8253c52566d492d54dd62933e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0003.qzi",
+      "bytes": 3388123,
+      "sha256": "d8960d61f38afe67ecfdbfe7d4a8d141cd64303988f2fdefe2fa1b9fc3d9754c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0003.qzt",
+      "bytes": 2868720,
+      "sha256": "8b90621ff0222810cfc526b1918ee65d89b0e600ca60d304974b70bda4332c55"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0004.qzi",
+      "bytes": 3307274,
+      "sha256": "6cbcd53751b9c9fe2834c291d91e05c5cbd2f8da5da24d2958b0ce0f25cbc384"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0004.qzt",
+      "bytes": 2824286,
+      "sha256": "6e0149e488e6ec305f804b9cc4827cea5287a0cc9a5361360b0f069c2c553e8c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0005.qzi",
+      "bytes": 3123045,
+      "sha256": "280a3c68fd708031f964a3390c30c1af5adbb8a39040ef51af307e391b93eb37"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0005.qzt",
+      "bytes": 2818865,
+      "sha256": "62117e719ef9db48faafd37a06cd3c428f41ff5225ae1a8f9406735807ea89d8"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0006.qzi",
+      "bytes": 3340579,
+      "sha256": "8224688188eecd88632d3109aee2309167c176cbe274a099fd1a5d9d6db43efa"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0006.qzt",
+      "bytes": 2830223,
+      "sha256": "d63fd4dd4b718869453334f1544d791967976624bffab490ac25ddc21d7447cf"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0007.qzi",
+      "bytes": 3443293,
+      "sha256": "949a4a0fb568cc99713d6f68c381e6a4a187b0ef99db04ac0eb760737e85a183"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0007.qzt",
+      "bytes": 2891782,
+      "sha256": "bbd6e39a6d7ba736a39ac085893ef8a26f03e437164381acc6ad11e0cc8ec911"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0008.qzi",
+      "bytes": 3368092,
+      "sha256": "b85b619f13245e384ec687569559a67efb795fe87221b949aa1b5d0459424a10"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0008.qzt",
+      "bytes": 2838272,
+      "sha256": "2817fd8ceb312c0a9a08bcccafbc21cc0a7d337ac9897ef3416c85e3ff9b736c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0009.qzi",
+      "bytes": 3376591,
+      "sha256": "c7162e355db4e5545e1bb3cee80a277916c98f7376c943e52e573c7e5f8201bd"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0009.qzt",
+      "bytes": 2645935,
+      "sha256": "fb82c9e0f27385757e9dea141b6f0c97c8214eed18f268a362ab2dd8edcc54df"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0010.qzi",
+      "bytes": 3345382,
+      "sha256": "dac21bd30d034f089cca914d386152d89d8119ddda90a8f13df08254f8c69eeb"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0010.qzt",
+      "bytes": 2753951,
+      "sha256": "cd8e80ecde0e4add3d99576e3199be2a80135a7fb3fb187b43c1895624d22ce2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0011.qzi",
+      "bytes": 3145271,
+      "sha256": "b05eb6bcac34dedc63fa72f287aef5418f9d2e5341d752f2385f0ab9f7a23c36"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0011.qzt",
+      "bytes": 2855784,
+      "sha256": "c2b9dd2fa5d34c21483cacc555068659c2799e7639a0348d194289b58764d372"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0012.qzi",
+      "bytes": 3169630,
+      "sha256": "16e56ab65256a27af0bc5cdfa0ec7049a76de7c1687263568b9badb357993888"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0012.qzt",
+      "bytes": 2828151,
+      "sha256": "1482547f81433d2ebaa0150162c8a4636986a46844969af987ae7bb5c2a97137"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0013.qzi",
+      "bytes": 3316393,
+      "sha256": "e2f767927ec5e0abce5ca31d59036af26a5181ba05dd397c6f802703295313f7"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0013.qzt",
+      "bytes": 2853930,
+      "sha256": "8c3f8db967e32e16d0ab2f991c45c45e15d6f061fd64cd636bee9d911c9b0a76"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0014.qzi",
+      "bytes": 3257181,
+      "sha256": "a883a314f4ef3f0461e376d925fd01132f850502bf4c0d2fe55dd6bdba3fb0f3"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0014.qzt",
+      "bytes": 2812243,
+      "sha256": "32b765a32fb9d8af88d29e3435d62981a1ce5849ff915ceab7681413248e75c0"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0015.qzi",
+      "bytes": 3218964,
+      "sha256": "96e6f232d9547209260002abb67e49c0eff7225917858491c53102e8ecca4afe"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0015.qzt",
+      "bytes": 2808926,
+      "sha256": "36eedcb17a73ff2886de7c0a37e47bffefc05184555ab9cc271fe643ccd0e8bd"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0016.qzi",
+      "bytes": 3520512,
+      "sha256": "d92aa549fe795d8b883b7dc3d4f6b46efda57772d1be638f0b34564aa375e80b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0016.qzt",
+      "bytes": 2679412,
+      "sha256": "08895e25598aad8ca165d84d642fa987e6e337f944221d2d213277f55ae0809e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0017.qzi",
+      "bytes": 3350902,
+      "sha256": "04c698d13e2d09613ac5752684c2032e1d0f20a3abb306f28f4e23287633b314"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0017.qzt",
+      "bytes": 2860474,
+      "sha256": "6ec39fc168c67214c900840a90b95794038da6670080663f4b34707e33400142"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0018.qzi",
+      "bytes": 3283203,
+      "sha256": "7d86f5f696fa792ee2c8aba7ce397ef5ea3156d02f8ecd2379a7135d257265c5"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0018.qzt",
+      "bytes": 2831228,
+      "sha256": "926ef98a28f90448112941289ca1e7cff6d834b621b734d9a5df00aee7d49a2c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0019.qzi",
+      "bytes": 3296320,
+      "sha256": "38557237e3522c4b958500ba22c60737553a451be9c26ecb93c675728d8970bf"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0019.qzt",
+      "bytes": 2797471,
+      "sha256": "08fe7ae1f389b4b0524585e8b6f7e8066cda9ab58600ee25e5caf932f2957b09"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0020.qzi",
+      "bytes": 3184076,
+      "sha256": "78bfff84185938b64c1d6d59e8941798ac6a9eb399b0ddbf3799337bcf31e4df"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0020.qzt",
+      "bytes": 2846384,
+      "sha256": "b5c1afc7aa1aa296f699bc5c66f6583cd8ad09afe28b6d9217531255c6a865f7"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0021.qzi",
+      "bytes": 3389340,
+      "sha256": "c0f0a6286ca63c1772576cb5133bfbad1981e5bacca5a05641c98ee3a0765a67"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0021.qzt",
+      "bytes": 2865815,
+      "sha256": "8a1efcdd3d786d3d46b795753b11af69ec04044bbbdc97ee1e1dd0f1d43b6120"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0022.qzi",
+      "bytes": 3159611,
+      "sha256": "8cd68943da5a4842881c4392b74d776a1008002d92866693c45046e37b1272f7"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0022.qzt",
+      "bytes": 2848817,
+      "sha256": "c4bdc3403aa0de8357b49db0df6087357750ace12d1a7a51542890283cb24753"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0023.qzi",
+      "bytes": 3211342,
+      "sha256": "53075a2acef779dc9f0b69b04d5966d2c1bf1838b8efdc22e6a495ece770be3e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0023.qzt",
+      "bytes": 2806847,
+      "sha256": "79966b25e4924bd254c32475214780d194c13c2da72dd60547b66f0fd03a876a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0024.qzi",
+      "bytes": 3444758,
+      "sha256": "090c813f95ed9272d79789e9c7abbaf47ed6b283c09cabe71fb43ca7e46cb509"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0024.qzt",
+      "bytes": 2763496,
+      "sha256": "43a54345ac56813cb15e35321526195987bafbca698fa0d3f6fe103d5c306725"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0025.qzi",
+      "bytes": 3355257,
+      "sha256": "9a0ae2c47125a091780777324674ce26421484417c4efc6cbb0e2c158ed77cf4"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0025.qzt",
+      "bytes": 2837314,
+      "sha256": "436256993aea62b685b44e5705362c79b6f1d0c6cf233888c8ee2af4b13e16e7"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0026.qzi",
+      "bytes": 3204839,
+      "sha256": "1e8dc5a6f2f7095f1c484de768bf712bfd88d2fab10f7ee746dce8e1e974763f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0026.qzt",
+      "bytes": 2800336,
+      "sha256": "b47193ac672729f967d741f7a05db2edab0b304162e86e80d4ca6b2d56987601"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0027.qzi",
+      "bytes": 3222530,
+      "sha256": "a360f2d18e05555e610c705c391bf2b0c2758fdc86f148a4bb156fcdf1a7b344"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0027.qzt",
+      "bytes": 2847176,
+      "sha256": "09eda053341ac5a53f917f5891dab4f800b346e0bef4d9e25a34e24e33a1612a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0028.qzi",
+      "bytes": 3273245,
+      "sha256": "04ecf6d13323f63aefeead997e815465bebfbf4663b69abfbdaf0d936f4c5a53"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0028.qzt",
+      "bytes": 2699111,
+      "sha256": "aa1bebd193753c979e446a211075d17ab12ccc8b2c8f67bcdf1e3fb5d461cc21"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0029.qzi",
+      "bytes": 3514174,
+      "sha256": "523b4a7cb6d59aef8405d9d31c900101c5a076cfd805ab2ff0caa84d012aaecd"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0029.qzt",
+      "bytes": 2846634,
+      "sha256": "dde39c1d0649f71c3716653a31781507858dc6d46e7ae2fa5515114e6e65d1ff"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0030.qzi",
+      "bytes": 3343806,
+      "sha256": "5384e19aae0c8dc5b864bbdc9afcd5080660099b8a2982f6a840ecf19e7786af"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0030.qzt",
+      "bytes": 2801503,
+      "sha256": "5cc9741f1317b7bffa60df5e279ce0427bc90866f1037cb97c78aabaf784fa30"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0031.qzi",
+      "bytes": 3200272,
+      "sha256": "1f052dce07f804ecf80b062abd245efeec74df2080eaa71bbe077a7c4373be81"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0031.qzt",
+      "bytes": 2873290,
+      "sha256": "ccb4ea127cc6f01dc29a0eb6778f7c1831c65c536015c0b217e5a9a8f6e6b3d7"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0032.qzi",
+      "bytes": 3246208,
+      "sha256": "17fb159473cabdf2a12994cbdc27099bb5f5aa83f58cbb5a8f139e464839f39c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0032.qzt",
+      "bytes": 2754534,
+      "sha256": "a098f9d62b7ed85816ac675dd10e5daf4ab6ead4db7744062168e5959b485c49"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0033.qzi",
+      "bytes": 3571284,
+      "sha256": "b6a282878f92b9a611f4d36ba652bcd81b6b34aa089a66dfbfacefd9b8775678"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0033.qzt",
+      "bytes": 2800026,
+      "sha256": "ce47d50861fbe39d35f5799bc3ded5274c3e476879a0bfef300f4f4163a5d343"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0034.qzi",
+      "bytes": 3255285,
+      "sha256": "eb1d61bcc2d9fabfa1d1c2e0b2847d645f722a848a7104f9ad584c8bd272f700"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0034.qzt",
+      "bytes": 2784281,
+      "sha256": "2af69ad40462e18f33ad048e18b5b948389a40a79ddc00375f44abbcb5d59e1a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0035.qzi",
+      "bytes": 3518107,
+      "sha256": "7c3dc0ffbba9acc95a7e69ad7d8336fcdbac5c855b0246531e18f16f4ee216fe"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0035.qzt",
+      "bytes": 2822602,
+      "sha256": "df8dca31a2e3e7f9a355093bcde1c6355681c678bd8cd28ab688bd9ef910e477"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0036.qzi",
+      "bytes": 3425745,
+      "sha256": "6781dc5b4e43d813a8daad6c0080a32cce966618a319c6018c3ab102c681d957"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0036.qzt",
+      "bytes": 2795226,
+      "sha256": "e236d312519bf9e6a84fdbb43ddd0c97dea4ccd2281b6f36c2674d1115311573"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0037.qzi",
+      "bytes": 3592649,
+      "sha256": "8e52186a8062052d2abbd47177315943d759f97b5b245e7b79cd91a813338d6e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0037.qzt",
+      "bytes": 2673964,
+      "sha256": "802417651e70a371a616449ef14033bbf249ead8bd0a10ec5f914c4677fb2e33"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0038.qzi",
+      "bytes": 3260159,
+      "sha256": "3016c50336fd0ebad29591dfe4f9e154a83db6fae4f0adcc5321f3a9d6ee461c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0038.qzt",
+      "bytes": 2874128,
+      "sha256": "ef6d246e0462f3db04c1270ce917273f51de1b2ed64aed10bca3e09d20e4daa4"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0039.qzi",
+      "bytes": 3287060,
+      "sha256": "672017fa5faddd1686882f56fd496301743cfc91791ca27675979792d63461fc"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0039.qzt",
+      "bytes": 2800789,
+      "sha256": "55d4b93bde3738d6cccbc6003f78c5303b651f5589084ce51cef46d013f488ef"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0040.qzi",
+      "bytes": 3310719,
+      "sha256": "e5b5e9b0fb8399627c743f32f1bc59441f8a8d197602f4bddd64000ecf48ced9"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0040.qzt",
+      "bytes": 2890830,
+      "sha256": "02ab41b31b8baab65cc7d0ec5c730d9f488baec788fd6ad402372670cf5bec99"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0041.qzi",
+      "bytes": 3362269,
+      "sha256": "b65db13744deb31e36eec9b69d173bc85876534f1718da4a52a32284f0be25a6"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0041.qzt",
+      "bytes": 2863077,
+      "sha256": "7ede065bff3c4510ded431c011a98ddb72f4e7a42b46273487bb53af2bbf3b7c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0042.qzi",
+      "bytes": 3166821,
+      "sha256": "e25444174fea546ef6083829524a85b44c11e4ab1bb3fc373faaa3e0daecd6bd"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0042.qzt",
+      "bytes": 2844248,
+      "sha256": "cd70ab22b3729c86f583158d02d389f8e3324472ae3eb4e9e59b0d45a8b1ae0f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0043.qzi",
+      "bytes": 3122742,
+      "sha256": "c1d8be55013cdc996f56960b9018d08bfaa885e51aaeceaf8039d4df0dd9a440"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0043.qzt",
+      "bytes": 2838721,
+      "sha256": "dfaf8ab312cc999e63e84a4ebf96485a9712aeb213a98aa5b7c80f79725f309b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0044.qzi",
+      "bytes": 3289431,
+      "sha256": "42dccb4b1d3e0bd4f0e7b51f3f352d816079e9b1afaba63e36a556450455c159"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0044.qzt",
+      "bytes": 2895697,
+      "sha256": "8a1b7b52e293e45dc1dde2e421704e53ec3e2564874b2b4ff5df6be6695becf1"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0045.qzi",
+      "bytes": 3069451,
+      "sha256": "be64f3e7ca6b3ae3c9cbda0dff3fc9182931221fad4149773a1547afed0bd290"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0045.qzt",
+      "bytes": 2770103,
+      "sha256": "1cc7fab96a409a50359caad24bce8cc45d5b6c889b98784cfc5098bdf43d4a6f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0046.qzi",
+      "bytes": 3475436,
+      "sha256": "bf5fd714accfab8fe41880db92d942ea4f40f328765ecdc9feca3e883ca2b5f4"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0046.qzt",
+      "bytes": 2597249,
+      "sha256": "dd6058234b31cfbfe922e7030dd072589d3aba5914493ff155ec00485f8b17dd"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0047.qzi",
+      "bytes": 3339940,
+      "sha256": "ce95fe2114ab11a63d07cddaaea06f991c0d68d06ed1418b61c3035cd2395bad"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0047.qzt",
+      "bytes": 2786129,
+      "sha256": "69dbd58d351de60d8243d984ec0033eb9b79ba786c952780bd979abd76f065af"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0048.qzi",
+      "bytes": 3292051,
+      "sha256": "7763c41c3761940ae4395774382787b5b8d8ed93690315cdc9581694cd303bb7"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0048.qzt",
+      "bytes": 2776902,
+      "sha256": "db627c8cd70655b0bffc9a2ba591e5abec6302162af13e6d612d4697cb545fbf"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0049.qzi",
+      "bytes": 3206441,
+      "sha256": "9574c941d87b2e2d33d19b4b4508d9e2ac7248ed6a6b3a29e53102f719a53d10"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0049.qzt",
+      "bytes": 2742053,
+      "sha256": "67805c9d7b37400e11707e82b89ef45a3e8a96b89d78f71174e0e83fde666a72"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0050.qzi",
+      "bytes": 3424729,
+      "sha256": "887dca54160244f587b62f02cfd4d21d09dd6312c4d25a483f1885c84763ecae"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0050.qzt",
+      "bytes": 2736600,
+      "sha256": "c3a834c5bf2f3f2a51f56743be7ff66db69f91de636a0fafe96e351d569ba052"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0051.qzi",
+      "bytes": 3232545,
+      "sha256": "687a6af9ac29c48f2b411394addbef7ebb34765c84dc4a9507eb5f32ee753ee9"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0051.qzt",
+      "bytes": 2780225,
+      "sha256": "24f274b254293a25fd974e9531a377362ec814a43e2e63645af87c12dfef4934"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0052.qzi",
+      "bytes": 3113770,
+      "sha256": "b82129722157bc5095ff16bc8a94c23a02724d1dd6b174412fdf9e8c2392d8e0"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0052.qzt",
+      "bytes": 2808957,
+      "sha256": "6ca02e466defcd6f0d6491e3b1a2c21d5db7cbc4ff70a67c8dc6519dde25bd18"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0053.qzi",
+      "bytes": 3088513,
+      "sha256": "3a3a5ef9a8ad113869e4583f46d049d5752c81befc86ff72ad061d4eb50eaf73"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0053.qzt",
+      "bytes": 2810457,
+      "sha256": "dbea382167c94b8eed2e55013666835bff8a1adfaaedfb2f31289dcaed27592f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0054.qzi",
+      "bytes": 3305367,
+      "sha256": "6a954908eab5c7ef6908518e5a56a0ce817f88917964af85630d4df49efe1df2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0054.qzt",
+      "bytes": 2715370,
+      "sha256": "3c6ec355f66915e6368792b0c699e95d2bd3efd23a236ae73dbf800463db6cba"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0055.qzi",
+      "bytes": 3308518,
+      "sha256": "56a815715e4934695123d3f1f3e3d64655d69e91bb072bc242697695ba2be40a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0055.qzt",
+      "bytes": 2863766,
+      "sha256": "c8133318bdfc382f84b4061de2d3c5d86c70b3622c0da2b416f3d533fbc8046f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0056.qzi",
+      "bytes": 3318714,
+      "sha256": "68b73510ee662fdc2f2618518ccf39fb21c9a2ecf1f1ff8b382be1d71794e08c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0056.qzt",
+      "bytes": 2860311,
+      "sha256": "a7f27864b81b888d513449f83c7b39230e1a8becf3878d99cfefcae3b8af76e2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0057.qzi",
+      "bytes": 3485504,
+      "sha256": "9d155130ad88229c203605aec748301a0f86dd1a8563e3943a532ca56973f909"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0057.qzt",
+      "bytes": 2666084,
+      "sha256": "79c3a13c39bcdb5e5a1f83fb20e4f96cf2acb1ede95bcac843a1a5b0cfd3b675"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0058.qzi",
+      "bytes": 3304131,
+      "sha256": "3fe243fb8e5c0c94c77066ef2e97608c89336ae38c7302aa5b7e501f6f69497b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0058.qzt",
+      "bytes": 2744503,
+      "sha256": "11f96febf5f34d459eb8e268dbb1c588bc5ae8317fcefef3a88034dee118c78a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0059.qzi",
+      "bytes": 3360085,
+      "sha256": "07335ea708b42851dcd952400db5ccb904a4d3ae4f766ff627391794059c55bd"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0059.qzt",
+      "bytes": 2773393,
+      "sha256": "012be273f48b5fe933aa3089a2cff0ade03e047bf9d8b821e9652c83f3062c22"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0060.qzi",
+      "bytes": 3439855,
+      "sha256": "f2d054591c27f813b1af95451f703b09bbdaec1c0f82fe4321516a4dd848d6da"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0060.qzt",
+      "bytes": 2744570,
+      "sha256": "27f6693b081e66d0f5f3080ba1605ef041eb5718c7158210e076bcd0241961e2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0061.qzi",
+      "bytes": 3219131,
+      "sha256": "9247a97676fb8a834567f6f48a603caa3f192a0391e4ef49822981e6648cefe9"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0061.qzt",
+      "bytes": 2821738,
+      "sha256": "10ba07d634137a42fd7cde98c7c38fa1bbc65a4953ba35de4ad13009816351a4"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0062.qzi",
+      "bytes": 3770821,
+      "sha256": "1e05f6f8ccc844e830f494244241e57e8a18480d52c46e8d5621c0ebd1a7c1b6"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0062.qzt",
+      "bytes": 2482705,
+      "sha256": "aec8aee7b96c236cca843b92e15086d053cf4de62f3687e3089264eeeace0ed5"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0063.qzi",
+      "bytes": 3238385,
+      "sha256": "5b3819f9f294e6fbe870840609413cc5d06605d4d482eb8598775ecc46b0a03a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0063.qzt",
+      "bytes": 2716219,
+      "sha256": "2a86ba5eb3f847cb7509344292dfadd19082767f3985cfab10e15e989df21c46"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0064.qzi",
+      "bytes": 3328449,
+      "sha256": "32222c52bff8e685e22a366567a3756d8d42f0774b35ad6c501d81fe68f87e50"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0064.qzt",
+      "bytes": 2833052,
+      "sha256": "d6d0a8ef2a6e4f13bb9da911ac3dbbe7bcf4f0759cc6f78f7ec84a9ac9609aee"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0065.qzi",
+      "bytes": 3231246,
+      "sha256": "672974e9ba4691290e7d5c394a4001447904a07b515d2089e284c9344fa676d8"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0065.qzt",
+      "bytes": 2773924,
+      "sha256": "80dee4e727076673c4f01afa7a9e40e5f54392905722446b67ed519ab2c80f63"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0066.qzi",
+      "bytes": 3269419,
+      "sha256": "0859726cb60a51bace046d56ba6e5e1b18d8948d4b31a0570f01f78480588dcb"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0066.qzt",
+      "bytes": 2793265,
+      "sha256": "52d0832ad86943f4e78438a4a02ba10c631cd26f062ff9785ad8671414b1db17"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0067.qzi",
+      "bytes": 3327466,
+      "sha256": "0f4e38207203550b3c1c2778d3f49acb8929fd377bab7434f9f868b1dc1f52dd"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0067.qzt",
+      "bytes": 2786813,
+      "sha256": "ba8eb918a0d6917b6d96102693d3dae91a765b101847bd250295b9eb00feac04"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0068.qzi",
+      "bytes": 3158346,
+      "sha256": "4b84d7a2e051733bae265bc1ce1f0ae4a60004806c1bda71ac417364a83b809e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0068.qzt",
+      "bytes": 2815412,
+      "sha256": "2ed52ae7d9c6c9524aef339f81eefaaaaa16d668a3b0c1b5cc0ce4a00cd8417f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0069.qzi",
+      "bytes": 3255523,
+      "sha256": "9c3673bc43fc2280a126a171d916c37105c2ccd1d9372906318433e7ffd8d2d0"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0069.qzt",
+      "bytes": 2739160,
+      "sha256": "1514bb0feecaa34fdc7c01d9fedae27f891b8c6dc1acd462831293c13b8344f6"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0070.qzi",
+      "bytes": 3530981,
+      "sha256": "51ec511ec0ec5f99a88946fa42a3ddd4b71e88b4cda3e661084db90fbfc7fcbf"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0070.qzt",
+      "bytes": 2655056,
+      "sha256": "83183451dccac1380dcedb372835ce52ceafe0abe7c751df7a5fec447ab61fda"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0071.qzi",
+      "bytes": 3348288,
+      "sha256": "9b275fee24ca3f9839975a0518faee2888a455bd2e7d04e3a660743b89629453"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0071.qzt",
+      "bytes": 2761379,
+      "sha256": "d821e6e024bd9a582f61a26bb130a87726315e73f4c00447d5533f3c9ef669fb"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0072.qzi",
+      "bytes": 3328088,
+      "sha256": "18072f141a2913cc60648d60b277c2e0e6e719d0e97cca8708802f4a957e8cff"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0072.qzt",
+      "bytes": 2773840,
+      "sha256": "38f84da685817180e78808b96f40334bbfcd847975357b1ebf0d4fac4afe5f86"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0073.qzi",
+      "bytes": 3130462,
+      "sha256": "5a3050b5402d29c8ea61c0c468a1b6404f7ec08ee26b9dfec753dfe3e2e929df"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0073.qzt",
+      "bytes": 2697047,
+      "sha256": "fe11ef7e6ab22bad5c96332bc01187f658efc57e3a8ac68913c89ac0a0947fd4"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0074.qzi",
+      "bytes": 3538657,
+      "sha256": "f2eb4fe7d55ec4b5ea127da84f138196f7d3f6f6e5668d98eecb127eb6a52757"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0074.qzt",
+      "bytes": 2831714,
+      "sha256": "c0e6bdb0806112dedf3517475c61bf3c0b06e35a6b0191e40c8a567274afee92"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0075.qzi",
+      "bytes": 3167399,
+      "sha256": "3bd329cb132c5b0a24b2a14a991fcc813892d6a011994d673aca8c45d0702f70"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0075.qzt",
+      "bytes": 2817911,
+      "sha256": "4dfa8c9e5c5ce337a0ccd8424f6154a761b7edb9dcb6c64b0cb900b0c0da64e0"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0076.qzi",
+      "bytes": 3164365,
+      "sha256": "5c2fa5bb1410622e886bc6c2faaa42ba10d058b5ec7a5b6e770eb92df5c126be"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0076.qzt",
+      "bytes": 2801533,
+      "sha256": "462bcaa7886539e74e42ca12f2e7f6e6f7e2cb0d41e499dc4bc09f7283af6149"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0077.qzi",
+      "bytes": 3473331,
+      "sha256": "237184ff53174d44ff129941a956fd862798a8fd162d531e6c0103d4966ee5f5"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0077.qzt",
+      "bytes": 2659851,
+      "sha256": "5d6041398cad0899521eb8e04111409ab0f007d5346c8291cb5fd68a401c5f7c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0078.qzi",
+      "bytes": 3309179,
+      "sha256": "3e2bfff7ea96ebd1a65b97102ae2cc1da48940691f1639afaea8a3b5cb04b0dd"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0078.qzt",
+      "bytes": 2859455,
+      "sha256": "83601baf13686539dbf0d9a28a3f5537abfe2e65e8c5f46f16b521f2baa423ee"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0079.qzi",
+      "bytes": 3373749,
+      "sha256": "a6feceb3b08737acfe21e5eeecd0afe53919075935836c2a28d3dc0bc8b99ec1"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0079.qzt",
+      "bytes": 2867544,
+      "sha256": "3fb52b4fc44d858a1cc2517f385210e3f3272fe797d513843363eb4d917cce34"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0080.qzi",
+      "bytes": 3297356,
+      "sha256": "a9db9933d9ca622508509ccf42e22463051296af215f1a2bfcbc34eae53d114b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0080.qzt",
+      "bytes": 2843138,
+      "sha256": "84728a2d1405d0723d83ad19ca7453da8ffdabb3c4c2349e68418950c135a79d"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0081.qzi",
+      "bytes": 3476429,
+      "sha256": "10cc2d62f0951346720561d2ec53b2b6213462c9c05d84016dac1ff72332d321"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0081.qzt",
+      "bytes": 2876445,
+      "sha256": "ea39a70e42524d2ad81e25358f3ef333ce7fdaab25432d98062b191db33cbd8b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0082.qzi",
+      "bytes": 3180984,
+      "sha256": "93d118145add114107163c19582cdda43ac2990196768ca219ed1127147934d4"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0082.qzt",
+      "bytes": 2841147,
+      "sha256": "170c6798f77c59aa88065b62e6b7a6e943ebb2a4c03c4f1453817f5c99e460bd"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0083.qzi",
+      "bytes": 3344684,
+      "sha256": "2ed017dbe41d5522c9f11d47686778d0dde840bd756e9687c0ee3e56d7ab521e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0083.qzt",
+      "bytes": 2801881,
+      "sha256": "871ff6b26ce716c2b5cb4f1ff8f5fe353528a7ebfe30f31a9a99c9f39b7fce0d"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0084.qzi",
+      "bytes": 3313842,
+      "sha256": "babfe5f99fa8106598acd270fcbfc12230c596b77c3beee6a2c252fd3cab5444"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0084.qzt",
+      "bytes": 2805176,
+      "sha256": "f13c3f8967128833a1dc5dd9918c63f01d578158e9b2ea675d27e603c577acd1"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0085.qzi",
+      "bytes": 3177886,
+      "sha256": "9fbe52cff1626d5d6c65b62c00133816879a2b22cc81fc6d4f085ecf41c7f6b5"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0085.qzt",
+      "bytes": 2826633,
+      "sha256": "43bd36b933ff43f01d3bc67b15a2804d5bf91a6ca5bb814d984de4030b367410"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0086.qzi",
+      "bytes": 3213594,
+      "sha256": "caa3b0b47b751e9cca40a06249b3f7f0455008a5c056d2924a6bed69fd02c786"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0086.qzt",
+      "bytes": 2895524,
+      "sha256": "4080b952fad76bda26a73f5e45f25cfae44b548fc9a2a2066fcf68d58d100f7c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0087.qzi",
+      "bytes": 3202546,
+      "sha256": "e21d0b5fafd02a24749e2c586574acc888df10ec0691c349849fbc984940e4a8"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0087.qzt",
+      "bytes": 2822907,
+      "sha256": "638640b1f7377a89ea924c9c6de9b341e8d5ffc98e4d0db2d22b6cc35434495f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0088.qzi",
+      "bytes": 3185503,
+      "sha256": "28d1b7af817529c7807946e7f09b25330374bcb2d8fa5860a7b12725e69ed6c1"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0088.qzt",
+      "bytes": 2798609,
+      "sha256": "48d3b1023d6aa1e7236a9a8fde2c8fcd4909ef9d1447ad97014a87299ba0f74e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0089.qzi",
+      "bytes": 3203547,
+      "sha256": "b751154bd80f68cfb7d0055be3feeacb2a774597ba78c34a7b644bc7424f1b7f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0089.qzt",
+      "bytes": 2761631,
+      "sha256": "90c1bae807bb093c0658ea519797e44879adc141702eb1bed75a53b6f9fdf573"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0090.qzi",
+      "bytes": 3585161,
+      "sha256": "c16e6ca040dc597db715cc8f99149005b458b1629eafd24374382fd892ea4ef8"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0090.qzt",
+      "bytes": 2678129,
+      "sha256": "3f846c6e32b08353f69cf829e7b5effe3c94ba54b0b329e3a071630096b3cf2d"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0091.qzi",
+      "bytes": 3743463,
+      "sha256": "49e11bb957181959ede80b969372c290a9054d3930ac940bf947f36ed44ad525"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0091.qzt",
+      "bytes": 2629652,
+      "sha256": "124798cc1c54cddaaedc440117f9b805ba1196dc4c481f52d26ad38be303b043"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0092.qzi",
+      "bytes": 3226654,
+      "sha256": "59db6c81547d546d85fdd0b45025c6620ffad2d66aaf6a1993b770a7bdbe4732"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0092.qzt",
+      "bytes": 2864489,
+      "sha256": "cb2647062cd35c73ff256e5ddf34bafa46723120ce6e4f337b32a92af692cfff"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0093.qzi",
+      "bytes": 3325536,
+      "sha256": "e60bb7f094a85f4d0a60e7be30a9f8b2e9bfbb0d9851f2057eff114a3d37b783"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0093.qzt",
+      "bytes": 2771432,
+      "sha256": "df3d4a8f82cddd8b371b370f3eeded7c6ddd40a7dc9dc8cc0c8e9f9296466cca"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0094.qzi",
+      "bytes": 3143519,
+      "sha256": "cc99b8b4b6f6823e8fc172aca57208fdcfc7179c93c1781e429bdb7b60cc1a35"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0094.qzt",
+      "bytes": 2827948,
+      "sha256": "7fda8c0218593a953791dbcfbf405a40e3cfe5f1104f1daa332b402599afd828"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0095.qzi",
+      "bytes": 3338820,
+      "sha256": "ffd1e02e32a01413b148017617801ce0fee6427593f914ec653503c1eb0b92fe"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0095.qzt",
+      "bytes": 2894214,
+      "sha256": "a48c88721003553048df8bfb4c2d8a5430d263a89de8bad07f364b26bcb0814b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0096.qzi",
+      "bytes": 3395537,
+      "sha256": "6ac5932890701e093c1aac65e90d2eb87ac0c090e8d4d5675561a08c54b37079"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0096.qzt",
+      "bytes": 2712242,
+      "sha256": "1f4b72047010578f5f4fb4ef7040e61468621129c0c5eb2070e8ef949639a463"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0097.qzi",
+      "bytes": 3315948,
+      "sha256": "6d5f56806c07e7acb7a586430e223072f663a520c58cebfa757dea0af60f5956"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0097.qzt",
+      "bytes": 2820637,
+      "sha256": "6a5c25bc3b34cf56b520a8c0915ba6e62f118698f221f6504bb00569784c79e5"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0098.qzi",
+      "bytes": 3120328,
+      "sha256": "03deeaf60cbe65da1bb8c3355a976ead4b0ec4c658a05a58dac67c944e63a78d"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0098.qzt",
+      "bytes": 2798915,
+      "sha256": "7b1bf5d0561b8d538bee232ce600f1804f51a2f144218951d5781679a11a2f6a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0099.qzi",
+      "bytes": 3245203,
+      "sha256": "01ed33adb51a2c0e01f4c3aac561e8321cada5ded898c98ba16fd779d924db91"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0099.qzt",
+      "bytes": 2799652,
+      "sha256": "aae53482c4871e7d9a050d0899ecd63724ef538d81f47f3289241fb965835b0f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0100.qzi",
+      "bytes": 3865816,
+      "sha256": "68c68abeb807b9fee3c1d15e7f76b9e00c244fc71c89d7ac0b565ac64ba191c2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0100.qzt",
+      "bytes": 2624915,
+      "sha256": "60c2e21c309bfefd6e1123dfb73a8e4ab85970553a3512878bebdbf5365dbbfc"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0101.qzi",
+      "bytes": 3163137,
+      "sha256": "6b279e2c8e069ddbcec979bcac5641f93a4a63483e8ca70c80dec1e38352c909"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0101.qzt",
+      "bytes": 2820650,
+      "sha256": "879bc7dbaeea8d9cbf32e5bb157162436bb4d616235557f8df9cd7163c87ac41"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0102.qzi",
+      "bytes": 3202647,
+      "sha256": "21c759f2561529089b89e3da4e1629fa279e899458b83625baec296569d44d3e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0102.qzt",
+      "bytes": 2824761,
+      "sha256": "5cd9a1788442d2f11675772628d5e803a9ccbe42168bd5f0530637e760b3e542"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0103.qzi",
+      "bytes": 3309274,
+      "sha256": "9cd7943ae1a1c40196316a8f5d4a02ac264c09a4dcefe8a8980810e59fe153a2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0103.qzt",
+      "bytes": 2868219,
+      "sha256": "1f210c6933c947a7a22117dc4ada9b446554b7ee69e69ebecf58338c6a36da7a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0104.qzi",
+      "bytes": 3249838,
+      "sha256": "69f793dc1eb1b661804627023d02ae85453a9c0977b0e1c58098e3d5ebc627a1"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0104.qzt",
+      "bytes": 2859424,
+      "sha256": "5dec28e44557f7532521f2c22c0db6ad5840a5d5d182105f3ba6a0c048cdc044"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0105.qzi",
+      "bytes": 3063150,
+      "sha256": "3a66c5bf0da2665019c07e7d7ad37c3e14d798609f0b3e0b7782b43b9bdb8e44"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0105.qzt",
+      "bytes": 2573642,
+      "sha256": "d4207109f6959a51ea9c7a49ae25cf5a1d05acae104b031852a51583c71b1884"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0106.qzi",
+      "bytes": 3431714,
+      "sha256": "ceb7dda0053dbaa4e4b1808ce00f4fd8e6d035ca63d42e360ad5d97b23f99d1c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0106.qzt",
+      "bytes": 2616137,
+      "sha256": "ca35ec245a9314635dc93c5743e68645256d1862a1b68c58f360b065f519f699"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0107.qzi",
+      "bytes": 3243281,
+      "sha256": "be95803267af74c8e5e24028e1c8e21ad29856062ae3e2f9d44e1b86540ade31"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0107.qzt",
+      "bytes": 2618698,
+      "sha256": "dbed5e727902c2c66a9848b5d72325b4baa0613bad40c7c65275f1ed09af4479"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0108.qzi",
+      "bytes": 3259371,
+      "sha256": "edaf66818a6aa445683270304c7d24d1281cf283d90315beaa7ec6166b18fe33"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0108.qzt",
+      "bytes": 2781280,
+      "sha256": "d330cc4c44dbb155880174892aaacd7b5952a6e8c56b5dc6c0c2c1f310d00e4f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0109.qzi",
+      "bytes": 3227173,
+      "sha256": "1731c6e302077d8292c557ca82e60bf16c5b93c174d8acae2eb7d231d7688059"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0109.qzt",
+      "bytes": 2828715,
+      "sha256": "d99d4a2be9d3ab18652c304d0d05d5cbe7aeb0c77eaf0e12f0fd097ae9e360f9"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0110.qzi",
+      "bytes": 3084754,
+      "sha256": "e5c2385ecdd59dcdbbd5bd82f079ceb9cb013667711e2dac560a3f5145e2546e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0110.qzt",
+      "bytes": 2754067,
+      "sha256": "a42e44ab9a6a24dc94cce2273c6f6495a3697c40c5f915a05ffe80641165120b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0111.qzi",
+      "bytes": 3285827,
+      "sha256": "9aa552f63c37e4fd6ffa530aea8bd49ef5abd4212b8de247e60cc08f5f952f0b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0111.qzt",
+      "bytes": 2830060,
+      "sha256": "c560aa590da9b50370ec32f56ea23918aa4bee0ec9544a9fd44110eb046ce359"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0112.qzi",
+      "bytes": 3213755,
+      "sha256": "168df5987c05e02357d7cd9e2991d25ddea141359c01ff5cf68a244c736bd2f3"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0112.qzt",
+      "bytes": 2826440,
+      "sha256": "47b8bd502a481fa850220af3193c33393ac031688b6c43e554bbfc05bb9cbbbe"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0113.qzi",
+      "bytes": 3343540,
+      "sha256": "536db0585b7cb15cd4aa860bc160fdf59ca0ffb5b4fb5735f20f4809778381d2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0113.qzt",
+      "bytes": 2838922,
+      "sha256": "0061201a7e5e0e4474411635abbbaf42f4d693bf7a8e716c1d9d20120395b9aa"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0114.qzi",
+      "bytes": 3784711,
+      "sha256": "9ff4e0d58084b8a56ab7505f88a78483173976ac0f948a16311b1c1fef52e0c2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0114.qzt",
+      "bytes": 2793178,
+      "sha256": "57dbfe96636a8303f1827b3f2af4ae2fd016a63c04cdd1b8d06448621573f6b3"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0115.qzi",
+      "bytes": 3902173,
+      "sha256": "4b41d6bf8ef38b5b21f7e42d16174144818a81d27af6db4bcf89b8ca0dc9a7ec"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0115.qzt",
+      "bytes": 2786134,
+      "sha256": "07910de2471dfaea34a5300f9411c4f07a92237e731af85748cfeae356eee4f6"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0116.qzi",
+      "bytes": 3868173,
+      "sha256": "ddf05cc68ad31e18c166d3257b9ff05eccac41a0fdac33ec65041783c19d689e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0116.qzt",
+      "bytes": 2715465,
+      "sha256": "f0e1e397ed5a02aa634c05430841d070f6a847d8967ffca346bf2ad9f8f5dcc6"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0117.qzi",
+      "bytes": 3435765,
+      "sha256": "861e1bcd8b3d9168e8c486b1a2de1b18679ec4e97fee95c30e0c7dbd0a9eedc3"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0117.qzt",
+      "bytes": 2735488,
+      "sha256": "43032b4fad71ac636dd4f6e324860c4676d482a9ab9ad2deccb468510f012eaf"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0118.qzi",
+      "bytes": 3268029,
+      "sha256": "5192c697786f6f7ca7cd00b7eed1b3c1b0bbbd70ff0a15b7f358eb702a08091c"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0118.qzt",
+      "bytes": 2831363,
+      "sha256": "92ff564426e5127c5a894ce33a1da8ab8d672fd3d48be8c0eef4262508a7712f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0119.qzi",
+      "bytes": 3151161,
+      "sha256": "3b210a4fb55583f503063b24a8af440d90ed234a8226e3bee1552fee436af689"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0119.qzt",
+      "bytes": 2775952,
+      "sha256": "2198f14c3d3b55de587a2c79eccaae027b9345f4b32d456dce7137f2b34eb9ba"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0120.qzi",
+      "bytes": 3401980,
+      "sha256": "2f971e026d3bb41e1ad71979bfc50e923e046bb705655360b4d9f58d36d1e239"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0120.qzt",
+      "bytes": 2773161,
+      "sha256": "c2a8c6a9c92b426aa745ddda731ef5b8175daa7e0bdab8b847a513194d2bd86a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0121.qzi",
+      "bytes": 3252602,
+      "sha256": "48f7cadc09efae4d1fbb82950f7cf98a1bade23c3f14556e7b643d407cd38829"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0121.qzt",
+      "bytes": 2916685,
+      "sha256": "a026f1cbeb49b5a9f6a25d01e57281c0af2dcd46d80df3bbbc307d0a1eae3dcb"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0122.qzi",
+      "bytes": 3354762,
+      "sha256": "a76fa85fde1df83202dc1dc111bdb915a084b9ee0e017b4a277e0ccb94e88193"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0122.qzt",
+      "bytes": 2902956,
+      "sha256": "3e3dd8fb0989bf37a764fcb66e2ea04c442b6d1b33b08a9fb70b11f96872b199"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0123.qzi",
+      "bytes": 3478373,
+      "sha256": "d3243512cf0a26c142944ab29cd49862e2c39cd0a1dc486e1eff713470d09c6e"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0123.qzt",
+      "bytes": 2808777,
+      "sha256": "5582bba1897205335e22caaea958879bfeb1c713969d308a3d7b72e3b763b7e6"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0124.qzi",
+      "bytes": 3448757,
+      "sha256": "eaf25438c7fe246269df98ad38ace29eb2de6f9fa8d2734bee15525e469c06be"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0124.qzt",
+      "bytes": 2789835,
+      "sha256": "3d7d5a3bfb2b652e7ad47855ba6d7d9247ad9119d8317f661552f44a80930329"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0125.qzi",
+      "bytes": 3382095,
+      "sha256": "c2d7afaa01f3d9e3b94c6dadc3b952dbb5cd14294c7d0c30c07ee798e879532a"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0125.qzt",
+      "bytes": 2840439,
+      "sha256": "370151276c7c45fba92b99a38e648f6afd4723bdc345f5a46e76e1bf50a3bdf1"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0126.qzi",
+      "bytes": 3290226,
+      "sha256": "56a093c6479900ea02c2f0745237de61fe882ebcd879cad803a67da8ee9cef14"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0126.qzt",
+      "bytes": 2768065,
+      "sha256": "4c7d688c1c48cb22b65740bf3dd5e1172d5b88b14c3f0905b8b38b882c16f53d"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0127.qzi",
+      "bytes": 3349414,
+      "sha256": "112ff1cab26521e6efcd06457b50f6eb8eabfbdd6d6f531285dc485a8cfed23d"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0127.qzt",
+      "bytes": 2804573,
+      "sha256": "e862b13ce24fb72d795ae23f05d1f583a6ef38770f0d106e169c838677e7eaa8"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0128.qzi",
+      "bytes": 4094274,
+      "sha256": "cb0037e946a76ddae7765847a3c8a7e01c584257414d591e71e2f5f2e5b61bc3"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0128.qzt",
+      "bytes": 2508980,
+      "sha256": "f7ea239e94a8faadfabd2a73a59a3c5648bd95d9e1a25769a3ce83f76186b82f"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0129.qzi",
+      "bytes": 3404853,
+      "sha256": "4d051eaeac1f61ae7f3e17dd7b58caf428bb52deb2a3ec0da2c8f1244e60b549"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0129.qzt",
+      "bytes": 2844429,
+      "sha256": "8ece9ec41214be9690b242b9f746c6e384a238a0149a89599cfb4ac08de6c4f5"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0130.qzi",
+      "bytes": 3051855,
+      "sha256": "b0efe972662c6ec8e282432cb09c16cf2d0b0dc2fc6aa696e7f6bce6a08d0d56"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0130.qzt",
+      "bytes": 2775129,
+      "sha256": "2739dd9be1980a72dd026ce05f1693ee5f267733bf91870252b25d93206eac9d"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0131.qzi",
+      "bytes": 3211684,
+      "sha256": "3ac147f52b64f025aae77552c025e438f0f268281dc0b86928e0997dad39a6d7"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0131.qzt",
+      "bytes": 2777726,
+      "sha256": "2e4b9cae6cea1b1efe04d057103d22864b013da8d83f004240df56912caab826"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0132.qzi",
+      "bytes": 3305901,
+      "sha256": "5a8324ec14ab2bc996eca0ea1f67dcdbeb6be85e1abe7ece836efd1f98c09200"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0132.qzt",
+      "bytes": 2861158,
+      "sha256": "b628977c20a7dcbe24098dc530cf23672cdd71a7760eb63a4189ef0a31635aa2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0133.qzi",
+      "bytes": 3473084,
+      "sha256": "4d99423e444268f81e8349574a9e34f217060a2344a357bd24461f5f35a72ad0"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0133.qzt",
+      "bytes": 2791468,
+      "sha256": "c33e95e4732d3d8fd162a1a6c80e4fbcfa07ca99e8dc53955143a8c9b433fc04"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0134.qzi",
+      "bytes": 3404735,
+      "sha256": "a34df801e3359e0e86a80137dab3ab45566eecb2cfdca25dc4e33497a35eb609"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0134.qzt",
+      "bytes": 2845875,
+      "sha256": "7e08537ac255399fdb43aa1c7ed786f7dc9148d494aa6affd136cc693b99664b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0135.qzi",
+      "bytes": 3378089,
+      "sha256": "03269d1c358a3dff6eff3a84956f5e9ebd83d877b020f30c3a0b2f81a4534b79"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0135.qzt",
+      "bytes": 2832229,
+      "sha256": "f3622138bada0c75e8bac940c3a3283d43e895b2ff90a0ec5a130c7501eb96f1"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0136.qzi",
+      "bytes": 3501380,
+      "sha256": "1ba36c3ad85f986ce94338ed264ebf2520344e9753ff8faab8c6ca15d39994df"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0136.qzt",
+      "bytes": 2861821,
+      "sha256": "f9015081955ae27c40c431975edcec92c021119c7128200e8975be281fd755da"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0137.qzi",
+      "bytes": 3429332,
+      "sha256": "3e8d90349cf2d9a45d3cb16f1e55e901fca77e0271eb866394b35a390e37c237"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0137.qzt",
+      "bytes": 2884027,
+      "sha256": "5530d7c708ebdd449170eed6a4df761cfd69d404a73ca3581eb3cbf2e736bd95"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0138.qzi",
+      "bytes": 3371504,
+      "sha256": "f93852242fa95c266a87be06ff65981397c104ac61fb7e7c6ee35b0ed2c10851"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0138.qzt",
+      "bytes": 2840311,
+      "sha256": "c26a964b3793f18be2776df107c97b747e6809ce3c8e2432d6a1b5e298a3a8d2"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0139.qzi",
+      "bytes": 3430940,
+      "sha256": "92a8fc84c3234b5e8bd03d8126687a489ee73ffb21c370e15af41c3f35106501"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0139.qzt",
+      "bytes": 2866864,
+      "sha256": "51201349046a50e2df807314cfe1320a63979c54e5d1bbc360390d7627a19060"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0140.qzi",
+      "bytes": 3257187,
+      "sha256": "2e298c32e06472b7589c39cb94c715901b5d62fcbf93bdc08354c441f87ba722"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0140.qzt",
+      "bytes": 2893168,
+      "sha256": "0f9c7f041ab989eaed6ed3ccd7f860a0d88945bbbb554c2fa0593fec0dc87a18"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0141.qzi",
+      "bytes": 2726771,
+      "sha256": "058ad7f10310fa224a6636fa475bb4bc28eebd48f174953aa1ef70e124b9c70b"
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/shards/s0141.qzt",
+      "bytes": 2430176,
+      "sha256": "f952529ab2373d25aacac001c26dd3baad6d193a81cd21a1879e3448f7282b2b"
+    }
+  ],
+  "source_checked_bytes": 1181167547,
+  "instrument_hash_seconds": 10.495326458
+}

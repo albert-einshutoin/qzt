@@ -1,0 +1,9 @@
+{
+  "base": "1562940cf9a93e885d32faf0f838a5b288d96497",
+  "binary_sha256": "53778d7b266dd69e2e93101ca6abd4944cac30236fca347fa2c095881117ef4f",
+  "command": "cargo build --release --locked --bin qzt",
+  "build_log": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/build-release.log",
+  "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+  "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+  "rg": "ripgrep 15.1.0"
+}

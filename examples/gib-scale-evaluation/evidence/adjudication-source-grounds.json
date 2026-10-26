@@ -1,0 +1,109 @@
+[
+  {
+    "claim": "polymerase",
+    "doc_id": "p0000009015.txt",
+    "start": 5789,
+    "length": 153,
+    "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+    "quote": "Most prominently, [[DNA polymerase]] synthesizes the new strands by incorporating [[nucleotide]]s that complement the nucleotides of the template strand.",
+    "quote_sha256": "29ff85c3a3d4b8e509db93b8206e934607e10eaf210e2c4a220a536fc7e57c78",
+    "exact_quote_in_fixed_judge_excerpts": false,
+    "trial_observations": [
+      {
+        "trial": "B1",
+        "question": "q5",
+        "exact_quote_in_returned_fragment": true
+      },
+      {
+        "trial": "B2",
+        "question": "q5",
+        "exact_quote_in_returned_fragment": true
+      },
+      {
+        "trial": "B3",
+        "question": "q5",
+        "exact_quote_in_returned_fragment": true
+      },
+      {
+        "trial": "B4",
+        "question": "q5",
+        "exact_quote_in_returned_fragment": true
+      },
+      {
+        "trial": "C1",
+        "question": "q5",
+        "exact_quote_in_returned_fragment": true
+      },
+      {
+        "trial": "C3",
+        "question": "q5",
+        "exact_quote_in_returned_fragment": true
+      },
+      {
+        "trial": "C4",
+        "question": "q5",
+        "exact_quote_in_returned_fragment": true
+      }
+    ],
+    "parent_interpretation": "original source supports claim; judge excerpt insufficiency is not source absence; original judge rows are preserved"
+  },
+  {
+    "claim": "lorentzian",
+    "doc_id": "p0000026962.txt",
+    "start": 7264,
+    "length": 115,
+    "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17",
+    "quote": "A defining feature of special relativity is the replacement of [[Euclidean geometry]] with [[Lorentzian geometry]].",
+    "quote_sha256": "a56584f550facb34c50fc64992ffed688ff7c37f023e2cb63dee531cbef583fd",
+    "exact_quote_in_fixed_judge_excerpts": false,
+    "trial_observations": [
+      {
+        "trial": "B1",
+        "question": "q3",
+        "exact_quote_in_returned_fragment": true
+      }
+    ],
+    "parent_interpretation": "original source supports claim; judge excerpt insufficiency is not source absence; original judge rows are preserved"
+  },
+  {
+    "claim": "phenotype",
+    "doc_id": "p0000009236.txt",
+    "start": 2598,
+    "length": 153,
+    "sha256": "d11199cb75c9e6b5084e066e9a77194cee11bd32e17537dcb88c814c055fff3f",
+    "quote": "However, because alleles do not necessarily have a visible effect, in a strict biological sense evolution can occur even when the phenotype is unchanged.",
+    "quote_sha256": "2dfba25f86fe82580e6db4d884361536ceb372f4744d66cd42b3ad96dc79cbe6",
+    "exact_quote_in_fixed_judge_excerpts": false,
+    "trial_observations": [
+      {
+        "trial": "B1",
+        "question": "q6",
+        "exact_quote_in_returned_fragment": true
+      },
+      {
+        "trial": "C4",
+        "question": "q6",
+        "exact_quote_in_returned_fragment": true
+      }
+    ],
+    "parent_interpretation": "original source supports claim; judge excerpt insufficiency is not source absence; original judge rows are preserved"
+  },
+  {
+    "claim": "surface_gravity",
+    "doc_id": "p0000004650.txt",
+    "start": 33788,
+    "length": 134,
+    "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+    "quote": "[[surface gravity]] for a black hole related to the thermodynamical concepts of energy, [[entropy]], and [[temperature]] respectively.",
+    "quote_sha256": "42d100768e60cb08dc0da37b79fa058b3c19c7b7a236d1f31dc7b441aead4d20",
+    "exact_quote_in_fixed_judge_excerpts": false,
+    "trial_observations": [
+      {
+        "trial": "C1",
+        "question": "q7",
+        "exact_quote_in_returned_fragment": true
+      }
+    ],
+    "parent_interpretation": "original source supports claim; judge excerpt insufficiency is not source absence; original judge rows are preserved"
+  }
+]

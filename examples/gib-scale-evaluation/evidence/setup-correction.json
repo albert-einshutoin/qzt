@@ -1,0 +1,14 @@
+{
+  "old_freeze_sha256": "e65ca0ac8562a9e855f8998691882a9e7462794ad706f2d697ab21bc53a3ee52",
+  "new_freeze_sha256": "ded25a09bd94c7c013a15c84a363093ab3c6f661aeae01640b72c705049e19c4",
+  "changed_frozen_files": [
+    "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/freeze.py",
+    "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/test_scale.py"
+  ],
+  "conditions_queries_rubric_configuration_unchanged": true,
+  "binary_mode": "0o555",
+  "binary_version": "qzt 0.1.0-pre.6\n",
+  "specialist_final": "Approve; direct permission correction only; static",
+  "excluded_trials": "aborted-setup-permissions/trials; fresh all-8 replacement; no results transferred",
+  "machine_measurements": "original freeze before chmod; same bench/access/config/binary bytes; retained, not rerun"
+}

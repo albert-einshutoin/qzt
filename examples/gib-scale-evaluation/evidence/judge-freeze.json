@@ -1,0 +1,46 @@
+{
+  "input_sha256": "b83d347b5397e3d12c9d3a8ccb4383a78a9799cb9353281126eaa86dcdcf3601",
+  "epoch": 1792987242.3611891,
+  "answer_map": [
+    {
+      "anonymous_id": "r01",
+      "trial": "C4",
+      "answer_sha256": "4ea6cc9b22a138fdd2e1868a7f32df2e37e4dce23c0f85852b3bab81622a5579"
+    },
+    {
+      "anonymous_id": "r02",
+      "trial": "C3",
+      "answer_sha256": "18c1c5b1b12e187fce3c414be1aef4c8244a67cd8ac9e1ec2f7fd02cd1d1ad6c"
+    },
+    {
+      "anonymous_id": "r03",
+      "trial": "B4",
+      "answer_sha256": "cb75dc1b60eb1ad1137ecc7cd3b3211ad764e946664e3be80f238a4df17bafb8"
+    },
+    {
+      "anonymous_id": "r04",
+      "trial": "C1",
+      "answer_sha256": "199b0d40ec71f7b166ee464209111cf31e53b0dc8ae332646febdbcd3afa46e6"
+    },
+    {
+      "anonymous_id": "r05",
+      "trial": "C2",
+      "answer_sha256": "fb18bd1dbb56b01e36300b01ceb0112df399745a06db597a45e152f861d6a450"
+    },
+    {
+      "anonymous_id": "r06",
+      "trial": "B2",
+      "answer_sha256": "c0a63ebc11490c1d06438aea432094f74d5556fd6656c2686f1cb7c623e282aa"
+    },
+    {
+      "anonymous_id": "r07",
+      "trial": "B1",
+      "answer_sha256": "aacf410cf960968c63372d70359b85459dfba7568d581d7bce79b695eb4cbf5e"
+    },
+    {
+      "anonymous_id": "r08",
+      "trial": "B3",
+      "answer_sha256": "a4343b89ee417e1dcac6635583c72df49293bcfc8a887136edce10cc7268f719"
+    }
+  ]
+}

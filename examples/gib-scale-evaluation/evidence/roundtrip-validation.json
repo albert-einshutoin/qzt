@@ -1,0 +1,98 @@
+{
+  "bytes": 1181167547,
+  "sha256": "a945452eb8dc4b9b0f31ebdb36786f25eb1373fd8f1f3b7cde0089c511c8309b",
+  "source_equal": true,
+  "hash_seconds": 0.44997783300000016,
+  "measurement": {
+    "command": [
+      "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/material/qzt",
+      "export",
+      "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/material/whole.qzt",
+      "-o",
+      "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/material/roundtrip.txt"
+    ],
+    "wrapper": [
+      "/usr/bin/time",
+      "-l",
+      "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/material/qzt",
+      "export",
+      "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/material/whole.qzt",
+      "-o",
+      "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/material/roundtrip.txt"
+    ],
+    "started_epoch": 1792986007.634747,
+    "seconds": 2.6586918330000002,
+    "exit": 0,
+    "stop_reason": null,
+    "sampled_peak_family_rss": 11894784,
+    "time_maximum_rss_bytes": 10829824,
+    "native_real_seconds": 2.41,
+    "instrument_wall_includes_sampling_wait": true,
+    "artifact_accounting": "outputs/shard inputs plus conservative 4 GiB setup reserve",
+    "sampling_seconds": 0.25,
+    "samples": [
+      {
+        "elapsed": 0.081,
+        "rss_bytes": 3571712,
+        "free_bytes": 416062967808,
+        "generated_bytes": 7957472554,
+        "pressure": 1
+      },
+      {
+        "elapsed": 0.414,
+        "rss_bytes": 11862016,
+        "free_bytes": 415899414528,
+        "generated_bytes": 8121026652,
+        "pressure": 1
+      },
+      {
+        "elapsed": 0.741,
+        "rss_bytes": 11862016,
+        "free_bytes": 415744249856,
+        "generated_bytes": 8280384062,
+        "pressure": 1
+      },
+      {
+        "elapsed": 1.077,
+        "rss_bytes": 11878400,
+        "free_bytes": 415568109568,
+        "generated_bytes": 8439747135,
+        "pressure": 1
+      },
+      {
+        "elapsed": 1.408,
+        "rss_bytes": 11878400,
+        "free_bytes": 415417114624,
+        "generated_bytes": 8603296744,
+        "pressure": 1
+      },
+      {
+        "elapsed": 1.742,
+        "rss_bytes": 11878400,
+        "free_bytes": 415249342464,
+        "generated_bytes": 8771047413,
+        "pressure": 1
+      },
+      {
+        "elapsed": 2.072,
+        "rss_bytes": 11894784,
+        "free_bytes": 415081570304,
+        "generated_bytes": 8938801921,
+        "pressure": 1
+      },
+      {
+        "elapsed": 2.401,
+        "rss_bytes": 11894784,
+        "free_bytes": 414913851392,
+        "generated_bytes": 9105092712,
+        "pressure": 1
+      }
+    ],
+    "strict_os_rss_guarantee": false,
+    "stdout": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/measurements/validation-whole-export.stdout",
+    "stderr": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/measurements/validation-whole-export.stderr"
+  },
+  "timing_role": "separate integrity validation, not a repeat search or partial-read measurement",
+  "instrument_python": "3.9.6 (default, Apr 17 2026, 18:15:52) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "first_wrapper_invocation": "wrong argument order stopped before native process; corrected once"
+}
