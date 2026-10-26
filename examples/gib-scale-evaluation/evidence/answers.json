@@ -1,0 +1,2034 @@
+{
+  "B1": {
+    "answers": [
+      {
+        "id": "q1",
+        "status": "answered",
+        "answer": "正電荷が原子全体に拡がるプラム・プディング像ではα粒子がほぼ妨げられず通過するはずだったが、薄い金箔では少数ながら非常に大きな角度の偏向が観測され、跳ね返るほどの結果が問題になった。資料は、これが原子の質量の多くを含む非常に小さい荷電領域＝原子核という像につながったと説明する。したがって正電荷を広く分散させる像から、小さな核に集中する像への転換である。",
+        "citations": [
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 31015,
+            "length": 259,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "''Top:'' Expected results: [[alpha particle]]s passing through the [[plum pudding model]] of the atom undisturbed.<br />\n''Bottom:'' Observed results: a small portion of the particles were deflected, indicating [[Atomic nucleus|a small, concentrated charge]]."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 33748,
+            "length": 50,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "Such deflection angles, although rare, were found."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 34368,
+            "length": 189,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "It was Rutherford's interpretation of this data that led him to propose the [[Atomic nucleus|nucleus]], a very small, [[charge (physics)|charged]] region containing much of the atom's mass."
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "status": "answered",
+        "answer": "状態の時間発展はシュレーディンガー方程式で記述され、初期状態から後の状態を決定するユニタリな発展として説明される。一方、観測量の測定結果は固有値であり、その確率はボルン則（非縮退なら対応する固有状態への振幅の絶対値二乗、一般には射影による確率）で与えられる。測定後は、得た固有値の固有状態または固有空間への正規化した射影に収縮すると仮定される。時間発展・結果の確率・測定後の状態の仮定は区別すべきであり、収縮について解釈により根本的に異なる回答があるため、全解釈で一致した事実とは断定できない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20475,
+            "length": 80,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "The time evolution of a quantum state is described by the Schrödinger equation:"
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 18871,
+            "length": 118,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "When an observable is measured, the result will be one of its eigenvalues with probability given by the [[Born rule]]:"
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 265,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "status": "answered",
+        "answer": "『Special relativity』は、加速度のない全慣性系で物理法則が同じであることと、真空の光速が光源・観測者の運動によらず一定であることを出発点とする。空間と時間をローレンツ幾何で結び、重力を含める拡張は一般相対論として区別される。『General relativity』は重力を四次元時空の幾何として扱い、自由落下する非回転系では特殊相対論がよい近似になるという等価原理を導きの原理とする。時空曲率と、物質・放射のエネルギー、運動量、応力をアインシュタイン方程式で関係付けるため、物質の運動と時空の幾何が相互に結び付く。慣性系に関する二つの公準と、重力を含む動的な幾何の説明は同じ前提ではない。",
+        "citations": [
+          {
+            "doc_id": "p0000026962.txt",
+            "start": 1370,
+            "length": 492,
+            "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17",
+            "quote": "# The [[laws of physics]] are [[Invariant (physics)|invariant]] (identical) in all [[Inertial frame of reference|inertial frames of reference]] (that is, [[Frame of reference|frames of reference]] with no [[acceleration]]). This is known as the [[principle of relativity]].\n# The [[speed of light]] in [[vacuum]] is the same for all observers, regardless of the motion of light source or observer. This is known as the principle of light constancy, or the principle of light speed invariance."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 1604,
+            "length": 320,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "In particular, the [[curvature of spacetime]] is directly related to the [[energy]], [[momentum]], and [[Stress (mechanics)|stress]] of whatever is present, including [[matter]] and [[radiation]]. The relation is specified by the [[Einstein field equations]], a system of second-order [[partial differential equation]]s."
+          }
+        ]
+      },
+      {
+        "id": "q4",
+        "status": "answered",
+        "answer": "『Black hole』の該当記述には明示的に『Ignoring quantum effects』という条件がある。量子効果を無視した説明の下で、内部の時空曲率が無限大になり、測地線が有限固有時で終わる特異点があると述べている。量子効果を含む代替的な一般相対論では非特異なブラックホールもあり得ると同じ資料が述べるため、この条件を外して現実の全ブラックホールについて無条件に断定してはいけない。代替モデルの存在も、現実の内部が非特異だと実証したことを意味しない。",
+        "citations": [
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 116728,
+            "length": 187,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]]."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 120948,
+            "length": 164,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Alternative forms of general relativity, including addition of some quantum effects, can lead to ''regular'', or ''nonsingular'', black holes without singularities."
+          }
+        ]
+      },
+      {
+        "id": "q5",
+        "status": "answered",
+        "answer": "DNAの二本鎖は相補的塩基対によって対応しており、アデニンAはチミンTと（水素結合2本）、グアニンGはシトシンCと（水素結合3本）対になる。この対応のため一方の塩基配列から相手の配列を再構成できる。複製では二本鎖を分離し、それぞれを鋳型としてDNAポリメラーゼが相補的ヌクレオチドを取り込んだ新鎖を合成する。生成した各DNAは旧鎖一本と新鎖一本からなる半保存的複製であり、この配列対応を通じて情報がコピーされる。資料は校正とエラーチェックによるほぼ完全な忠実度を述べ、誤りが全くないとはしていない。",
+        "citations": [
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 9552,
+            "length": 108,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Adenine pairs with thymine (two hydrogen bonds), and guanine pairs with cytosine (three [[hydrogen bonds]])."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 2760,
+            "length": 360,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "During replication, the two strands are separated, and each strand of the original DNA molecule then serves as a template for the production of a complementary counterpart strand, a process referred to as [[semiconservative replication]]. As a result, each replicated DNA molecule is composed of one original DNA strand as well as one newly synthesized strand."
+          }
+        ]
+      },
+      {
+        "id": "q6",
+        "status": "answered",
+        "answer": "進化は世代を重ねた集団の遺伝する特徴の変化であり、個体が必要に応じて姿を変えることそのものではない。突然変異が新たな遺伝的変異を導入し、その変異を持つ個体間の生存と繁殖、残す子孫数に差がある。特徴が遺伝するため、環境に有利な特徴を持つ親の子孫が後世代で多くなる自然選択が働く。遺伝的浮動・遺伝子流動も変異の頻度を変えるので、進化を自然選択だけに限定すべきでもない。資料は表現型が変わらなくても対立遺伝子頻度の変化として進化が起こると述べる。",
+        "citations": [
+          {
+            "doc_id": "p0000009236.txt",
+            "start": 1109,
+            "length": 327,
+            "sha256": "d11199cb75c9e6b5084e066e9a77194cee11bd32e17537dcb88c814c055fff3f",
+            "quote": "It happens when individuals in a population vary in their genetic characteristics and in the numbers of their surviving offspring. Mutation introduces new genetic variation, and processes such as [[genetic drift]], [[gene flow]], and [[natural selection]] result in some genetic variants becoming more or less common over time."
+          }
+        ]
+      },
+      {
+        "id": "q7",
+        "status": "answered",
+        "answer": "対応する量はエントロピーSである。『Entropy』では孤立系の自発変化でエントロピーは減少せず、平衡へ向かう方向を示すと説明される。また利用できる最冷の外部熱源温度をT_RとするとT_R Sは有用な仕事に使えないエネルギーとして説明される。『Black hole』ではこのエントロピーが事象の地平面の表面積に比例する。体積への比例ではない。量子力学による熱的なホーキング放射と非零温度を考慮することでブラックホール力学の法則と熱力学が対応するが、完全な量子重力理論を持たない導出であり、その真の量子的性質には議論が残る。",
+        "citations": [
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 1670,
+            "length": 293,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "Entropy is central to the [[second law of thermodynamics]], which states that the entropy of an isolated system left to spontaneous evolution cannot decrease with time. As a result, [[Isolated system|isolated systems]] evolve toward [[thermodynamic equilibrium]], where the entropy is highest."
+          },
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 52209,
+            "length": 230,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "More explicitly, an energy <math display=\"inline\">T_R S</math> is not available to do useful work, where <math display=\"inline\">T_R</math> is the temperature of the coldest accessible reservoir or heat sink external to the system."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 153905,
+            "length": 225,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "It also predicts that all black holes have [[entropy]] which scales with their surface area. When quantum mechanics is accounted for, the laws of black hole mechanics become equivalent to the classical laws of thermodynamics."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      },
+      {
+        "id": "q8",
+        "status": "answered",
+        "answer": "1936年のチューリング機械は、有限個の状態・記号・規則と読み書きするヘッドを持ち、必要な記憶を無限長のテープとして理想化した計算モデルである。任意のアルゴリズムによる計算を表現できる一方、任意に与えた機械が計算を継続できなくなるか、特定の記号・文字列をいずれ出力するかをすべての場合について判定する一般的手続きはないと論じる。資料は停止問題の解決不能性とEntscheidungsproblemの非計算可能性を結び付ける。これは全入力に正しく答える万能な判定法の限界であり、個々の機械や入力について何も判定できないという主張ではない。",
+        "citations": [
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 6724,
+            "length": 336,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "A Turing machine is an idealised model of a [[central processing unit]] (CPU) that controls all data manipulation done by a computer, with the canonical machine using sequential memory to store data. Typically, the sequential memory is represented as a tape of infinite length on which the machine can perform read and write operations."
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 7511,
+            "length": 281,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "Given a Turing machine ''M'' and an arbitrary string ''s'', it is generally not possible to decide whether ''M'' will eventually produce ''s''. This is due to the fact that the [[halting problem]] is unsolvable, which has major implications for the theoretical limits of computing."
+          }
+        ]
+      },
+      {
+        "id": "q9",
+        "status": "answered",
+        "answer": "オイラーの等式 e^(iπ)+1=0 は五つの定数0、1、π、e、iを結ぶ。0は加法の単位元、1は乗法の単位元、πは円周と直径の比である円の定数、eは自然対数の底で解析学に広く現れるオイラー数、iはi²=-1を満たす虚数単位である。基本演算は加法、乗法（iπ）、累乗で、それぞれ一度ずつ現れる。",
+        "citations": [
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 1938,
+            "length": 127,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "Three of the basic [[arithmetic]] operations occur exactly once each: [[addition]], [[multiplication]], and [[exponentiation]]."
+          },
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 2167,
+            "length": 497,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "* The [[0|number {{math|0}}]], the [[additive identity]]\n* The [[1|number {{math|1}}]], the [[multiplicative identity]]\n* The [[pi|number {{mvar|π}}]] ({{math|1=π = 3.14159...}}), the fundamental [[circle]] constant\n* The [[e (mathematical constant)|number {{mvar|e}}]] ({{math|1=''e'' = 2.71828...}}), also known as Euler's number, which occurs widely in [[mathematical analysis]]\n* The [[Imaginary unit|number {{mvar|i}}]], the [[imaginary unit]] such that {{math|1=''i''{{sup|2}} = &minus;1}}"
+          }
+        ]
+      },
+      {
+        "id": "q10",
+        "status": "unknown",
+        "answer": "2026-10-26時点で現在の研究者全員が同意している割合の実測百分率は、この資料から確定できずunknownである。取得資料は2026-10-01公開dumpの固定百科資料であり、研究者全員を母集団にした同意率調査ではない。確認した一般相対論の説明や実験との一致は支持の記述であって人数の測定ではなく、量子状態の収縮やブラックホールの量子的性質については解釈・議論が残る記述もある。百分率には対象理論と同意命題の定義、研究者母集団・人数、基準日の調査、質問・標本抽出・回答率・不確実性等が必要であり、取得資料にはその測定根拠がない。全資料に調査が存在しないという網羅的証明はしていないが、未調査として放置したのではなく、関連記述の射程を照合したうえで数値は確定不能とした。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 265,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      }
+    ],
+    "investigation": {
+      "q1": "examined",
+      "q2": "examined",
+      "q3": "examined",
+      "q4": "examined",
+      "q5": "examined",
+      "q6": "examined",
+      "q7": "examined",
+      "q8": "examined",
+      "q9": "examined",
+      "q10": "examined"
+    }
+  },
+  "B2": {
+    "answers": [
+      {
+        "id": "q1",
+        "status": "answered",
+        "answer": "薄い金箔を通したα粒子のうち、ごく少数が非常に大きい角度に散乱し、跳ね返るような結果が得られた。正電荷が原子内に広く分散するプラムプディング模型から期待される、ほぼ乱されずに通過する像と食い違う。Rutherfordは原子の質量の大部分と電荷が非常に小さい領域、原子核に集中する構造を提案した。",
+        "citations": [
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 33748,
+            "length": 50,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "Such deflection angles, although rare, were found."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 34368,
+            "length": 189,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "It was Rutherford's interpretation of this data that led him to propose the [[Atomic nucleus|nucleus]], a very small, [[charge (physics)|charged]] region containing much of the atom's mass."
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "status": "answered",
+        "answer": "状態の時間発展はSchrödinger方程式が記述する。これと、ある測定結果が出る確率を確率振幅の絶対値の二乗で与えるBorn則は区別する。さらに測定後については、結果λが得られたとき、その固有状態（縮退時は対応する部分空間への規格化した射影）へ状態が収縮すると仮定する記述がある。これは測定前の時間発展や結果の確率と別の規則である。資料は収縮への答えが解釈によって大きく異なると明記しており、測定後の収縮を全解釈に一致する事実とは断定できない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20475,
+            "length": 80,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "The time evolution of a quantum state is described by the Schrödinger equation:"
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 6469,
+            "length": 212,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "Mathematically, a probability is found by taking the square of the absolute value of a [[complex number]], known as a probability amplitude. This is known as the [[Born rule]], named after physicist [[Max Born]]."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 19777,
+            "length": 297,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "if result <math>\\lambda</math> was obtained, the quantum state is postulated to [[Collapse of the wavefunction|collapse]] to <math> \\vec\\lambda</math>, in the non-degenerate case, or to <math display=inline>P_\\lambda\\psi\\big/\\! \\sqrt{\\langle \\psi,P_\\lambda\\psi\\rangle}</math>, in the general case."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 265,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "status": "answered",
+        "answer": "Special relativityは、すべての慣性系で物理法則が同一であることと、真空中の光速が光源や観測者の運動によらず同じであることを出発点に、空間と時間の関係を記述する。同資料は重力の効果を含む拡張を一般相対論としている。General relativityは重力を時空の幾何学的性質として扱い、時空の曲率と、物質・放射のエネルギー、運動量、応力をEinstein方程式で結び付ける。したがって単に慣性観測者間の時空測定を比較するだけでなく、物質・放射が時空の幾何に関係し、その幾何が運動を規定する説明となる。",
+        "citations": [
+          {
+            "doc_id": "p0000026962.txt",
+            "start": 1370,
+            "length": 492,
+            "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17",
+            "quote": "# The [[laws of physics]] are [[Invariant (physics)|invariant]] (identical) in all [[Inertial frame of reference|inertial frames of reference]] (that is, [[Frame of reference|frames of reference]] with no [[acceleration]]). This is known as the [[principle of relativity]].\n# The [[speed of light]] in [[vacuum]] is the same for all observers, regardless of the motion of light source or observer. This is known as the principle of light constancy, or the principle of light speed invariance."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 1604,
+            "length": 320,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "In particular, the [[curvature of spacetime]] is directly related to the [[energy]], [[momentum]], and [[Stress (mechanics)|stress]] of whatever is present, including [[matter]] and [[radiation]]. The relation is specified by the [[Einstein field equations]], a system of second-order [[partial differential equation]]s."
+          }
+        ]
+      },
+      {
+        "id": "q4",
+        "status": "answered",
+        "answer": "Black holeの該当箇所は明示的に『量子効果を無視して』いる。この古典的な前提のもとで、内部に曲率が無限大になる特異点があり、測地線が有限の固有時で終わると述べる。量子効果を含む場合まで同じ結論が証明されたとは、この引用からは言えない。実際、取得した資料には一部の量子効果を取り込む代替理論で非特異なブラックホールもあり得るとある。前提を外した無条件の断定にしてはいけない。",
+        "citations": [
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 116728,
+            "length": 187,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]]."
+          }
+        ]
+      },
+      {
+        "id": "q5",
+        "status": "answered",
+        "answer": "DNAの二本鎖は相補的で、アデニンAはチミンTと、グアニンGはシトシンCと対を作る。この対応のため、一方の鎖の塩基配列から他方に入る塩基が決まる。複製では二本鎖を分離し、それぞれを鋳型にDNAポリメラーゼが相補的なヌクレオチドを組み込む。各生成DNAは元の一本鎖と新しい一本鎖からなる半保存的複製となり、配列情報を受け継ぐ。校正と誤り検査により高い忠実度を保つが、完全無誤りという意味ではない。",
+        "citations": [
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 9552,
+            "length": 108,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Adenine pairs with thymine (two hydrogen bonds), and guanine pairs with cytosine (three [[hydrogen bonds]])."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 2760,
+            "length": 360,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "During replication, the two strands are separated, and each strand of the original DNA molecule then serves as a template for the production of a complementary counterpart strand, a process referred to as [[semiconservative replication]]. As a result, each replicated DNA molecule is composed of one original DNA strand as well as one newly synthesized strand."
+          }
+        ]
+      },
+      {
+        "id": "q6",
+        "status": "answered",
+        "answer": "自然選択は個体が必要に応じて目的的に形を変える説明ではない。集団内には遺伝子型・表現型の変異があり、突然変異は遺伝的多様性を生む材料となる。遺伝する特徴が生存や繁殖成功の差に関係すれば、その特徴を持つ個体が次世代に多くの子孫を残すことで、その特徴や遺伝子が世代を経て集団内で多くなる。適応度は単なる長寿や強さではなく繁殖成功に関わる。選択は個体に作用しても、ここでいう進化は世代を通じた集団の遺伝的特徴の変化であり、個体の要求に応じた変形とそのまま同一視できない。",
+        "citations": [
+          {
+            "doc_id": "p0000021147.txt",
+            "start": 1898,
+            "length": 318,
+            "sha256": "ee797d76c732f3fec9fe11b5e5fbab5d2ffa5d7fbe3b7cd29e606b71e5f29f56",
+            "quote": "[[Genetic diversity|Variation]] of traits, both [[Genotype|genotypic]] and phenotypic, exists within all populations of [[organism]]s. However, some traits are more likely to facilitate [[survival]] and [[reproductive success]]. Thus, these traits are more likely to be passed {{not a typo|on to}} the next generation."
+          },
+          {
+            "doc_id": "p0000021147.txt",
+            "start": 28365,
+            "length": 263,
+            "sha256": "ee797d76c732f3fec9fe11b5e5fbab5d2ffa5d7fbe3b7cd29e606b71e5f29f56",
+            "quote": "In his book ''[[Genetics and the Origin of Species]]'' (1937), [[Theodosius Dobzhansky]] established the idea that mutation, [[mutationism|once seen as a rival]] to selection, actually supplied the raw material for natural selection by creating genetic diversity."
+          },
+          {
+            "doc_id": "p0000021147.txt",
+            "start": 43507,
+            "length": 314,
+            "sha256": "ee797d76c732f3fec9fe11b5e5fbab5d2ffa5d7fbe3b7cd29e606b71e5f29f56",
+            "quote": "Modern evolutionary theory defines fitness not by how long an organism lives, but by how successful it is at reproducing. If an organism lives half as long as others of its species, but has twice as many offspring surviving to adulthood, its genes become more common in the adult population of the next generation."
+          }
+        ]
+      },
+      {
+        "id": "q7",
+        "status": "answered",
+        "answer": "Entropy資料では、エントロピーSは熱力学の状態量であり、孤立系の自発的変化で減少しないため変化の向きと不可逆性に関係する。熱から仕事を取り出す際に利用できなくなるエネルギーの説明にも結び付く。これをBlack hole資料と照合すると、対応する幾何学的量は体積ではなく事象の地平面の表面積である。ブラックホールのエントロピーはその面積に比例する。資料は、量子力学を考慮してHawking放射と非零温度を含めるとブラックホール力学の法則と熱力学の法則が対応するとするが、完全な量子重力理論なしに導かれた結論で、真の量子的性質には議論が残るとも述べる。これは資料に記された理論的関係であり、今回取得した資料から独立の実測値を出すものではない。",
+        "citations": [
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 1670,
+            "length": 168,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "Entropy is central to the [[second law of thermodynamics]], which states that the entropy of an isolated system left to spontaneous evolution cannot decrease with time."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 153905,
+            "length": 225,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "It also predicts that all black holes have [[entropy]] which scales with their surface area. When quantum mechanics is accounted for, the laws of black hole mechanics become equivalent to the classical laws of thermodynamics."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      },
+      {
+        "id": "q8",
+        "status": "answered",
+        "answer": "1936年のTuring machineは、計算手順を理想化した抽象機械である。無限長のテープを記憶として使い、有限の状態・記号・規則表に従ってヘッドが記号を読み書きし移動する。一般の機械と入力について、計算が停止するか、ある指定の文字列を最終的に出力するかをすべての場合に判定する万能な計算手続きは存在しないという限界を扱う。資料はこれを停止問題と結び付け、Entscheidungsproblemの計算不能性も述べる。これは任意の事例を一律に解く手続きがないという意味であり、個々の明らかに停止する計算や限定したクラスまで全く判定不能という意味ではない。",
+        "citations": [
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 6724,
+            "length": 336,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "A Turing machine is an idealised model of a [[central processing unit]] (CPU) that controls all data manipulation done by a computer, with the canonical machine using sequential memory to store data. Typically, the sequential memory is represented as a tape of infinite length on which the machine can perform read and write operations."
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 7511,
+            "length": 281,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "Given a Turing machine ''M'' and an arbitrary string ''s'', it is generally not possible to decide whether ''M'' will eventually produce ''s''. This is due to the fact that the [[halting problem]] is unsolvable, which has major implications for the theoretical limits of computing."
+          }
+        ]
+      },
+      {
+        "id": "q9",
+        "status": "answered",
+        "answer": "Eulerの等式 e^(iπ)+1=0 は五つの基本定数を結び付ける。0は加法単位元（加えても値が変わらない数）、1は乗法単位元（掛けても値が変わらない数）、πは円周と直径の比、eは自然対数の底で解析学に広く現れる数、iはi²=-1を満たす虚数単位である。基本演算は加法、乗法、累乗で、それぞれ一度ずつ現れる。乗法は指数中のiπである。資料はこれをEulerの公式 e^(ix)=cos x+i sin x にx=πを入れた特別な場合とも説明している。",
+        "citations": [
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 1938,
+            "length": 127,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "Three of the basic [[arithmetic]] operations occur exactly once each: [[addition]], [[multiplication]], and [[exponentiation]]."
+          },
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 2167,
+            "length": 497,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "* The [[0|number {{math|0}}]], the [[additive identity]]\n* The [[1|number {{math|1}}]], the [[multiplicative identity]]\n* The [[pi|number {{mvar|π}}]] ({{math|1=π = 3.14159...}}), the fundamental [[circle]] constant\n* The [[e (mathematical constant)|number {{mvar|e}}]] ({{math|1=''e'' = 2.71828...}}), also known as Euler's number, which occurs widely in [[mathematical analysis]]\n* The [[Imaginary unit|number {{mvar|i}}]], the [[imaginary unit]] such that {{math|1=''i''{{sup|2}} = &minus;1}}"
+          }
+        ]
+      },
+      {
+        "id": "q10",
+        "status": "unknown",
+        "answer": "2026-10-26時点の研究者全員の同意割合を、この資料だけから実測百分率として確定することはできず、数値はunknownである。これは未調査という意味ではなく、取得して照合した理論資料は理論の内容、実験との一致、解釈上の議論を述べる一方、当該日・全研究者を母集団とした測定結果を根拠として提供していないためである。量子状態の収縮には解釈間の相違があり、ブラックホール熱力学の量子的性質にも議論が残る。実験と高精度で一致することや『accepted』との記述を、研究者全員の同意率100%へ置き換えることはできない。必要なのは、誰を研究者として数えるか、何の理論・命題への同意か、調査日、標本抽出、回答数・無回答、質問文、集計方法と不確かさを明示した調査である。固定snapshotからその後の現状や全員の意思を補完することもできない。検索のcoverageは保証されないので、全資料にそのような測定が絶対に存在しないと証明したわけでもない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 265,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      }
+    ],
+    "investigation": {
+      "q1": "examined",
+      "q2": "examined",
+      "q3": "examined",
+      "q4": "examined",
+      "q5": "examined",
+      "q6": "examined",
+      "q7": "examined",
+      "q8": "examined",
+      "q9": "examined",
+      "q10": "examined"
+    }
+  },
+  "B3": {
+    "answers": [
+      {
+        "id": "q1",
+        "status": "answered",
+        "answer": "広く分散した正電荷を想定するプラム・プディング模型では、α粒子は金箔をほぼ妨げられず通過するはずだった。しかし実際には少数が大きな角度に偏向し、戻るほどの散乱もあった。資料は大偏角がまれながら見つかったと述べる。これを説明するため、正電荷と原子の質量の多くが非常に小さい領域である原子核へ集中する構造像につながった。",
+        "citations": [
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 31015,
+            "length": 259,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "''Top:'' Expected results: [[alpha particle]]s passing through the [[plum pudding model]] of the atom undisturbed.<br />\n''Bottom:'' Observed results: a small portion of the particles were deflected, indicating [[Atomic nucleus|a small, concentrated charge]]."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 32350,
+            "length": 148,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "this experiment to look for alpha particles with very high deflection angles, which was not expected according to any theory of matter at that time."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 34368,
+            "length": 189,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "It was Rutherford's interpretation of this data that led him to propose the [[Atomic nucleus|nucleus]], a very small, [[charge (physics)|charged]] region containing much of the atom's mass."
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "status": "answered",
+        "answer": "状態の時間変化はシュレーディンガー方程式 iℏ∂ψ/∂t=Hψ による。これと測定結果の確率は別で、観測量の固有値が得られる確率をボルン則が与える。非縮退の場合は対応する固有ベクトルとの内積の絶対値の二乗である。測定後の状態については、得られた固有値に対応する固有状態へ収縮するという仮定を置き、縮退の場合はその固有空間への射影を規格化する。資料自身が収縮をめぐり解釈ごとに大きく異なる回答があると述べているので、収縮を全解釈に共通する確定事実とは断定できない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 19717,
+            "length": 926,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "After the [[Measurement in quantum mechanics|measurement]], if result <math>\\lambda</math> was obtained, the quantum state is postulated to [[Collapse of the wavefunction|collapse]] to <math> \\vec\\lambda</math>, in the non-degenerate case, or to <math display=inline>P_\\lambda\\psi\\big/\\! \\sqrt{\\langle \\psi,P_\\lambda\\psi\\rangle}</math>, in the general case. The [[probabilistic]] nature of quantum mechanics thus stems from the act of measurement. This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]].\n\n=== Time evolution of a quantum state ===\n\nThe time evolution of a quantum state is described by the Schrödinger equation:\n<math display=block>i\\hbar {\\frac {\\partial}{\\partial t}} \\psi (t) =H \\psi (t). </math>"
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 18871,
+            "length": 350,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "When an observable is measured, the result will be one of its eigenvalues with probability given by the [[Born rule]]: in the simplest case the eigenvalue <math>\\lambda</math> is non-degenerate and the probability is given by <math>|\\langle \\vec\\lambda,\\psi\\rangle|^2</math>, where <math> \\vec\\lambda</math> is its associated unit-length eigenvector."
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "status": "answered",
+        "answer": "Special relativity は、すべての慣性系で物理法則が同一であることと、真空光速が光源・観測者の運動によらず同じであることを出発点にする。これは慣性系間の空間と時間の関係を定める説明である。一方 General relativity は特殊相対論を一般化し、重力を四次元時空の幾何学的性質として扱う。時空曲率は物質だけでなく放射も含むエネルギー・運動量・応力とアインシュタイン方程式で結び付く。したがって二つの資料を照合すると、慣性系での共通法則・光速という前提からの時空説明に対し、一般相対論では物質等と時空幾何が相互に関わる重力の説明へ進んでいる。",
+        "citations": [
+          {
+            "doc_id": "p0000026962.txt",
+            "start": 1370,
+            "length": 492,
+            "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17",
+            "quote": "# The [[laws of physics]] are [[Invariant (physics)|invariant]] (identical) in all [[Inertial frame of reference|inertial frames of reference]] (that is, [[Frame of reference|frames of reference]] with no [[acceleration]]). This is known as the [[principle of relativity]].\n# The [[speed of light]] in [[vacuum]] is the same for all observers, regardless of the motion of light source or observer. This is known as the principle of light constancy, or the principle of light speed invariance."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 1315,
+            "length": 609,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "General [[theory of relativity|relativity]] generalizes [[special relativity]] and refines [[Isaac Newton]]'s [[law of universal gravitation]], providing a unified description of gravity as a geometric property of [[space]] and [[time in physics|time]], or four-dimensional [[spacetime]]. In particular, the [[curvature of spacetime]] is directly related to the [[energy]], [[momentum]], and [[Stress (mechanics)|stress]] of whatever is present, including [[matter]] and [[radiation]]. The relation is specified by the [[Einstein field equations]], a system of second-order [[partial differential equation]]s."
+          }
+        ]
+      },
+      {
+        "id": "q4",
+        "status": "answered",
+        "answer": "Black hole の該当説明は明示的に「量子効果を無視する」と前置きしている。その前提のもとで内部に時空曲率が無限となり、測地線が有限の固有時で終わる特異点があると述べる。量子効果を含む実在の内部にも同じ発散が必ずある、と前提を外して断定する根拠にはならない。取得資料は完全な量子重力理論を与えていないため、その前提を外した内部の最終的な状態はここでは未確定である。",
+        "citations": [
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 116728,
+            "length": 187,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]]."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      },
+      {
+        "id": "q5",
+        "status": "answered",
+        "answer": "DNAの二本鎖は相補的な塩基対を作るので、一方の配列が他方に置くべき塩基を指定する。対応はアデニンAとチミンT、グアニンGとシトシンCで、それぞれ水素結合で結ばれる。複製時には二本鎖を分離し、各元の鎖を鋳型に相補的な新しい鎖を合成する。DNAポリメラーゼは鋳型と相補的なヌクレオチドを取り込む。結果は元の鎖一本と新生鎖一本からなる二つのDNA分子となる半保存的複製であり、塩基配列の情報が受け継がれる。",
+        "citations": [
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 2760,
+            "length": 360,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "During replication, the two strands are separated, and each strand of the original DNA molecule then serves as a template for the production of a complementary counterpart strand, a process referred to as [[semiconservative replication]]. As a result, each replicated DNA molecule is composed of one original DNA strand as well as one newly synthesized strand."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 9430,
+            "length": 230,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Complementary nucleobases are matched between strands through [[hydrogen bonding|hydrogen bonds]] to form [[base pair]]s. Adenine pairs with thymine (two hydrogen bonds), and guanine pairs with cytosine (three [[hydrogen bonds]])."
+          }
+        ]
+      },
+      {
+        "id": "q6",
+        "status": "answered",
+        "answer": "進化は生物集団の遺伝する特徴が世代を重ねて変化することを指す。個体が必要を感じて自分の形を変え、それだけで集団が進化するという説明とは異なる。突然変異が新たな遺伝的変異を導入し、個体間の遺伝的特徴と生き残る子孫数には差がある。環境に有利な遺伝する特徴を持つ親が相対的に多くの子孫を残すと、その特徴が次世代で増えるのが自然選択である。資料は自然選択だけでなく遺伝的浮動や遺伝子流動も変異の頻度を変えると述べており、すべての変化を必要に応じた適応とみなすこともできない。",
+        "citations": [
+          {
+            "doc_id": "p0000009236.txt",
+            "start": 1109,
+            "length": 327,
+            "sha256": "d11199cb75c9e6b5084e066e9a77194cee11bd32e17537dcb88c814c055fff3f",
+            "quote": "It happens when individuals in a population vary in their genetic characteristics and in the numbers of their surviving offspring. Mutation introduces new genetic variation, and processes such as [[genetic drift]], [[gene flow]], and [[natural selection]] result in some genetic variants becoming more or less common over time."
+          },
+          {
+            "doc_id": "p0000009236.txt",
+            "start": 4616,
+            "length": 177,
+            "sha256": "d11199cb75c9e6b5084e066e9a77194cee11bd32e17537dcb88c814c055fff3f",
+            "quote": "In successive generations, members of a population are therefore more likely to be replaced by the [[offspring]] of parents with favourable characteristics for that environment."
+          }
+        ]
+      },
+      {
+        "id": "q7",
+        "status": "answered",
+        "answer": "Entropy の資料では、エントロピーSは孤立系の自発的変化で減少せず、平衡へ向かう方向を特徴付ける。また外部の最低温度の熱浴をT_Rとすれば、T_R Sというエネルギーは有用な仕事に使えないと説明する。Black hole と照合すると、このエントロピーは事象の地平面の表面積に比例する。対応する幾何学量は内部の体積ではなく地平面の面積である。古典的一般相対論だけでのブラックホール力学は熱力学の数学的類似にとどまり、量子効果とホーキング放射を考慮すると温度とエントロピーの対応が得られる、という前提も区別すべきである。完全な量子重力理論に基づく確定した説明とまでは資料は述べていない。",
+        "citations": [
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 1670,
+            "length": 293,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "Entropy is central to the [[second law of thermodynamics]], which states that the entropy of an isolated system left to spontaneous evolution cannot decrease with time. As a result, [[Isolated system|isolated systems]] evolve toward [[thermodynamic equilibrium]], where the entropy is highest."
+          },
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 52209,
+            "length": 230,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "More explicitly, an energy <math display=\"inline\">T_R S</math> is not available to do useful work, where <math display=\"inline\">T_R</math> is the temperature of the coldest accessible reservoir or heat sink external to the system."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 152178,
+            "length": 100,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "A black hole's entropy [[Direct proportionality|scales]] with the surface area of its event horizon."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 153756,
+            "length": 374,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Quantum mechanics predicts that a black hole will continuously emit thermal Hawking radiation, and therefore must always have a nonzero temperature. It also predicts that all black holes have [[entropy]] which scales with their surface area. When quantum mechanics is accounted for, the laws of black hole mechanics become equivalent to the classical laws of thermodynamics."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      },
+      {
+        "id": "q8",
+        "status": "answered",
+        "answer": "1936年のチューリング機械は、有限の状態・記号・規則表に従ってヘッドが記号を読み書きし移動する計算手続きを理想化する。記憶は必要なだけ使える無限長のテープで表す。資料は、任意の機械について計算を続けられない「circular」かどうか、または指定された記号をいつか出力するかを一般的に判定する機械は存在しないと説明し、停止問題の解けなさとも結び付ける。ここで否定されるのは任意の機械・入力すべてを扱う一般的判定手続きである。個別の計算を一件も判定できないという意味ではなく、特定の計算の停止等が個別に示せることとは両立する。",
+        "citations": [
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 4736,
+            "length": 345,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "With this model, Turing was able to answer two questions in the negative:\n* Does a machine exist that can determine whether any arbitrary machine on its tape is \"circular\" (e.g., freezes, or fails to continue its computational task)?\n* Does a machine exist that can determine whether any arbitrary machine on its tape ever prints a given symbol?"
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 6724,
+            "length": 336,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "A Turing machine is an idealised model of a [[central processing unit]] (CPU) that controls all data manipulation done by a computer, with the canonical machine using sequential memory to store data. Typically, the sequential memory is represented as a tape of infinite length on which the machine can perform read and write operations."
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 7511,
+            "length": 281,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "Given a Turing machine ''M'' and an arbitrary string ''s'', it is generally not possible to decide whether ''M'' will eventually produce ''s''. This is due to the fact that the [[halting problem]] is unsolvable, which has major implications for the theoretical limits of computing."
+          }
+        ]
+      },
+      {
+        "id": "q9",
+        "status": "answered",
+        "answer": "オイラーの等式 e^(iπ)+1=0 は、0、1、e、i、πの五つを結び付ける。0は加法の単位元、1は乗法の単位元。eは自然対数の底であるオイラー数、iは i²=−1 を満たす虚数単位、πは円周と直径の比を表す円の定数である。式で使われる基本演算は加法、乗法（iπ）、指数演算であり、資料はそれぞれ一回ずつ現れると述べる。",
+        "citations": [
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 1938,
+            "length": 726,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "Three of the basic [[arithmetic]] operations occur exactly once each: [[addition]], [[multiplication]], and [[exponentiation]]. The identity also links five fundamental [[mathematical constant]]s:<ref>Paulos, 1992, p. 117.</ref>\n* The [[0|number {{math|0}}]], the [[additive identity]]\n* The [[1|number {{math|1}}]], the [[multiplicative identity]]\n* The [[pi|number {{mvar|π}}]] ({{math|1=π = 3.14159...}}), the fundamental [[circle]] constant\n* The [[e (mathematical constant)|number {{mvar|e}}]] ({{math|1=''e'' = 2.71828...}}), also known as Euler's number, which occurs widely in [[mathematical analysis]]\n* The [[Imaginary unit|number {{mvar|i}}]], the [[imaginary unit]] such that {{math|1=''i''{{sup|2}} = &minus;1}}"
+          },
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 885,
+            "length": 348,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "<math display=block>e^{i \\pi} + 1 = 0</math>\nwhere\n*<math>e</math> is [[E (mathematical constant)|Euler's number]], the base of [[natural logarithm]]s,\n*<math>i</math> is the [[imaginary unit]], which by definition satisfies <math>i^2 = -1</math>, and\n*<math>\\pi</math> is [[pi]], the ratio of the [[circumference]] of a circle to its [[diameter]]."
+          }
+        ]
+      },
+      {
+        "id": "q10",
+        "status": "unknown",
+        "answer": "2026-10-26時点の現在の研究者全員の同意率を、この資料だけから実測百分率として確定することはできない。確認した資料は理論の説明とその前提を示すもので、量子状態の収縮について解釈間の相違があり、ブラックホール熱力学の量子的本質にも議論が続くと述べる。しかし、その記述から賛否の人数や割合を算出することはできない。「全員」の母集団、同意の対象命題、調査日、調査方法、回答者数・非回答者数、代表性を備えた当日の測定データが不足している。snapshotの対象日は2026-10-01であり、指定日の最新調査としても扱えない。これは関連資料を調査したうえで数値が未確定という意味で、未調査という意味ではない。全資料を網羅して不存在を証明したわけでもない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 19717,
+            "length": 926,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "After the [[Measurement in quantum mechanics|measurement]], if result <math>\\lambda</math> was obtained, the quantum state is postulated to [[Collapse of the wavefunction|collapse]] to <math> \\vec\\lambda</math>, in the non-degenerate case, or to <math display=inline>P_\\lambda\\psi\\big/\\! \\sqrt{\\langle \\psi,P_\\lambda\\psi\\rangle}</math>, in the general case. The [[probabilistic]] nature of quantum mechanics thus stems from the act of measurement. This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]].\n\n=== Time evolution of a quantum state ===\n\nThe time evolution of a quantum state is described by the Schrödinger equation:\n<math display=block>i\\hbar {\\frac {\\partial}{\\partial t}} \\psi (t) =H \\psi (t). </math>"
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      }
+    ],
+    "investigation": {
+      "q1": "examined",
+      "q2": "examined",
+      "q3": "examined",
+      "q4": "examined",
+      "q5": "examined",
+      "q6": "examined",
+      "q7": "examined",
+      "q8": "examined",
+      "q9": "examined",
+      "q10": "examined"
+    }
+  },
+  "B4": {
+    "answers": [
+      {
+        "id": "q1",
+        "status": "answered",
+        "answer": "薄い金箔を通るα粒子のうち少数が、予想外の非常に大きい角度で偏向した。正電荷が広く分散するプラムプディング模型の、ほぼ妨げられず通過するという像と食い違う。ラザフォードは、原子の質量の大部分と正電荷を非常に小さい領域に集中させた原子核という構造を提案した。",
+        "citations": [
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 32308,
+            "length": 190,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "was inspired to ask Geiger and Marsden in this experiment to look for alpha particles with very high deflection angles, which was not expected according to any theory of matter at that time."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 33748,
+            "length": 50,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "Such deflection angles, although rare, were found."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 34368,
+            "length": 189,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "It was Rutherford's interpretation of this data that led him to propose the [[Atomic nucleus|nucleus]], a very small, [[charge (physics)|charged]] region containing much of the atom's mass."
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "status": "answered",
+        "answer": "状態の時間変化はシュレーディンガー方程式が記述する。測定では観測量の固有値のいずれかが得られ、その確率はBorn則に従う。測定後の状態については、得られた固有値に対応する固有状態（縮退時は対応する固有空間への正規化した射影）への収縮を仮定する説明が掲載されている。しかし資料は収縮をめぐる解釈が大きく異なると明示しており、全解釈で一致した事実とは断定できない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20475,
+            "length": 80,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "The time evolution of a quantum state is described by the Schrödinger equation:"
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 18871,
+            "length": 118,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "When an observable is measured, the result will be one of its eigenvalues with probability given by the [[Born rule]]:"
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 19717,
+            "length": 181,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "After the [[Measurement in quantum mechanics|measurement]], if result <math>\\lambda</math> was obtained, the quantum state is postulated to [[Collapse of the wavefunction|collapse]]"
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 265,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "status": "answered",
+        "answer": "Special relativityは、加速しない慣性系で物理法則が同じこと、真空中の光速が光源や観測者の運動によらず同じことを出発点に空間と時間の関係を記述する。General relativityはこれを一般化し、重力を4次元時空の幾何学的性質として扱う。時空の曲率は物質だけでなく放射も含むエネルギー・運動量・応力に直接関係し、Einstein方程式が関係を与える。したがって物質を置く時空の運動学の前提と、物質等と時空幾何が結びつく重力の説明という違いがある。",
+        "citations": [
+          {
+            "doc_id": "p0000026962.txt",
+            "start": 1370,
+            "length": 492,
+            "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17",
+            "quote": "# The [[laws of physics]] are [[Invariant (physics)|invariant]] (identical) in all [[Inertial frame of reference|inertial frames of reference]] (that is, [[Frame of reference|frames of reference]] with no [[acceleration]]). This is known as the [[principle of relativity]].\n# The [[speed of light]] in [[vacuum]] is the same for all observers, regardless of the motion of light source or observer. This is known as the principle of light constancy, or the principle of light speed invariance."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 1315,
+            "length": 485,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "General [[theory of relativity|relativity]] generalizes [[special relativity]] and refines [[Isaac Newton]]'s [[law of universal gravitation]], providing a unified description of gravity as a geometric property of [[space]] and [[time in physics|time]], or four-dimensional [[spacetime]]. In particular, the [[curvature of spacetime]] is directly related to the [[energy]], [[momentum]], and [[Stress (mechanics)|stress]] of whatever is present, including [[matter]] and [[radiation]]."
+          }
+        ]
+      },
+      {
+        "id": "q4",
+        "status": "answered",
+        "answer": "資料の特異点の説明は『量子効果を無視する』前提を明示している。その前提で、内部の曲率が無限大になり測地線が有限の固有時で終わるとされる。量子効果を含めた実際の内部構造まで確定した断定へ広げてはいけない。資料には一部の量子効果を加えた代替理論が特異点のないブラックホールにつながりうるとも記されている。これは代替理論の可能性であり、その実在の確定でもない。",
+        "citations": [
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 116728,
+            "length": 187,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]]."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 120948,
+            "length": 164,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Alternative forms of general relativity, including addition of some quantum effects, can lead to ''regular'', or ''nonsingular'', black holes without singularities."
+          }
+        ]
+      },
+      {
+        "id": "q5",
+        "status": "answered",
+        "answer": "DNAの2本鎖は相補的で、A（アデニン）はT（チミン）、G（グアニン）はC（シトシン）と対を作る。この対応により一方の塩基配列から相手の配列が決まる。複製時に鎖を分離し、それぞれを鋳型として相補的なヌクレオチドをDNA polymeraseが取り込んで新しい鎖を合成する。結果は各DNA分子が旧鎖1本と新鎖1本を持つ半保存的複製であり、塩基配列としての情報が引き継がれる。",
+        "citations": [
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 9552,
+            "length": 108,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Adenine pairs with thymine (two hydrogen bonds), and guanine pairs with cytosine (three [[hydrogen bonds]])."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 2760,
+            "length": 360,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "During replication, the two strands are separated, and each strand of the original DNA molecule then serves as a template for the production of a complementary counterpart strand, a process referred to as [[semiconservative replication]]. As a result, each replicated DNA molecule is composed of one original DNA strand as well as one newly synthesized strand."
+          }
+        ]
+      },
+      {
+        "id": "q6",
+        "status": "answered",
+        "answer": "進化は集団の遺伝する特徴が世代を通じて変わることであり、個体が必要に応じて自ら形を変えるという説明とは区別する。突然変異が新たな遺伝的変異を導入し、その特徴が子へ伝わりうる。特徴ごとに生存・繁殖成功が異なれば、より多くの生存子孫を残す親の特徴が次世代で増えるのが自然選択である。資料は遺伝的浮動や遺伝子流動も変異の頻度を変える過程として挙げており、すべての変化を必要性や自然選択だけに帰すものではない。",
+        "citations": [
+          {
+            "doc_id": "p0000009236.txt",
+            "start": 1109,
+            "length": 327,
+            "sha256": "d11199cb75c9e6b5084e066e9a77194cee11bd32e17537dcb88c814c055fff3f",
+            "quote": "It happens when individuals in a population vary in their genetic characteristics and in the numbers of their surviving offspring. Mutation introduces new genetic variation, and processes such as [[genetic drift]], [[gene flow]], and [[natural selection]] result in some genetic variants becoming more or less common over time."
+          },
+          {
+            "doc_id": "p0000009236.txt",
+            "start": 3872,
+            "length": 85,
+            "sha256": "d11199cb75c9e6b5084e066e9a77194cee11bd32e17537dcb88c814c055fff3f",
+            "quote": "(4) traits can be passed from generation to generation ([[heritability]] of fitness)."
+          }
+        ]
+      },
+      {
+        "id": "q7",
+        "status": "answered",
+        "answer": "該当する量はエントロピーS。Entropyの記事では孤立系の自発的変化で減少せず平衡で最大となるという第二法則と、外部の最も冷たい熱浴の温度T_Rに対するT_R Sのエネルギーが有用な仕事に使えないことを説明する。Black holeの記事では、ブラックホールのエントロピーは事象の地平面の表面積に比例する。体積ではなく境界の面積との関係である。記事は量子効果を含めた熱力学の説明と、量子重力理論が未完成という制約も示すため、幾何学との関係を完全な量子重力の実証と同一視しない。",
+        "citations": [
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 1670,
+            "length": 293,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "Entropy is central to the [[second law of thermodynamics]], which states that the entropy of an isolated system left to spontaneous evolution cannot decrease with time. As a result, [[Isolated system|isolated systems]] evolve toward [[thermodynamic equilibrium]], where the entropy is highest."
+          },
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 52209,
+            "length": 230,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "More explicitly, an energy <math display=\"inline\">T_R S</math> is not available to do useful work, where <math display=\"inline\">T_R</math> is the temperature of the coldest accessible reservoir or heat sink external to the system."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 152178,
+            "length": 100,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "A black hole's entropy [[Direct proportionality|scales]] with the surface area of its event horizon."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      },
+      {
+        "id": "q8",
+        "status": "answered",
+        "answer": "1936年のAlan TuringのTuring machineである。記号を格納する必要に応じ無限に使えるテープ、有限の状態、読書きするヘッド、有限の規則表により機械的な計算手順を理想化する。任意の機械に対して計算が止まるかという停止問題や、指定記号をいつか出力するか等を一般に判定する万能な手続きはない、という限界である。資料は1936年の記述ではcircularか、任意の指定記号を出力するかという二つの否定的判定を挙げる。『任意のすべてに通用する手続きがない』のであって、個々の計算が一切判定できないという意味ではない。",
+        "citations": [
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 2485,
+            "length": 234,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "At each step of its operation, the head reads the symbol in its cell. Then, based on the symbol and the machine's own present state, the machine writes a symbol into the same cell, and moves the head one step to the left or the right,"
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 4736,
+            "length": 345,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "With this model, Turing was able to answer two questions in the negative:\n* Does a machine exist that can determine whether any arbitrary machine on its tape is \"circular\" (e.g., freezes, or fails to continue its computational task)?\n* Does a machine exist that can determine whether any arbitrary machine on its tape ever prints a given symbol?"
+          }
+        ]
+      },
+      {
+        "id": "q9",
+        "status": "answered",
+        "answer": "Eulerの等式 e^(iπ)+1=0。基本演算は加法・乗法（iπ）・累乗で、資料はそれぞれが一度ずつ現れるとする。5定数は0（加法の単位元）、1（乗法の単位元）、π（円周と直径の比の円定数）、e（自然対数の底、解析に広く現れるEuler数）、i（i²=-1を満たす虚数単位）。実指数から複素指数へ拡張した指数関数におけるEulerの公式をx=πで評価した特別な場合である。",
+        "citations": [
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 885,
+            "length": 44,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "<math display=block>e^{i \\pi} + 1 = 0</math>"
+          },
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 1938,
+            "length": 726,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "Three of the basic [[arithmetic]] operations occur exactly once each: [[addition]], [[multiplication]], and [[exponentiation]]. The identity also links five fundamental [[mathematical constant]]s:<ref>Paulos, 1992, p. 117.</ref>\n* The [[0|number {{math|0}}]], the [[additive identity]]\n* The [[1|number {{math|1}}]], the [[multiplicative identity]]\n* The [[pi|number {{mvar|π}}]] ({{math|1=π = 3.14159...}}), the fundamental [[circle]] constant\n* The [[e (mathematical constant)|number {{mvar|e}}]] ({{math|1=''e'' = 2.71828...}}), also known as Euler's number, which occurs widely in [[mathematical analysis]]\n* The [[Imaginary unit|number {{mvar|i}}]], the [[imaginary unit]] such that {{math|1=''i''{{sup|2}} = &minus;1}}"
+          }
+        ]
+      },
+      {
+        "id": "q10",
+        "status": "unknown",
+        "answer": "2026-10-26時点の研究者全員の同意割合の実測百分率は確定できない。これは未調査ではなく、取得した資料の説明と根拠の種類を検討した上で数値がunknownという判断である。この固定資料は2026-10-01公開dumpからの百科記事であり、対象理論や解釈の説明はできても、指定日時の研究者全員を母集団とする測定とはならない。量子状態の収縮には解釈差があり、ブラックホール熱力学の真の量子的性質も議論中と明記されている。ただし議論があることから特定割合を逆算することもできない。必要なのは、対象研究者・分野・同意する命題の定義、指定日時に対応する調査、回答数・母集団・抽出方法・未回答者の扱いなどである。確認した範囲ではそれらを備えた実測根拠を得ていない。全記事を確認したわけではなく、検索の未命中を不存在証明とも扱わない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 265,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      }
+    ],
+    "investigation": {
+      "q1": "examined",
+      "q2": "examined",
+      "q3": "examined",
+      "q4": "examined",
+      "q5": "examined",
+      "q6": "examined",
+      "q7": "examined",
+      "q8": "examined",
+      "q9": "examined",
+      "q10": "examined"
+    }
+  },
+  "C1": {
+    "answers": [
+      {
+        "id": "q1",
+        "status": "answered",
+        "answer": "正電荷が原子内に広く分散するプラム・プディング模型では、α粒子はほぼ妨げられず通過すると想定された。薄い金箔を用いたGeiger–Marsden実験で、少数ながら非常に大きな角度へ偏向する粒子が見つかったことが食い違った。Rutherfordは、原子の質量の多くと電荷がごく小さい核に集中する構造を提案した。したがって正電荷を原子全体に薄く広げる像から、小さな中心核とその外の電子という像へ進んだ。",
+        "citations": [
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 32297,
+            "length": 201,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "Rutherford was inspired to ask Geiger and Marsden in this experiment to look for alpha particles with very high deflection angles, which was not expected according to any theory of matter at that time."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 33748,
+            "length": 50,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "Such deflection angles, although rare, were found."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 34368,
+            "length": 189,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "It was Rutherford's interpretation of this data that led him to propose the [[Atomic nucleus|nucleus]], a very small, [[charge (physics)|charged]] region containing much of the atom's mass."
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "status": "answered",
+        "answer": "資料の数学的定式化では、状態ψの時間発展はSchrödinger方程式で与えられ、初期状態から後の状態を定めるユニタリで決定論的な発展である。一方、測定で得られる観測量の値は固有値であり、その確率はBorn則、非縮退なら対応する固有ベクトルとの内積の絶対値二乗で与えられる。測定結果λを得た後は、その固有状態へ、縮退の場合は対応する固有空間への射影を規格化した状態へ収縮する、とこの定式化では仮定する。これは時間発展と測定確率と測定後の規則を区別した説明である。資料自身が収縮について諸解釈が根本的に異なる答えを与えるとするため、収縮の扱いを全解釈で一致した事実とは断定できない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 21453,
+            "length": 228,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This time evolution is [[deterministic]] in the sense that&nbsp;– given an initial quantum state <math>\\psi(0)</math> – it makes a definite prediction of what the quantum state <math>\\psi(t)</math> will be at any later time."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 18871,
+            "length": 118,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "When an observable is measured, the result will be one of its eigenvalues with probability given by the [[Born rule]]:"
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 19717,
+            "length": 357,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "After the [[Measurement in quantum mechanics|measurement]], if result <math>\\lambda</math> was obtained, the quantum state is postulated to [[Collapse of the wavefunction|collapse]] to <math> \\vec\\lambda</math>, in the non-degenerate case, or to <math display=inline>P_\\lambda\\psi\\big/\\! \\sqrt{\\langle \\psi,P_\\lambda\\psi\\rangle}</math>, in the general case."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 265,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "status": "answered",
+        "answer": "Special relativityは、加速度のないすべての慣性系で物理法則が同一であることと、真空中の光速が光源・観測者の運動によらず同じであることを出発点に、空間と時間の関係を説明する。資料は1916年に一般相対論が重力の効果を含むよう拡張したと述べる。General relativityは重力を四次元時空の幾何学的性質として扱い、時空の曲率を、物質と放射を含むエネルギー・運動量・応力とEinstein方程式で結び付ける。前者の二つの慣性系に関する原理だけを、後者の重力と物質による時空の相互関係と同一視できない。",
+        "citations": [
+          {
+            "doc_id": "p0000026962.txt",
+            "start": 1370,
+            "length": 397,
+            "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17",
+            "quote": "# The [[laws of physics]] are [[Invariant (physics)|invariant]] (identical) in all [[Inertial frame of reference|inertial frames of reference]] (that is, [[Frame of reference|frames of reference]] with no [[acceleration]]). This is known as the [[principle of relativity]].\n# The [[speed of light]] in [[vacuum]] is the same for all observers, regardless of the motion of light source or observer."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 1604,
+            "length": 320,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "In particular, the [[curvature of spacetime]] is directly related to the [[energy]], [[momentum]], and [[Stress (mechanics)|stress]] of whatever is present, including [[matter]] and [[radiation]]. The relation is specified by the [[Einstein field equations]], a system of second-order [[partial differential equation]]s."
+          }
+        ]
+      },
+      {
+        "id": "q4",
+        "status": "answered",
+        "answer": "Black holeの特異点節は明示的に「量子効果を無視すると」という条件を置き、内部で時空の曲率が無限大になり、測地線が有限の固有時で終わると説明する。これはその前提下の記述であり、量子効果を含む自然界の内部構造が必ずそうなるとの無条件の断定にはできない。同じ資料は、一部の量子効果を加えた一般相対論の代替形などでは特異点のないregular black holeがあり得ることも紹介している。それが確立した最終理論だと断定することも、この資料からはできない。",
+        "citations": [
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 116728,
+            "length": 187,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]]."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 120948,
+            "length": 164,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Alternative forms of general relativity, including addition of some quantum effects, can lead to ''regular'', or ''nonsingular'', black holes without singularities."
+          }
+        ]
+      },
+      {
+        "id": "q5",
+        "status": "answered",
+        "answer": "DNAの二本鎖の塩基には相補的な対応があり、A（アデニン）はT（チミン）、G（グアニン）はC（シトシン）と対になる。したがって一方の鎖の塩基配列が、相手側へ置くべき塩基を指定できる。複製時には二本鎖を分離し、それぞれを鋳型としてDNAポリメラーゼが相補的なヌクレオチドを組み込み新しい鎖を合成する。その結果、元の鎖一本と新生鎖一本を持つ二つのDNA分子ができる半保存的複製になる。校正等により高い忠実度を保つが、資料は不完全な複製が変異を生むとも述べており、無誤差とまでは言えない。",
+        "citations": [
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 9552,
+            "length": 108,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Adenine pairs with thymine (two hydrogen bonds), and guanine pairs with cytosine (three [[hydrogen bonds]])."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 2760,
+            "length": 360,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "During replication, the two strands are separated, and each strand of the original DNA molecule then serves as a template for the production of a complementary counterpart strand, a process referred to as [[semiconservative replication]]. As a result, each replicated DNA molecule is composed of one original DNA strand as well as one newly synthesized strand."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 3576,
+            "length": 51,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Imperfect DNA replication results in [[mutation]]s."
+          }
+        ]
+      },
+      {
+        "id": "q6",
+        "status": "answered",
+        "answer": "自然選択は、個体が必要を感じて望む形へ変身するという説明ではない。集団には遺伝子型・表現型の変異があり、不完全なDNA複製は新たな変異の源になり得る。そのうち遺伝する形質について、環境下で生存や繁殖に有利な違いを持つ個体がより多く子孫を残すと、その形質が次世代へ伝わりやすくなり、世代を経て集団での頻度が変わる。選択が働く個体の生存・繁殖差と、変化を記述する集団の世代間変化を区別する必要がある。また資料は自然選択を意図的ではないとし、遺伝的浮動にも言及しているので、進化すべてを必要に応じた適応一つに還元しない。",
+        "citations": [
+          {
+            "doc_id": "p0000021147.txt",
+            "start": 1898,
+            "length": 460,
+            "sha256": "ee797d76c732f3fec9fe11b5e5fbab5d2ffa5d7fbe3b7cd29e606b71e5f29f56",
+            "quote": "[[Genetic diversity|Variation]] of traits, both [[Genotype|genotypic]] and phenotypic, exists within all populations of [[organism]]s. However, some traits are more likely to facilitate [[survival]] and [[reproductive success]]. Thus, these traits are more likely to be passed {{not a typo|on to}} the next generation. These traits can also become more [[Allele frequency|common within a population]] if the environment that favours these traits remains fixed."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 3576,
+            "length": 51,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Imperfect DNA replication results in [[mutation]]s."
+          }
+        ]
+      },
+      {
+        "id": "q7",
+        "status": "answered",
+        "answer": "該当する量はエントロピーSである。Entropyでは、自発的に変化する孤立系のエントロピーは減少しないとする第二法則により変化の向きを表し、さらに外部の最も低温の利用可能な熱浴の温度をT_RとしたときT_R Sのエネルギーは有用な仕事に使えないと説明する。Black holeでは、このエントロピーは体積ではなく事象の地平面の表面積に比例して増える。表面重力が温度に対応するという関係とは区別される。資料は量子力学を考慮するとHawking放射と非零温度が予測され、ブラックホール力学と熱力学の法則が対応するとする一方、完全な量子重力理論なしでの結論で真の量子的性質は議論中とも述べる。したがってここでの幾何学との結び付きと、最終的な量子論の確立を混同しない。",
+        "citations": [
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 1670,
+            "length": 168,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "Entropy is central to the [[second law of thermodynamics]], which states that the entropy of an isolated system left to spontaneous evolution cannot decrease with time."
+          },
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 52209,
+            "length": 230,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "More explicitly, an energy <math display=\"inline\">T_R S</math> is not available to do useful work, where <math display=\"inline\">T_R</math> is the temperature of the coldest accessible reservoir or heat sink external to the system."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 153905,
+            "length": 92,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "It also predicts that all black holes have [[entropy]] which scales with their surface area."
+          }
+        ]
+      },
+      {
+        "id": "q8",
+        "status": "answered",
+        "answer": "Turingが1936年に考案したTuring machineは、記号を書いた無限に利用可能なテープを記憶とし、有限の状態・規則に従って一セルずつ読み書きし、左右に動く計算過程を理想化する。資料では、任意の機械がcircularか、あるいは任意の機械が指定記号をいつか出力するかを判定する万能の機械の存在に否定的な答えを与え、一般の決定問題の計算不能性へつなげたと説明される。停止問題に関連して、任意の機械Mが任意の文字列sを最終的に出すかを一般に決められない、とも述べる。これはすべての入力・機械に通用して必ず答える一般手続きが存在しないという限界であり、個々の具体的計算が一切判定不能という意味ではない。",
+        "citations": [
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 6724,
+            "length": 336,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "A Turing machine is an idealised model of a [[central processing unit]] (CPU) that controls all data manipulation done by a computer, with the canonical machine using sequential memory to store data. Typically, the sequential memory is represented as a tape of infinite length on which the machine can perform read and write operations."
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 7511,
+            "length": 281,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "Given a Turing machine ''M'' and an arbitrary string ''s'', it is generally not possible to decide whether ''M'' will eventually produce ''s''. This is due to the fact that the [[halting problem]] is unsolvable, which has major implications for the theoretical limits of computing."
+          }
+        ]
+      },
+      {
+        "id": "q9",
+        "status": "answered",
+        "answer": "Eulerの等式 e^(iπ)+1=0 が結び付ける五つは、0（加法の単位元）、1（乗法の単位元）、e（自然対数の底であるEuler数、約2.71828）、π（円周と直径の比、約3.14159）、i（二乗すると−1になる虚数単位）である。基本演算は、指数部iπの乗算、eの複素指数による累乗、1を加える加算の三つがそれぞれ一度現れる。資料はEulerの公式e^(ix)=cos x+i sin xにx=πを代入した特別な場合と説明する。",
+        "citations": [
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 1938,
+            "length": 127,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "Three of the basic [[arithmetic]] operations occur exactly once each: [[addition]], [[multiplication]], and [[exponentiation]]."
+          },
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 2167,
+            "length": 497,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "* The [[0|number {{math|0}}]], the [[additive identity]]\n* The [[1|number {{math|1}}]], the [[multiplicative identity]]\n* The [[pi|number {{mvar|π}}]] ({{math|1=π = 3.14159...}}), the fundamental [[circle]] constant\n* The [[e (mathematical constant)|number {{mvar|e}}]] ({{math|1=''e'' = 2.71828...}}), also known as Euler's number, which occurs widely in [[mathematical analysis]]\n* The [[Imaginary unit|number {{mvar|i}}]], the [[imaginary unit]] such that {{math|1=''i''{{sup|2}} = &minus;1}}"
+          }
+        ]
+      },
+      {
+        "id": "q10",
+        "status": "unknown",
+        "answer": "2026-10-26時点の研究者全員の同意割合を、実測百分率としては確定できない。これは設問を未調査にした結果ではなく、取得した説明の証拠範囲に関する判断である。固定された2026-10-01公開dumpの百科記述は、理論の内容・前提・実験との一致や議論の存在を説明するが、当日の研究者母集団の定義、何への同意かという質問項目、悉皆または標本調査、回答数・非回答・測定日を備えた同意率測定を今回取得した資料は提示していない。とくに量子状態の収縮には解釈間の相違が明記され、ブラックホール内部の特異点の説明も量子効果を無視するという条件付きである。実験との整合やacceptedという記述を100%の同意率へ換算することはできない。全資料を網羅検索して統計が存在しないと証明したわけでもなく、このsnapshotだけから当日の全員の実測割合を確定する証拠が不足している。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 265,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 116728,
+            "length": 187,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]]."
+          }
+        ]
+      }
+    ],
+    "investigation": {
+      "q1": "examined",
+      "q2": "examined",
+      "q3": "examined",
+      "q4": "examined",
+      "q5": "examined",
+      "q6": "examined",
+      "q7": "examined",
+      "q8": "examined",
+      "q9": "examined",
+      "q10": "examined"
+    }
+  },
+  "C2": {
+    "answers": [
+      {
+        "id": "q1",
+        "status": "answered",
+        "answer": "広く分散した正電荷を想定するプラム・プディング模型では、α粒子は薄い金箔をほぼ乱されず通過すると期待された。しかし少数ながら非常に大きな角度に散乱される粒子が見つかった。これは電荷が広く薄く分布する像と食い違い、原子の質量の大部分と電荷が非常に小さな領域（原子核）に集中する構造像につながった。",
+        "citations": [
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 31015,
+            "length": 259,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "''Top:'' Expected results: [[alpha particle]]s passing through the [[plum pudding model]] of the atom undisturbed.<br />\n''Bottom:'' Observed results: a small portion of the particles were deflected, indicating [[Atomic nucleus|a small, concentrated charge]]."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 34368,
+            "length": 189,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "It was Rutherford's interpretation of this data that led him to propose the [[Atomic nucleus|nucleus]], a very small, [[charge (physics)|charged]] region containing much of the atom's mass."
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "status": "answered",
+        "answer": "状態の時間発展はシュレーディンガー方程式で記述する。これは測定結果そのものの確定とは別で、測定結果の確率は確率振幅の絶対値の二乗というBorn則から求める。測定後について、掲載された定式化では得られた結果に対応する固有状態（縮退時は対応部分空間への射影を規格化した状態）への収縮を仮定する。しかし資料自身が収縮を強く論争される点とし、解釈ごとに大きく異なる説明があると明記している。したがって測定後の収縮の扱いを全解釈が一致して認める事実と断定できない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20475,
+            "length": 168,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "The time evolution of a quantum state is described by the Schrödinger equation:\n<math display=block>i\\hbar {\\frac {\\partial}{\\partial t}} \\psi (t) =H \\psi (t). </math>"
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 6469,
+            "length": 212,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "Mathematically, a probability is found by taking the square of the absolute value of a [[complex number]], known as a probability amplitude. This is known as the [[Born rule]], named after physicist [[Max Born]]."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 19777,
+            "length": 583,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "if result <math>\\lambda</math> was obtained, the quantum state is postulated to [[Collapse of the wavefunction|collapse]] to <math> \\vec\\lambda</math>, in the non-degenerate case, or to <math display=inline>P_\\lambda\\psi\\big/\\! \\sqrt{\\langle \\psi,P_\\lambda\\psi\\rangle}</math>, in the general case. The [[probabilistic]] nature of quantum mechanics thus stems from the act of measurement. This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse"
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "status": "answered",
+        "answer": "Special relativityは、すべての慣性系で物理法則が同じであることと、真空の光速が光源・観測者の運動に依存しないことを出発点とする。資料では重力の効果を含める拡張をGeneral relativityとしている。後者では、自由落下し回転しない系で特殊相対論の法則がよい近似で成り立つという等価原理が指針となり、重力を時空の幾何学的性質として扱う。曲率は物質・放射のエネルギー、運動量、応力とEinstein方程式で結び付く。つまり物質と時空幾何の関係を重力の記述そのものに含める。",
+        "citations": [
+          {
+            "doc_id": "p0000026962.txt",
+            "start": 1370,
+            "length": 492,
+            "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17",
+            "quote": "# The [[laws of physics]] are [[Invariant (physics)|invariant]] (identical) in all [[Inertial frame of reference|inertial frames of reference]] (that is, [[Frame of reference|frames of reference]] with no [[acceleration]]). This is known as the [[principle of relativity]].\n# The [[speed of light]] in [[vacuum]] is the same for all observers, regardless of the motion of light source or observer. This is known as the principle of light constancy, or the principle of light speed invariance."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 1315,
+            "length": 609,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "General [[theory of relativity|relativity]] generalizes [[special relativity]] and refines [[Isaac Newton]]'s [[law of universal gravitation]], providing a unified description of gravity as a geometric property of [[space]] and [[time in physics|time]], or four-dimensional [[spacetime]]. In particular, the [[curvature of spacetime]] is directly related to the [[energy]], [[momentum]], and [[Stress (mechanics)|stress]] of whatever is present, including [[matter]] and [[radiation]]. The relation is specified by the [[Einstein field equations]], a system of second-order [[partial differential equation]]s."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 24505,
+            "length": 315,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "the laws of special relativity hold to good approximation in freely falling (and non-rotating) reference frames, is known as the [[Equivalence Principle#The Einstein equivalence principle|Einstein equivalence principle]], a crucial guiding principle for generalizing special-relativistic physics to include gravity."
+          }
+        ]
+      },
+      {
+        "id": "q4",
+        "status": "answered",
+        "answer": "Black holeの記事は、曲率が無限大となり測地線が有限の固有時で終わる内部特異点について、明示的に『量子効果を無視すると』という条件を付けている。従ってこれは量子効果を含めた無条件の実証的結論ではない。同記事には量子効果を一部加えた代替理論では特異点のないブラックホールも生じ得るという記述があり、この前提を外した断定にしてはいけない。",
+        "citations": [
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 116728,
+            "length": 187,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]]."
+          }
+        ]
+      },
+      {
+        "id": "q5",
+        "status": "answered",
+        "answer": "DNAの二本鎖は塩基の相補性を持ち、アデニンAはチミンT、グアニンGはシトシンCと対になる。この対応によって一方の塩基配列から相補的な他方の配列が定まる。複製では二本鎖を分離し、それぞれを鋳型に相補的なヌクレオチドを加えて新しい鎖を合成する。結果として元の鎖一本と新しい鎖一本を持つ二重鎖がそれぞれ作られる半保存的複製となり、配列の情報が受け継がれる。",
+        "citations": [
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 9552,
+            "length": 108,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Adenine pairs with thymine (two hydrogen bonds), and guanine pairs with cytosine (three [[hydrogen bonds]])."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 2760,
+            "length": 360,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "During replication, the two strands are separated, and each strand of the original DNA molecule then serves as a template for the production of a complementary counterpart strand, a process referred to as [[semiconservative replication]]. As a result, each replicated DNA molecule is composed of one original DNA strand as well as one newly synthesized strand."
+          }
+        ]
+      },
+      {
+        "id": "q6",
+        "status": "answered",
+        "answer": "自然選択で変わるのは世代を経た集団の遺伝する形質の構成であり、個体が必要に応じて目的の形へ変身するという説明ではない。個体間に形質の変異があり、DNA複製の不完全さによる突然変異も変異の供給源となる。遺伝する差が生存・繁殖成功の差に結び付くと、より多くの子孫へ伝わる形質が次世代の集団で増え得る。適応度は単なる寿命ではなく繁殖成功であり、資料は寿命が半分でも成体になる子孫が二倍なら、その遺伝子が次世代で多くなる例を挙げる。獲得形質が必要性だけで自動的に遺伝すると仮定する説明とは区別する。",
+        "citations": [
+          {
+            "doc_id": "p0000021147.txt",
+            "start": 328,
+            "length": 445,
+            "sha256": "ee797d76c732f3fec9fe11b5e5fbab5d2ffa5d7fbe3b7cd29e606b71e5f29f56",
+            "quote": "'''Natural selection''' is the differential survival and reproduction of individuals due to differences in the relative fitness endowed on them by their own particular complement of [[phenotype|observable characteristics]]. It is a key law or mechanism of [[evolution]] which changes the [[Heredity|heritable traits]] characteristic of a [[population (biology)|population<!--key concept in Darwinian biology-->]] or [[species]] over generations."
+          },
+          {
+            "doc_id": "p0000021147.txt",
+            "start": 43507,
+            "length": 314,
+            "sha256": "ee797d76c732f3fec9fe11b5e5fbab5d2ffa5d7fbe3b7cd29e606b71e5f29f56",
+            "quote": "Modern evolutionary theory defines fitness not by how long an organism lives, but by how successful it is at reproducing. If an organism lives half as long as others of its species, but has twice as many offspring surviving to adulthood, its genes become more common in the adult population of the next generation."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 3576,
+            "length": 51,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Imperfect DNA replication results in [[mutation]]s."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 2760,
+            "length": 360,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "During replication, the two strands are separated, and each strand of the original DNA molecule then serves as a template for the production of a complementary counterpart strand, a process referred to as [[semiconservative replication]]. As a result, each replicated DNA molecule is composed of one original DNA strand as well as one newly synthesized strand."
+          }
+        ]
+      },
+      {
+        "id": "q7",
+        "status": "answered",
+        "answer": "二つの記事を照合すると、結び付くのはエントロピーSとブラックホールの事象の地平面の表面積である。Entropyの記事では、孤立系の自発変化でエントロピーは減少せず、平衡で最大となるという熱的変化の方向を説明する。Black holeの記事では、エントロピーは地平面の面積に比例して増えると記す。古典的一般相対論だけではブラックホール力学と熱力学は数学的類似であり、量子論のHawking放射と非零温度を含めると熱力学との対応が成立するという区別も必要である。仕事に関しては熱をすべて自由に仕事へ変えられるという意味ではなく、第二法則による利用可能性の制約の文脈である。完全な量子重力理論に基づく最終確定とまでは資料は述べていない。",
+        "citations": [
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 1670,
+            "length": 293,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "Entropy is central to the [[second law of thermodynamics]], which states that the entropy of an isolated system left to spontaneous evolution cannot decrease with time. As a result, [[Isolated system|isolated systems]] evolve toward [[thermodynamic equilibrium]], where the entropy is highest."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 152178,
+            "length": 100,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "A black hole's entropy [[Direct proportionality|scales]] with the surface area of its event horizon."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 153756,
+            "length": 374,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Quantum mechanics predicts that a black hole will continuously emit thermal Hawking radiation, and therefore must always have a nonzero temperature. It also predicts that all black holes have [[entropy]] which scales with their surface area. When quantum mechanics is accounted for, the laws of black hole mechanics become equivalent to the classical laws of thermodynamics."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      },
+      {
+        "id": "q8",
+        "status": "answered",
+        "answer": "1936年のTuring machineは、有限の状態・記号・規則で、必要に応じて無限に延ばせるテープを読み書きする機械的な計算手続きを理想化する。実機の有限メモリなどの制約を捨象した数学的モデルである。任意の機械・入力について停止するか、ある文字列・記号をいつか出力するかを、すべての場合に正しく判定する一般的手続きは存在しないという限界を論じる。資料はこれを停止問題およびEntscheidungsproblemの非計算可能性と関連付けている。これは個々の計算が一件も判定できないという意味ではなく、任意の事例すべてを解く万能な判定法がないという意味である。",
+        "citations": [
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 6724,
+            "length": 336,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "A Turing machine is an idealised model of a [[central processing unit]] (CPU) that controls all data manipulation done by a computer, with the canonical machine using sequential memory to store data. Typically, the sequential memory is represented as a tape of infinite length on which the machine can perform read and write operations."
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 9880,
+            "length": 254,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "Operation is fully determined by a finite set of elementary instructions such as \"in state 42, if the symbol seen is 0, write a 1; if the symbol seen is 1, change into state 17; in state 17, if the symbol seen is 0, write a 1 and change to state 6\"; etc."
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 7511,
+            "length": 281,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "Given a Turing machine ''M'' and an arbitrary string ''s'', it is generally not possible to decide whether ''M'' will eventually produce ''s''. This is due to the fact that the [[halting problem]] is unsolvable, which has major implications for the theoretical limits of computing."
+          }
+        ]
+      },
+      {
+        "id": "q9",
+        "status": "answered",
+        "answer": "等式は e^(iπ)+1=0。五つの定数は、0（加法の単位元）、1（乗法の単位元）、π（円周と直径の比を表す円の定数）、e（自然対数の底）、i（i²=-1を満たす虚数単位）である。基本演算は加法、乗法、累乗がそれぞれ一度現れる。iπが乗法、e^(iπ)が累乗、最後の+1が加法に対応する。",
+        "citations": [
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 1938,
+            "length": 726,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "Three of the basic [[arithmetic]] operations occur exactly once each: [[addition]], [[multiplication]], and [[exponentiation]]. The identity also links five fundamental [[mathematical constant]]s:<ref>Paulos, 1992, p. 117.</ref>\n* The [[0|number {{math|0}}]], the [[additive identity]]\n* The [[1|number {{math|1}}]], the [[multiplicative identity]]\n* The [[pi|number {{mvar|π}}]] ({{math|1=π = 3.14159...}}), the fundamental [[circle]] constant\n* The [[e (mathematical constant)|number {{mvar|e}}]] ({{math|1=''e'' = 2.71828...}}), also known as Euler's number, which occurs widely in [[mathematical analysis]]\n* The [[Imaginary unit|number {{mvar|i}}]], the [[imaginary unit]] such that {{math|1=''i''{{sup|2}} = &minus;1}}"
+          }
+        ]
+      },
+      {
+        "id": "q10",
+        "status": "unknown",
+        "answer": "2026-10-26時点に現在の研究者全員が同意している割合を、実測百分率としてこの資料だけから確定することはできない。確認できたのは2026-10-01公開dumpに固定された百科記事の説明・引用であり、全研究者を母集団とした当日の調査結果ではない。特に量子状態の収縮は解釈ごとに異なる説明があり、ブラックホール熱力学にも完全な量子重力理論がなく議論が続くと明記される。実験に理論予測がよく一致することと研究者の同意率は別の量である。対象研究者の定義、何への同意かという質問項目、調査日、母集団・標本・回答数、収集方法と集計結果が不足しており、数値はunknown。これは該当論点を未調査という意味ではなく、取得した関連記事では求める実測値を確定できないという限定である。全資料に調査が存在しないと証明したものでもない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 19777,
+            "length": 583,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "if result <math>\\lambda</math> was obtained, the quantum state is postulated to [[Collapse of the wavefunction|collapse]] to <math> \\vec\\lambda</math>, in the non-degenerate case, or to <math display=inline>P_\\lambda\\psi\\big/\\! \\sqrt{\\langle \\psi,P_\\lambda\\psi\\rangle}</math>, in the general case. The [[probabilistic]] nature of quantum mechanics thus stems from the act of measurement. This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse"
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      }
+    ],
+    "investigation": {
+      "q1": "examined",
+      "q2": "examined",
+      "q3": "examined",
+      "q4": "examined",
+      "q5": "examined",
+      "q6": "examined",
+      "q7": "examined",
+      "q8": "examined",
+      "q9": "examined",
+      "q10": "examined"
+    }
+  },
+  "C3": {
+    "answers": [
+      {
+        "id": "q1",
+        "status": "answered",
+        "answer": "広く分散した正電荷を想定するプラムプディング模型では、α粒子はほぼ乱されずに金箔を通過すると期待された。しかし実際には少数ながら非常に大きな角度で散乱する粒子があった。この結果は電荷の広い分散と食い違い、原子の質量の大部分と電荷が非常に小さい領域に集中した原子核という構造像につながった。",
+        "citations": [
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 31015,
+            "length": 259,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "''Top:'' Expected results: [[alpha particle]]s passing through the [[plum pudding model]] of the atom undisturbed.<br />\n''Bottom:'' Observed results: a small portion of the particles were deflected, indicating [[Atomic nucleus|a small, concentrated charge]]."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 33748,
+            "length": 50,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "Such deflection angles, although rare, were found."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 34472,
+            "length": 85,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "a very small, [[charge (physics)|charged]] region containing much of the atom's mass."
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "status": "answered",
+        "answer": "状態の時間発展はシュレーディンガー方程式で記述され、初期状態から後の状態を決定するユニタリーで決定論的な変化である。一方、個々の測定結果にはBorn則を使い、確率振幅の絶対値の二乗から確率を得る。測定後には、得られた固有値に対応する固有状態（縮退時には対応する部分空間へ射影して正規化した状態）へ収縮すると仮定する記述がある。しかし収縮の意味や扱いには解釈ごとに大きな違いがあり、全解釈で一致した実在的な過程と断定できない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 7121,
+            "length": 182,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "The [[Schrödinger equation]] relates the collection of probability amplitudes that pertain to one moment of time to the collection of probability amplitudes that pertain to another."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 6485,
+            "length": 196,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "a probability is found by taking the square of the absolute value of a [[complex number]], known as a probability amplitude. This is known as the [[Born rule]], named after physicist [[Max Born]]."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 195,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse"
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "status": "answered",
+        "answer": "Special relativityは、すべての慣性系で物理法則が同一であることと、光源・観測者の運動にかかわらず真空中の光速が同一であることを出発点として空間と時間の関係を述べる。General relativityはこれを一般化して重力を時空の幾何学的性質として扱う。時空の曲率は物質だけでなく放射を含むエネルギー・運動量・応力と関係し、Einstein方程式がその関係を与える。したがって前者の慣性系と光速の原理だけの説明に、後者の重力と物質による曲率の動的な関係をそのまま同一視してはならない。",
+        "citations": [
+          {
+            "doc_id": "p0000026962.txt",
+            "start": 1372,
+            "length": 395,
+            "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17",
+            "quote": "The [[laws of physics]] are [[Invariant (physics)|invariant]] (identical) in all [[Inertial frame of reference|inertial frames of reference]] (that is, [[Frame of reference|frames of reference]] with no [[acceleration]]). This is known as the [[principle of relativity]].\n# The [[speed of light]] in [[vacuum]] is the same for all observers, regardless of the motion of light source or observer."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 1604,
+            "length": 320,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "In particular, the [[curvature of spacetime]] is directly related to the [[energy]], [[momentum]], and [[Stress (mechanics)|stress]] of whatever is present, including [[matter]] and [[radiation]]. The relation is specified by the [[Einstein field equations]], a system of second-order [[partial differential equation]]s."
+          }
+        ]
+      },
+      {
+        "id": "q4",
+        "status": "answered",
+        "answer": "Black holeの記事は、曲率の発散と有限の固有時での測地線の終端を『量子効果を無視して』述べている。これはその前提での特異点の説明であり、量子効果を含めても必ず同じ構造が実在すると断定してよいわけではない。取得したGeneral relativityの記事でも量子物理との整合は未解決とされるため、量子効果を外した無条件の結論へ広げられない。",
+        "citations": [
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 116728,
+            "length": 187,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]]."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      },
+      {
+        "id": "q5",
+        "status": "answered",
+        "answer": "DNAの塩基には相補的な対応があり、アデニンAはチミンT、グアニンGはシトシンCと対になる。このため一方の塩基配列から対応する他方の配列を決められる。複製時には二本鎖が分離し、それぞれが鋳型となり、DNAポリメラーゼが相補的なヌクレオチドを取り込んで新しい鎖を合成する。結果として各DNA分子は元の鎖一本と新生鎖一本を持つ半保存的複製となり、配列に符号化された情報が受け継がれる。",
+        "citations": [
+          {
+            "doc_id": "p0000007955.txt",
+            "start": 14293,
+            "length": 113,
+            "sha256": "7c8fb2e63015d26953a9e90548d4c5cecb03a9c95da5e8166f098b616539377c",
+            "quote": "Adenine pairs with thymine and guanine pairs with cytosine, forming {{mono|A-T}} and {{mono|G-C}} [[base pair]]s."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 2760,
+            "length": 360,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "During replication, the two strands are separated, and each strand of the original DNA molecule then serves as a template for the production of a complementary counterpart strand, a process referred to as [[semiconservative replication]]. As a result, each replicated DNA molecule is composed of one original DNA strand as well as one newly synthesized strand."
+          }
+        ]
+      },
+      {
+        "id": "q6",
+        "status": "answered",
+        "answer": "自然選択で変わるのは世代を経た集団内の遺伝する形質の頻度である。個体が必要を感じて目的どおりに形を変えるという説明ではない。突然変異は遺伝的多様性という選択の材料を供給し、集団には遺伝子型・表現型の変異がある。そのうち環境のもとで生存や繁殖に有利な遺伝する形質を持つ個体が、平均してより多くの子孫へその形質を伝えることで、その形質が世代を経て一般的になりうる。自然選択は意図的な過程とはされていない。また資料は遺伝的浮動にも触れており、集団のすべての変化を自然選択だけに還元しない。",
+        "citations": [
+          {
+            "doc_id": "p0000021147.txt",
+            "start": 328,
+            "length": 223,
+            "sha256": "ee797d76c732f3fec9fe11b5e5fbab5d2ffa5d7fbe3b7cd29e606b71e5f29f56",
+            "quote": "'''Natural selection''' is the differential survival and reproduction of individuals due to differences in the relative fitness endowed on them by their own particular complement of [[phenotype|observable characteristics]]."
+          },
+          {
+            "doc_id": "p0000021147.txt",
+            "start": 28480,
+            "length": 148,
+            "sha256": "ee797d76c732f3fec9fe11b5e5fbab5d2ffa5d7fbe3b7cd29e606b71e5f29f56",
+            "quote": "mutation, [[mutationism|once seen as a rival]] to selection, actually supplied the raw material for natural selection by creating genetic diversity."
+          },
+          {
+            "doc_id": "p0000021147.txt",
+            "start": 2033,
+            "length": 325,
+            "sha256": "ee797d76c732f3fec9fe11b5e5fbab5d2ffa5d7fbe3b7cd29e606b71e5f29f56",
+            "quote": "However, some traits are more likely to facilitate [[survival]] and [[reproductive success]]. Thus, these traits are more likely to be passed {{not a typo|on to}} the next generation. These traits can also become more [[Allele frequency|common within a population]] if the environment that favours these traits remains fixed."
+          }
+        ]
+      },
+      {
+        "id": "q7",
+        "status": "answered",
+        "answer": "熱力学側の量はエントロピーである。Entropyの記事では孤立系の自発変化でエントロピーは減少せず、平衡で最大になるとされ、熱的変化の向きや不可逆性を制約する。熱から仕事を得る議論とも関係する。Black holeの記事と照合すると、ブラックホールのエントロピーは内部体積ではなく事象の地平面の表面積に対応し、それに比例して増える。古典的一般相対論だけではブラックホール力学と熱力学は数学的類似だが、量子効果を考慮したHawking放射・非零温度・面積に対応するエントロピーによって結び付く。ただし完全な量子重力理論を前提とした確定的な実測説明ではなく、量子的本性には議論が残る。",
+        "citations": [
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 1670,
+            "length": 168,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "Entropy is central to the [[second law of thermodynamics]], which states that the entropy of an isolated system left to spontaneous evolution cannot decrease with time."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 152178,
+            "length": 100,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "A black hole's entropy [[Direct proportionality|scales]] with the surface area of its event horizon."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      },
+      {
+        "id": "q8",
+        "status": "answered",
+        "answer": "1936年のTuring machineは、有限個の状態と規則で記号を読み書きする機械的な計算手続きを理想化する。必要な記憶容量の制限を取り払い、無限長の区切られたテープと読み書きヘッドを使う数学的モデルである。任意の機械と入力について停止するか、ある文字列をいつか出力するか等を常に正しく判定する一般手続きは存在しない。記事はこの計算モデルでEntscheidungsproblemの計算不能性も説明している。これはすべての個々の計算の停止が一切判定不能という意味ではなく、あらゆる場合に適用できる単一の一般判定法がないという限界である。",
+        "citations": [
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 6724,
+            "length": 336,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "A Turing machine is an idealised model of a [[central processing unit]] (CPU) that controls all data manipulation done by a computer, with the canonical machine using sequential memory to store data. Typically, the sequential memory is represented as a tape of infinite length on which the machine can perform read and write operations."
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 7511,
+            "length": 281,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "Given a Turing machine ''M'' and an arbitrary string ''s'', it is generally not possible to decide whether ''M'' will eventually produce ''s''. This is due to the fact that the [[halting problem]] is unsolvable, which has major implications for the theoretical limits of computing."
+          }
+        ]
+      },
+      {
+        "id": "q9",
+        "status": "answered",
+        "answer": "Eulerの等式 e^(iπ)+1=0 は五つの基本定数を結ぶ。0は加法の単位元、1は乗法の単位元、πは円周と直径の比である円の定数、eは自然対数の底、iはi²=−1を満たす虚数単位である。式には加法、乗法（iπ）、指数演算が各一回現れる。Eulerの公式 e^(ix)=cos x+i sin x にx=πを入れた特別な場合としても説明される。",
+        "citations": [
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 1938,
+            "length": 127,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "Three of the basic [[arithmetic]] operations occur exactly once each: [[addition]], [[multiplication]], and [[exponentiation]]."
+          },
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 2167,
+            "length": 497,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "* The [[0|number {{math|0}}]], the [[additive identity]]\n* The [[1|number {{math|1}}]], the [[multiplicative identity]]\n* The [[pi|number {{mvar|π}}]] ({{math|1=π = 3.14159...}}), the fundamental [[circle]] constant\n* The [[e (mathematical constant)|number {{mvar|e}}]] ({{math|1=''e'' = 2.71828...}}), also known as Euler's number, which occurs widely in [[mathematical analysis]]\n* The [[Imaginary unit|number {{mvar|i}}]], the [[imaginary unit]] such that {{math|1=''i''{{sup|2}} = &minus;1}}"
+          }
+        ]
+      },
+      {
+        "id": "q10",
+        "status": "answered",
+        "answer": "確定できない。これは2026-10-01公開dumpに固定した百科記事のsnapshotであり、2026-10-26現在の研究者全員を対象に同意の有無を測定した調査ではない。取得した記事では理論の実験的成功や広い受容の説明と同時に、量子測定の解釈差、量子重力の未完成、ブラックホール熱力学の量子的本性への議論も記される。これらから全研究者の同意率を100%などの実測百分率に換算できない。今回調査した範囲では、その時点の母集団、同意の対象と定義、調査方法、人数・分母・回答率・実施日を備えた調査データを取得しておらず、実測値はunknownである。全資料に調査が絶対に存在しないという全件検証もしていない。この問自体は調査済みで、未調査とは区別する。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20165,
+            "length": 195,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse"
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 154442,
+            "length": 256,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "However, these conclusions are derived without a complete theory of quantum gravity, although many potential theories do predict black holes having entropy and temperature. Thus, the true quantum nature of black hole thermodynamics continues to be debated."
+          }
+        ]
+      }
+    ],
+    "investigation": {
+      "q1": "examined",
+      "q2": "examined",
+      "q3": "examined",
+      "q4": "examined",
+      "q5": "examined",
+      "q6": "examined",
+      "q7": "examined",
+      "q8": "examined",
+      "q9": "examined",
+      "q10": "examined"
+    }
+  },
+  "C4": {
+    "answers": [
+      {
+        "id": "q1",
+        "status": "answered",
+        "answer": "薄い金箔を通るα粒子のうち、少数ながら非常に大きな角度で偏向するものが観測された。正電荷が原子全体に薄く広がるプラム・プディング模型でほぼ妨げられず通過するという予想と食い違う。資料は、この結果から、電荷と原子の質量の大部分が非常に小さい領域（原子核）に集中し、その外側に電子の領域がある構造像が提案されたと説明する。",
+        "citations": [
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 33748,
+            "length": 50,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "Such deflection angles, although rare, were found."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 31136,
+            "length": 229,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "''Bottom:'' Observed results: a small portion of the particles were deflected, indicating [[Atomic nucleus|a small, concentrated charge]]. Diagram is not to scale; in reality the nucleus is vastly smaller than the electron shell."
+          },
+          {
+            "doc_id": "p0000009603.txt",
+            "start": 34368,
+            "length": 189,
+            "sha256": "bc73be5a9c4c2eb827c28a68ce01f717f2f4acb3818923d7346ee8d6060f786c",
+            "quote": "It was Rutherford's interpretation of this data that led him to propose the [[Atomic nucleus|nucleus]], a very small, [[charge (physics)|charged]] region containing much of the atom's mass."
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "status": "answered",
+        "answer": "状態の時間変化はシュレーディンガー方程式が異なる時刻の確率振幅を結ぶこととして記述される。測定結果の確率は振幅の絶対値の二乗で与えるボルン則であり、状態の時間変化そのものと同一ではない。測定後について記事の定式化は、得た固有値に対応する固有状態へ（縮退がある一般の場合は対応する固有空間への正規化した射影へ）状態が収縮すると仮定する。しかし収縮の意味・扱いには解釈間で大きな違いがあるため、全解釈が同じ物理過程として認めた事実とは断定できない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 7121,
+            "length": 182,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "The [[Schrödinger equation]] relates the collection of probability amplitudes that pertain to one moment of time to the collection of probability amplitudes that pertain to another."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 6469,
+            "length": 212,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "Mathematically, a probability is found by taking the square of the absolute value of a [[complex number]], known as a probability amplitude. This is known as the [[Born rule]], named after physicist [[Max Born]]."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 19717,
+            "length": 357,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "After the [[Measurement in quantum mechanics|measurement]], if result <math>\\lambda</math> was obtained, the quantum state is postulated to [[Collapse of the wavefunction|collapse]] to <math> \\vec\\lambda</math>, in the non-degenerate case, or to <math display=inline>P_\\lambda\\psi\\big/\\! \\sqrt{\\langle \\psi,P_\\lambda\\psi\\rangle}</math>, in the general case."
+          },
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20075,
+            "length": 355,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "The [[probabilistic]] nature of quantum mechanics thus stems from the act of measurement. This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "status": "answered",
+        "answer": "『Special relativity』は、慣性系すべてで物理法則が同一であることと、真空中の光速が光源・観測者の運動によらず同じことを出発点とする。空間と時間の関係を扱い、重力の効果を含める拡張は一般相対論に置いている。『General relativity』は特殊相対論を一般化し、重力を四次元時空の幾何学的性質として記述する。時空の曲率は物質や放射を含むエネルギー・運動量・応力とアインシュタイン方程式で結ばれ、物質は時空の幾何学に従って運動する。したがって慣性系と光速の二公準による時空記述と、物質・放射が時空の曲率を決め重力として作用する記述を区別する。",
+        "citations": [
+          {
+            "doc_id": "p0000026962.txt",
+            "start": 1370,
+            "length": 492,
+            "sha256": "db309f61b5fc5c15255dc4e1363912bd7e78dfb87c18b6700c01259e4f3f4e17",
+            "quote": "# The [[laws of physics]] are [[Invariant (physics)|invariant]] (identical) in all [[Inertial frame of reference|inertial frames of reference]] (that is, [[Frame of reference|frames of reference]] with no [[acceleration]]). This is known as the [[principle of relativity]].\n# The [[speed of light]] in [[vacuum]] is the same for all observers, regardless of the motion of light source or observer. This is known as the principle of light constancy, or the principle of light speed invariance."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 1604,
+            "length": 320,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "In particular, the [[curvature of spacetime]] is directly related to the [[energy]], [[momentum]], and [[Stress (mechanics)|stress]] of whatever is present, including [[matter]] and [[radiation]]. The relation is specified by the [[Einstein field equations]], a system of second-order [[partial differential equation]]s."
+          }
+        ]
+      },
+      {
+        "id": "q4",
+        "status": "answered",
+        "answer": "『Black hole』は明示的に『量子効果を無視すると』という前提で、内部に曲率が無限大となり測地線が有限の固有時で終わる特異点があると説明している。これは量子効果まで含む内部の直接測定結果ではない。記事には量子効果を加えた代替的な理論で特異点のないブラックホールもあり得るとの記述があり、量子重力との整合も未解決とされる。前提を取り去って現実の全ブラックホールに無条件で特異点があると断定することはできない。",
+        "citations": [
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 116728,
+            "length": 187,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]]."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 3297,
+            "length": 187,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "Reconciliation of general relativity with the laws of [[quantum mechanics|quantum physics]] remains a problem, however, as no self-consistent theory of [[quantum gravity]] has been found."
+          }
+        ]
+      },
+      {
+        "id": "q5",
+        "status": "answered",
+        "answer": "二本のDNA鎖は塩基の相補性で対応するため、一方の配列が他方を作る鋳型になる。A（アデニン）はT（チミン）、G（グアニン）はC（シトシン）と対になる。複製では二本を分離し、それぞれの元の鎖に対応するヌクレオチドをDNAポリメラーゼが取り込んで新鎖を合成する。結果は、元の鎖一本と新たな鎖一本からなるDNA分子二つという半保存的複製で、配列情報が受け継がれる。校正・誤り検査は高い忠実度を与えるが、無誤りという意味ではない。",
+        "citations": [
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 2760,
+            "length": 360,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "During replication, the two strands are separated, and each strand of the original DNA molecule then serves as a template for the production of a complementary counterpart strand, a process referred to as [[semiconservative replication]]. As a result, each replicated DNA molecule is composed of one original DNA strand as well as one newly synthesized strand."
+          },
+          {
+            "doc_id": "p0000009015.txt",
+            "start": 9552,
+            "length": 108,
+            "sha256": "f740a44ad649263252cc4b76e22a593efe904bfdce96ebc6df9892de8f33e1a7",
+            "quote": "Adenine pairs with thymine (two hydrogen bonds), and guanine pairs with cytosine (three [[hydrogen bonds]])."
+          }
+        ]
+      },
+      {
+        "id": "q6",
+        "status": "answered",
+        "answer": "進化は集団の遺伝する特徴が世代を経て変化することであり、個体が必要を感じて形を変える説明ではない。突然変異は新たな遺伝的変異を導入する。個体間に遺伝する特徴の差があり、その特徴が生存・繁殖に影響すると、残す生存子孫数に差ができ、環境に有利な特徴を持つ親の子孫が後世代で相対的に増える。こうして変異の頻度が変わるのが自然選択である。記事は遺伝的浮動や遺伝子流動も挙げており、すべての変化を必要性や適応だけで説明するものではない。外見が変わらずとも遺伝子変異の頻度は変わり得る。",
+        "citations": [
+          {
+            "doc_id": "p0000009236.txt",
+            "start": 1109,
+            "length": 327,
+            "sha256": "d11199cb75c9e6b5084e066e9a77194cee11bd32e17537dcb88c814c055fff3f",
+            "quote": "It happens when individuals in a population vary in their genetic characteristics and in the numbers of their surviving offspring. Mutation introduces new genetic variation, and processes such as [[genetic drift]], [[gene flow]], and [[natural selection]] result in some genetic variants becoming more or less common over time."
+          }
+        ]
+      },
+      {
+        "id": "q7",
+        "status": "answered",
+        "answer": "対応する量はエントロピーSである。『Entropy』では孤立系の自発変化でエントロピーが減少せず、平衡へ向かうことが変化の向きを表す。また、外部で利用できる最冷の熱浴温度をT_RとするとT_R Sのエネルギーは有用な仕事にできないと説明する。『Black hole』ではブラックホールのエントロピーは事象の地平面の表面積に比例する（体積ではない）。ただし量子力学を含めることで熱的な放射・非零温度を扱う説明であり、量子力学を含めない一般相対論の面積法則は熱力学法則の数学的類似にとどまる。記事は完全な量子重力理論に基づく結論ではなく、真の量子的性質には議論が続くとも留保する。",
+        "citations": [
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 1670,
+            "length": 293,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "Entropy is central to the [[second law of thermodynamics]], which states that the entropy of an isolated system left to spontaneous evolution cannot decrease with time. As a result, [[Isolated system|isolated systems]] evolve toward [[thermodynamic equilibrium]], where the entropy is highest."
+          },
+          {
+            "doc_id": "p0000009891.txt",
+            "start": 52209,
+            "length": 230,
+            "sha256": "d10e14f943d5a63a6223e7f26e3f315ad08e4d87491ba74df028d1bbf6760a26",
+            "quote": "More explicitly, an energy <math display=\"inline\">T_R S</math> is not available to do useful work, where <math display=\"inline\">T_R</math> is the temperature of the coldest accessible reservoir or heat sink external to the system."
+          },
+          {
+            "doc_id": "p0000004650.txt",
+            "start": 153905,
+            "length": 225,
+            "sha256": "a5bce16e5e7ccc5a975c06515f73d83a9dd3c9f4c0e9b979fc39cfac3ff9f284",
+            "quote": "It also predicts that all black holes have [[entropy]] which scales with their surface area. When quantum mechanics is accounted for, the laws of black hole mechanics become equivalent to the classical laws of thermodynamics."
+          }
+        ]
+      },
+      {
+        "id": "q8",
+        "status": "answered",
+        "answer": "1936年のチューリング機械である。有限の状態と記号、読み書きするヘッド、規則表によって計算を行い、必要な記憶を無限長のテープとして理想化する。記事は、任意の機械が計算を継続できなくなる『circular』か、ある記号をいつか出力するかを一般的に判定する機械は存在しないとし、停止問題の解けなさや決定問題の計算不能性に結び付ける。ここで否定されるのは任意の機械・入力をすべて正しく判定できる一般手続きである。個別の計算に停止・非停止の証明や判定が一切できないという意味ではない。",
+        "citations": [
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 7511,
+            "length": 281,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "Given a Turing machine ''M'' and an arbitrary string ''s'', it is generally not possible to decide whether ''M'' will eventually produce ''s''. This is due to the fact that the [[halting problem]] is unsolvable, which has major implications for the theoretical limits of computing."
+          },
+          {
+            "doc_id": "p0000030403.txt",
+            "start": 6724,
+            "length": 336,
+            "sha256": "eb4d0a49532fb2f7c5baeef11c8c202d57f3646360a5c210badb8441fbb84d75",
+            "quote": "A Turing machine is an idealised model of a [[central processing unit]] (CPU) that controls all data manipulation done by a computer, with the canonical machine using sequential memory to store data. Typically, the sequential memory is represented as a tape of infinite length on which the machine can perform read and write operations."
+          }
+        ]
+      },
+      {
+        "id": "q9",
+        "status": "answered",
+        "answer": "オイラーの等式 e^(iπ)+1=0 である。五つの定数は、加法の単位元0、乗法の単位元1、円周と直径の比である円定数π、自然対数の底e（解析学で広く現れる数）、i²=-1を満たす虚数単位i。基本演算は加法、乗法（指数のiπ）、累乗がそれぞれ一回ずつ現れる。記事はこれをオイラーの公式e^(ix)=cos x+i sin xでx=πとした特殊例と説明する。",
+        "citations": [
+          {
+            "doc_id": "p0000046740.txt",
+            "start": 1938,
+            "length": 726,
+            "sha256": "5da753556045ae58614c3d8d03ff4a592cbf48d0f276da255e6c4ec85c013319",
+            "quote": "Three of the basic [[arithmetic]] operations occur exactly once each: [[addition]], [[multiplication]], and [[exponentiation]]. The identity also links five fundamental [[mathematical constant]]s:<ref>Paulos, 1992, p. 117.</ref>\n* The [[0|number {{math|0}}]], the [[additive identity]]\n* The [[1|number {{math|1}}]], the [[multiplicative identity]]\n* The [[pi|number {{mvar|π}}]] ({{math|1=π = 3.14159...}}), the fundamental [[circle]] constant\n* The [[e (mathematical constant)|number {{mvar|e}}]] ({{math|1=''e'' = 2.71828...}}), also known as Euler's number, which occurs widely in [[mathematical analysis]]\n* The [[Imaginary unit|number {{mvar|i}}]], the [[imaginary unit]] such that {{math|1=''i''{{sup|2}} = &minus;1}}"
+          }
+        ]
+      },
+      {
+        "id": "q10",
+        "status": "answered",
+        "answer": "確定できない。取得した資料は2026-10-01公開dumpから固定された百科記事であり、2026-10-26時点の研究者全員の同意を実測する調査ではない。理論の実験的成功や『accepted description』という記述から、同意率100%などの百分率は導けない。量子状態の収縮は解釈で扱いが異なり、一般相対論と量子物理の整合にも未解決点があるという本文を確認したが、これは不同意者の割合を定量化する証拠でもない。確定には『研究者』の母集団、対象とする理論・命題と同意の定義、対象日時、回答数と分母、全数調査または標本抽出・無回答・不確実性の情報を備えた調査が必要である。取得範囲にその測定根拠はなく、資料全体に存在しないと網羅的に証明したわけでもない。百分率はunknownであり、未調査扱いではない。",
+        "citations": [
+          {
+            "doc_id": "p0000025202.txt",
+            "start": 20075,
+            "length": 355,
+            "sha256": "1f074d390d28899dfd44380e14f7b413f10afe9c08bcb88e92c85bd0c3b509a4",
+            "quote": "The [[probabilistic]] nature of quantum mechanics thus stems from the act of measurement. This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]]."
+          },
+          {
+            "doc_id": "p0000012024.txt",
+            "start": 3297,
+            "length": 187,
+            "sha256": "6ce63f2cb87a7edca2b346a8f6dbaaaa3cce77fcaa3d82b4b05d0687a4ab4d10",
+            "quote": "Reconciliation of general relativity with the laws of [[quantum mechanics|quantum physics]] remains a problem, however, as no self-consistent theory of [[quantum gravity]] has been found."
+          }
+        ]
+      }
+    ],
+    "investigation": {
+      "q1": "examined",
+      "q2": "examined",
+      "q3": "examined",
+      "q4": "examined",
+      "q5": "examined",
+      "q6": "examined",
+      "q7": "examined",
+      "q8": "examined",
+      "q9": "examined",
+      "q10": "examined"
+    }
+  }
+}

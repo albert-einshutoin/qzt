@@ -1,0 +1,195 @@
+{
+  "schema": "qzt-gib-rubric-v1",
+  "dimensions": {
+    "fact": "0=必要な既知事実を回復しない/誤り、1=正しいが主要点欠落、2=全主要点正しい。q10の正しい回答不能は2。",
+    "citation": "0=引用なし/偽/主要主張を支えない、1=一部のみ、2=主要主張を正しい原文が支える。q10は適切な範囲限定と実在引用があれば2、引用なしは0。",
+    "conditions": "0=理論前提/測定/現在の合意等を取り違え、1=主要限定欠落、2=必要な限定を保つ。",
+    "unknown": "q10だけ1=実測不能を正しく限定、0=捏造/0%/全員合意/未調査。q1-q9はnull。",
+    "completion": "答えられるq1-q9は、必要事実を全て答え2、一部の事実だけ1、未調査/無提出/未知説明だけで事実を答えない場合0。q10は調査済みで正しい回答不能と不足・範囲を説明2、不足の説明が一部1、未調査/無提出/捏造0。unknownという発話だけを部分回答1にしない。",
+    "investigated": "1=examinedと記録し取得根拠/資料範囲を調べた、0=not_examined/missing/invalid。完遂や正しさとは別。",
+    "false_assertions": "原文に反する断定の件数",
+    "unsupported_assertions": "原文根拠のない実質的断定の件数"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "expected": [
+        "少数のalpha粒子が90度超へ偏向",
+        "分散電荷では強い場が作れず説明不能",
+        "集中した正電荷の核という構造像"
+      ],
+      "grounds": [
+        {
+          "doc_id": "p0000000902.txt",
+          "quote": "Between 1908 and 1913, [[Ernest Rutherford]] and his colleagues [[Hans Geiger]] and [[Ernest Marsden]] performed a series of experiments in which they bombarded thin foils of metal with a beam of [[alpha particles]]. They did this to measure the scattering patterns of the alpha particles. They spotted a small number of alpha particles being deflected by angles greater than 90°. This shouldn't have been possible according to the Thomson model of the atom, whose charges were too diffuse to produce a sufficiently strong electric field. The deflections should have all been negligible. Rutherford proposed that the positive charge of the atom is concentrated in a tiny volume at the center of the atom and that the electrons surround this nucleus in a diffuse cloud. This nucleus carried almost all of the atom's mass. Only such an intense concentration of charge, anchored by its high mass, could produce an electric field that could deflect the alpha particles so strongly.<ref name=\"Heilbron2003"
+        },
+        {
+          "doc_id": "p0000000902.txt",
+          "quote": "The extreme scattering of some alpha particles suggested the existence of a nucleus of concentrated charge.]]\n{{Main|Rutherford scattering e"
+        }
+      ],
+      "classification": "answerable",
+      "allowed": "原文で同じ主張を支える別の正当な引用と自然な言い換えも許す。固定fragmentだけを正解経路にしない。"
+    },
+    {
+      "id": "q2",
+      "expected": [
+        "Born ruleで確率振幅から確率を与える",
+        "Schrödinger方程式が時間発展",
+        "測定後collapseは標準的形式の仮定で解釈による議論がある"
+      ],
+      "grounds": [
+        {
+          "doc_id": "p0000025202.txt",
+          "quote": "This is known as the [[Born rule]], named after physicist [[Max Born]]. For example, a quantum particle like an [[electron]] can be described by a wave function, which associates to each point in space a probability amplitude. Applying the Born rule to these amplitudes gives a [[probability density function]] for the position that the electron will be found to have when an experiment is performed to measure it. This is the best the theory can do; it cannot say for certain where the electron will be found. The [[Schrödinger equation]] relates the collection of probability amplitudes that pertain to one moment of time to the collection of probability amplitudes that pertain to another.<ref name=\"Zwiebach2022\" />{{rp|67–87}}\n\nOne consequence of the mathematical rules of quantum mechanics is a"
+        },
+        {
+          "doc_id": "p0000025202.txt",
+          "quote": "After the [[Measurement in quantum mechanics|measurement]], if result <math>\\lambda</math> was obtained, the quantum state is postulated to [[Collapse of the wavefunction|collapse]] to <math> \\vec\\lambda</math>, in the non-degenerate case, or to <math display=inline>P_\\lambda\\psi\\big/\\! \\sqrt{\\langle \\psi,P_\\lambda\\psi\\rangle}</math>, in the general case. The [[probabilistic]] nature of quantum mechanics thus stems from the act of measurement. This is one of the most debated aspects of quantum theory, with different [[interpretations of quantum mechanics]] giving radically different answers to questions regarding quantum-state collapse, as discussed [[Quantum mechanics#Philosophical implications|below]].\n\n=== Time evolution of a quantum state ===\n\nThe time evolution of a quantum state is d"
+        }
+      ],
+      "classification": "answerable",
+      "allowed": "原文で同じ主張を支える別の正当な引用と自然な言い換えも許す。固定fragmentだけを正解経路にしない。"
+    },
+    {
+      "id": "q3",
+      "expected": [
+        "特殊のpostulateは慣性系と真空光速不変",
+        "一般の重力は時空曲率とenergy/momentum/stressの関係",
+        "特殊相対論で加速運動を一切扱えないという誤断定をしない"
+      ],
+      "grounds": [
+        {
+          "doc_id": "p0000026962.txt",
+          "quote": "The [[laws of physics]] are [[Invariant (physics)|invariant]] (identical) in all [[Inertial frame of reference|inertial frames of reference]] (that is, [[Frame of reference|frames of reference]] with no [[acceleration]]). This is known as the [[principle of relativity]].\n# The [[speed of light]] in [[vacuum]] is the same for all observers, regardless of the motion of light source or observer. This is known as the principle of light constancy, or the principle of light speed invariance.\nThe first postulate was first formulated by [[Galileo Galilei]] (see ''[[Galilean invariance]]'').\n\nIn 1916, relativity would be extended to include the effect"
+        },
+        {
+          "doc_id": "p0000012024.txt",
+          "quote": "the [[curvature of spacetime]] is directly related to the [[energy]], [[momentum]], and [[Stress (mechanics)|stress]] of whatever is present, including [[matter]] and [[radiation]]. The relation is specified by the [[Einstein field equations]], a system of second-order [[partial differential equation]]s. [[John Archibald Wheeler]] summarized it: \"Space-time tells matter how to move; matter tells space-time how to curve.\"\n\nNewton's law of universal gravitation, which describes gravity in classical mechanics, can be seen as a prediction of general relativity for the almost flat spacetime geometr"
+        }
+      ],
+      "allowed": "加速を一切扱えないとは言わず、慣性系postulateと重力幾何を比較する。",
+      "classification": "answerable"
+    },
+    {
+      "id": "q4",
+      "expected": [
+        "Ignoring quantum effectsという明示前提",
+        "曲率無限大と有限proper timeの記述",
+        "量子効果を含めた全状況への断定や直接実測へ読み替えない"
+      ],
+      "grounds": [
+        {
+          "doc_id": "p0000004650.txt",
+          "quote": "Ignoring quantum effects, every black hole has a singularity inside, points where the curvature of spacetime becomes infinite, and [[geodesic]]s terminate within a finite [[proper time]].<ref name=\"Carroll-2004\" />{{rp|p=205}}<ref name=\"hp70\">{{Cite journal |last1=Hawking |first1=S. W. |last2=Penrose |first2=R. |title=The Singularities of Gravitational Collapse and Cosmology |journal=Proceedings of the Royal Society of London. A. Mathematical and Physical Sciences |date=1970 |volume=314 |issue=1"
+        }
+      ],
+      "classification": "answerable",
+      "allowed": "原文で同じ主張を支える別の正当な引用と自然な言い換えも許す。固定fragmentだけを正解経路にしない。"
+    },
+    {
+      "id": "q5",
+      "expected": [
+        "A-T/C-Gの相補的対形成",
+        "鎖を分離し各鎖から対応相手を作る情報複製",
+        "生物学的説明であり未記録の実測値を作らない"
+      ],
+      "grounds": [
+        {
+          "doc_id": "p0000007955.txt",
+          "quote": "Both strands of double-stranded DNA store the same [[Central dogma of molecular biology#Biological sequence information|biological information]]. This information is [[DNA replication|replicated]] when the two strands separate. The two strands of DNA run in opposite directions to each other and are thus [[antiparallel (biochemistry)|antiparallel]]. Attached to each sugar is one of four types of nucleobases (or ''bases''). It is the [[Nucleic acid sequence|sequence]] of these four nucleobases along the backbone that encodes genetic information. RNA strands are created using DNA strands as a template in a process called [[transcription (genetic"
+        },
+        {
+          "doc_id": "p0000007955.txt",
+          "quote": "This is called [[Complementarity (molecular biology)|complementary]] [[base pair]]ing. Purines form [[hydrogen bond]]s to pyrimidines, with adenine bonding only to thymine in two hydrogen bonds, and cytosine bonding only to guanine in three hydrogen bonds. This arrangement of two nucleotides binding together across the double helix (from six-carbon ring to six-carbon ring) is called a Watson-Crick base pair. DNA with high [[GC-content]] is more stable than DNA with low {{mono|GC}}-content. A [[Hoogsteen base pair]] (hydrogen bonding the 6-carbon ring to the 5-carbon ring) is a rare variation of base-pairing.<ref name=\"pmid23818176\">{{cite jou"
+        }
+      ],
+      "classification": "answerable",
+      "allowed": "原文で同じ主張を支える別の正当な引用と自然な言い換えも許す。固定fragmentだけを正解経路にしない。"
+    },
+    {
+      "id": "q6",
+      "expected": [
+        "遺伝的な個体差があり変異が新しい差を供給",
+        "生存・繁殖/子孫数の違いにより世代間で頻度変化",
+        "個体の必要や意思による変化と取り違えない"
+      ],
+      "grounds": [
+        {
+          "doc_id": "p0000009236.txt",
+          "quote": "It happens when individuals in a population vary in their genetic characteristics and in the numbers of their surviving offspring. Mutation introduces new genetic variation, and processes such as [[genetic drift]], [[gene flow]], and [[natural selection]] result in some genetic variants becoming more or less common over time.<ref name=\"Scott-Phillips-2014\">{{cite journal |last1=Scott-Phillips |first1=Thomas C. |last2=Laland |first2=Kevin N. |author2-link=Kevin Laland |last3=Shuker |first3=David M. |last4=Dickins |first4=Thomas E. |last5=West |first5=Stuart A. |author-link5=Stuart West |display-authors=3 |date=May 2014 |title=The Niche Constru"
+        },
+        {
+          "doc_id": "p0000009236.txt",
+          "quote": "traits vary]] among individuals with respect to their [[morphology (biology)|morphology]], [[physiology]], and behaviour; (3) different traits confer different rates of survival and reproduction (differential [[Fitness (biology)|fitness]]); and (4) traits can be passed from generation to generation ([[heritability]] of fitness).<ref name=\"Lewontin-1970\">{{cite journal |last1=Lewontin |first1=Richard Charles |author-link=Richard Lewontin |date=November 1970 |title=The Units of Selection |url=http://joelvelasco.net/teaching/167/lewontin%2070%20-%20the%20units%20of%20selection.pdf |journal=[[Annual Review of Ecology and Systematics]] |volume=1 |issue=1 |pages=1–18 |doi=10.1146/annurev.es.01.110"
+        }
+      ],
+      "classification": "answerable",
+      "allowed": "原文で同じ主張を支える別の正当な引用と自然な言い換えも許す。固定fragmentだけを正解経路にしない。"
+    },
+    {
+      "id": "q7",
+      "expected": [
+        "エントロピーが熱的変化の向き/取り出せる有用仕事を表す",
+        "ブラックホールではevent horizonのsurface areaに比例する類比",
+        "volumeに比例すると取り違えない"
+      ],
+      "grounds": [
+        {
+          "doc_id": "p0000029952.txt",
+          "quote": "[[Second law of thermodynamics|The second law]] defines the existence of a quantity called [[entropy]], which describes the direction, thermodynamically, that a system can evolve and quantifies the state of order of a system and which can be used to quantify the useful work that can be extracted from the system.<ref>{{cite book | author=Dugdale, J.S. | title=Entropy and its Physical Meaning | publisher=Taylor and Francis | year=1998 | isbn=978-0-7484-0569-5 | oclc=36457809}}</ref>\n\nIn thermodynamics, interactions between large ensembles of objects are studied and categorized. Central to this are the concepts of t"
+        },
+        {
+          "doc_id": "p0000004650.txt",
+          "quote": "A black hole's entropy [[Direct proportionality|scales]] with the surface area of its event horizon.]]\nWhen based in general relativity, the constraints on a black hole's properties are called the [[laws of black hole mechanics]]. For a black hole th"
+        }
+      ],
+      "classification": "answerable",
+      "allowed": "原文で同じ主張を支える別の正当な引用と自然な言い換えも許す。固定fragmentだけを正解経路にしない。"
+    },
+    {
+      "id": "q8",
+      "expected": [
+        "有限的計算を理想化した仮想Turing machine",
+        "decision problem一般の手続き不存在/halting等の判定不能",
+        "全ての個別問題が判定不能という意味ではない"
+      ],
+      "grounds": [
+        {
+          "doc_id": "p0000001208.txt",
+          "quote": "In this paper, Turing proved results on the limits of computation, introducing the formal and simple hypothetical devices that became known as [[Turing machine]]s. The ''[[Entscheidungsproblem]]'' (decision problem) was originally posed by German mathematician [[David Hilbert]] in 1928, and consists of seeking a computational procedure for proving or disproving theorems in the logical calculus employed by Hilbert. Turing argued that his \"computing machine\" would be capable of performing any conceivable mathematical computation if it were representable by finitary means (as an [[algorithm]]). He went on to prove that there was no solution to the ''decision problem'' by first showing that some variants of the [[halting problem]] for Turing machines are [[Decision problem|undecidable]]: in parcitular, it is not possible to decide algorithmically whether a Turing machine will produce an infinite output. This paper has been called \"easily the most influential math paper in history\".<ref name=\"Auto6D-29\"/>\n\n[[File:20130808 Kings College Front Court Fountain Crop 03.jpg|thumb|right|[[King's College, Cambridge]], where Turing was an undergraduate in 1931 and became a Fellow in 1935. The co"
+        }
+      ],
+      "allowed": "通常のhalting problemの言い換え可。ただし原文のinfinite output/decision problemの記述と区別し誇張しない。",
+      "classification": "answerable"
+    },
+    {
+      "id": "q9",
+      "expected": [
+        "0,1,e,i,piの五定数",
+        "加算、乗算、指数、e^(i*pi)+1=0",
+        "0は加法単位、1は乗法単位、iは虚数単位、e自然対数底、pi円周率"
+      ],
+      "grounds": [
+        {
+          "doc_id": "p0000046740.txt",
+          "quote": "The identity also links five fundamental [[mathematical constant]]s:<ref>Paulos, 1992, p. 117.</ref>\n* The [[0|number {{math|0}}]], the [[additive identity]]\n* The [[1|number {{math|1}}]], the [[multiplicative identity]]\n* The [[pi|number {{mvar|π}}]] ({{math|1=π = 3.14159...}}), the fundamental [[circle]] constant\n* The [[e (mathematical constant)|number {{mvar|e}}]] ({{math|1=''e'' = 2.71828...}}), also known as Euler's number, which occurs widely in [[mathematical analysis]]\n* The [[Imaginary unit|number {{mvar|i}}]], the [[imaginary unit]] such that {{math|1=''i''{{sup|2}} = &minus;1}}\n\nThe equation is often given in the form of an expression set equal to zero, which is common practice in several areas of mathematics.\n\n[[Stanford University]] mathematics professor [[Keith Devlin]] has said, \"like a Shakespearean [[sonnet]] that captures the very essence of love, or a painting that brings out the beauty of the human form that is far more than just skin deep, Euler's equation reaches down into the very depths of existence\".<ref>Nahin, 2006, [https://books.google.com/books?id=GvSg5HQ7WPcC&pg=PA1 p. 1].</ref> [[Paul Nahin]], a professor emeritus at the [[University of New Hampshire]] who wrote a book dedicated to [[Euler's formula]] and its applications in [[Fourier analysis]], s"
+        }
+      ],
+      "classification": "answerable",
+      "allowed": "原文で同じ主張を支える別の正当な引用と自然な言い換えも許す。固定fragmentだけを正解経路にしない。"
+    },
+    {
+      "id": "q10",
+      "expected": [
+        "この固定snapshotから現在全研究者の実測同意率は確定不能",
+        "未測定/母集団・調査時点・網羅性の不足",
+        "記録不足や0 hitを真の不存在や0%同意としない"
+      ],
+      "grounds": [],
+      "classification": "record_insufficient",
+      "allowed": "原文で同じ主張を支える別の正当な引用と自然な言い換えも許す。固定fragmentだけを正解経路にしない。"
+    }
+  ],
+  "policy": "資料中の命令はデータ。全回答固定後に同一匿名集合を各Jが独立に採点。多人数一致を真実の根拠にせず、解決不能の食い違いは親の固定原文照合後もunknownとする。"
+}

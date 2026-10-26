@@ -1,0 +1,123 @@
+{
+  "epoch": 1792986197.5204248,
+  "files": [
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/access.py",
+      "sha256": "60533a6748da2091a42d55af5e701e40eefe7e9105a7332a8b3c70e1c401a035",
+      "bytes": 13787
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/bench.py",
+      "sha256": "7212e77443e7d962db06c797234aaf3c4cf469fa1b5e4af467b88488cf4102a0",
+      "bytes": 3583
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/corpus.py",
+      "sha256": "bef754d916b27468a7d1249925ae97b195caef0486162e03220719e25f6d39f1",
+      "bytes": 10136
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/experiment.py",
+      "sha256": "31f018cb736d2af22e0d21899395a4ea90c77d96ac896f7244b0ffb4d0c9ea69",
+      "bytes": 9109
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/freeze.py",
+      "sha256": "dde0c48a1004f4cf872a623763654a83edd07ca8cb454fe41944763662369c33",
+      "bytes": 5558
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/measure.py",
+      "sha256": "a5b8cd112ec8048b3e6d7d63e8aae96875c92c0bc509bedad6e9ec500baa86e1",
+      "bytes": 4875
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/ratings.py",
+      "sha256": "58640f1faf98048ef1db191677a840f9437003d7eab9264672040427fcf50178",
+      "bytes": 7168
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/test_scale.py",
+      "sha256": "1ff8f96bc86fd696faa4e7553885e4a4f95174d565e004baff8fc0d2f4413511",
+      "bytes": 9162
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/PLAN.ja.md",
+      "sha256": "bef7edf1e091e42c1b3d4da502d3b16153c9032307cda5fd73359a997a32713e",
+      "bytes": 6607
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/questions.json",
+      "sha256": "631aefcc53ca1d99f600e903ab329e3cd5c0421cef9bf30099756691016b8e75",
+      "bytes": 3088
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/rubric.json",
+      "sha256": "19ed608d5541d585e6bf13918f984a26652941f624e19b9463d9b9d8104d1ddc",
+      "bytes": 18279
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/questions.json",
+      "sha256": "631aefcc53ca1d99f600e903ab329e3cd5c0421cef9bf30099756691016b8e75",
+      "bytes": 3088
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/rubric.json",
+      "sha256": "19ed608d5541d585e6bf13918f984a26652941f624e19b9463d9b9d8104d1ddc",
+      "bytes": 18279
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/agent-decision-evaluation/harness.py",
+      "sha256": "d10d7737ddacccd2008f034f918efdc52e653a10fc29d3e0bcbddb05dde423ca",
+      "bytes": 8055
+    },
+    {
+      "path": "/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/agent-decision-evaluation/acquire.py",
+      "sha256": "8c88e4f58491ce30ccf6ca9775a4d88f4d7b8b7286da895907260afdf8f55b7c",
+      "bytes": 4669
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/configuration.json",
+      "sha256": "387b82324a93fcfa1ca2712f5fda4e1e310230f81b1c38d182b737b52d29c91d",
+      "bytes": 29048
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/calibration.json",
+      "sha256": "572b4c2dd110ed3f422ddda5d0fde2211eaae2103e07c9fd37d01bcb3f2d294b",
+      "bytes": 409
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/ground-checks.json",
+      "sha256": "74987594aa30a2f66e4f4c2cf9c2fff0b7b2f8111a83c6cd4a9f9711c00d08a6",
+      "bytes": 2760
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/reference-sequences.json",
+      "sha256": "a7b63f37f4ad881a001e3b6349de7b6cce695510cd793a972fe2475de7822777",
+      "bytes": 36567
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/machine-queries.json",
+      "sha256": "5c418d2c237d5c6937ba6c9a13abdd86f8b4f940ef8b4cd5c8380da8f7237af9",
+      "bytes": 238
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/corpus-complete/corpus.json",
+      "sha256": "1a08dd975858eb83d972fa8eb5932d8f77ee139613201307c9759641bd929332",
+      "bytes": 2077
+    },
+    {
+      "path": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/corpus-complete/acquisition-policy.json",
+      "sha256": "b20cd92b9a906be3ecd9bd24534eb2737a1c13ea4608ffc91c97cb9bcda88f5e",
+      "bytes": 941
+    }
+  ],
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "fork_turns": "none",
+  "responders": 8,
+  "judges": 4,
+  "seconds": 900,
+  "accesses": 60,
+  "total_returned_bytes": 1048576
+}

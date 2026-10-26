@@ -1,0 +1,272 @@
+{
+  "schema": "qzt-gib-public-evidence-v1",
+  "base_core": "1562940cf9a93e885d32faf0f838a5b288d96497",
+  "created_epoch": 1792989304.54896,
+  "files": [
+    {
+      "path": "examples/gib-scale-evaluation/PLAN.ja.md",
+      "bytes": 6607,
+      "sha256": "bef7edf1e091e42c1b3d4da502d3b16153c9032307cda5fd73359a997a32713e"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/README.ja.md",
+      "bytes": 9802,
+      "sha256": "f1c3706d72aaa96626b493acf4a7ad9cb6cd348c12c25748b7332de2a4e4e2e7"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/RESULT.ja.md",
+      "bytes": 17340,
+      "sha256": "e74917c8086b2275dc8a261ed5cd6178e239022f8a2664a18eb21ae01a712488"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/access.py",
+      "bytes": 13787,
+      "sha256": "60533a6748da2091a42d55af5e701e40eefe7e9105a7332a8b3c70e1c401a035"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/bench.py",
+      "bytes": 3583,
+      "sha256": "7212e77443e7d962db06c797234aaf3c4cf469fa1b5e4af467b88488cf4102a0"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/corpus.py",
+      "bytes": 10136,
+      "sha256": "bef754d916b27468a7d1249925ae97b195caef0486162e03220719e25f6d39f1"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/access-events.json.gz",
+      "bytes": 87089,
+      "sha256": "e677a57bd2a616b493593cb60e6ed378554ddf7e25110a30d02facc5e36bce4b"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/acquisition-policy.json",
+      "bytes": 941,
+      "sha256": "b20cd92b9a906be3ecd9bd24534eb2737a1c13ea4608ffc91c97cb9bcda88f5e"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/adjudication-source-grounds.json",
+      "bytes": 3932,
+      "sha256": "44df375c8cfed3e37e139fd9dde0826ba9ed739e9f4396fe4b5cc542aed10d8a"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/adjudication.json",
+      "bytes": 52318,
+      "sha256": "e61e7bd7631c40d7dc9f165e18a0ba901d8aa04a37ce2f827d7e681ac84e5ef0"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/agent-launches.json",
+      "bytes": 51935,
+      "sha256": "e0c2ebc7fd1c01c5e99ce323540a8f6b992ee6e81007538ed23068b23030b9a3"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/anonymous-input.json.gz",
+      "bytes": 65235,
+      "sha256": "1cbae8a3232f41999ba826a517f727e931ea6621298165ef9959ca7eb2d0bf7e"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/anonymous-map.json",
+      "bytes": 1147,
+      "sha256": "7f25ea4ba09b3a262395f62b210f001bf5c77da817dc5cdd40f78595cdea5af2"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/answer-freeze.json",
+      "bytes": 60992,
+      "sha256": "8ecc462cebf334b9f9c00349d2ffc6c32defed12666e5be7ad15cf609ce2e588"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/answers.json",
+      "bytes": 163229,
+      "sha256": "5a1b347991e97cfa00ffca00c46fb077b9fe689af038a78a20f079ba9b3d203d"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/build-receipt.json",
+      "bytes": 419,
+      "sha256": "ec09e3d0d9315bb069d9a6ed572499b130aab52c6d87812bf4379a31d4b730a6"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/calibration.json",
+      "bytes": 409,
+      "sha256": "572b4c2dd110ed3f422ddda5d0fde2211eaae2103e07c9fd37d01bcb3f2d294b"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/citation-ownership-checks.json",
+      "bytes": 52549,
+      "sha256": "bb5a6ce742bdb43cc6a48b13c7033fdd81e08da7f981e515ac0ee34ba9700669"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/configuration.json",
+      "bytes": 29048,
+      "sha256": "387b82324a93fcfa1ca2712f5fda4e1e310230f81b1c38d182b737b52d29c91d"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/construction-measurements.json.gz",
+      "bytes": 92107,
+      "sha256": "876095e840c7338c8c8b3c071ee6344cf89baa34a09965a1049cda7a31adc7b0"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/corpus.json",
+      "bytes": 2077,
+      "sha256": "1a08dd975858eb83d972fa8eb5932d8f77ee139613201307c9759641bd929332"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/end-integrity.json",
+      "bytes": 312,
+      "sha256": "7017cf808b2c3f4972409e0ac272c468f4fd1fc301c86fac10d9666db6dbb490"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/gate-p2-correction.json",
+      "bytes": 2976,
+      "sha256": "b670b4fcf0e47020dd235205fba874ac24660f0a45b9fdfbd2aa0fffd2bd6eb6"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/ground-checks.json",
+      "bytes": 2760,
+      "sha256": "74987594aa30a2f66e4f4c2cf9c2fff0b7b2f8111a83c6cd4a9f9711c00d08a6"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/host.json",
+      "bytes": 1173,
+      "sha256": "a61dce2f7170c4bfeaec57a6eb5f5b342a116f355f223323ce31247ba30b9fa6"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/inventory.jsonl.gz",
+      "bytes": 3194034,
+      "sha256": "964b05ee296b99db8557023b4746dc484357ef91db1c8ea20a41156d7c7bb369"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/judge-freeze.json",
+      "bytes": 1366,
+      "sha256": "80928a707ca71f3ca69345f02f8434543b4fa4acb93239aa9bcb7bcef1bc9ce4"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/judge-runs.json",
+      "bytes": 2484,
+      "sha256": "4e1712af8c9f67ca120af211e02dfef282756e1bf896c7ab41d6a39b96fc676f"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/judge-scores.json",
+      "bytes": 148937,
+      "sha256": "829587ca4b0d0856f3ef7d516b4cd9c999f6a0f33ff599d503e20e41d918a4c1"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/local-validation.json",
+      "bytes": 1966,
+      "sha256": "100526e8de92137f80af94bfa10c6dac222614d40019b720f86f757a7b9d60ca"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/machine-queries.json",
+      "bytes": 238,
+      "sha256": "5c418d2c237d5c6937ba6c9a13abdd86f8b4f940ef8b4cd5c8380da8f7237af9"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/machine-results.json",
+      "bytes": 19148,
+      "sha256": "14c63bfdd048e245c50b6300a2be97ea82ad5d98cda7f05e56adcdd3794647c3"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/main-freeze.json",
+      "bytes": 5165,
+      "sha256": "ded25a09bd94c7c013a15c84a363093ab3c6f661aeae01640b72c705049e19c4"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/measured-harness-source.json.gz",
+      "bytes": 20104,
+      "sha256": "47fd7fb160fbccfabe965df8d761324d8372228e05e7690668fae9c21631c339"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/preparation.json",
+      "bytes": 43809,
+      "sha256": "f92eb5fb95ee7bd79810020907d5a21b4008a87069904822acf460780190bb13"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/quote-checks.json",
+      "bytes": 18067,
+      "sha256": "4f9f5d8726d74356f5ee0d71bd2f1998d876e3173aa1e9c6ef72b85e50512faa"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/reference-sequences.json",
+      "bytes": 36567,
+      "sha256": "a7b63f37f4ad881a001e3b6349de7b6cce695510cd793a972fe2475de7822777"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/responder-runs.json",
+      "bytes": 8642,
+      "sha256": "d94df85d169266d14d36874ddaada124440efe6177008502fcefd031d55752ad"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/roundtrip-validation.json",
+      "bytes": 3201,
+      "sha256": "d48fe7b57de75afeeba297812f7ddce7f6299d03f2cad7db2f82816bb2c13dcb"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/run-plan.json",
+      "bytes": 3203,
+      "sha256": "dcce2902c1f4a0325267726c57c9dc1255c3f035b174df706bb296597f649e43"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/setup-correction.json",
+      "bytes": 855,
+      "sha256": "7ab928420c0bee0ba57692b458bbcb10e2a6fec805498b6b289c45c4b09bd94e"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/stop-review.json",
+      "bytes": 5535,
+      "sha256": "18fae0b54c62967613ceea13e4a165f88a935e143771454d66c1d17feebe8d51"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/storage-observation.json",
+      "bytes": 599,
+      "sha256": "4c5726da8eeb19b278a932df704c91666b149421a21bc375767e2c29bee087c8"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/evidence/whole-index-default.stderr.txt",
+      "bytes": 828,
+      "sha256": "9bea6c5bbde1703b02498855509ca6765da97d3d0d80397f554f29630f932ef4"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/experiment.py",
+      "bytes": 9639,
+      "sha256": "53394557ea9fcd6344dbeae4ce2e1fedc399aa33b148d8bc269971a4d5f39596"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/freeze.py",
+      "bytes": 5689,
+      "sha256": "0a09be0f9298119d34640aaf18017c093fead64a417f5bd31ba55509767867d3"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/measure.py",
+      "bytes": 4875,
+      "sha256": "a5b8cd112ec8048b3e6d7d63e8aae96875c92c0bc509bedad6e9ec500baa86e1"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/questions.json",
+      "bytes": 3088,
+      "sha256": "631aefcc53ca1d99f600e903ab329e3cd5c0421cef9bf30099756691016b8e75"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/ratings.py",
+      "bytes": 7168,
+      "sha256": "58640f1faf98048ef1db191677a840f9437003d7eab9264672040427fcf50178"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/rubric.json",
+      "bytes": 18279,
+      "sha256": "19ed608d5541d585e6bf13918f984a26652941f624e19b9463d9b9d8104d1ddc"
+    },
+    {
+      "path": "examples/gib-scale-evaluation/test_scale.py",
+      "bytes": 13997,
+      "sha256": "5ce724dcb0019d9bb068bdb2969e5f68d8dafb56d8b2cdd28481d7bd0c37bd3e"
+    },
+    {
+      "path": "scripts/test_gib_scale_evaluation.py",
+      "bytes": 463,
+      "sha256": "1608a515fb6ae60f197d864e75bb9d0598c6373cc5f1e732d0b20e324a54cd9a"
+    }
+  ],
+  "measured_code_authority": "evidence/main-freeze.json plus measured-harness-source.json.gz; current reproduction code contains post-measurement P2 hardening",
+  "local_raw_root": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026",
+  "raw_policy": "original archives/plain/QZT/QZI/binary/full native stdout and aborted trials are local-only; published SHA/metadata/excerpts are bounded evidence, not full raw replay",
+  "license": "code MIT OR Apache-2.0; Wikipedia source excerpts and derived quoted materials CC BY-SA 4.0 with README revision/history attribution",
+  "limits": "model money/tokens, cold cache, OS IO, human validity/demand unknown; static gate distinct from CI/merge/Goal"
+}

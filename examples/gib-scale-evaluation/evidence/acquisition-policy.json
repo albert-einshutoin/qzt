@@ -1,0 +1,23 @@
+{
+  "urls": [
+    "https://dumps.wikimedia.org/enwiki/20261001/enwiki-20261001-sha1sums.txt",
+    "https://dumps.wikimedia.org/enwiki/20261001/enwiki-20261001-pages-articles-multistream1.xml-p1p41242.bz2",
+    "https://dumps.wikimedia.org/enwiki/20261001/enwiki-20261001-pages-articles-multistream2.xml-p41243p151573.bz2"
+  ],
+  "limits": {
+    "network_bytes": 1073741824,
+    "per_get_seconds": 900,
+    "total_seconds": 1800,
+    "body_target": 1181116006,
+    "body_max": 1288490188,
+    "document_max": 4194304
+  },
+  "saved_before_get_epoch": 1792983451.456396,
+  "credentials": false,
+  "redirect": false,
+  "license": "CC BY-SA 4.0",
+  "dedup": "exact raw UTF8 SHA256 first occurrence",
+  "source_order": "archive1 then archive2; page ID ascending; stop at whole article after raw bytes target",
+  "reuse_verified_from": "/Volumes/Satechi/PersonalAgentArtifacts/qzt-gib-20261026/corpus",
+  "carried_network_upper_bound": 528149208
+}

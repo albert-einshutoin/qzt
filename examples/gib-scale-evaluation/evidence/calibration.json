@@ -1,0 +1,24 @@
+{
+  "records": [
+    {
+      "condition": "10m",
+      "index_exit": 0
+    },
+    {
+      "condition": "spread-0",
+      "index_exit": 0
+    },
+    {
+      "condition": "spread-1",
+      "index_exit": 0
+    },
+    {
+      "condition": "spread-2",
+      "index_exit": 0
+    }
+  ],
+  "chosen_index": "token",
+  "shard_max_bytes": 8388608,
+  "explicit_budget_conditions": [],
+  "subsets_are_not_primary": true
+}

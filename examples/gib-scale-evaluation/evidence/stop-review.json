@@ -1,0 +1,25 @@
+{
+  "model": "gpt-5.6-sol",
+  "effort": "medium",
+  "thread_id": "01a1766e-da64-7690-9f1f-53045cf3542c",
+  "initial": {
+    "status": 0,
+    "threadId": "01a1766e-da64-7690-9f1f-53045cf3542c",
+    "rawOutput": "BLOCK: touched=[]\n\nP1なし。具体的なP2が2件あります。\n\n- P2 — [experiment.py:119](/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/experiment.py:119)、[freeze.py:43](/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/freeze.py:43)  \n  再現条件: `layout`／main freeze後、`material/qzt`を別の実行可能binaryへ置換して`prepare`する。`configuration.binary_sha256`との照合なしに実行され、`assets`も現在のbinaryを新たに封印するだけで期待SHAとの一致を要求しない。  \n  影響: 固定binary由来という入力・出力根拠が再現経路ではfail-closedにならず、別binaryの結果を正規評価として保存できる。今回の親による外部hash確認を否定するものではないが、再実行契約を満たさない。  \n  最小修正: `prepare`開始時・終了時と`assets`封印前に、binaryのbytes/SHAを`configuration.binary_sha256`へ照合し、不一致なら全体を失敗させる。\n\n- P2 — [experiment.py:129](/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/experiment.py:129)  \n  再現条件: 単体`sidecar-rebuild`が想定したresource-limitではなく、権限・破損・内部エラー等で非0終了し、`whole.qzi`を残さない一方、142 shard操作は成功する。現在は任意の非0を受理して`preparation.json`まで成功保存する。  \n  影響: 想定外の失敗を「既定単体indexの規模拒否」として扱えるため、不正な成功扱いと拒否条件の根拠不整合が生じる。  \n  最小修正: frozen条件で期待するexit値とresource-limit診断を限定照合する。想定外の非0は失敗、exit 0も今回の固定条件との差として停止させる。\n\n確認済み:\n\n- manifest形状・宣言順、`readFiles` 29件・`hashOnly` 22件の全bytes/SHAが一致。最終再hashも一致。\n- 実原文1,181,143,804 bytes、142 shard、23,743文書、機械48記録・既知参照666回、427 gateway操作、8回答・4採点、期限、75/80、q1全8件unknown、追加断定11件の集計はreadFiles間で整合。\n- Core/Cargo/CIはbaseからtracked差分なし、対象内untracked 0件。\n- 編集、テスト、benchmark、network、CI、subagent、git mutationは未実施。\n\n静的限界: `hashOnly`本文を読んでいないため、raw回答・raw採点・192引用照合・単体index stderr・開始終了hash・中断3試行の内容は、登録bytes/SHAとreadFiles側集計以上には独立検証していません。これはローカル静的Gateであり、CI、merge、Goal完了の証明ではありません。\n\n",
+    "touchedFiles": [],
+    "reasoningSummary": []
+  },
+  "direct_p2_recheck": {
+    "status": 0,
+    "threadId": "01a1766e-da64-7690-9f1f-53045cf3542c",
+    "rawOutput": "ALLOW: touched=[]\n\n先のP2 2件はいずれも解消しています。同根の具体的P1/P2はありません。\n\n- [experiment.py:28](/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/experiment.py:28)のSHA照合が、`prepare`開始前と成功保存前に実施されています。\n- [freeze.py:37](/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/freeze.py:37)は封印前に検査し、実際のbinary entryも期待SHAと照合します。\n- [experiment.py:133](/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/experiment.py:133)はexit 1かつ正確な先頭診断だけを受理します。空診断もcanonical `ValueError`となり、他の結果はshard前に停止します。\n- [test_scale.py:151](/Users/shutoide/.codex/worktrees/qzt-gib-evaluation/qzt/examples/gib-scale-evaluation/test_scale.py:151)以降に、binary変更、想定外index結果、実行中変更、封印時不一致、および正しい拒否からshardへ進むpositiveが揃っています。\n- README/RESULTは、旧実測コードと現行補強コード、fresh-root再現と旧root非fallbackを明確に区別しています。\n\nmanifestは`readFiles` 6件、`hashOnly` 1件の全bytes/SHAが一致し、最終再hashも一致しました。編集、test/benchmark、network、CI等は実行していません。\n\n静的限界: `measured-harness-source.json.gz`の本文は読んでいないため、旧main-freezeとの8コード本文一致はarchiveの登録bytes/SHAとreadFiles側receipt以上には独立検証していません。17/17、58件中57成功・1 skip、元実測のbinary SHA/exit/診断も保存記録の静的確認に限定され、1 GiB構築・拒否やCIの再実行証明ではありません。",
+    "touchedFiles": [],
+    "reasoningSummary": []
+  },
+  "initial_scope_sha256": "466fe81af0db41d0db59bb429f9e348159acfa4bb745457ab9c20e1c3e9cebdc",
+  "final_scope_sha256": "ed4577918c4a92374687afca524d586bdd15ec2baa2c6b6cc2518734c90c9876",
+  "initial_result_sha256": "cb588817d7ae9d8b587fd7afacbe194f5c05beea95d6d96b4d93fb384b31e3cb",
+  "final_result_sha256": "842fc8aaaba8fc80180e7d9ec2c79673f6b4b7810371421e650e216504eea89e",
+  "final_scope_all_bytes_sha_rechecked": true,
+  "limits": "local static review only; no CI/merge/Goal proof"
+}

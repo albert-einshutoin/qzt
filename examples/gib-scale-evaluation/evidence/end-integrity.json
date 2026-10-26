@@ -1,0 +1,9 @@
+{
+  "source_documents": 23743,
+  "source_bytes": 1181167547,
+  "all_source_and_start_assets_unchanged": true,
+  "joined_and_all_shard_inputs_match_frozen_configuration": true,
+  "seconds": 14.430438708,
+  "epoch": 1792987283.680453,
+  "role": "separate integrity instrumentation, excluded from product timing"
+}

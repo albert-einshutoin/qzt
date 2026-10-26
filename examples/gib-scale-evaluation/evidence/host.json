@@ -1,0 +1,55 @@
+{
+  "observed_epoch": 1792985956.653567,
+  "commands": [
+    {
+      "argv": [
+        "sw_vers"
+      ],
+      "output": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428"
+    },
+    {
+      "argv": [
+        "uname",
+        "-m"
+      ],
+      "output": "arm64"
+    },
+    {
+      "argv": [
+        "sysctl",
+        "-n",
+        "machdep.cpu.brand_string"
+      ],
+      "output": "Apple M4"
+    },
+    {
+      "argv": [
+        "sysctl",
+        "-n",
+        "hw.memsize"
+      ],
+      "output": "34359738368"
+    },
+    {
+      "argv": [
+        "rustc",
+        "-Vv"
+      ],
+      "output": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2"
+    },
+    {
+      "argv": [
+        "cargo",
+        "-V"
+      ],
+      "output": "cargo 1.96.0 (30a34c682 2026-05-25)"
+    },
+    {
+      "argv": [
+        "rg",
+        "--version"
+      ],
+      "output": "ripgrep 15.1.0\n\nfeatures:+pcre2\nsimd(compile):+NEON\nsimd(runtime):+NEON\n\nPCRE2 10.45 is available (JIT is available)"
+    }
+  ]
+}

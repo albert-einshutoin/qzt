@@ -1,0 +1,54 @@
+{
+  "schema": "qzt-gib-corpus-v1",
+  "language": "en",
+  "format": "UTF8 wikitext; XML entities decoded; terminal LF normalized",
+  "raw_body_bytes": 1181143804,
+  "body_bytes": 1181167547,
+  "documents": 23743,
+  "excluded": {
+    "namespace_or_redirect": 7253
+  },
+  "length_bytes": {
+    "min": 48,
+    "median": 30457,
+    "p90": 123775,
+    "max": 658336
+  },
+  "concatenated_sha256": "a945452eb8dc4b9b0f31ebdb36786f25eb1373fd8f1f3b7cde0089c511c8309b",
+  "inventory_sha256": "6ef5a2c53ddb49286356b222408969d9a9065560b19b1c6e52d89df5db5b79d1",
+  "downloads": [
+    {
+      "url": "https://dumps.wikimedia.org/enwiki/20261001/enwiki-20261001-pages-articles-multistream1.xml-p1p41242.bz2",
+      "bytes": 300361909,
+      "sha1": "353bf6ce69fb0ba5e47a5cc13464523e95edb9f7",
+      "sha256": "b41f70467dcd50289ded032873999a8c71087281d845ad27a63addc742431848",
+      "ok": true,
+      "network_bytes": 0,
+      "reused_verified_receipt_sha256": "ccf96b13c20559925e124f9bc1eb3b877aede1fa5cb25e7641e5ad6f17bd5fff"
+    },
+    {
+      "url": "https://dumps.wikimedia.org/enwiki/20261001/enwiki-20261001-pages-articles-multistream2.xml-p41243p151573.bz2",
+      "started_epoch": 1792983484.7340229,
+      "bytes": 407421247,
+      "headers": {
+        "Server": "nginx/1.22.1",
+        "Date": "Mon, 26 Oct 2026 02:58:05 GMT",
+        "Content-Type": "application/octet-stream",
+        "Content-Length": "407421247",
+        "Last-Modified": "Thu, 08 Oct 2026 06:18:13 GMT",
+        "Connection": "close",
+        "ETag": "\"6ac735a5-1848c13f\"",
+        "Strict-Transport-Security": "max-age=106384710; includeSubDomains; preload",
+        "Accept-Ranges": "bytes"
+      },
+      "sha256": "b8cee48b7aae48b9b7418414152ddfcbf9245b57872c6846ea413b836666bb2d",
+      "sha1": "6b2a38013f200d7679ac5de6993c0457a2881016",
+      "seconds": 153.175032292,
+      "ok": true
+    }
+  ],
+  "license": "CC BY-SA 4.0",
+  "attribution": "https://en.wikipedia.org/w/index.php?oldid=<revision_id>; page history credits authors",
+  "raw_local_only": true,
+  "network_bytes_upper_bound": 935816762
+}
